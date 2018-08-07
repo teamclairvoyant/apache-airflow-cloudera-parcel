@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "name": "python",
+  "version": "2.7.14",
+  "setActiveSymlink": true,
+
+  "depends": "",
+  "replaces": "",
+  "conflicts": "",
+
+  "provides": [
+  ],
+
+  "scripts": {
+    "defines": "cdh_env.sh"
+  },
+
+  "packages": [
+    { "name"   : "hadoop",
+      "version": "2.2.0+cdh5.0.0+609-0.cdh5b2.p0.386~precise-cdh5.0.0"
+    },
+    { "name"   : "hadoop-client",
+      "version": "2.2.0+cdh5.0.0+609-0.cdh5b2.p0.386~precise-cdh5.0.0"
+    },
+    { "name"   : "hadoop-hdfs",
+      "version": "2.2.0+cdh5.0.0+609-0.cdh5b2.p0.386~precise-cdh5.0.0"
+    }
+  ],
+
+  "components": [
+    { "name"       : "hadoop",
+      "version"    : "2.2.0-cdh5.0.0-SNAPSHOT",
+      "pkg_version": "2.2.0+cdh5.0.0+609",
+      "pkg_release": "0.cdh5.0.0.p0.386"
+    },
+    { "name"       : "hadoop-hdfs",
+      "version"    : "2.2.0-cdh5.0.0-SNAPSHOT",
+      "pkg_version": "2.2.0+cdh5.0.0+609",
+      "pkg_release": "0.cdh5.0.0.p0.386"
+    }
+  ],
+
+  "users": {
+    "hdfs": {
+      "longname"    : "airflow",
+      "home"        : "/var/lib/airflow",
+      "shell"       : "/bin/bash",
+      "extra_groups": [ "airflow" ]
+    }
+  },
+
+  "groups": []
+}
