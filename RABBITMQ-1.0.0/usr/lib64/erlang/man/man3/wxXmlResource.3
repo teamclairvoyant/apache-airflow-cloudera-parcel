@@ -1,0 +1,312 @@
+.TH wxXmlResource 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxXmlResource \- See external documentation: wxXmlResource.
+.SH DESCRIPTION
+.LP
+See external documentation: wxXmlResource\&.
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxXmlResource()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+new() -> wxXmlResource()
+.br
+.RS
+.LP
+Equivalent to \fBnew([])\fR\&\&.
+.RE
+.LP
+.B
+new(Options::[Option]) -> wxXmlResource()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {flags, integer()} | {domain, string()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+new(Filemask::string(), Options::[Option]) -> wxXmlResource()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {flags, integer()} | {domain, string()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+attachUnknownControl(This::wxXmlResource(), Name::string(), Control::wxWindow() (see module wxWindow)) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBattachUnknownControl(This, Name, Control, [])\fR\&\&.
+.RE
+.LP
+.B
+attachUnknownControl(This::wxXmlResource(), Name::string(), Control::wxWindow() (see module wxWindow), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {parent, wxWindow() (see module wxWindow)}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+clearHandlers(This::wxXmlResource()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+compareVersion(This::wxXmlResource(), Major::integer(), Minor::integer(), Release::integer(), Revision::integer()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+get() -> wxXmlResource()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getFlags(This::wxXmlResource()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getVersion(This::wxXmlResource()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getXRCID(Str_id::[string()]) -> integer()
+.br
+.RS
+.LP
+Equivalent to \fBgetXRCID(Str_id, [])\fR\&\&.
+.RE
+.LP
+.B
+getXRCID(Str_id::[string()], Options::[Option]) -> integer()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {value_if_not_found, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+initAllHandlers(This::wxXmlResource()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+load(This::wxXmlResource(), Filemask::string()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+loadBitmap(This::wxXmlResource(), Name::string()) -> wxBitmap() (see module wxBitmap)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+loadDialog(This::wxXmlResource(), Parent::wxWindow() (see module wxWindow), Name::string()) -> wxDialog() (see module wxDialog)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+loadDialog(This::wxXmlResource(), Dlg::wxDialog() (see module wxDialog), Parent::wxWindow() (see module wxWindow), Name::string()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+loadFrame(This::wxXmlResource(), Parent::wxWindow() (see module wxWindow), Name::string()) -> wxFrame() (see module wxFrame)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+loadFrame(This::wxXmlResource(), Frame::wxFrame() (see module wxFrame), Parent::wxWindow() (see module wxWindow), Name::string()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+loadIcon(This::wxXmlResource(), Name::string()) -> wxIcon() (see module wxIcon)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+loadMenu(This::wxXmlResource(), Name::string()) -> wxMenu() (see module wxMenu)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+loadMenuBar(This::wxXmlResource(), Name::string()) -> wxMenuBar() (see module wxMenuBar)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+loadMenuBar(This::wxXmlResource(), Parent::wxWindow() (see module wxWindow), Name::string()) -> wxMenuBar() (see module wxMenuBar)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+loadPanel(This::wxXmlResource(), Parent::wxWindow() (see module wxWindow), Name::string()) -> wxPanel() (see module wxPanel)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+loadPanel(This::wxXmlResource(), Panel::wxPanel() (see module wxPanel), Parent::wxWindow() (see module wxWindow), Name::string()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+loadToolBar(This::wxXmlResource(), Parent::wxWindow() (see module wxWindow), Name::string()) -> wxToolBar() (see module wxToolBar)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+set(Res::wxXmlResource()) -> wxXmlResource()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setFlags(This::wxXmlResource(), Flags::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+unload(This::wxXmlResource(), Filename::string()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+xrcctrl(Window::wxWindow() (see module wxWindow), Name::string(), Type::atom()) -> wxObject() (see module wx)
+.br
+.RS
+.LP
+Looks up a control with Name in a window created with XML resources\&. You can use it to set/get values from controls\&. The object is type casted to \fIType\fR\&\&. Example: 
+.br
+Xrc = wxXmlResource:get(), 
+.br
+Dlg = wxDialog:new(), 
+.br
+true = wxXmlResource:loadDialog(Xrc, Dlg, Frame, "controls_dialog"), 
+.br
+LCtrl = xrcctrl(Dlg, "controls_listctrl", wxListCtrl), 
+.br
+wxListCtrl:insertColumn(LCtrl, 0, "Name", [{width, 200}]), 
+.br
+
+.RE
+.LP
+.B
+destroy(This::wxXmlResource()) -> ok
+.br
+.RS
+.LP
+Destroys this object, do not use object again
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

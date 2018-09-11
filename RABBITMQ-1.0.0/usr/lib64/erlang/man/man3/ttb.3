@@ -1,0 +1,402 @@
+.TH ttb 3 "observer 0.9.10" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+ttb \- A base for building trace tools for distributed systems.
+.SH DESCRIPTION
+.LP
+The Trace Tool Builder \fIttb\fR\& is a base for building trace tools for distributed systems\&.
+.LP
+When using \fIttb\fR\&, \fIdbg\fR\& shall not be used in parallel\&.
+.SH EXPORTS
+.LP
+.B
+tracer() -> Result
+.br
+.RS
+.LP
+This is equivalent to \fItracer(node())\fR\&\&.
+.RE
+.LP
+.B
+tracer(Nodes) -> Result
+.br
+.RS
+.LP
+This is equivalent to \fItracer(Nodes,[])\fR\&\&.
+.RE
+.LP
+.B
+tracer(Nodes,Opts) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Result = {ok, ActivatedNodes} | {error,Reason}
+.br
+Nodes = atom() | [atom()] | all | existing | new
+.br
+Opts = [Opt]
+.br
+Opt = {file,Client} | {handler, FormatHandler} | {process_info,PI}
+.br
+Client = File | {local, File}
+.br
+File = Filename | Wrap
+.br
+Filename = string()
+.br
+Wrap = {wrap,Filename} | {wrap,Filename,Size,Count}
+.br
+FormatHandler = See format/2
+.br
+PI = true | false
+.br
+.RE
+.RS
+.LP
+This function starts a file trace port on all given nodes and also points the system tracer for sequential tracing to the same port\&.
+.LP
+The given \fIFilename\fR\& will be prefixed with the node name\&. Default \fIFilename\fR\& is "ttb"\&.
+.LP
+\fIFile={wrap,Filename,Size,Count}\fR\& can be used if the size of the trace logs must be limited\&. Default values are \fISize=128*1024\fR\& and \fICount=8\fR\&\&.
+.LP
+When tracing diskless nodes, \fIttb\fR\& must be started from an external "trace control node" with disk access, and \fIClient\fR\& must be \fI{local, File}\fR\&\&. All trace information is then sent to the trace control node where it is written to file\&.
+.LP
+The \fIprocess_info\fR\& option indicates if process information should be collected\&. If \fIPI = true\fR\& (which is default), each process identifier \fIPid\fR\& is replaced by a tuple \fI{Pid,ProcessInfo,Node}\fR\&, where \fIProcessInfo\fR\& is the process\&' registered name its globally registered name, or its initial function\&. It is possible to turn off this functionality by setting \fIPI = false\fR\&\&.
+.RE
+.LP
+.B
+p(Procs,Flags) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = {ok,[{Procs,MatchDesc}]}
+.br
+Procs = Process | [Process] | all | new | existing
+.br
+Process = pid() | atom() | {global,atom()}
+.br
+Flags = Flag | [Flag]
+.br
+.RE
+.RS
+.LP
+This function sets the given trace flags on the given processes\&.
+.LP
+Please turn to the Reference manual for module \fIdbg\fR\& for details about the possible trace flags\&. The parameter \fIMatchDesc\fR\& is the same as returned from \fIdbg:p/2\fR\&
+.LP
+Processes can be given as registered names, globally registered names or process identifiers\&. If a registered name is given, the flags are set on processes with this name on all active nodes\&.
+.RE
+.LP
+.B
+tp, tpl, ctp, ctpl, ctpg
+.br
+.RS
+.LP
+These functions should be used in combination with the \fIcall\fR\& trace flag for setting and clearing trace patterns\&. When the \fIcall\fR\& trace flag is set on a process, function calls will be traced on that process if a trace pattern has been set for the called function\&. Trace patterns specifies how to trace a function by using match specifications\&. Match specifications are described in the User\&'s Guide for the erlang runtime system \fIerts\fR\&\&.
+.LP
+These functions are equivalent to the corresponding functions in \fIdbg\fR\&, but all calls are stored in the history\&. The history buffer makes it easy to create config files so that the same trace environment can be setup several times, e\&.g\&. if you want to compare two test runs\&. It also reduces the amount of typing when using \fIttb\fR\& from the erlang shell\&.
+.RS 2
+.TP 2
+.B
+\fItp\fR\&:
+Set trace pattern on global function calls
+.TP 2
+.B
+\fItpl\fR\&:
+Set trace pattern on local and global function calls
+.TP 2
+.B
+\fIctp\fR\&:
+Clear trace pattern on local and global function calls
+.TP 2
+.B
+\fIctpl\fR\&:
+Clear trace pattern on local function calls
+.TP 2
+.B
+\fIctpg\fR\&:
+Clear trace pattern on global function calls
+.RE
+.RE
+.LP
+.B
+list_history() -> History
+.br
+.RS
+.TP 3
+Types:
+
+History = [{N,Func,Args}]
+.br
+.RE
+.RS
+.LP
+All calls to \fIttb\fR\& is stored in the history\&. This function returns the current content of the history\&. Any entry can be re-executed with \fIrun_history/1\fR\& or stored in a config file with \fIwrite_config/2/3\fR\&\&.
+.RE
+.LP
+.B
+run_history(N) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+N = integer() | [integer()]
+.br
+.RE
+.RS
+.LP
+Executes the given entry or entries from the history list\&. History can be listed with \fIlist_history/0\fR\&\&.
+.RE
+.LP
+.B
+write_config(ConfigFile,Config)
+.br
+.RS
+.LP
+Equivalent to \fIwrite_config(ConfigFile,Config,[])\fR\&\&.
+.RE
+.LP
+.B
+write_config(ConfigFile,Config,Opt) -> ok | {error,Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ConfigFile = string()
+.br
+Config = all | [integer()] | [{Mod,Func,Args}]
+.br
+Mod = atom()
+.br
+Func = atom()
+.br
+Args = [term()]
+.br
+Opt = [] | [append]
+.br
+.RE
+.RS
+.LP
+This function creates or extends a config file which can be used for restoring a specific configuration later\&.
+.LP
+The content of the config file can either be fetched from the history or given directly as a list of \fI{Mod,Func,Args}\fR\&\&.
+.LP
+If the complete history is to be stored in the config file \fIConfig\fR\& should be \fIall\fR\&\&. If only a selected number of entries from the history should be stored, \fIConfig\fR\& should be a list of integers pointing out the entries to be stored\&.
+.LP
+If \fIOpt\fR\& is not given or if it is \fI[]\fR\&, \fIConfigFile\fR\& is deleted and a new file is created\&. If \fIOpt = [append]\fR\&, \fIConfigFile\fR\& will not be deleted\&. The new information will be appended at the end of the file\&.
+.RE
+.LP
+.B
+run_config(ConfigFile) -> ok | {error,Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ConfigFile = string()
+.br
+.RE
+.RS
+.LP
+Executes all entries in the given config file\&.
+.RE
+.LP
+.B
+run_config(ConfigFile,NumList) -> ok | {error,Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ConfigFile = string()
+.br
+NumList = [integer()]
+.br
+.RE
+.RS
+.LP
+Executes selected entries from the given config file\&. \fINumList\fR\& is a list of integers pointing out the entries to be executed\&.
+.LP
+The content of a config file can be listed with \fIlist_config/1\fR\&\&.
+.RE
+.LP
+.B
+list_config(ConfigFile) -> Config | {error,Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ConfigFile = string()
+.br
+Config = [{N,Func,Args}]
+.br
+.RE
+.RS
+.LP
+Lists all entries in the given config file\&.
+.RE
+.LP
+.B
+write_trace_info(Key,Info) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Key = term()
+.br
+Info = Data | fun() -> Data
+.br
+Data = term()
+.br
+.RE
+.RS
+.LP
+The \fI\&.ti\fR\& file contains \fI{Key,ValueList}\fR\& tuples\&. This function adds \fIData\fR\& to the ValueList associated with \fIKey\fR\&\&. All information written with this function will be included in the call to the format handler\&.
+.RE
+.LP
+.B
+seq_trigger_ms() -> MatchSpec
+.br
+.RS
+.LP
+Equivalent to \fIseq_trigger_ms(all)\fR\&
+.RE
+.LP
+.B
+seq_trigger_ms(Flags) -> MatchSpec
+.br
+.RS
+.TP 3
+Types:
+
+MatchSpec = match_spec()
+.br
+Flags = all | SeqTraceFlag | [SeqTraceFlag]
+.br
+SeqTraceFlag = atom()
+.br
+.RE
+.RS
+.LP
+A match specification can turn on or off sequential tracing\&. This function returns a match specification which turns on sequential tracing with the given \fIFlags\fR\&\&.
+.LP
+This match specification can be given as the last argument to \fItp\fR\& or \fItpl\fR\&\&. The activated \fIItem\fR\& will then become a \fItrigger\fR\& for sequential tracing\&. This means that if the item is called on a process with the \fIcall\fR\& trace flag set, the process will be "contaminated" with the seq_trace token\&.
+.LP
+If \fIFlags = all\fR\&, all possible flags are set\&.
+.LP
+Please turn to the reference manual for the \fI\fIseq_trace\fR\&\fR\& module in the \fI\fIkernel\fR\&\fR\& application to see the possible values for \fISeqTraceFlag\fR\&\&. For a description of the match_spec() syntax, please turn to the \fIUser\&'s guide\fR\& for the runtime system (\fIerts\fR\&)\&. The chapter \fIMatch Specification in Erlang\fR\& explains the general match specification "language"\&.
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+The \fIsystem tracer\fR\& for sequential tracing is automatically initiated by \fIttb\fR\& when a trace port is started with \fIttb:tracer/0/1/2\fR\&\&.
+
+.LP
+Example of how to use the \fIseq_trigger_ms/0/1\fR\& function:
+.LP
+.nf
+
+(tiger@durin)5> ttb:tracer().
+{ok,[tiger@durin]}
+(tiger@durin)6> ttb:p(all,call).
+{ok,{[all],[call]}}
+(tiger@durin)7> ttb:tp(mod,func,ttb:seq_trigger_ms()).
+{ok,[{matched,1},{saved,1}]}
+(tiger@durin)8>         
+.fi
+.LP
+Whenever \fImod:func(\&.\&.\&.)\fR\& is called after this, the seq_trace token will be set on the executing process\&.
+.RE
+.LP
+.B
+stop()
+.br
+.RS
+.LP
+Equivalent to \fIstop([])\fR\&\&.
+.RE
+.LP
+.B
+stop(Opts) -> stopped
+.br
+.RS
+.TP 3
+Types:
+
+Opts = [Opt]
+.br
+Opt = fetch | format
+.br
+.RE
+.RS
+.LP
+Stops tracing on all nodes\&.
+.LP
+The \fIfetch\fR\& option indicates that trace logs shall be collected from all nodes after tracing is stopped\&. This option is useful if nodes on remote machines are traced\&. Logs and trace information files are then sent to the trace control node and stored in a directory named \fIttb_upload-Timestamp\fR\&, where \fITimestamp\fR\& is on the form \fIyyyymmdd-hhmmss\fR\&\&. Even logs from nodes on the same machine as the trace control node are moved to this directory\&.
+.LP
+The \fIformat\fR\& option indicates that the trace logs shall be formatted after tracing is stopped\&. Note that this option also implies the \fIfetch\fR\& option, i\&.e\&. logs are collected in a new directory on the trace control node before formatting\&. All logs in the directory will be merged\&.
+.RE
+.LP
+.B
+format(File)
+.br
+.RS
+.LP
+Same as \fIformat(File,[])\fR\&\&.
+.RE
+.LP
+.B
+format(File,Options) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+File = string() | [string()]
+.br
+This can be the name of a binary log, a list of such logs or the name of a directory containing one or more binary logs\&.
+.br
+Options = [Opt]
+.br
+Opt = {out,Out} | {handler,FormatHandler}
+.br
+Out = standard_io | string()
+.br
+FormatHandler = {Function, InitialState} | et
+.br
+Function = fun(Fd,Trace,TraceInfo,State) -> State
+.br
+Fd = standard_io | FileDescriptor
+.br
+This is the file descriptor of the destination file \fIOut\fR\&
+.br
+Trace = tuple()
+.br
+This is the trace message\&. Please turn to the Reference manual for the \fIerlang\fR\&module for details\&.
+.br
+TraceInfo = [{Key,ValueList}]
+.br
+This includes the keys \fIflags\fR\&, \fIclient\fR\&and \fInode\fR\&, and if \fIhandler\fR\&is given as option to the tracer function, this is also included\&. In addition all information written with the \fIwrite_trace_info/2\fR\&function is included\&. 
+.br
+.RE
+.RS
+.LP
+Reads the given binary trace log(s)\&. If a directory or a list of logs is given and the \fItimestamp\fR\& flag was set during tracing, the trace messages from the different logs are merged according to the timestamps\&.
+.LP
+If \fIFormatHandler = {Function,InitialState}\fR\&, \fIFunction\fR\& will be called for each trace message\&. If \fIFormatHandler = et\fR\&, \fIet_viewer\fR\& in the \fIEvent Tracer\fR\& application (\fIet\fR\&) is used for presenting the trace log graphically\&. \fIttb\fR\& provides a few different filters which can be selected from the Filter menu in the \fIet_viewer\fR\&\&. If \fIFormatHandler\fR\& is not given, a default handler is used which presents each trace message as a line of text\&.
+.LP
+If \fIOut\fR\& is given, \fIFormatHandler\fR\& gets the filedescriptor to \fIOut\fR\& as the first parameter\&.
+.LP
+\fIOut\fR\& is ignored if \fIFormatHandler = et\fR\&\&.
+.LP
+Wrap logs can be formatted one by one or all in one go\&. To format one of the wrap logs in a set, give the exact name of the file\&. To format the whole set of wrap logs, give the name with \&'*\&' instead of the wrap count\&. See examples in the \fIttb\fR\& User\&'s Guide\&.
+.RE

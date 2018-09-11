@@ -1,0 +1,73 @@
+.TH os_mon 7 "os_mon 2.2.7" "Ericsson AB" "Erlang Application Definition"
+.SH NAME
+os_mon \- OS Monitoring Application
+.SH DESCRIPTION
+.LP
+The operating system monitor, OS_Mon, provides the following services:
+.RS 2
+.TP 2
+*
+\fBcpu_sup\fR\& CPU load and utilization supervision (Unix)
+.LP
+.TP 2
+*
+\fBdisksup\fR\& Disk supervision(Unix, Windows)
+.LP
+.TP 2
+*
+\fBmemsup\fR\& Memory supervision (Unix, Windows, VxWorks)
+.LP
+.TP 2
+*
+\fBos_sup\fR\& Interface to OS system messages (Solaris, Windows)
+.LP
+.RE
+
+.LP
+To simplify usage of OS_Mon on distributed Erlang systems, it is not considered an error trying to use a service at a node where it is not available (either because OS_Mon is not running, or because the service is not available for that OS, or because the service is not started)\&. Instead, a warning message is issued via \fIerror_logger\fR\& and a dummy value is returned, which one is specified in the man pages for the respective services\&.
+.SH "CONFIGURATION"
+
+.LP
+When OS_Mon is started, by default all services available for the OS, except \fIos_sup\fR\&, are automatically started\&. This configuration can be changed using the following application configuration parameters:
+.RS 2
+.TP 2
+.B
+\fIstart_cpu_sup = bool()\fR\&:
+Specifies if \fIcpu_sup\fR\& should be started\&. Defaults to \fItrue\fR\&\&.
+.TP 2
+.B
+\fIstart_disksup = bool()\fR\&:
+Specifies if \fIdisksup\fR\& should be started\&. Defaults to \fItrue\fR\&\&.
+.TP 2
+.B
+\fIstart_memsup = bool()\fR\&:
+Specifies if \fImemsup\fR\& should be started\&. Defaults to \fItrue\fR\&\&.
+.TP 2
+.B
+\fIstart_os_sup = bool()\fR\&:
+Specifies if \fIos_sup\fR\& should be started\&. Defaults to \fIfalse\fR\&\&.
+.RE
+.LP
+Configuration parameters effecting the different OS_Mon services are described in the respective man pages\&.
+.LP
+See \fBconfig(4)\fR\& for information about how to change the value of configuration parameters\&.
+.SH "SNMP MIBS"
+
+.LP
+The following MIBs are defined in OS_Mon:
+.RS 2
+.TP 2
+.B
+OTP-OS-MON-MIB:
+This MIB contains objects for instrumentation of disk, memory and CPU usage of the nodes in the system\&.
+.RE
+.LP
+The MIB is stored in the \fImibs\fR\& directory\&. It is defined in SNMPv2 SMI syntax\&. An SNMPv1 version of the MIB is delivered in the \fImibs/v1\fR\& directory\&.
+.LP
+The compiled MIB is located under \fIpriv/mibs\fR\&, and the generated \fI\&.hrl\fR\& file under the \fIinclude\fR\& directory\&. To compile a MIB that IMPORTS the \fIOTP-OS-MON-MIB\fR\&, give the option \fI{il, ["os_mon/priv/mibs"]}\fR\& to the MIB compiler\&.
+.LP
+If the MIB should be used in a system, it should be loaded into an agent with a call to \fIos_mon_mib:load(Agent)\fR\&, where \fIAgent\fR\& is the pid or registered name of an SNMP agent\&. Use \fIos_mon_mib:unload(Agent)\fR\& to unload the MIB\&. The implementation of this MIB uses Mnesia to store a cache with data needed, which implicates that Mnesia must be up and running\&. The MIB also use functions defined for the \fIOTP-MIB\fR\&, thus that MIB must be loaded as well\&.
+.SH "SEE ALSO"
+
+.LP
+\fBcpu_sup(3)\fR\&, \fBdisksup(3)\fR\&, \fBmemsup(3)\fR\&, \fBos_sup(3)\fR\&, \fBnteventlog(3)\fR\&, \fBsnmp(3)\fR\&\&.

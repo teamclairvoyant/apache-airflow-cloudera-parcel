@@ -1,0 +1,592 @@
+.TH snmp 3 "snmp 4.21.1" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+snmp \- Interface functions to the SNMP toolkit
+.SH DESCRIPTION
+.LP
+The module \fIsnmp\fR\& contains interface functions to the SNMP toolkit\&.
+.SH "COMMON DATA TYPES"
+
+.LP
+The following data-types are used in the functions below:
+.RS 2
+.TP 2
+*
+\fIdatetime() = {date(), time()}\fR\&
+.RS 2
+.LP
+See \fBcalendar\fR\& for more info\&.
+.RE
+.LP
+.RE
+
+.SH EXPORTS
+.LP
+.B
+config() -> ok | {error, Reason}
+.br
+.RS
+.LP
+A simple interactive configuration tool\&. Simple configuration files can be generated, but more complex configurations still have to be edited manually\&.
+.LP
+The tool is a textual based tool that asks some questions and generates \fIsys\&.config\fR\& and \fI*\&.conf\fR\& files\&.
+.LP
+\fINote\fR\& that if the application shall support version 3, then the crypto app must be started before running this function (password generation)\&.
+.LP
+\fINote\fR\& also that some of the configuration files for the agent and manager share the same names\&. This means that they have to be stored in \fIdifferent\fR\& directories!
+.RE
+.LP
+.B
+start() -> ok | {error, Reason}
+.br
+.B
+start(Type) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Type = start_type()
+.br
+.RE
+.RS
+.LP
+Starts the SNMP application\&.
+.LP
+See \fBapplication\fR\& for more info\&.
+.RE
+.LP
+.B
+start_agent() -> ok | {error, Reason}
+.br
+.B
+start_agent(Type) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Type = start_type()
+.br
+.RE
+.RS
+.LP
+The SNMP application consists of several entities, of which the agent is one\&. This function starts the agent entity of the application\&.
+.LP
+Note that the only way to actually start the agent in this way is to add the agent related config after starting the application (e\&.g it cannot be part of the normal application config; sys\&.config)\&. This is done by calling: \fIapplication:set_env(snmp, agent, Conf)\fR\&\&.
+.LP
+The default value for \fIType\fR\& is \fInormal\fR\&\&.
+.RE
+.LP
+.B
+start_manager() -> ok | {error, Reason}
+.br
+.B
+start_manager(Type) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Type = start_type()
+.br
+.RE
+.RS
+.LP
+The SNMP application consists of several entities, of which the manager is one\&. This function starts the manager entity of the application\&.
+.LP
+Note that the only way to actually start the manager in this way is to add the manager related config after starting the application (e\&.g it cannot be part of the normal application config; sys\&.config)\&. This is done by calling: \fIapplication:set_env(snmp, manager, Conf)\fR\&\&.
+.LP
+The default value for \fIType\fR\& is \fInormal\fR\&\&.
+.RE
+.LP
+.B
+date_and_time() -> DateAndTime
+.br
+.RS
+.TP 3
+Types:
+
+DateAndTime = [int()]
+.br
+.RE
+.RS
+.LP
+Returns current date and time as the data type DateAndTime, as specified in RFC1903\&. This is an OCTET STRING\&.
+.RE
+.LP
+.B
+date_and_time_to_universal_time_dst(DateAndTime) -> [utc()]
+.br
+.RS
+.TP 3
+Types:
+
+DateAndTime = [int()]
+.br
+utc() = {{Y,Mo,D},{H,M,S}}
+.br
+.RE
+.RS
+.LP
+Converts a DateAndTime list to a list of possible universal time(s)\&. The universal time value on the same format as defined in calendar(3)\&.
+.RE
+.LP
+.B
+date_and_time_to_string(DateAndTime) -> string()
+.br
+.B
+date_and_time_to_string(DateAndTime, Validate) -> string()
+.br
+.RS
+.TP 3
+Types:
+
+DateAndTime = [int()]
+.br
+Validate = fun(Kind, Data) -> boolean()
+.br
+.RE
+.RS
+.LP
+Converts a DateAndTime list to a printable string, according to the DISPLAY-HINT definition in RFC2579\&.
+.LP
+The validation fun, \fIValidate\fR\&, allows for a more "flexible" validation of the \fIDateAndTime\fR\& argument\&. Whenever the data is found to not follow RFC2579, the fun is called to allow a more "lax" validation\&. See the \fBvalidate_date_and_time/2\fR\& function for more info on the \fIValidate\fR\& fun\&.
+.RE
+.LP
+.B
+date_and_time_to_string2(DateAndTime) -> string()
+.br
+.RS
+.TP 3
+Types:
+
+DateAndTime = [int()]
+.br
+.RE
+.RS
+.LP
+Converts a DateAndTime list to a printable string, according to the DISPLAY-HINT definition in RFC2579, with the extension that it also allows the values "hours from UTC" = 14 together with "minutes from UTC" = 0\&.
+.RE
+.LP
+.B
+local_time_to_date_and_time_dst(Local) -> [DateAndTime]
+.br
+.RS
+.TP 3
+Types:
+
+Local = {{Y,Mo,D},{H,M,S}}
+.br
+DateAndTime = [int()]
+.br
+.RE
+.RS
+.LP
+Converts a local time value to a list of possible DateAndTime list(s)\&. The local time value on the same format as defined in calendar(3)\&.
+.RE
+.LP
+.B
+universal_time_to_date_and_time(UTC) -> DateAndTime
+.br
+.RS
+.TP 3
+Types:
+
+UTC = {{Y,Mo,D},{H,M,S}}
+.br
+DateAndTime = [int()]
+.br
+.RE
+.RS
+.LP
+Converts a universal time value to a DateAndTime list\&. The universal time value on the same format as defined in calendar(3)\&.
+.RE
+.LP
+.B
+validate_date_and_time(DateAndTime) -> bool()
+.br
+.B
+validate_date_and_time(DateAndTime, Validate) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+DateAndTime = term()
+.br
+Validate = fun(Kind, Data) -> boolean()
+.br
+.RE
+.RS
+.LP
+Checks if \fIDateAndTime\fR\& is a correct DateAndTime value, as specified in RFC2579\&. This function can be used in instrumentation functions to validate a DateAndTime value\&.
+.LP
+The validation fun, \fIValidate\fR\&, allows for a more "flexible" validation of the \fIDateAndTime\fR\& argument\&. Whenever the data is found to not follow RFC2579, the fun is called to allow a more "lax" validation\&. The input to the validation fun looks like this:
+.LP
+.nf
+
+          Kind             Data
+          --------------   ----------------------
+          year             {Year1, Year2}
+          month            Month
+          day              Day
+          hour             Hour
+          minute           Minute
+          seconds          Seconds
+          deci_seconds     DeciSeconds
+          diff             [Sign, Hour, Minute]
+          valid_date       {Year, Month, Day}
+	
+.fi
+.RE
+.LP
+.B
+passwd2localized_key(Alg, Passwd, EngineID) -> Key
+.br
+.RS
+.TP 3
+Types:
+
+Alg = algorithm()
+.br
+algorithm() = md5 | sha
+.br
+Passwd = string()
+.br
+EngineID = string()
+.br
+Key = list()
+.br
+.RE
+.RS
+.LP
+Generates a key that can be used as an authentication or privacy key using MD5 och SHA\&. The key is localized for EngineID\&.
+.RE
+.LP
+.B
+octet_string_to_bits(S) -> Val
+.br
+.RS
+.TP 3
+Types:
+
+Val = bits()
+.br
+.RE
+.RS
+.LP
+Utility function for converting a value of type \fIOCTET-STRING\fR\& to \fIBITS\fR\&\&.
+.RE
+.LP
+.B
+bits_to_octet_string(B) -> Val
+.br
+.RS
+.TP 3
+Types:
+
+Val = octet_string()
+.br
+.RE
+.RS
+.LP
+Utility function for converting a value of type \fIBITS\fR\& to \fIOCTET-STRING\fR\&\&.
+.RE
+.LP
+.B
+read_mib(FileName) -> {ok, mib()} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+FileName = string()
+.br
+mib() = #mib{}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Read a compiled mib\&.
+.RE
+.LP
+.B
+log_to_txt(LogDir, Mibs, OutFile, LogName, LogFile) -> ok | {error, Reason}
+.br
+.B
+log_to_txt(LogDir, Mibs, OutFile, LogName, LogFile, Start) -> ok | {error, Reason}
+.br
+.B
+log_to_txt(LogDir, Mibs, OutFile, LogName, LogFile, Start, Stop) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+LogDir = string()
+.br
+Mibs = [MibName]
+.br
+OutFile = string()
+.br
+MibName = string()
+.br
+LogName = string()
+.br
+LogFile = string()
+.br
+Start = Stop = null | datetime() | {local_time,datetime()} | {universal_time,datetime()}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Converts an Audit Trail Log to a readable text file, where each item has a trailing TAB character, and any TAB character in the body of an item has been replaced by ESC TAB\&.
+.LP
+The function can be used on a running system, or by copying the entire log directory and calling this function\&. SNMP must be running in order to provide MIB information\&.
+.LP
+\fILogDir\fR\& is the name of the directory where the audit trail log is stored\&. \fIMibs\fR\& is a list of Mibs to be used\&. The function uses the information in the Mibs to convert for example object identifiers to their symbolic name\&. \fIOutFile\fR\& is the name of the generated text-file\&. \fILogName\fR\& is the name of the log, \fILogFile\fR\& is the name of the log file\&. \fIStart\fR\& is the start (first) date and time from which log events will be converted and \fIStop\fR\& is the stop (last) date and time to which log events will be converted\&.
+.LP
+The format of an audit trail log text item is as follows:
+.LP
+\fITag Addr - Community [TimeStamp] Vsn\fR\&
+.br
+\fIPDU\fR\&
+.LP
+where \fITag\fR\& is \fIrequest\fR\&, \fIresponse\fR\&, \fIreport\fR\&, \fItrap\fR\& or \fIinform\fR\&; Addr is \fIIP:Port\fR\& (or comma space separated list of such); \fICommunity\fR\& is the community parameter (SNMP version v1 and v2), or \fISecLevel:"AuthEngineID":"UserName"\fR\& (SNMP v3); \fITimeStamp\fR\& is a date and time stamp, and \fIVsn\fR\& is the SNMP version\&. \fIPDU\fR\& is a textual version of the protocol data unit\&. There is a new line between \fIVsn\fR\& and \fIPDU\fR\&\&.
+.RE
+.LP
+.B
+change_log_size(LogName, NewSize) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+LogName = string()
+.br
+NewSize = {MaxBytes, MaxFiles}
+.br
+MaxBytes = integer()
+.br
+MaxFiles = integer()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Changes the log size of the Audit Trail Log\&. The application must be configured to use the audit trail log function\&. Please refer to disk_log(3) in Kernel Reference Manual for a description of how to change the log size\&.
+.LP
+The change is permanent, as long as the log is not deleted\&. That means, the log size is remembered across reboots\&.
+.RE
+.LP
+.B
+print_version_info() -> void()
+.br
+.B
+print_version_info(Prefix) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+Prefix = string() | integer()
+.br
+.RE
+.RS
+.LP
+Utility function(s) to produce a formatted printout of the versions info generated by the \fIversions1\fR\& function
+.LP
+This is the same as doing, e\&.g\&.:
+.LP
+.nf
+
+           {ok, V} = snmp:versions1(), 
+           snmp:print_versions(V).
+        
+.fi
+.RE
+.LP
+.B
+versions1() -> {ok, Info} | {error, Reason}
+.br
+.B
+versions2() -> {ok, Info} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Info = [info()]
+.br
+info() = term()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Utility functions used to retrieve some system and application info\&.
+.LP
+The difference between the two functions is in how they get the modules to check\&. \fIversions1\fR\& uses the app-file and \fIversions2\fR\& uses the function \fIapplication:get_key\fR\&\&.
+.RE
+.LP
+.B
+print_versions(VersionInfo) -> void()
+.br
+.B
+print_versions(Prefix, VersionInfo) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+VersionInfo = [version_info()]
+.br
+version_info() = term()
+.br
+Prefix = string() | integer()
+.br
+.RE
+.RS
+.LP
+Utility function to produce a formatted printout of the versions info generated by the \fIversions1\fR\& and \fIversions2\fR\& functions
+.LP
+Example:
+.LP
+.nf
+
+           {ok, V} = snmp:versions1(), 
+           snmp:print_versions(V).
+        
+.fi
+.RE
+.LP
+.B
+enable_trace() -> void()
+.br
+.RS
+.LP
+Starts a dbg tracer that prints trace events to stdout (using plain io:format after a minor formatting)\&.
+.RE
+.LP
+.B
+disable_trace() -> void()
+.br
+.RS
+.LP
+Stop the tracer\&.
+.RE
+.LP
+.B
+set_trace(Targets) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+Targets = target() | targets()
+.br
+target() = module()
+.br
+module() = atom()
+.br
+targets() = [target() | {target(), target_options()}]
+.br
+target_options() = [target_option()]
+.br
+target_option() = {return_trace, boolean()} | {scope, scope()}
+.br
+scope() = all_functions | exported_functions | function_name() | {function_name(), function_arity()}
+.br
+function_name() = atom()
+.br
+function_arity() = integer() >= 0
+.br
+.RE
+.RS
+.LP
+This function is used to set up default trace on function(s) for the given module or modules\&. The scope of the trace will be all \fIexported\fR\& functions (both the call info and the return value)\&. Timestamp info will also be included\&.
+.RE
+.LP
+.B
+reset_trace(Targets) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+Targets = module() | modules()
+.br
+modules() = [module()]
+.br
+module() = atom()
+.br
+.RE
+.RS
+.LP
+This function is used to reset (disable) trace for the given module(s)\&.
+.RE
+.LP
+.B
+set_trace(Targets, Opts) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+Targets = target() | targets()
+.br
+target() = module()
+.br
+module() = atom()
+.br
+targets() = [target() | {target(), target_options()}]
+.br
+target_options() = [target_option()]
+.br
+target_option() = {return_trace, boolean()} | {scope, scope()}
+.br
+scope() = all_functions | exported_functions | function_name() | {function_name(), function_arity()}
+.br
+function_name() = atom()
+.br
+function_arity() = integer() >= 0
+.br
+Opts = disable | trace_options()
+.br
+trace_options() = [trace_option()]
+.br
+trace_option() = {timestamp, boolean()} | target_option()
+.br
+.RE
+.RS
+.LP
+This function is used to set up trace on function(s) for the given module or modules\&.
+.LP
+The example below sets up trace on the exported functions (default) of module \fIsnmp_generic\fR\& and all functions of module \fIsnmp_generic_mnesia\fR\&\&. With return values (which is default) and timestamps in both cases (which is also default):
+.LP
+.nf
+
+	  snmp:enable_trace(),
+	  snmp:set_trace([snmp_generic, 
+                          {snmp_generic_mnesia, [{scope, all_functions}]}]),
+	  .
+	  .
+	  .
+          snmp:set_trace(snmp_generic, disable),
+	  .
+	  .
+	  .
+	  snmp:disable_trace(),
+	
+.fi
+.RE
+.SH "SEE ALSO"
+
+.LP
+calendar(3)

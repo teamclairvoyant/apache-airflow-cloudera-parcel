@@ -1,0 +1,748 @@
+.TH ssl 3 "ssl 4.1.6" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+ssl \- Interface Functions for Secure Socket Layer
+.SH DESCRIPTION
+.LP
+This module contains interface functions to the Secure Socket Layer\&.
+.SH "SSL"
+
+.RS 2
+.TP 2
+*
+ssl requires the crypto and public_key applications\&.
+.LP
+.TP 2
+*
+Supported SSL/TLS-versions are SSL-3\&.0 and TLS-1\&.0 
+.LP
+.TP 2
+*
+For security reasons sslv2 is not supported\&.
+.LP
+.TP 2
+*
+Ephemeral Diffie-Hellman cipher suites are supported but not Diffie Hellman Certificates cipher suites\&.
+.LP
+.TP 2
+*
+Export cipher suites are not supported as the U\&.S\&. lifted its export restrictions in early 2000\&.
+.LP
+.TP 2
+*
+CRL and policy certificate extensions are not supported yet\&. 
+.LP
+.RE
+
+.SH "COMMON DATA TYPES"
+
+.LP
+The following data types are used in the functions below:
+.LP
+\fIboolean() = true | false\fR\&
+.LP
+\fIoption() = socketoption() | ssloption() | transportoption()\fR\&
+.LP
+\fIsocketoption() = proplists:property() - The default socket options are [{mode,list},{packet, 0},{header, 0},{active, true}]\&. \fR\&
+.LP
+For valid options see \fBinet(3) \fR\& and \fBgen_tcp(3) \fR\&\&.
+.LP
+\fIssloption() = {verify, verify_type()} | {verify_fun, {fun(), term()}} | {fail_if_no_peer_cert, boolean()} {depth, integer()} | {cert, der_encoded()}| {certfile, path()} | {key, der_encoded()} | {keyfile, path()} | {password, string()} | {cacerts, [der_encoded()]} | {cacertfile, path()} | |{dh, der_encoded()} | {dhfile, path()} | {ciphers, ciphers()} | {ssl_imp, ssl_imp()} | {reuse_sessions, boolean()} | {reuse_session, fun()} \fR\&
+.LP
+\fItransportoption() = {CallbackModule, DataTag, ClosedTag} - defaults to {gen_tcp, tcp, tcp_closed}\&. Ssl may be run over any reliable transport protocol that has an equivalent API to gen_tcp\&'s\&.\fR\&
+.LP
+\fI CallbackModule = atom()\fR\& 
+.LP
+\fI DataTag = atom() - tag used in socket data message\&.\fR\&
+.LP
+\fI ClosedTag = atom() - tag used in socket close message\&.\fR\&
+.LP
+\fIverify_type() = verify_none | verify_peer\fR\&
+.LP
+\fIpath() = string() - representing a file path\&.\fR\&
+.LP
+\fIder_encoded() = binary() -Asn1 DER encoded entity as an erlang binary\&.\fR\&
+.LP
+\fIhost() = hostname() | ipaddress()\fR\&
+.LP
+\fIhostname() = string()\fR\&
+.LP
+\fI ip_address() = {N1,N2,N3,N4} % IPv4 | {K1,K2,K3,K4,K5,K6,K7,K8} % IPv6 \fR\&
+.LP
+\fIsslsocket() - opaque to the user\&. \fR\&
+.LP
+\fIprotocol() = sslv3 | tlsv1 \fR\&
+.LP
+\fIciphers() = [ciphersuite()] | string() (according to old API)\fR\&
+.LP
+\fIciphersuite() = {key_exchange(), cipher(), hash()}\fR\&
+.LP
+\fIkey_exchange() = rsa | dhe_dss | dhe_rsa | dh_anon \fR\&
+.LP
+\fIcipher() = rc4_128 | des_cbc | \&'3des_ede_cbc\&' | aes_128_cbc | aes_256_cbc \fR\&
+.LP
+\fIhash() = md5 | sha \fR\&
+.LP
+\fIssl_imp() = new | old - default is new\&.\fR\&
+.SH "SSL OPTION DESCRIPTIONS - COMMON FOR SERVER AND CLIENT"
+
+.LP
+Options described here are options that are have the same meaning in the client and the server\&.
+.RS 2
+.TP 2
+.B
+{cert, der_encoded()}:
+ The DER encoded users certificate\&. If this option is supplied it will override the certfile option\&.
+.TP 2
+.B
+{certfile, path()}:
+Path to a file containing the user\&'s certificate\&.
+.TP 2
+.B
+{key, der_encoded()}:
+ The DER encoded users private key\&. If this option is supplied it will override the keyfile option\&.
+.TP 2
+.B
+{keyfile, path()}:
+Path to file containing user\&'s private PEM encoded key\&. As PEM-files may contain several entries this option defaults to the same file as given by certfile option\&.
+.TP 2
+.B
+{password, string()}:
+String containing the user\&'s password\&. Only used if the private keyfile is password protected\&. 
+.TP 2
+.B
+{cacerts, [der_encoded()]}:
+ The DER encoded trusted certificates\&. If this option is supplied it will override the cacertfile option\&.
+.TP 2
+.B
+{cacertfile, path()}:
+Path to file containing PEM encoded CA certificates (trusted certificates used for verifying a peer certificate)\&. May be omitted if you do not want to verify the peer\&.
+.TP 2
+.B
+{ciphers, ciphers()}:
+The cipher suites that should be supported\&. The function \fIcipher_suites/0\fR\& can be used to find all available ciphers\&. Additionally some anonymous cipher suites ({dh_anon, rc4_128, md5}, {dh_anon, des_cbc, sha}, {dh_anon, \&'3des_ede_cbc\&', sha}, {dh_anon, aes_128_cbc, sha}, {dh_anon, aes_256_cbc, sha}) are supported for testing purposes and will only work if explicitly enabled by this option and they are supported/enabled by the peer also\&. 
+.TP 2
+.B
+{ssl_imp, ssl_imp()}:
+Specify which ssl implementation you want to use\&. Defaults to new\&. 
+.TP 2
+.B
+{secure_renegotiate, boolean()}:
+Specifies if to reject renegotiation attempt that does not live up to RFC 5746\&. By default secure_renegotiate is set to false i\&.e\&. secure renegotiation will be used if possible but it will fallback to unsecure renegotiation if the peer does not support RFC 5746\&. 
+.TP 2
+.B
+{depth, integer()}:
+Specifies the maximum verification depth, i\&.e\&. how far in a chain of certificates the verification process can proceed before the verification is considered to fail\&. Peer certificate = 0, CA certificate = 1, higher level CA certificate = 2, etc\&. The value 2 thus means that a chain can at most contain peer cert, CA cert, next CA cert, and an additional CA cert\&. The default value is 1\&. 
+.TP 2
+.B
+{verify_fun, {Verifyfun :: fun(), InitialUserState :: term()}}:
+The verification fun should be defined as:
+.LP
+.nf
+
+fun(OtpCert :: #'OTPCertificate'{}, Event :: {bad_cert, Reason :: atom()} |
+	     {extension, #'Extension'{}}, InitialUserState :: term()) ->
+	{valid, UserState :: term()} | {valid_peer, UserState :: term()} |
+	{fail, Reason :: term()} | {unknown, UserState :: term()}.
+	
+.fi
+.RS 2
+.LP
+The verify fun will be called during the X509-path validation when an error or an extension unknown to the ssl application is encountered\&. Additionally it will be called when a certificate is considered valid by the path validation to allow access to each certificate in the path to the user application\&. Note that it will differentiate between the peer certificate and CA certificates by using valid_peer or valid as the second argument to the verify fun\&. See \fBthe public_key User\&'s Guide\fR\& for definition of #\&'OTPCertificate\&'{} and #\&'Extension\&'{}\&.
+.RE
+.RS 2
+.LP
+If the verify callback fun returns {fail, Reason}, the verification process is immediately stopped and an alert is sent to the peer and the TLS/SSL handshake is terminated\&. If the verify callback fun returns {valid, UserState}, the verification process is continued\&. If the verify callback fun always returns {valid, UserState}, the TLS/SSL handshake will not be terminated with respect to verification failures and the connection will be established\&. If called with an extension unknown to the user application the return value {unknown, UserState} should be used\&.
+.RE
+.RS 2
+.LP
+The default verify_fun option in verify_peer mode:
+.RE
+.LP
+.nf
+
+{fun(_,{bad_cert, _} = Reason, _) ->
+	 {fail, Reason};
+    (_,{extension, _}, UserState) ->
+	 {unknown, UserState};
+    (_, valid, UserState) ->
+	 {valid, UserState};
+    (_, valid_peer, UserState) ->
+         {valid, UserState}
+ end, []}
+      
+.fi
+.RS 2
+.LP
+The default verify_fun option in verify_none mode:
+.RE
+.LP
+.nf
+
+{fun(_,{bad_cert, _}, UserState) ->
+	 {valid, UserState};
+    (_,{extension, _}, UserState) ->
+	 {unknown, UserState};
+    (_, valid, UserState) ->
+	 {valid, UserState};
+    (_, valid_peer, UserState) ->
+         {valid, UserState}
+ end, []}
+      
+.fi
+.RS 2
+.LP
+Possible path validation errors:
+.RE
+.RS 2
+.LP
+{bad_cert, cert_expired}, {bad_cert, invalid_issuer}, {bad_cert, invalid_signature}, {bad_cert, unknown_ca},{bad_cert, selfsigned_peer}, {bad_cert, name_not_permitted}, {bad_cert, missing_basic_constraint}, {bad_cert, invalid_key_usage}
+.RE
+.TP 2
+.B
+{hibernate_after, integer()|undefined}:
+When an integer-value is specified, the 
+.LP
+.nf
+ssl_connection
+.fi will go into hibernation after the specified number of milliseconds of inactivity, thus reducing its memory footprint\&. When 
+.LP
+.nf
+undefined
+.fi is specified (this is the default), the process will never go into hibernation\&. 
+.RE
+.SH "SSL OPTION DESCRIPTIONS - CLIENT SIDE"
+
+.LP
+Options described here are client specific or has a slightly different meaning in the client than in the server\&.
+.RS 2
+.TP 2
+.B
+{verify, verify_type()}:
+ In verify_none mode the default behavior will be to allow all x509-path validation errors\&. See also the verify_fun option\&. 
+.TP 2
+.B
+{reuse_sessions, boolean()}:
+Specifies if client should try to reuse sessions when possible\&. 
+.RE
+.SH "SSL OPTION DESCRIPTIONS - SERVER SIDE"
+
+.LP
+Options described here are server specific or has a slightly different meaning in the server than in the client\&.
+.RS 2
+.TP 2
+.B
+{dh, der_encoded()}:
+The DER encoded Diffie Hellman parameters\&. If this option is supplied it will override the dhfile option\&. 
+.TP 2
+.B
+{dhfile, path()}:
+Path to file containing PEM encoded Diffie Hellman parameters, for the server to use if a cipher suite using Diffie Hellman key exchange is negotiated\&. If not specified default parameters will be used\&. 
+.TP 2
+.B
+{verify, verify_type()}:
+Servers only do the x509-path validation in verify_peer mode, as it then will send a certificate request to the client (this message is not sent if the verify option is verify_none) and you may then also want to specify the option fail_if_no_peer_cert\&. 
+.TP 2
+.B
+{fail_if_no_peer_cert, boolean()}:
+Used together with {verify, verify_peer} by an ssl server\&. If set to true, the server will fail if the client does not have a certificate to send, i\&.e\&. sends a empty certificate, if set to false it will only fail if the client sends an invalid certificate (an empty certificate is considered valid)\&. 
+.TP 2
+.B
+{reuse_sessions, boolean()}:
+Specifies if the server should agree to reuse sessions when the clients request to do so\&. See also the reuse_session option\&. 
+.TP 2
+.B
+{reuse_session, fun(SuggestedSessionId, PeerCert, Compression, CipherSuite) -> boolean()}:
+Enables the ssl server to have a local policy for deciding if a session should be reused or not, only meaningful if \fIreuse_sessions\fR\& is set to true\&. SuggestedSessionId is a binary(), PeerCert is a DER encoded certificate, Compression is an enumeration integer and CipherSuite is of type ciphersuite()\&. 
+.RE
+.SH "GENERAL"
+
+.LP
+When an ssl socket is in active mode (the default), data from the socket is delivered to the owner of the socket in the form of messages:
+.RS 2
+.TP 2
+*
+{ssl, Socket, Data} 
+.LP
+.TP 2
+*
+{ssl_closed, Socket} 
+.LP
+.TP 2
+*
+ {ssl_error, Socket, Reason} 
+.LP
+.RE
+
+.LP
+A \fITimeout\fR\& argument specifies a timeout in milliseconds\&. The default value for a \fITimeout\fR\& argument is \fIinfinity\fR\&\&.
+.SH EXPORTS
+.LP
+.B
+cipher_suites() ->
+.br
+.B
+cipher_suites(Type) -> ciphers()
+.br
+.RS
+.TP 3
+Types:
+
+Type = erlang | openssl
+.br
+.RE
+.RS
+.LP
+Returns a list of supported cipher suites\&. cipher_suites() is equivalent to cipher_suites(erlang)\&. Type openssl is provided for backwards compatibility with old ssl that used openssl\&.
+.RE
+.LP
+.B
+connect(Socket, SslOptions) -> 
+.br
+.B
+connect(Socket, SslOptions, Timeout) -> {ok, SslSocket} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Socket = socket()
+.br
+SslOptions = [ssloption()]
+.br
+Timeout = integer() | infinity
+.br
+SslSocket = sslsocket()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Upgrades a gen_tcp, or equivalent, connected socket to an ssl socket i\&.e\&. performs the client-side ssl handshake\&.
+.RE
+.LP
+.B
+connect(Host, Port, Options) ->
+.br
+.B
+connect(Host, Port, Options, Timeout) -> {ok, SslSocket} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Host = host()
+.br
+Port = integer()
+.br
+Options = [option()]
+.br
+Timeout = integer() | infinity
+.br
+SslSocket = sslsocket()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Opens an ssl connection to Host, Port\&.
+.RE
+.LP
+.B
+close(SslSocket) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+SslSocket = sslsocket()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Close an ssl connection\&.
+.RE
+.LP
+.B
+controlling_process(SslSocket, NewOwner) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+SslSocket = sslsocket()
+.br
+NewOwner = pid()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Assigns a new controlling process to the ssl-socket\&. A controlling process is the owner of an ssl-socket, and receives all messages from the socket\&.
+.RE
+.LP
+.B
+connection_info(SslSocket) -> {ok, {ProtocolVersion, CipherSuite}} | {error, Reason} 
+.br
+.RS
+.TP 3
+Types:
+
+CipherSuite = ciphersuite()
+.br
+ProtocolVersion = protocol()
+.br
+.RE
+.RS
+.LP
+Returns the negotiated protocol version and cipher suite\&.
+.RE
+.LP
+.B
+format_error(Reason) -> string()
+.br
+.RS
+.TP 3
+Types:
+
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Presents the error returned by an ssl function as a printable string\&.
+.RE
+.LP
+.B
+getopts(Socket, OptionNames) -> {ok, [socketoption()]} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Socket = sslsocket()
+.br
+OptionNames = [atom()]
+.br
+.RE
+.RS
+.LP
+Get the value of the specified socket options\&.
+.RE
+.LP
+.B
+listen(Port, Options) -> {ok, ListenSocket} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Port = integer()
+.br
+Options = options()
+.br
+ListenSocket = sslsocket()
+.br
+.RE
+.RS
+.LP
+Creates an ssl listen socket\&.
+.RE
+.LP
+.B
+peercert(Socket) -> {ok, Cert} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Socket = sslsocket()
+.br
+Cert = binary()
+.br
+.RE
+.RS
+.LP
+The peer certificate is returned as a DER encoded binary\&. The certificate can be decoded with \fIpublic_key:pkix_decode_cert/2\fR\&\&.
+.RE
+.LP
+.B
+peername(Socket) -> {ok, {Address, Port}} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Socket = sslsocket()
+.br
+Address = ipaddress()
+.br
+Port = integer()
+.br
+.RE
+.RS
+.LP
+Returns the address and port number of the peer\&.
+.RE
+.LP
+.B
+recv(Socket, Length) -> 
+.br
+.B
+recv(Socket, Length, Timeout) -> {ok, Data} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Socket = sslsocket()
+.br
+Length = integer()
+.br
+Timeout = integer()
+.br
+Data = [char()] | binary()
+.br
+.RE
+.RS
+.LP
+This function receives a packet from a socket in passive mode\&. A closed socket is indicated by a return value \fI{error, closed}\fR\&\&.
+.LP
+The \fILength\fR\& argument is only meaningful when the socket is in \fIraw\fR\& mode and denotes the number of bytes to read\&. If \fILength\fR\& = 0, all available bytes are returned\&. If \fILength\fR\& > 0, exactly \fILength\fR\& bytes are returned, or an error; possibly discarding less than \fILength\fR\& bytes of data when the socket gets closed from the other side\&.
+.LP
+The optional \fITimeout\fR\& parameter specifies a timeout in milliseconds\&. The default value is \fIinfinity\fR\&\&.
+.RE
+.LP
+.B
+renegotiate(Socket) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Socket = sslsocket()
+.br
+.RE
+.RS
+.LP
+Initiates a new handshake\&. A notable return value is \fI{error, renegotiation_rejected}\fR\& indicating that the peer refused to go through with the renegotiation but the connection is still active using the previously negotiated session\&.
+.RE
+.LP
+.B
+send(Socket, Data) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Socket = sslsocket()
+.br
+Data = iodata()
+.br
+.RE
+.RS
+.LP
+Writes \fIData\fR\& to \fISocket\fR\&\&.
+.LP
+A notable return value is \fI{error, closed}\fR\& indicating that the socket is closed\&.
+.RE
+.LP
+.B
+setopts(Socket, Options) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Socket = sslsocket()
+.br
+Options = [socketoption]()
+.br
+.RE
+.RS
+.LP
+Sets options according to \fIOptions\fR\& for the socket \fISocket\fR\&\&.
+.RE
+.LP
+.B
+shutdown(Socket, How) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Socket = sslsocket()
+.br
+How = read | write | read_write
+.br
+Reason = reason()
+.br
+.RE
+.RS
+.LP
+Immediately close a socket in one or two directions\&.
+.LP
+\fIHow == write\fR\& means closing the socket for writing, reading from it is still possible\&.
+.LP
+To be able to handle that the peer has done a shutdown on the write side, the \fI{exit_on_close, false}\fR\& option is useful\&.
+.RE
+.LP
+.B
+ssl_accept(ListenSocket) -> 
+.br
+.B
+ssl_accept(ListenSocket, Timeout) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ListenSocket = sslsocket()
+.br
+Timeout = integer()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+The \fIssl_accept\fR\& function establish the SSL connection on the server side\&. It should be called directly after \fItransport_accept\fR\&, in the spawned server-loop\&.
+.RE
+.LP
+.B
+ssl_accept(ListenSocket, SslOptions) -> 
+.br
+.B
+ssl_accept(ListenSocket, SslOptions, Timeout) -> {ok, Socket} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ListenSocket = socket()
+.br
+SslOptions = ssloptions()
+.br
+Timeout = integer()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Upgrades a gen_tcp, or equivalent, socket to an ssl socket i\&.e\&. performs the ssl server-side handshake\&.
+.LP
+
+.RS -4
+.B
+Warning:
+.RE
+Note that the listen socket should be in {active, false} mode before telling the client that the server is ready to upgrade and calling this function, otherwise the upgrade may or may not succeed depending on timing\&.
+
+.RE
+.LP
+.B
+sockname(Socket) -> {ok, {Address, Port}} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Socket = sslsocket()
+.br
+Address = ipaddress()
+.br
+Port = integer()
+.br
+.RE
+.RS
+.LP
+Returns the local address and port number of the socket \fISocket\fR\&\&.
+.RE
+.LP
+.B
+start() -> 
+.br
+.B
+start(Type) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Type = permanent | transient | temporary
+.br
+.RE
+.RS
+.LP
+Starts the Ssl application\&. Default type is temporary\&. \fBapplication(3)\fR\&
+.RE
+.LP
+.B
+stop() -> ok 
+.br
+.RS
+.LP
+Stops the Ssl application\&. \fBapplication(3)\fR\&
+.RE
+.LP
+.B
+transport_accept(Socket) ->
+.br
+.B
+transport_accept(Socket, Timeout) -> {ok, NewSocket} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Socket = NewSocket = sslsocket()
+.br
+Timeout = integer()
+.br
+Reason = reason()
+.br
+.RE
+.RS
+.LP
+Accepts an incoming connection request on a listen socket\&. \fIListenSocket\fR\& must be a socket returned from \fIlisten/2\fR\&\&. The socket returned should be passed to \fIssl_accept\fR\& to complete ssl handshaking and establishing the connection\&.
+.LP
+
+.RS -4
+.B
+Warning:
+.RE
+The socket returned can only be used with \fIssl_accept\fR\&, no traffic can be sent or received before that call\&.
+
+.LP
+The accepted socket inherits the options set for \fIListenSocket\fR\& in \fIlisten/2\fR\&\&.
+.LP
+The default value for \fITimeout\fR\& is \fIinfinity\fR\&\&. If \fITimeout\fR\& is specified, and no connection is accepted within the given time, \fI{error, timeout}\fR\& is returned\&.
+.RE
+.LP
+.B
+versions() -> [{SslAppVer, SupportedSslVer, AvailableSslVsn}]
+.br
+.RS
+.TP 3
+Types:
+
+SslAppVer = string()
+.br
+SupportedSslVer = [protocol()]
+.br
+AvailableSslVsn = [protocol()]
+.br
+.RE
+.RS
+.LP
+Returns version information relevant for the ssl application\&.
+.RE
+.SH "SEE ALSO"
+
+.LP
+\fBinet(3) \fR\& and \fBgen_tcp(3) \fR\& 

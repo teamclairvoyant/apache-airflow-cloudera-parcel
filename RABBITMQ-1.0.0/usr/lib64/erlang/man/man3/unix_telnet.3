@@ -1,0 +1,45 @@
+.TH unix_telnet 3 "common_test 1.5.5" "" "Erlang Module Definition"
+.SH NAME
+unix_telnet \- Callback module for ct_telnet for talking telnet   
+to a unix host.
+.SH DESCRIPTION
+.LP
+Callback module for ct_telnet for talking telnet to a unix host\&.
+.LP
+It requires the following entry in the config file:
+.LP
+.nf
+
+   {unix,[{telnet,HostNameOrIpAddress},
+          {port,PortNum},                 % optional
+          {username,UserName},
+          {password,Password},
+          {keep_alive,Bool}]}.            % optional
+.fi
+.LP
+To talk telnet to the host specified by \fIHostNameOrIpAddress\fR\&, use the interface functions in \fIct\fR\&, e\&.g\&. \fIopen(Name), cmd(Name,Cmd), \&.\&.\&.\fR\&\&.
+.LP
+\fIName\fR\& is the name you allocated to the unix host in your \fIrequire\fR\& statement\&. E\&.g\&.
+.LP
+.nf
+   suite() -> [{require,Name,{unix,[telnet,username,password]}}].
+.fi
+.LP
+or
+.LP
+.nf
+   ct:require(Name,{unix,[telnet,username,password]}).
+.fi
+.LP
+The "keep alive" activity (i\&.e\&. that Common Test sends NOP to the server every 10 seconds if the connection is idle) may be enabled or disabled for one particular connection as described here\&. It may be disabled for all connections using \fItelnet_settings\fR\& (see \fIct_telnet\fR\&)\&.
+.LP
+Note that the \fI{port,PortNum}\fR\& tuple is optional and if omitted, default telnet port 23 will be used\&. Also the \fIkeep_alive\fR\& tuple is optional, and the value defauls to true (enabled)\&.
+.SH "SEE ALSO"
+
+.LP
+\fBct\fR\&, \fBct_telnet\fR\&
+.SH AUTHORS
+.LP
+
+.I
+<>

@@ -1,0 +1,156 @@
+.TH cosEventDomainApp 3 "cosEventDomain 1.1.11" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+cosEventDomainApp \- The main module of the cosEventDomain application.
+.SH DESCRIPTION
+.LP
+To get access to the record definitions for the structures use:
+.br
+\fI-include_lib("cosEventDomain/include/*\&.hrl")\&.\fR\&
+.LP
+This module contains the functions for starting and stopping the application\&.
+.SH EXPORTS
+.LP
+.B
+install() -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {'EXCEPTION', E} | {'EXIT', R}
+.br
+.RE
+.RS
+.LP
+This operation installs the cosEventDomain application\&.
+.RE
+.LP
+.B
+uninstall() -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {'EXCEPTION', E} | {'EXIT', R}
+.br
+.RE
+.RS
+.LP
+This operation uninstalls the cosEventDomain application\&.
+.RE
+.LP
+.B
+start() -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {error, Reason}
+.br
+.RE
+.RS
+.LP
+This operation starts the cosEventDomain application\&.
+.RE
+.LP
+.B
+stop() -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {error, Reason}
+.br
+.RE
+.RS
+.LP
+This operation stops the cosEventDomain application\&.
+.RE
+.LP
+.B
+start_factory() -> Factory
+.br
+.RS
+.TP 3
+Types:
+
+Factory = #objref
+.br
+.RE
+.RS
+.LP
+This operation creates a new instance of a \fBEvent Domain Factory\fR\& using the default settings\&.
+.RE
+.LP
+.B
+start_factory(Options) -> Factory
+.br
+.RS
+.TP 3
+Types:
+
+Options = [Option]
+.br
+Option = currently no options defined.
+.br
+Factory = #objref
+.br
+.RE
+.RS
+.LP
+This operation creates a new instance of a \fBEvent Domain Factory\fR\&
+.RE
+.LP
+.B
+start_factory_link() -> Factory
+.br
+.RS
+.TP 3
+Types:
+
+Factory = #objref
+.br
+.RE
+.RS
+.LP
+This operation creates a new instance of a \fBEvent Domain Factory\fR\&, which is linked to the invoking process, using the default settings\&.
+.RE
+.LP
+.B
+start_factory_link(Options) -> Factory
+.br
+.RS
+.TP 3
+Types:
+
+Options = [Option]
+.br
+Option = currently no options defined.
+.br
+Factory = #objref
+.br
+.RE
+.RS
+.LP
+This operation creates a new instance of a \fBEvent Domain Factory\fR\&, which is linked to the invoking process, with settings defined by the given options\&. Allowed options are the same as for \fIcosEventDomainApp:start_factory/1\fR\&\&.
+.RE
+.LP
+.B
+stop_factory(Factory) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+Factory = #objref
+.br
+Reply = ok | {'EXCEPTION', E}
+.br
+.RE
+.RS
+.LP
+This operation stop the target factory\&.
+.RE

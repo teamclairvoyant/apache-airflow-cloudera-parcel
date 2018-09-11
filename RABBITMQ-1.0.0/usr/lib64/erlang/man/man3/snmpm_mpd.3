@@ -1,0 +1,127 @@
+.TH snmpm_mpd 3 "snmp 4.21.1" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+snmpm_mpd \- Message Processing and Dispatch module for the SNMP manager
+.SH DESCRIPTION
+.LP
+The module \fIsnmpm_mpd\fR\& implements the version independent Message Processing and Dispatch functionality in SNMP for the manager\&. It is supposed to be used from a Network Interface process (\fBDefinition of Manager Net if\fR\&)\&.
+.SH EXPORTS
+.LP
+.B
+init_mpd(Vsns) -> mpd_state()
+.br
+.RS
+.TP 3
+Types:
+
+Vsns = [Vsn]
+.br
+Vsn = v1 | v2 | v3
+.br
+.RE
+.RS
+.LP
+This function can be called from the net_if process at start-up\&. The options list defines which versions to use\&.
+.LP
+It also initializes some SNMP counters\&. 
+.RE
+.LP
+.B
+process_msg(Msg, TDomain, Addr, Port, State, NoteStore, Logger) -> {ok, Vsn, Pdu, PduMS, MsgData} | {discarded, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Msg = binary()
+.br
+TDomain = snmpUDPDomain
+.br
+Addr = {integer(), integer(), integer(), integer()}
+.br
+Port = integer()
+.br
+State = mpd_state()
+.br
+NoteStore = pid()
+.br
+Logger = function()
+.br
+Vsn = 'version-1' | 'version-2' | 'version-3'
+.br
+Pdu = #pdu
+.br
+PduMs = integer()
+.br
+MsgData = term()
+.br
+.RE
+.RS
+.LP
+Processes an incoming message\&. Performs authentication and decryption as necessary\&. The return values should be passed the manager server\&.
+.LP
+\fINoteStore\fR\& is the \fIpid()\fR\& of the note-store process\&.
+.LP
+\fILogger\fR\& is the function used for audit trail logging\&.
+.LP
+In the case when the pdu type is \fIreport\fR\&, \fIMsgData\fR\& is either \fIok\fR\& or \fI{error, ReqId, Reason}\fR\&\&.
+.RE
+.LP
+.B
+generate_msg(Vsn, NoteStore, Pdu, MsgData, Logger) -> {ok, Packet} | {discarded, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Vsn = 'version-1' | 'version-2' | 'version-3'
+.br
+NoteStore = pid()
+.br
+Pdu = #pdu
+.br
+MsgData = term()
+.br
+Logger = function()
+.br
+Packet = binary()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Generates a possibly encrypted packet to be sent to the network\&.
+.LP
+\fINoteStore\fR\& is the \fIpid()\fR\& of the note-store process\&.
+.LP
+\fIMsgData\fR\& is the message specific data used in the SNMP message\&. In SNMPv1 and SNMPv2c, this message data is the community string\&. In SNMPv3, it is the context information\&.
+.LP
+\fILogger\fR\& is the function used for audit trail logging\&.
+.RE
+.LP
+.B
+generate_response_msg(Vsn, Pdu, MsgData, Logger) -> {ok, Packet} | {discarded, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Vsn = 'version-1' | 'version-2' | 'version-3'
+.br
+Pdu = #pdu
+.br
+MsgData = term()
+.br
+Logger = function()
+.br
+Packet = binary()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Generates a possibly encrypted response packet to be sent to the network\&.
+.LP
+\fIMsgData\fR\& is the message specific data used in the SNMP message\&. This value is received from the \fBprocess_msg\fR\& function\&.
+.RE

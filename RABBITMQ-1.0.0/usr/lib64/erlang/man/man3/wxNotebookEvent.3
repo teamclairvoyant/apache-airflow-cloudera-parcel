@@ -1,0 +1,72 @@
+.TH wxNotebookEvent 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxNotebookEvent \- See external documentation: wxNotebookEvent.
+.SH DESCRIPTION
+.LP
+See external documentation: wxNotebookEvent\&.
+.RS 2
+.TP 2
+.B
+Use \fBwxEvtHandler:connect/3\fR\& with EventType::
+\fIcommand_notebook_page_changed\fR\&, \fIcommand_notebook_page_changing\fR\&
+.RE
+.LP
+See also the message variant \fB#wxNotebook{\fR\&} event record type\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxNotifyEvent\fR\& 
+.br
+\fBwxCommandEvent\fR\& 
+.br
+\fBwxEvent\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxNotebookEvent()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+getOldSelection(This::wxNotebookEvent()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getSelection(This::wxNotebookEvent()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setOldSelection(This::wxNotebookEvent(), NOldSel::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setSelection(This::wxNotebookEvent(), NSel::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

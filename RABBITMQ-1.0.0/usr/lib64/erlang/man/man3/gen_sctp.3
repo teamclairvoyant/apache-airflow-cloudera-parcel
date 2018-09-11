@@ -1,0 +1,1424 @@
+.TH gen_sctp 3 "kernel 2.14.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+gen_sctp \- The gen_sctp module provides functions for communicating with sockets using the SCTP protocol.
+.SH DESCRIPTION
+.LP
+The \fIgen_sctp\fR\& module provides functions for communicating with sockets using the SCTP protocol\&. The implementation assumes that the OS kernel supports SCTP (RFC2960) through the user-level Sockets API Extensions\&. During development this implementation was tested on Linux Fedora Core 5\&.0 (kernel 2\&.6\&.15-2054 or later is needed), and on Solaris 10, 11\&. During OTP adaptation it was tested on SUSE Linux Enterprise Server 10 (x86_64) kernel 2\&.6\&.16\&.27-0\&.6-smp, with lksctp-tools-1\&.0\&.6, briefly on Solaris 10, and later on SUSE Linux Enterprise Server 10 Service Pack 1 (x86_64) kernel 2\&.6\&.16\&.54-0\&.2\&.3-smp with lksctp-tools-1\&.0\&.7\&.
+.LP
+Record definitions for the \fIgen_sctp\fR\& module can be found using:
+.LP
+.nf
+  -include_lib("kernel/include/inet_sctp.hrl").    
+.fi
+.LP
+These record definitions use the "new" spelling \&'adaptation\&', not the deprecated \&'adaption\&', regardless of which spelling the underlying C API uses\&.
+.SH "CONTENTS"
+
+.RS 2
+.TP 2
+*
+\fBDATA TYPES\fR\&
+.LP
+.TP 2
+*
+\fBEXPORTS\fR\&
+.LP
+.TP 2
+*
+\fBSCTP SOCKET OPTIONS\fR\&
+.LP
+.TP 2
+*
+\fBSCTP EXAMPLES\fR\&
+.LP
+.TP 2
+*
+\fBSEE ALSO\fR\&
+.LP
+.RE
+
+.SH DATA TYPES
+.nf
+
+.B
+\fBassoc_id()\fR\&
+.br
+.fi
+.RS
+.LP
+An opaque term returned in for example #sctp_paddr_change{} that identifies an association for an SCTP socket\&. The term is opaque except for the special value \fI0\fR\& that has a meaning such as "the whole endpoint" or "all future associations"\&.
+.RE
+.nf
+
+\fBoption()\fR\& = {active, true | false | once}
+.br
+         | {buffer, integer() >= 0}
+.br
+         | {dontroute, boolean()}
+.br
+         | {linger, {boolean(), integer() >= 0}}
+.br
+         | {mode, list | binary}
+.br
+         | list
+.br
+         | binary
+.br
+         | {priority, integer() >= 0}
+.br
+         | {recbuf, integer() >= 0}
+.br
+         | {reuseaddr, boolean()}
+.br
+         | {sctp_adaptation_layer, #sctp_setadaptation{}}
+.br
+         | {sctp_associnfo, #sctp_assocparams{}}
+.br
+         | {sctp_autoclose, integer() >= 0}
+.br
+         | {sctp_default_send_param, #sctp_sndrcvinfo{}}
+.br
+         | {sctp_delayed_ack_time, #sctp_assoc_value{}}
+.br
+         | {sctp_disable_fragments, boolean()}
+.br
+         | {sctp_events, #sctp_event_subscribe{}}
+.br
+         | {sctp_get_peer_addr_info, #sctp_paddrinfo{}}
+.br
+         | {sctp_i_want_mapped_v4_addr, boolean()}
+.br
+         | {sctp_initmsg, #sctp_initmsg{}}
+.br
+         | {sctp_maxseg, integer() >= 0}
+.br
+         | {sctp_nodelay, boolean()}
+.br
+         | {sctp_peer_addr_params, #sctp_paddrparams{}}
+.br
+         | {sctp_primary_addr, #sctp_prim{}}
+.br
+         | {sctp_rtoinfo, #sctp_rtoinfo{}}
+.br
+         | {sctp_set_peer_primary_addr, #sctp_setpeerprim{}}
+.br
+         | {sctp_status, #sctp_status{}}
+.br
+         | {sndbuf, integer() >= 0}
+.br
+         | {tos, integer() >= 0}
+.br
+.fi
+.RS
+.LP
+One of the \fBSCTP Socket Options\&.\fR\&
+.RE
+.nf
+
+\fBoption_name()\fR\& = active
+.br
+              | buffer
+.br
+              | dontroute
+.br
+              | linger
+.br
+              | mode
+.br
+              | priority
+.br
+              | recbuf
+.br
+              | reuseaddr
+.br
+              | sctp_adaptation_layer
+.br
+              | sctp_associnfo
+.br
+              | sctp_autoclose
+.br
+              | sctp_default_send_param
+.br
+              | sctp_delayed_ack_time
+.br
+              | sctp_disable_fragments
+.br
+              | sctp_events
+.br
+              | sctp_get_peer_addr_info
+.br
+              | sctp_i_want_mapped_v4_addr
+.br
+              | sctp_initmsg
+.br
+              | sctp_maxseg
+.br
+              | sctp_nodelay
+.br
+              | sctp_peer_addr_params
+.br
+              | sctp_primary_addr
+.br
+              | sctp_rtoinfo
+.br
+              | sctp_set_peer_primary_addr
+.br
+              | sctp_status
+.br
+              | sndbuf
+.br
+              | tos
+.br
+.fi
+.RS
+.RE
+.nf
+
+.B
+\fBsctp_socket()\fR\&
+.br
+.fi
+.RS
+.LP
+Socket identifier returned from \fIopen/*\fR\&\&.
+.RE
+.SH EXPORTS
+.LP
+.nf
+
+.B
+abort(Socket, Assoc) -> ok | {error, \fBinet:posix()\fR\&}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Socket = \fBsctp_socket()\fR\&
+.br
+Assoc = #sctp_assoc_change{}
+.br
+.RE
+.RS
+.LP
+Abnormally terminates the association given by \fIAssoc\fR\&, without flushing of unsent data\&. The socket itself remains open\&. Other associations opened on this socket are still valid, and it can be used in new associations\&.
+.RE
+.LP
+.nf
+
+.B
+close(Socket) -> ok | {error, \fBinet:posix()\fR\&}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Socket = \fBsctp_socket()\fR\&
+.br
+.RE
+.RS
+.LP
+Completely closes the socket and all associations on it\&. The unsent data is flushed as in \fIeof/2\fR\&\&. The \fIclose/1\fR\& call is blocking or otherwise depending of the value of the \fBlinger\fR\& socket \fBoption\fR\&\&. If \fIclose\fR\& does not linger or linger timeout expires, the call returns and the data is flushed in the background\&.
+.RE
+.LP
+.nf
+
+.B
+connect(Socket, Addr, Port, Opts) ->
+.B
+           {ok, Assoc} | {error, \fBinet:posix()\fR\&}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Socket = \fBsctp_socket()\fR\&
+.br
+Addr = \fBinet:ip_address()\fR\& | \fBinet:hostname()\fR\&
+.br
+Port = \fBinet:port_number()\fR\&
+.br
+Opts = [Opt :: \fBoption()\fR\&]
+.br
+Assoc = #sctp_assoc_change{}
+.br
+.RE
+.RS
+.LP
+Same as \fIconnect(Socket, Addr, Port, Opts, infinity)\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+connect(Socket, Addr, Port, Opts, Timeout) ->
+.B
+           {ok, Assoc} | {error, \fBinet:posix()\fR\&}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Socket = \fBsctp_socket()\fR\&
+.br
+Addr = \fBinet:ip_address()\fR\& | \fBinet:hostname()\fR\&
+.br
+Port = \fBinet:port_number()\fR\&
+.br
+Opts = [Opt :: \fBoption()\fR\&]
+.br
+Timeout = timeout()
+.br
+Assoc = #sctp_assoc_change{}
+.br
+.RE
+.RS
+.LP
+Establishes a new association for the socket \fISocket\fR\&, with the peer (SCTP server socket) given by \fIAddr\fR\& and \fIPort\fR\&\&. The \fITimeout\fR\&, is expressed in milliseconds\&. A socket can be associated with multiple peers\&.
+.LP
+\fBWARNING:\fR\& Using a value of \fITimeout\fR\& less than the maximum time taken by the OS to establish an association (around 4\&.5 minutes if the default values from RFC 4960 are used) can result in inconsistent or incorrect return values\&. This is especially relevant for associations sharing the same \fISocket\fR\& (i\&.e\&. source address and port) since the controlling process blocks until \fIconnect/*\fR\& returns\&. \fBconnect_init/*\fR\& provides an alternative not subject to this limitation\&.
+.LP
+The result of \fIconnect/*\fR\& is an \fI#sctp_assoc_change{}\fR\& event which contains, in particular, the new \fBAssociation ID\fR\&\&.
+.LP
+.nf
+   #sctp_assoc_change{
+        state             = atom(),
+        error             = atom(),
+        outbound_streams  = integer(),
+        inbound_streams   = integer(),
+        assoc_id          = assoc_id()
+  }        
+.fi
+.LP
+The number of outbound and inbound streams can be set by giving an \fIsctp_initmsg\fR\& option to \fIconnect\fR\& as in:
+.LP
+.nf
+  connect(Socket, Ip, Port,
+        [{sctp_initmsg,#sctp_initmsg{num_ostreams=OutStreams,
+                                     max_instreams=MaxInStreams}}])        
+.fi
+.LP
+All options \fIOpt\fR\& are set on the socket before the association is attempted\&. If an option record has got undefined field values, the options record is first read from the socket for those values\&. In effect, \fIOpt\fR\& option records only define field values to change before connecting\&.
+.LP
+The returned \fIoutbound_streams\fR\& and \fIinbound_streams\fR\& are the actual stream numbers on the socket, which may be different from the requested values (\fIOutStreams\fR\& and \fIMaxInStreams\fR\& respectively) if the peer requires lower values\&.
+.LP
+The following values of \fIstate\fR\& are possible:
+.RS 2
+.TP 2
+*
+\fIcomm_up\fR\&: association successfully established\&. This indicates a successful completion of \fIconnect\fR\&\&.
+.LP
+.TP 2
+*
+\fIcant_assoc\fR\&: association cannot be established (\fIconnect/*\fR\& failure)\&.
+.LP
+.RE
+
+.LP
+All other states do not normally occur in the output from \fIconnect/*\fR\&\&. Rather, they may occur in \fI#sctp_assoc_change{}\fR\& events received instead of data in \fBrecv/*\fR\& calls\&. All of them indicate losing the association due to various error conditions, and are listed here for the sake of completeness\&. The \fIerror\fR\& field may provide more detailed diagnostics\&.
+.RS 2
+.TP 2
+*
+\fIcomm_lost\fR\&;
+.LP
+.TP 2
+*
+\fIrestart\fR\&;
+.LP
+.TP 2
+*
+\fIshutdown_comp\fR\&\&.
+.LP
+.RE
+
+.RE
+.LP
+.nf
+
+.B
+connect_init(Socket, Addr, Port, Opts) ->
+.B
+                ok | {error, \fBinet:posix()\fR\&}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Socket = \fBsctp_socket()\fR\&
+.br
+Addr = \fBinet:ip_address()\fR\& | \fBinet:hostname()\fR\&
+.br
+Port = \fBinet:port_number()\fR\&
+.br
+Opts = [\fBoption()\fR\&]
+.br
+.RE
+.RS
+.LP
+Same as \fIconnect_init(Socket, Addr, Port, Opts, infinity)\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+connect_init(Socket, Addr, Port, Opts, Timeout) ->
+.B
+                ok | {error, \fBinet:posix()\fR\&}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Socket = \fBsctp_socket()\fR\&
+.br
+Addr = \fBinet:ip_address()\fR\& | \fBinet:hostname()\fR\&
+.br
+Port = \fBinet:port_number()\fR\&
+.br
+Opts = [\fBoption()\fR\&]
+.br
+Timeout = timeout()
+.br
+.RE
+.RS
+.LP
+Initiates a new association for the socket \fISocket\fR\&, with the peer (SCTP server socket) given by \fIAddr\fR\& and \fIPort\fR\&\&.
+.LP
+The fundamental difference between this API and \fIconnect/*\fR\& is that the return value is that of the underlying OS connect(2) system call\&. If \fIok\fR\& is returned then the result of the association establishement is received by the calling process as an \fB #sctp_assoc_change{}\fR\& event\&. The calling process must be prepared to receive this, or poll for it using \fIrecv/*\fR\& depending on the value of the active option\&.
+.LP
+The parameters are as described in \fBconnect/*\fR\&, with the exception of the \fITimeout\fR\& value\&.
+.LP
+The timer associated with \fITimeout\fR\& only supervises IP resolution of \fIAddr\fR\&
+.RE
+.LP
+.nf
+
+.B
+controlling_process(Socket, Pid) -> ok
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Socket = \fBsctp_socket()\fR\&
+.br
+Pid = pid()
+.br
+.RE
+.RS
+.LP
+Assigns a new controlling process \fIPid\fR\& to \fISocket\fR\&\&. Same implementation as \fIgen_udp:controlling_process/2\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+eof(Socket, Assoc) -> ok | {error, Reason}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Socket = \fBsctp_socket()\fR\&
+.br
+Assoc = #sctp_assoc_change{}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Gracefully terminates the association given by \fIAssoc\fR\&, with flushing of all unsent data\&. The socket itself remains open\&. Other associations opened on this socket are still valid, and it can be used in new associations\&.
+.RE
+.LP
+.nf
+
+.B
+listen(Socket, IsServer) -> ok | {error, Reason}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Socket = \fBsctp_socket()\fR\&
+.br
+IsServer = boolean()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Sets up a socket to listen on the IP address and port number it is bound to\&. \fIIsServer\fR\& must be \fItrue\fR\& or \fIfalse\fR\&\&. In the contrast to TCP, in SCTP there is no listening queue length\&. If \fIIsServer\fR\& is \fItrue\fR\& the socket accepts new associations, i\&.e\&. it will become an SCTP server socket\&.
+.RE
+.LP
+.nf
+
+.B
+open() -> {ok, Socket} | {error, \fBinet:posix()\fR\&}
+.br
+.fi
+.br
+.nf
+
+.B
+open(Port) -> {ok, Socket} | {error, \fBinet:posix()\fR\&}
+.br
+.fi
+.br
+.nf
+
+.B
+open(Opts) -> {ok, Socket} | {error, \fBinet:posix()\fR\&}
+.br
+.fi
+.br
+.nf
+
+.B
+open(Port, Opts) -> {ok, Socket} | {error, \fBinet:posix()\fR\&}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Opts = [Opt]
+.br
+Opt = {ip, IP}
+.br
+    | {ifaddr, IP}
+.br
+    | \fBinet:address_family()\fR\&
+.br
+    | {port, Port}
+.br
+    | \fBoption()\fR\&
+.br
+IP = \fBinet:ip_address()\fR\& | any | loopback
+.br
+Port = \fBinet:port_number()\fR\&
+.br
+Socket = \fBsctp_socket()\fR\&
+.br
+.RE
+.RS
+.LP
+Creates an SCTP socket and binds it to the local addresses specified by all \fI{ip,IP}\fR\& (or synonymously \fI{ifaddr,IP}\fR\&) options (this feature is called SCTP multi-homing)\&. The default \fIIP\fR\& and \fIPort\fR\& are \fIany\fR\& and \fI0\fR\&, meaning bind to all local addresses on any one free port\&.
+.LP
+Other options are:
+.RS 2
+.TP 2
+.B
+\fIinet6\fR\&:
+Set up the socket for IPv6\&.
+.TP 2
+.B
+\fIinet\fR\&:
+Set up the socket for IPv4\&. This is the default\&.
+.RE
+.LP
+A default set of socket \fBoptions\fR\& is used\&. In particular, the socket is opened in \fBbinary\fR\& and \fBpassive\fR\& mode, and with reasonably large \fBkernel\fR\& and driver \fBbuffers\&.\fR\&
+.RE
+.LP
+.nf
+
+.B
+recv(Socket) ->
+.B
+        {ok, {FromIP, FromPort, AncData, Data}} | {error, Reason}
+.br
+.fi
+.br
+.nf
+
+.B
+recv(Socket, Timeout) ->
+.B
+        {ok, {FromIP, FromPort, AncData, Data}} | {error, Reason}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Socket = \fBsctp_socket()\fR\&
+.br
+Timeout = timeout()
+.br
+FromIP = \fBinet:ip_address()\fR\&
+.br
+FromPort = \fBinet:port_number()\fR\&
+.br
+AncData = [#sctp_sndrcvinfo{}]
+.br
+Data = binary()
+.br
+     | string()
+.br
+     | #sctp_sndrcvinfo{}
+.br
+     | #sctp_assoc_change{}
+.br
+     | #sctp_paddr_change{}
+.br
+     | #sctp_adaptation_event{}
+.br
+Reason = \fBinet:posix()\fR\&
+.br
+       | #sctp_send_failed{}
+.br
+       | #sctp_paddr_change{}
+.br
+       | #sctp_pdapi_event{}
+.br
+       | #sctp_remote_error{}
+.br
+       | #sctp_shutdown_event{}
+.br
+.RE
+.RS
+.LP
+Receives the \fIData\fR\& message from any association of the socket\&. If the receive times out \fI{error,timeout\fR\& is returned\&. The default timeout is \fIinfinity\fR\&\&. \fIFromIP\fR\& and \fIFromPort\fR\& indicate the sender\&'s address\&.
+.LP
+\fIAncData\fR\& is a list of Ancillary Data items which may be received along with the main \fIData\fR\&\&. This list can be empty, or contain a single \fB#sctp_sndrcvinfo{}\fR\& record, if receiving of such ancillary data is enabled (see option \fBsctp_events\fR\&)\&. It is enabled by default, since such ancillary data provide an easy way of determining the association and stream over which the message has been received\&. (An alternative way would be to get the Association ID from the \fIFromIP\fR\& and \fIFromPort\fR\& using the \fBsctp_get_peer_addr_info\fR\& socket option, but this would still not produce the Stream number)\&.
+.LP
+The actual \fIData\fR\& received may be a \fIbinary()\fR\&, or \fIlist()\fR\& of bytes (integers in the range 0 through 255) depending on the socket mode, or an SCTP Event\&. The following SCTP Events are possible:
+.RS 2
+.TP 2
+*
+\fB#sctp_sndrcvinfo{}\fR\&
+.LP
+.TP 2
+*
+\fB#sctp_assoc_change{}\fR\&;
+.LP
+.TP 2
+*
+
+.LP
+.nf
+  #sctp_paddr_change{
+        addr      = {ip_address(),port()},
+        state     = atom(),
+        error     = integer(),
+        assoc_id  = assoc_id()
+  }            
+.fi
+.RS 2
+.LP
+Indicates change of the status of the peer\&'s IP address given by \fIaddr\fR\& within the association \fIassoc_id\fR\&\&. Possible values of \fIstate\fR\& (mostly self-explanatory) include:
+.RE
+.RS 2
+.TP 2
+*
+\fIaddr_unreachable\fR\&;
+.LP
+.TP 2
+*
+\fIaddr_available\fR\&;
+.LP
+.TP 2
+*
+\fIaddr_removed\fR\&;
+.LP
+.TP 2
+*
+\fIaddr_added\fR\&;
+.LP
+.TP 2
+*
+\fIaddr_made_prim\fR\&\&.
+.LP
+.TP 2
+*
+\fIaddr_confirmed\fR\&\&.
+.LP
+.RE
+
+.RS 2
+.LP
+In case of an error (e\&.g\&. \fIaddr_unreachable\fR\&), the \fIerror\fR\& field provides additional diagnostics\&. In such cases, the \fI#sctp_paddr_change{}\fR\& Event is automatically converted into an \fIerror\fR\& term returned by \fIgen_sctp:recv\fR\&\&. The \fIerror\fR\& field value can be converted into a string using \fIerror_string/1\fR\&\&.
+.RE
+.LP
+.TP 2
+*
+
+.LP
+.nf
+  #sctp_send_failed{
+        flags     = true | false,
+        error     = integer(),
+        info      = #sctp_sndrcvinfo{},
+        assoc_id  = assoc_id()
+        data      = binary()
+  }            
+.fi
+.RS 2
+.LP
+The sender may receive this event if a send operation fails\&. The \fIflags\fR\& is a Boolean specifying whether the data have actually been transmitted over the wire; \fIerror\fR\& provides extended diagnostics, use \fIerror_string/1\fR\&; \fIinfo\fR\& is the original \fB#sctp_sndrcvinfo{}\fR\& record used in the failed \fBsend/*,\fR\& and \fIdata\fR\& is the whole original data chunk attempted to be sent\&.
+.RE
+.RS 2
+.LP
+In the current implementation of the Erlang/SCTP binding, this Event is internally converted into an \fIerror\fR\& term returned by \fIrecv/*\fR\&\&.
+.RE
+.LP
+.TP 2
+*
+
+.LP
+.nf
+  #sctp_adaptation_event{
+        adaptation_ind = integer(),
+        assoc_id       = assoc_id()
+  }            
+.fi
+.RS 2
+.LP
+Delivered when a peer sends an Adaptation Layer Indication parameter (configured through the option \fBsctp_adaptation_layer\fR\&)\&. Note that with the current implementation of the Erlang/SCTP binding, this event is disabled by default\&.
+.RE
+.LP
+.TP 2
+*
+
+.LP
+.nf
+  #sctp_pdapi_event{
+        indication = sctp_partial_delivery_aborted,
+        assoc_id   = assoc_id()
+  }            
+.fi
+.RS 2
+.LP
+A partial delivery failure\&. In the current implementation of the Erlang/SCTP binding, this Event is internally converted into an \fIerror\fR\& term returned by \fIrecv/*\fR\&\&.
+.RE
+.LP
+.RE
+
+.RE
+.LP
+.nf
+
+.B
+send(Socket, SndRcvInfo, Data) -> ok | {error, Reason}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Socket = \fBsctp_socket()\fR\&
+.br
+SndRcvInfo = #sctp_sndrcvinfo{}
+.br
+Data = binary | iolist()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Sends the \fIData\fR\& message with all sending parameters from a \fB#sctp_sndrcvinfo{}\fR\& record\&. This way, the user can specify the PPID (passed to the remote end) and Context (passed to the local SCTP layer) which can be used for example for error identification\&. However, such a fine level of user control is rarely required\&. The send/4 function is sufficient for most applications\&.
+.RE
+.LP
+.nf
+
+.B
+send(Socket, Assoc, Stream, Data) -> ok | {error, Reason}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Socket = \fBsctp_socket()\fR\&
+.br
+Assoc = #sctp_assoc_change{} | \fBassoc_id()\fR\&
+.br
+Stream = integer()
+.br
+Data = binary | iolist()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Sends \fIData\fR\& message over an existing association and given stream\&.
+.RE
+.LP
+.nf
+
+.B
+error_string(ErrorNumber) -> ok | string() | unknown_error
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+ErrorNumber = integer()
+.br
+.RE
+.RS
+.LP
+Translates an SCTP error number from for example \fI#sctp_remote_error{}\fR\& or \fI#sctp_send_failed{}\fR\& into an explanatory string, or one of the atoms \fIok\fR\& for no error and \fIundefined\fR\& for an unrecognized error\&.
+.RE
+.SH "SCTP SOCKET OPTIONS"
+
+.LP
+The set of admissible SCTP socket options is by construction orthogonal to the sets of TCP, UDP and generic INET options: only those options which are explicitly listed below are allowed for SCTP sockets\&. Options can be set on the socket using \fIgen_sctp:open/1,2\fR\& or \fIinet:setopts/2\fR\&, retrieved using \fIinet:getopts/2\fR\&, and when calling \fIgen_sctp:connect/4,5\fR\& options can be changed\&.
+.RS 2
+.TP 2
+.B
+\fI{mode, list|binary}\fR\& or just \fIlist\fR\& or \fIbinary\fR\&:
+Determines the type of data returned from \fIgen_sctp:recv/1,2\fR\&\&.
+.TP 2
+.B
+\fI{active, true|false|once}\fR\&:
+
+.RS 2
+.TP 2
+*
+If \fIfalse\fR\& (passive mode, the default), the caller needs to do an explicit \fIgen_sctp:recv\fR\& call in order to retrieve the available data from the socket\&.
+.LP
+.TP 2
+*
+If \fItrue\fR\& (full active mode), the pending data or events are sent to the owning process\&.
+.RS 2
+.LP
+\fINB:\fR\& This can cause the message queue to overflow, as there is no way to throttle the sender in this case (no flow control!)\&.
+.RE
+.LP
+.TP 2
+*
+If \fIonce\fR\&, only one message is automatically placed in the message queue, after that the mode is automatically re-set to passive\&. This provides flow control as well as the possibility for the receiver to listen for its incoming SCTP data interleaved with other inter-process messages\&.
+.LP
+.RE
+
+.TP 2
+.B
+\fI{buffer, integer()}\fR\&:
+Determines the size of the user-level software buffer used by the SCTP driver\&. Not to be confused with \fIsndbuf\fR\& and \fIrecbuf\fR\& options which correspond to the kernel socket buffers\&. It is recommended to have \fIval(buffer) >= max(val(sndbuf),val(recbuf))\fR\&\&. In fact, the \fIval(buffer)\fR\& is automatically set to the above maximum when \fIsndbuf\fR\& or \fIrecbuf\fR\& values are set\&.
+.TP 2
+.B
+\fI{tos, integer()}\fR\&:
+Sets the Type-Of-Service field on the IP datagrams being sent, to the given value, which effectively determines a prioritization policy for the outbound packets\&. The acceptable values are system-dependent\&. TODO: we do not provide symbolic names for these values yet\&.
+.TP 2
+.B
+\fI{priority, integer()}\fR\&:
+A protocol-independent equivalent of \fItos\fR\& above\&. Setting priority implies setting tos as well\&.
+.TP 2
+.B
+\fI{dontroute, true|false}\fR\&:
+By default \fIfalse\fR\&\&. If \fItrue\fR\&, the kernel does not send packets via any gateway, only sends them to directly connected hosts\&.
+.TP 2
+.B
+\fI{reuseaddr, true|false}\fR\&:
+By default \fIfalse\fR\&\&. If true, the local binding address \fI{IP,Port}\fR\& of the socket can be re-used immediately: no waiting in the CLOSE_WAIT state is performed (may be required for high-throughput servers)\&.
+.TP 2
+.B
+\fI{linger, {true|false, integer()}\fR\&:
+Determines the timeout in seconds for flushing unsent data in the \fIgen_sctp:close/1\fR\& socket call\&. If the 1st component of the value tuple is \fIfalse\fR\&, the 2nd one is ignored, which means that \fIgen_sctp:close/1\fR\& returns immediately not waiting for data to be flushed\&. Otherwise, the 2nd component is the flushing time-out in seconds\&.
+.TP 2
+.B
+\fI{sndbuf, integer()}\fR\&:
+The size, in bytes, of the *kernel* send buffer for this socket\&. Sending errors would occur for datagrams larger than \fIval(sndbuf)\fR\&\&. Setting this option also adjusts the size of the driver buffer (see \fIbuffer\fR\& above)\&.
+.TP 2
+.B
+\fI{recbuf, integer()}\fR\&:
+The size, in bytes, of the *kernel* recv buffer for this socket\&. Sending errors would occur for datagrams larger than \fIval(sndbuf)\fR\&\&. Setting this option also adjusts the size of the driver buffer (see \fIbuffer\fR\& above)\&.
+.TP 2
+.B
+\fI{sctp_rtoinfo, #sctp_rtoinfo{}}\fR\&:
+
+.LP
+.nf
+  #sctp_rtoinfo{
+        assoc_id = assoc_id(),
+        initial  = integer(),
+        max      = integer(),
+        min      = integer()
+  }        
+.fi
+.RS 2
+.LP
+Determines re-transmission time-out parameters, in milliseconds, for the association(s) given by \fIassoc_id\fR\&\&. If \fIassoc_id = 0\fR\& (default) indicates the whole endpoint\&. See RFC2960 and Sockets API Extensions for SCTP for the exact semantics of the fields values\&.
+.RE
+.TP 2
+.B
+\fI{sctp_associnfo, #sctp_assocparams{}}\fR\&:
+
+.LP
+.nf
+  #sctp_assocparams{
+        assoc_id                 = assoc_id(),
+        asocmaxrxt               = integer(),
+        number_peer_destinations = integer(),
+        peer_rwnd                = integer(),
+        local_rwnd               = integer(),
+        cookie_life              = integer()
+  }        
+.fi
+.RS 2
+.LP
+Determines association parameters for the association(s) given by \fIassoc_id\fR\&\&. \fIassoc_id = 0\fR\& (default) indicates the whole endpoint\&. See Sockets API Extensions for SCTP for the discussion of their semantics\&. Rarely used\&.
+.RE
+.TP 2
+.B
+\fI{sctp_initmsg, #sctp_initmsg{}}\fR\&:
+
+.LP
+.nf
+  #sctp_initmsg{
+       num_ostreams   = integer(),
+       max_instreams  = integer(),
+       max_attempts   = integer(),
+       max_init_timeo = integer()
+  }        
+.fi
+.RS 2
+.LP
+Determines the default parameters which this socket attempts to negotiate with its peer while establishing an association with it\&. Should be set after \fIopen/*\fR\& but before the first \fIconnect/*\fR\&\&. \fI#sctp_initmsg{}\fR\& can also be used as ancillary data with the first call of \fIsend/*\fR\& to a new peer (when a new association is created)\&.
+.RE
+.RS 2
+.TP 2
+*
+\fInum_ostreams\fR\&: number of outbound streams;
+.LP
+.TP 2
+*
+\fImax_instreams\fR\&: max number of in-bound streams;
+.LP
+.TP 2
+*
+\fImax_attempts\fR\&: max re-transmissions while establishing an association;
+.LP
+.TP 2
+*
+\fImax_init_timeo\fR\&: time-out in milliseconds for establishing an association\&.
+.LP
+.RE
+
+.TP 2
+.B
+\fI{sctp_autoclose, integer() >= 0}\fR\&:
+Determines the time (in seconds) after which an idle association is automatically closed\&. \fI0\fR\& means that the association is never automatically closed\&.
+.TP 2
+.B
+\fI{sctp_nodelay, true|false}\fR\&:
+Turns on|off the Nagle algorithm for merging small packets into larger ones (which improves throughput at the expense of latency)\&.
+.TP 2
+.B
+\fI{sctp_disable_fragments, true|false}\fR\&:
+If \fItrue\fR\&, induces an error on an attempt to send a message which is larger than the current PMTU size (which would require fragmentation/re-assembling)\&. Note that message fragmentation does not affect the logical atomicity of its delivery; this option is provided for performance reasons only\&.
+.TP 2
+.B
+\fI{sctp_i_want_mapped_v4_addr, true|false}\fR\&:
+Turns on|off automatic mapping of IPv4 addresses into IPv6 ones (if the socket address family is AF_INET6)\&.
+.TP 2
+.B
+\fI{sctp_maxseg, integer()}\fR\&:
+Determines the maximum chunk size if message fragmentation is used\&. If \fI0\fR\&, the chunk size is limited by the Path MTU only\&.
+.TP 2
+.B
+\fI{sctp_primary_addr, #sctp_prim{}}\fR\&:
+
+.LP
+.nf
+  #sctp_prim{
+        assoc_id = assoc_id(),
+        addr     = {IP, Port}
+  }
+  IP = ip_address()
+  Port = port_number()        
+.fi
+.RS 2
+.LP
+For the association given by \fIassoc_id\fR\&, \fI{IP,Port}\fR\& must be one of the peer\&'s addresses\&. This option determines that the given address is treated by the local SCTP stack as the peer\&'s primary address\&.
+.RE
+.TP 2
+.B
+\fI{sctp_set_peer_primary_addr, #sctp_setpeerprim{}}\fR\&:
+
+.LP
+.nf
+  #sctp_setpeerprim{
+        assoc_id = assoc_id(),
+        addr     = {IP, Port}
+  }
+  IP = ip_address()
+  Port = port_number()        
+.fi
+.RS 2
+.LP
+When set, informs the peer that it should use \fI{IP, Port}\fR\& as the primary address of the local endpoint for the association given by \fIassoc_id\fR\&\&.
+.RE
+.TP 2
+.B
+\fI{sctp_adaptation_layer, #sctp_setadaptation{}}\fR\&:
+
+.LP
+.nf
+  #sctp_setadaptation{
+        adaptation_ind = integer()
+  }        
+.fi
+.RS 2
+.LP
+When set, requests that the local endpoint uses the value given by \fIadaptation_ind\fR\& as the Adaptation Indication parameter for establishing new associations\&. See RFC2960 and Sockets API Extenstions for SCTP for more details\&.
+.RE
+.TP 2
+.B
+\fI{sctp_peer_addr_params, #sctp_paddrparams{}}\fR\&:
+
+.LP
+.nf
+  #sctp_paddrparams{
+        assoc_id   = assoc_id(),
+        address    = {IP, Port},
+        hbinterval = integer(),
+        pathmaxrxt = integer(),
+        pathmtu    = integer(),
+        sackdelay  = integer(),
+        flags      = list()
+  }
+  IP = ip_address()
+  Port = port_number()        
+.fi
+.RS 2
+.LP
+This option determines various per-address parameters for the association given by \fIassoc_id\fR\& and the peer address \fIaddress\fR\& (the SCTP protocol supports multi-homing, so more than 1 address can correspond to a given association)\&.
+.RE
+.RS 2
+.TP 2
+*
+\fIhbinterval\fR\&: heartbeat interval, in milliseconds;
+.LP
+.TP 2
+*
+\fIpathmaxrxt\fR\&: max number of retransmissions before this address is considered unreachable (and an alternative address is selected);
+.LP
+.TP 2
+*
+\fIpathmtu\fR\&: fixed Path MTU, if automatic discovery is disabled (see \fIflags\fR\& below);
+.LP
+.TP 2
+*
+\fIsackdelay\fR\&: delay in milliseconds for SAC messages (if the delay is enabled, see \fIflags\fR\& below);
+.LP
+.TP 2
+*
+\fIflags\fR\&: the following flags are available:
+.RS 2
+.TP 2
+*
+\fIhb_enable\fR\&: enable heartbeat;
+.LP
+.TP 2
+*
+\fIhb_disable\fR\&: disable heartbeat;
+.LP
+.TP 2
+*
+\fIhb_demand\fR\&: initiate heartbeat immediately;
+.LP
+.TP 2
+*
+\fIpmtud_enable\fR\&: enable automatic Path MTU discovery;
+.LP
+.TP 2
+*
+\fIpmtud_disable\fR\&: disable automatic Path MTU discovery;
+.LP
+.TP 2
+*
+\fIsackdelay_enable\fR\&: enable SAC delay;
+.LP
+.TP 2
+*
+\fIsackdelay_disable\fR\&: disable SAC delay\&.
+.LP
+.RE
+
+.LP
+.RE
+
+.TP 2
+.B
+\fI{sctp_default_send_param, #sctp_sndrcvinfo{}}\fR\&:
+
+.LP
+.nf
+  #sctp_sndrcvinfo{
+        stream     = integer(),
+        ssn        = integer(),
+        flags      = list(),
+        ppid       = integer(),
+        context    = integer(),
+        timetolive = integer(),
+        tsn        = integer(),
+        cumtsn     = integer(),
+        assoc_id   = assoc_id()
+  }        
+.fi
+.RS 2
+.LP
+\fI#sctp_sndrcvinfo{}\fR\& is used both in this socket option, and as ancillary data while sending or receiving SCTP messages\&. When set as an option, it provides a default values for subsequent \fIgen_sctp:send\fR\&calls on the association given by \fIassoc_id\fR\&\&. \fIassoc_id = 0\fR\& (default) indicates the whole endpoint\&. The following fields typically need to be specified by the sender:
+.RE
+.RS 2
+.TP 2
+*
+\fIsinfo_stream\fR\&: stream number (0-base) within the association to send the messages through;
+.LP
+.TP 2
+*
+\fIsinfo_flags\fR\&: the following flags are recognised:
+.RS 2
+.TP 2
+*
+\fIunordered\fR\&: the message is to be sent unordered;
+.LP
+.TP 2
+*
+\fIaddr_over\fR\&: the address specified in \fIgen_sctp:send\fR\& overwrites the primary peer address;
+.LP
+.TP 2
+*
+\fIabort\fR\&: abort the current association without flushing any unsent data;
+.LP
+.TP 2
+*
+\fIeof\fR\&: gracefully shut down the current association, with flushing of unsent data\&.
+.LP
+.RE
+
+.RS 2
+.LP
+Other fields are rarely used\&. See RFC2960 and Sockets API Extensions for SCTP for full information\&.
+.RE
+.LP
+.RE
+
+.TP 2
+.B
+\fI{sctp_events, #sctp_event_subscribe{}}\fR\&:
+
+.LP
+.nf
+  #sctp_event_subscribe{
+          data_io_event          = true | false,
+          association_event      = true | false,
+          address_event          = true | false,
+          send_failure_event     = true | false,
+          peer_error_event       = true | false,
+          shutdown_event         = true | false,
+          partial_delivery_event = true | false,
+          adaptation_layer_event = true | false
+    }        
+.fi
+.RS 2
+.LP
+This option determines which \fBSCTP Events\fR\& are to be received (via \fBrecv/*\fR\&) along with the data\&. The only exception is \fIdata_io_event\fR\& which enables or disables receiving of \fB#sctp_sndrcvinfo{}\fR\& ancillary data, not events\&. By default, all flags except \fIadaptation_layer_event\fR\& are enabled, although \fIsctp_data_io_event\fR\& and \fIassociation_event\fR\& are used by the driver itself and not exported to the user level\&.
+.RE
+.TP 2
+.B
+\fI{sctp_delayed_ack_time, #sctp_assoc_value{}}\fR\&:
+
+.LP
+.nf
+  #sctp_assoc_value{
+        assoc_id    = assoc_id(),
+        assoc_value = integer()
+  }        
+.fi
+.RS 2
+.LP
+Rarely used\&. Determines the ACK time (given by \fIassoc_value\fR\& in milliseconds) for the given association or the whole endpoint if \fIassoc_value = 0\fR\& (default)\&.
+.RE
+.TP 2
+.B
+\fI{sctp_status, #sctp_status{}}\fR\&:
+
+.LP
+.nf
+  #sctp_status{
+        assoc_id            = assoc_id(),
+        state               = atom(),
+        rwnd                = integer(),
+        unackdata           = integer(),
+        penddata            = integer(),
+        instrms             = integer(),
+        outstrms            = integer(),
+        fragmentation_point = integer(),
+        primary             = #sctp_paddrinfo{}
+  }        
+.fi
+.RS 2
+.LP
+This option is read-only\&. It determines the status of the SCTP association given by \fIassoc_id\fR\&\&. Possible values of \fIstate\fR\& follows\&. The state designations are mostly self-explanatory\&. \fIstate_empty\fR\& is the default which means that no other state is active:
+.RE
+.RS 2
+.TP 2
+*
+\fIsctp_state_empty\fR\&
+.LP
+.TP 2
+*
+\fIsctp_state_closed\fR\&
+.LP
+.TP 2
+*
+\fIsctp_state_cookie_wait\fR\&
+.LP
+.TP 2
+*
+\fIsctp_state_cookie_echoed\fR\&
+.LP
+.TP 2
+*
+\fIsctp_state_established\fR\&
+.LP
+.TP 2
+*
+\fIsctp_state_shutdown_pending\fR\&
+.LP
+.TP 2
+*
+\fIsctp_state_shutdown_sent\fR\&
+.LP
+.TP 2
+*
+\fIsctp_state_shutdown_received\fR\&
+.LP
+.TP 2
+*
+\fIsctp_state_shutdown_ack_sent\fR\&
+.LP
+.RE
+
+.RS 2
+.LP
+The semantics of other fields is the following:
+.RE
+.RS 2
+.TP 2
+*
+\fIsstat_rwnd\fR\&: the association peer\&'s current receiver window size;
+.LP
+.TP 2
+*
+\fIsstat_unackdata\fR\&: number of unacked data chunks;
+.LP
+.TP 2
+*
+\fIsstat_penddata\fR\&: number of data chunks pending receipt;
+.LP
+.TP 2
+*
+\fIsstat_instrms\fR\&: number of inbound streams;
+.LP
+.TP 2
+*
+\fIsstat_outstrms\fR\&: number of outbound streams;
+.LP
+.TP 2
+*
+\fIsstat_fragmentation_point\fR\&: message size at which SCTP fragmentation will occur;
+.LP
+.TP 2
+*
+\fIsstat_primary\fR\&: information on the current primary peer address (see below for the format of \fI#sctp_paddrinfo{}\fR\&)\&.
+.LP
+.RE
+
+.TP 2
+.B
+\fI{sctp_get_peer_addr_info, #sctp_paddrinfo{}}\fR\&:
+
+.LP
+.nf
+  #sctp_paddrinfo{
+        assoc_id  = assoc_id(),
+        address   = {IP, Port},
+        state     = inactive | active,
+        cwnd      = integer(),
+        srtt      = integer(),
+        rto       = integer(),
+        mtu       = integer()
+  }
+  IP = ip_address()
+  Port = port_number()        
+.fi
+.RS 2
+.LP
+This option is read-only\&. It determines the parameters specific to the peer\&'s address given by \fIaddress\fR\& within the association given by \fIassoc_id\fR\&\&. The \fIaddress\fR\& field must be set by the caller; all other fields are filled in on return\&. If \fIassoc_id = 0\fR\& (default), the \fIaddress\fR\& is automatically translated into the corresponding association ID\&. This option is rarely used; see RFC2960 and Sockets API Extensions for SCTP for the semantics of all fields\&.
+.RE
+.RE
+.SH "SCTP EXAMPLES"
+
+.RS 2
+.TP 2
+*
+Example of an Erlang SCTP Server which receives SCTP messages and prints them on the standard output:
+.LP
+.nf
+  -module(sctp_server).
+  
+  -export([server/0,server/1,server/2]).
+  -include_lib("kernel/include/inet.hrl").
+  -include_lib("kernel/include/inet_sctp.hrl").
+  
+  server() ->
+      server(any, 2006).
+  
+  server([Host,Port]) when is_list(Host), is_list(Port) ->
+      {ok, #hostent{h_addr_list = [IP|_]}} = inet:gethostbyname(Host),
+      io:format("~w -> ~w~n", [Host, IP]),
+      server([IP, list_to_integer(Port)]).
+  
+  server(IP, Port) when is_tuple(IP) orelse IP == any orelse IP == loopback,
+                        is_integer(Port) ->
+      {ok,S} = gen_sctp:open(Port, [{recbuf,65536}, {ip,IP}]),
+      io:format("Listening on ~w:~w. ~w~n", [IP,Port,S]),
+      ok     = gen_sctp:listen(S, true),
+      server_loop(S).
+  
+  server_loop(S) ->
+      case gen_sctp:recv(S) of
+      {error, Error} ->
+          io:format("SCTP RECV ERROR: ~p~n", [Error]);
+      Data ->
+          io:format("Received: ~p~n", [Data])
+      end,
+      server_loop(S).        
+.fi
+.LP
+.TP 2
+*
+Example of an Erlang SCTP Client which interacts with the above Server\&. Note that in this example, the Client creates an association with the Server with 5 outbound streams\&. For this reason, sending of "Test 0" over Stream 0 succeeds, but sending of "Test 5" over Stream 5 fails\&. The client then \fIabort\fR\&s the association, which results in the corresponding Event being received on the Server side\&.
+.LP
+.nf
+  -module(sctp_client).
+  
+  -export([client/0, client/1, client/2]).
+  -include_lib("kernel/include/inet.hrl").
+  -include_lib("kernel/include/inet_sctp.hrl").
+ 
+  client() ->
+      client([localhost]).
+  
+  client([Host]) ->
+      client(Host, 2006);
+  
+  client([Host, Port]) when is_list(Host), is_list(Port) ->
+      client(Host,list_to_integer(Port)),
+      init:stop().
+  
+  client(Host, Port) when is_integer(Port) ->
+      {ok,S}     = gen_sctp:open(),
+      {ok,Assoc} = gen_sctp:connect
+          (S, Host, Port, [{sctp_initmsg,#sctp_initmsg{num_ostreams=5}}]),
+      io:format("Connection Successful, Assoc=~p~n", [Assoc]),
+      
+      io:write(gen_sctp:send(S, Assoc, 0, <<"Test 0">>)),
+      io:nl(),
+      timer:sleep(10000),
+      io:write(gen_sctp:send(S, Assoc, 5, <<"Test 5">>)),
+      io:nl(),
+      timer:sleep(10000),
+      io:write(gen_sctp:abort(S, Assoc)),
+      io:nl(),
+      
+      timer:sleep(1000),
+      gen_sctp:close(S).        
+.fi
+.LP
+.TP 2
+*
+A very simple Erlang SCTP Client which uses the connect_init API\&.
+.LP
+.nf
+-module(ex3).
+
+-export([client/4]).
+-include_lib("kernel/include/inet.hrl").
+-include_lib("kernel/include/inet_sctp.hrl").
+
+client(Peer1, Port1, Peer2, Port2)
+  when is_tuple(Peer1), is_integer(Port1), is_tuple(Peer2), is_integer(Port2) ->
+    {ok,S}     = gen_sctp:open(),
+    SctpInitMsgOpt = {sctp_initmsg,#sctp_initmsg{num_ostreams=5}},
+    ActiveOpt = {active, true},
+    Opts = [SctpInitMsgOpt, ActiveOpt],
+    ok = gen_sctp:connect(S, Peer1, Port1, Opts),
+    ok = gen_sctp:connect(S, Peer2, Port2, Opts),
+    io:format("Connections initiated~n", []),
+    client_loop(S, Peer1, Port1, undefined, Peer2, Port2, undefined).
+
+client_loop(S, Peer1, Port1, AssocId1, Peer2, Port2, AssocId2) ->
+    receive
+        {sctp, S, Peer1, Port1, {_Anc, SAC}}
+          when is_record(SAC, sctp_assoc_change), AssocId1 == undefined ->
+            io:format("Association 1 connect result: ~p. AssocId: ~p~n",
+                      [SAC#sctp_assoc_change.state,
+                       SAC#sctp_assoc_change.assoc_id]),
+            client_loop(S, Peer1, Port1, SAC#sctp_assoc_change.assoc_id,
+                        Peer2, Port2, AssocId2);
+
+        {sctp, S, Peer2, Port2, {_Anc, SAC}}
+          when is_record(SAC, sctp_assoc_change), AssocId2 == undefined ->
+            io:format("Association 2 connect result: ~p. AssocId: ~p~n",
+                      [SAC#sctp_assoc_change.state, SAC#sctp_assoc_change.assoc_id]),
+            client_loop(S, Peer1, Port1, AssocId1, Peer2, Port2,
+                        SAC#sctp_assoc_change.assoc_id);
+
+        {sctp, S, Peer1, Port1, Data} ->
+            io:format("Association 1: received ~p~n", [Data]),
+            client_loop(S, Peer1, Port1, AssocId1,
+                        Peer2, Port2, AssocId2);
+
+        {sctp, S, Peer2, Port2, Data} ->
+            io:format("Association 2: received ~p~n", [Data]),
+            client_loop(S, Peer1, Port1, AssocId1,
+                        Peer2, Port2, AssocId2);
+
+        Other ->
+            io:format("Other ~p~n", [Other]),
+            client_loop(S, Peer1, Port1, AssocId1,
+                        Peer2, Port2, AssocId2)
+
+    after 5000 ->
+            ok
+    end.
+
+.fi
+.LP
+.RE
+
+.SH "SEE ALSO"
+
+.LP
+\fBinet(3)\fR\&, \fBgen_tcp(3)\fR\&, \fBgen_udp(3)\fR\&, RFC2960 (Stream Control Transmission Protocol), Sockets API Extensions for SCTP\&.

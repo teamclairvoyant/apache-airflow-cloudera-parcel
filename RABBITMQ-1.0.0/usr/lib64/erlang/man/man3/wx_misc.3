@@ -1,0 +1,259 @@
+.TH wx_misc 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wx_misc \- See external documentation: Misc.
+.SH DESCRIPTION
+.LP
+See external documentation: Misc\&.
+.SH EXPORTS
+.LP
+.B
+getKeyState(Key::WxKeyCode) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+WxKeyCode = integer()
+.br
+.RE
+.RS
+.LP
+See external documentation\&. 
+.br
+WxKeyCode is one of ?WXK_BACK | ?WXK_TAB | ?WXK_RETURN | ?WXK_ESCAPE | ?WXK_SPACE | ?WXK_DELETE | ?WXK_START | ?WXK_LBUTTON | ?WXK_RBUTTON | ?WXK_CANCEL | ?WXK_MBUTTON | ?WXK_CLEAR | ?WXK_SHIFT | ?WXK_ALT | ?WXK_CONTROL | ?WXK_MENU | ?WXK_PAUSE | ?WXK_CAPITAL | ?WXK_END | ?WXK_HOME | ?WXK_LEFT | ?WXK_UP | ?WXK_RIGHT | ?WXK_DOWN | ?WXK_SELECT | ?WXK_PRINT | ?WXK_EXECUTE | ?WXK_SNAPSHOT | ?WXK_INSERT | ?WXK_HELP | ?WXK_NUMPAD0 | ?WXK_NUMPAD1 | ?WXK_NUMPAD2 | ?WXK_NUMPAD3 | ?WXK_NUMPAD4 | ?WXK_NUMPAD5 | ?WXK_NUMPAD6 | ?WXK_NUMPAD7 | ?WXK_NUMPAD8 | ?WXK_NUMPAD9 | ?WXK_MULTIPLY | ?WXK_ADD | ?WXK_SEPARATOR | ?WXK_SUBTRACT | ?WXK_DECIMAL | ?WXK_DIVIDE | ?WXK_F1 | ?WXK_F2 | ?WXK_F3 | ?WXK_F4 | ?WXK_F5 | ?WXK_F6 | ?WXK_F7 | ?WXK_F8 | ?WXK_F9 | ?WXK_F10 | ?WXK_F11 | ?WXK_F12 | ?WXK_F13 | ?WXK_F14 | ?WXK_F15 | ?WXK_F16 | ?WXK_F17 | ?WXK_F18 | ?WXK_F19 | ?WXK_F20 | ?WXK_F21 | ?WXK_F22 | ?WXK_F23 | ?WXK_F24 | ?WXK_NUMLOCK | ?WXK_SCROLL | ?WXK_PAGEUP | ?WXK_PAGEDOWN | ?WXK_NUMPAD_SPACE | ?WXK_NUMPAD_TAB | ?WXK_NUMPAD_ENTER | ?WXK_NUMPAD_F1 | ?WXK_NUMPAD_F2 | ?WXK_NUMPAD_F3 | ?WXK_NUMPAD_F4 | ?WXK_NUMPAD_HOME | ?WXK_NUMPAD_LEFT | ?WXK_NUMPAD_UP | ?WXK_NUMPAD_RIGHT | ?WXK_NUMPAD_DOWN | ?WXK_NUMPAD_PAGEUP | ?WXK_NUMPAD_PAGEDOWN | ?WXK_NUMPAD_END | ?WXK_NUMPAD_BEGIN | ?WXK_NUMPAD_INSERT | ?WXK_NUMPAD_DELETE | ?WXK_NUMPAD_EQUAL | ?WXK_NUMPAD_MULTIPLY | ?WXK_NUMPAD_ADD | ?WXK_NUMPAD_SEPARATOR | ?WXK_NUMPAD_SUBTRACT | ?WXK_NUMPAD_DECIMAL | ?WXK_NUMPAD_DIVIDE | ?WXK_WINDOWS_LEFT | ?WXK_WINDOWS_RIGHT | ?WXK_WINDOWS_MENU | ?WXK_COMMAND | ?WXK_SPECIAL1 | ?WXK_SPECIAL2 | ?WXK_SPECIAL3 | ?WXK_SPECIAL4 | ?WXK_SPECIAL5 | ?WXK_SPECIAL6 | ?WXK_SPECIAL7 | ?WXK_SPECIAL8 | ?WXK_SPECIAL9 | ?WXK_SPECIAL10 | ?WXK_SPECIAL11 | ?WXK_SPECIAL12 | ?WXK_SPECIAL13 | ?WXK_SPECIAL14 | ?WXK_SPECIAL15 | ?WXK_SPECIAL16 | ?WXK_SPECIAL17 | ?WXK_SPECIAL18 | ?WXK_SPECIAL19 | ?WXK_SPECIAL20
+.RE
+.LP
+.B
+getMousePosition() -> {X::integer(), Y::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getMouseState() -> wxMouseState() (see module wx)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setDetectableAutoRepeat(Flag::bool()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+bell() -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+findMenuItemId(Frame::wxFrame() (see module wxFrame), MenuString::string(), ItemString::string()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+genericFindWindowAtPoint(Pt::{X::integer(), Y::integer()}) -> wxWindow() (see module wxWindow)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+findWindowAtPoint(Pt::{X::integer(), Y::integer()}) -> wxWindow() (see module wxWindow)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+beginBusyCursor() -> ok
+.br
+.RS
+.LP
+Equivalent to \fBbeginBusyCursor([])\fR\&\&.
+.RE
+.LP
+.B
+beginBusyCursor(Options::[Option]) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Option = {cursor, wxCursor() (see module wxCursor)}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+endBusyCursor() -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isBusy() -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+shutdown(WFlags::WxShutdownFlags) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+WxShutdownFlags = integer()
+.br
+.RE
+.RS
+.LP
+See external documentation\&. 
+.br
+WxShutdownFlags is one of ?wxSHUTDOWN_POWEROFF | ?wxSHUTDOWN_REBOOT
+.RE
+.LP
+.B
+shell() -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBshell([])\fR\&\&.
+.RE
+.LP
+.B
+shell(Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {command, string()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+launchDefaultBrowser(Url::string()) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBlaunchDefaultBrowser(Url, [])\fR\&\&.
+.RE
+.LP
+.B
+launchDefaultBrowser(Url::string(), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {flags, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getEmailAddress() -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getUserId() -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getHomeDir() -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+newId() -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+registerId(Id::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getCurrentId() -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getOsDescription() -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isPlatformLittleEndian() -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isPlatform64Bit() -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

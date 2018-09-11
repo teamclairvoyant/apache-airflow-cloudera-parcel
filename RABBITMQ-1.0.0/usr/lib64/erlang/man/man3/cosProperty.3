@@ -1,0 +1,169 @@
+.TH cosProperty 3 "cosProperty 1.1.14" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+cosProperty \- The main module of the cosProperty application
+.SH DESCRIPTION
+.LP
+To get access to the record definitions for the structures use: 
+.br
+\fI-include_lib("cosProperty/include/*\&.hrl")\&.\fR\&
+.LP
+This module contains the functions for starting and stopping the application\&.
+.SH EXPORTS
+.LP
+.B
+install() -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {'EXIT', Reason}
+.br
+.RE
+.RS
+.LP
+This operation installs the cosProperty application in the IFR\&.
+.RE
+.LP
+.B
+install_db() -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {'EXIT', Reason}
+.br
+.RE
+.RS
+.LP
+This operation installs data in mnesia necessary for running the cosProperty application\&.
+.RE
+.LP
+.B
+uninstall() -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {'EXIT', Reason}
+.br
+.RE
+.RS
+.LP
+This operation removes all data in the IFR related to the cosProperty application\&.
+.RE
+.LP
+.B
+uninstall_db() -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {'EXIT', Reason}
+.br
+.RE
+.RS
+.LP
+This operation removes all data from mnesia related to the cosProperty application\&.
+.RE
+.LP
+.B
+start() -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {error, Reason}
+.br
+.RE
+.RS
+.LP
+This operation starts the cosProperty application\&.
+.RE
+.LP
+.B
+start_SetDefFactory() -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = Factory | {'EXCEPTION', E}
+.br
+Factory = CosPropertyService::PropertySetDefFactory reference.
+.br
+.RE
+.RS
+.LP
+This operation starts a PropertySetDef Factory\&.
+.RE
+.LP
+.B
+start_SetFactory() -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = Factory | {'EXCEPTION', E}
+.br
+Factory = CosPropertyService::PropertySetDefFactory reference.
+.br
+.RE
+.RS
+.LP
+This operation starts a PropertySet Factory\&.
+.RE
+.LP
+.B
+stop_SetDefFactory(Factory) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Factory = CosPropertyService::PropertySetDefFactory reference.
+.br
+Return = ok | {'EXCEPTION', E}
+.br
+.RE
+.RS
+.LP
+This operation stops the supplied PropertySetDef Factory\&.
+.RE
+.LP
+.B
+stop_SetFactory(Factory) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Factory = CosPropertyService::PropertySetFactory reference.
+.br
+Return = ok | {'EXCEPTION', E}
+.br
+.RE
+.RS
+.LP
+This operation stops the supplied PropertySet Factory\&.
+.RE
+.LP
+.B
+stop() -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {error, Reason}
+.br
+.RE
+.RS
+.LP
+This operation stops the cosProperty application\&.
+.RE

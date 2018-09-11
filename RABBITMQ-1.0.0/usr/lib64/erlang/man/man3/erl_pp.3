@@ -1,0 +1,240 @@
+.TH erl_pp 3 "stdlib 1.17.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+erl_pp \- The Erlang Pretty Printer
+.SH DESCRIPTION
+.LP
+The functions in this module are used to generate aesthetically attractive representations of abstract forms, which are suitable for printing\&. All functions return (possibly deep) lists of characters and generate an error if the form is wrong\&.
+.LP
+All functions can have an optional argument which specifies a hook that is called if an attempt is made to print an unknown form\&.
+.SH DATA TYPES
+.nf
+
+\fBhook_function()\fR\& = none
+.br
+                | fun((Expr :: \fBerl_parse:abstract_expr()\fR\&,
+.br
+                       CurrentIndentation :: integer(),
+.br
+                       CurrentPrecedence :: integer() >= 0,
+.br
+                       HookFunction :: \fBhook_function()\fR\&) ->
+.br
+                          \fBio_lib:chars()\fR\&)
+.br
+.fi
+.RS
+.LP
+The optional argument \fB\fIHookFunction\fR\&\fR\&, shown in the functions described below, defines a function which is called when an unknown form occurs where there should be a valid expression\&.
+.LP
+If \fIHookFunction\fR\& is equal to \fInone\fR\& there is no hook function\&.
+.LP
+The called hook function should return a (possibly deep) list of characters\&. \fB\fIexpr/4\fR\&\fR\& is useful in a hook\&.
+.LP
+If \fICurrentIndentation\fR\& is negative, there will be no line breaks and only a space is used as a separator\&.
+.RE
+.SH EXPORTS
+.LP
+.nf
+
+.B
+form(Form) -> \fBio_lib:chars()\fR\&
+.br
+.fi
+.br
+.nf
+
+.B
+form(Form, HookFunction) -> \fBio_lib:chars()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Form = \fBerl_parse:abstract_form()\fR\&
+.br
+HookFunction = \fBhook_function()\fR\&
+.br
+.RE
+.RS
+.LP
+Pretty prints a \fIForm\fR\& which is an abstract form of a type which is returned by \fB\fIerl_parse:parse_form/1\fR\&\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+attribute(Attribute) -> \fBio_lib:chars()\fR\&
+.br
+.fi
+.br
+.nf
+
+.B
+attribute(Attribute, HookFunction) -> \fBio_lib:chars()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Attribute = \fBerl_parse:abstract_form()\fR\&
+.br
+HookFunction = \fBhook_function()\fR\&
+.br
+.RE
+.RS
+.LP
+The same as \fIform\fR\&, but only for the attribute \fIAttribute\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+function(Function) -> \fBio_lib:chars()\fR\&
+.br
+.fi
+.br
+.nf
+
+.B
+function(Function, HookFunction) -> \fBio_lib:chars()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Function = \fBerl_parse:abstract_form()\fR\&
+.br
+HookFunction = \fBhook_function()\fR\&
+.br
+.RE
+.RS
+.LP
+The same as \fIform\fR\&, but only for the function \fIFunction\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+guard(Guard) -> \fBio_lib:chars()\fR\&
+.br
+.fi
+.br
+.nf
+
+.B
+guard(Guard, HookFunction) -> \fBio_lib:chars()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Guard = [\fBerl_parse:abstract_expr()\fR\&]
+.br
+HookFunction = \fBhook_function()\fR\&
+.br
+.RE
+.RS
+.LP
+The same as \fIform\fR\&, but only for the guard test \fIGuard\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+exprs(Expressions) -> \fBio_lib:chars()\fR\&
+.br
+.fi
+.br
+.nf
+
+.B
+exprs(Expressions, HookFunction) -> \fBio_lib:chars()\fR\&
+.br
+.fi
+.br
+.nf
+
+.B
+exprs(Expressions, Indent, HookFunction) -> \fBio_lib:chars()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Expressions = [\fBerl_parse:abstract_expr()\fR\&]
+.br
+Indent = integer()
+.br
+HookFunction = \fBhook_function()\fR\&
+.br
+.RE
+.RS
+.LP
+The same as \fIform\fR\&, but only for the sequence of expressions in \fIExpressions\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+expr(Expression) -> \fBio_lib:chars()\fR\&
+.br
+.fi
+.br
+.nf
+
+.B
+expr(Expression, HookFunction) -> \fBio_lib:chars()\fR\&
+.br
+.fi
+.br
+.nf
+
+.B
+expr(Expression, Indent, HookFunction) -> \fBio_lib:chars()\fR\&
+.br
+.fi
+.br
+.nf
+
+.B
+expr(Expression, Indent, Precedence, HookFunction) ->
+.B
+        \fBio_lib:chars()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Expression = \fBerl_parse:abstract_expr()\fR\&
+.br
+Indent = integer()
+.br
+Precedence = integer() >= 0
+.br
+HookFunction = \fBhook_function()\fR\&
+.br
+.RE
+.RS
+.LP
+This function prints one expression\&. It is useful for implementing hooks (see below)\&.
+.RE
+.SH "BUGS"
+
+.LP
+It should be possible to have hook functions for unknown forms at places other than expressions\&.
+.SH "SEE ALSO"
+
+.LP
+\fBio(3)\fR\&, \fBerl_parse(3)\fR\&, \fBerl_eval(3)\fR\&

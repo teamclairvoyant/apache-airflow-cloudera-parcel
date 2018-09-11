@@ -1,0 +1,201 @@
+.TH CosFileTransfer_FileTransferSession 3 "cosFileTransfer 1.1.12" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+CosFileTransfer_FileTransferSession \- This module implements the OMG CosFileTransfer::FileTransferSession interface.
+.SH DESCRIPTION
+.LP
+To get access to the record definitions for the structures use: 
+.br
+\fI-include_lib("cosFileTransfer/include/*\&.hrl")\&.\fR\&
+.SH EXPORTS
+.LP
+.B
+\&'_get_protocols_supported\&'(FTS) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+FTS = #objref
+.br
+Return = [#'CosFileTransfer_ProtocolSupport'{protocol_name=Type, addresses=[Address]}]
+.br
+Type = Address = string()
+.br
+.RE
+.RS
+.LP
+This read only attribute returns the protocols supported by the target object\&.
+.RE
+.LP
+.B
+set_directory(FTS, Directory) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+FTS = Directory = #objref
+.br
+Return = ok | {'EXCEPTION, E}
+.br
+.RE
+.RS
+.LP
+Invoking this operation will change the current working directory of the target object\&'s associated file system\&. If fail to do so the appropriate exception is raised\&.
+.RE
+.LP
+.B
+create_file(FTS, FileNameList) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+FTS = #objref
+.br
+FileNameList = [string()]
+.br
+Return = File | {'EXCEPTION, E}
+.br
+File = #objref
+.br
+.RE
+.RS
+.LP
+This operation creates a \fIFile\fR\& Object representing a file which may or may not exist\&. For this operation to be independent of the working directory the supplied \fIFileNameList\fR\& must represent the absolute name\&.
+.RE
+.LP
+.B
+create_directory(FTS, FileNameList) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+FTS = #objref
+.br
+FileNameList = [string()]
+.br
+Return = Directory | {'EXCEPTION, E}
+.br
+Directory = #objref
+.br
+.RE
+.RS
+.LP
+This operation creates a new directory in the target objects associated file systems domain\&. If fail to do so an exception is raised but, if successful, a \fIDirectory\fR\& object representing the new directory is returned\&.
+.RE
+.LP
+.B
+get_file(FTS, FileNameList) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+FTS = #objref
+.br
+FileNameList = [string()]
+.br
+Return = FileWrapper | {'EXCEPTION, E}
+.br
+FileWrapper = #'CosFileTransfer_FileWrapper'{the_file = File file_type = Type}
+.br
+File = #objref
+.br
+Type = nfile | ndirectory
+.br
+.RE
+.RS
+.LP
+This operation, creates a \fIFileWrapper\fR\& which represents a file or directory, and should be independent of the working Directory, i\&.e\&., a full path name must be supplied\&. Furthermore, the file or directory represented by the \fIFileNameList\fR\& must exist\&.
+.RE
+.LP
+.B
+delete(FTS, File) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+FTS = File = #objref
+.br
+Return = ok | {'EXCEPTION', E}
+.br
+.RE
+.RS
+.LP
+This operation removes the file or directory, represented by the \fIFile\fR\& object, from the target objects associated file system\&. If it is a non-empty directory or non-existing file or directory an exception is raised\&.
+.RE
+.LP
+.B
+transfer(FTS, SourceFile, DestinationFile) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+FTS = SourceFile = DestinationFile = #objref
+.br
+Return = ok | {'EXCEPTION', E}
+.br
+.RE
+.RS
+.LP
+If the target object\&'s and the \fIDestinationFile\&'s\fR\& associated \fIFileTransferSession\&'s\fR\& support the same protocol(s) this operation will copy the file represented by the \fISourceFile\fR\& from the target object\&'s file system to a file in the destination \fIFileTransferSession\&'s\fR\& file system\&. The file is represented by the \fIDestinationFile\fR\& object and may not exist\&. This operation must be invoked on the \fIFileTransferSession\fR\& associated with the \fISourceFile\fR\& object\&.
+.RE
+.LP
+.B
+append(FTS, SourceFile, DestinationFile) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+FTS = SourceFile = DestinationFile = #objref
+.br
+Return = ok | {'EXCEPTION', E}
+.br
+.RE
+.RS
+.LP
+This operation behaves almost like the \fItransfer/3\fR\& operation\&. The difference is that the \fIDestinationFile\fR\& must exist since the \fISourceFile\fR\& will be appended to the \fIDestinationFile\fR\&\&.
+.LP
+Currently, it is not possible to use this operation when the target object represents FTP\&.
+.RE
+.LP
+.B
+insert(FTS, SourceFile, DestinationFile, Offset) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+FTS = SourceFile = DestinationFile = #objref
+.br
+Offset = long()
+.br
+Return = ok | {'EXCEPTION', E}
+.br
+.RE
+.RS
+.LP
+This operation behaves almost like the \fIappend/3\fR\& operation\&. The difference is that the \fISourceFile\fR\& will be inserted into the \fIDestinationFile\fR\& \fIOffset\fR\& bytes from the start of the file\&.
+.LP
+Currently, it is not possible to use this operation when the target object represents FTP\&.
+.RE
+.LP
+.B
+logout(FTS) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+FTS = #objref
+.br
+.RE
+.RS
+.LP
+This operation terminates the target object and closes the connection to the file system it represents\&.
+.RE

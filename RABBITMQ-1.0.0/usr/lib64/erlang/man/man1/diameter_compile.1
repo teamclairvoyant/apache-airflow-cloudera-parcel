@@ -1,0 +1,48 @@
+.TH diameterc 1 "diameter 0.10" "Ericsson AB" "User Commands"
+.SH NAME
+diameterc \- diameterc [<options>] <file>
+.SH DESCRIPTION
+.LP
+The diameterc utility is used to transform diameter \fBdictionary files\fR\& into Erlang source\&. The resulting source implements the interface diameter requires to encode and decode the dictionary\&'s messages and AVP\&'s\&.
+.SH "USAGE"
+
+.RS 2
+.TP 2
+.B
+diameterc [<options>] <file>:
+Transforms a single dictionary file\&. Valid options are as follows\&.
+.RS 2
+.TP 2
+.B
+-o <dir>:
+Specifies the directory into which the generated source should be written\&. Defaults to the current working directory\&.
+.TP 2
+.B
+-i <dir>:
+Specifies a directory to add to the code path\&. Typically used to point at beam files corresponding to dictionaries included by the one being compiled (using the \fI@includes\fR\& directive): inclusion is a beam dependency, not an erl/hrl dependency\&.
+.RS 2
+.LP
+Multiple \fI-i\fR\& options can be specified\&.
+.RE
+.TP 2
+.B
+-E:
+Supresses erl generation\&.
+.TP 2
+.B
+-H:
+Supresses hrl generation\&.
+.RE
+.RE
+.SH "EXIT STATUS"
+
+.LP
+Returns 0 on success, non-zero on failure\&.
+.SH "BUGS"
+
+.LP
+The identification of errors in the source file is poor\&.
+.SH "SEE ALSO"
+
+.LP
+\fBdiameter_dict(4)\fR\&

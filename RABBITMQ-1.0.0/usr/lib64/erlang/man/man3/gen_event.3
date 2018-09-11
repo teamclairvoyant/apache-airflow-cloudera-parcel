@@ -1,0 +1,755 @@
+.TH gen_event 3 "stdlib 1.17.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+gen_event \- Generic Event Handling Behaviour
+.SH DESCRIPTION
+.LP
+A behaviour module for implementing event handling functionality\&. The OTP event handling model consists of a generic event manager process with an arbitrary number of event handlers which are added and deleted dynamically\&.
+.LP
+An event manager implemented using this module will have a standard set of interface functions and include functionality for tracing and error reporting\&. It will also fit into an OTP supervision tree\&. Refer to \fIOTP Design Principles\fR\& for more information\&.
+.LP
+Each event handler is implemented as a callback module exporting a pre-defined set of functions\&. The relationship between the behaviour functions and the callback functions can be illustrated as follows:
+.LP
+.nf
+
+gen_event module                   Callback module
+----------------                   ---------------
+gen_event:start_link       ----->  -
+
+gen_event:add_handler
+gen_event:add_sup_handler  ----->  Module:init/1
+
+gen_event:notify
+gen_event:sync_notify      ----->  Module:handle_event/2
+
+gen_event:call             ----->  Module:handle_call/2
+
+-                          ----->  Module:handle_info/2
+
+gen_event:delete_handler   ----->  Module:terminate/2
+
+gen_event:swap_handler
+gen_event:swap_sup_handler ----->  Module1:terminate/2
+                                   Module2:init/1
+
+gen_event:which_handlers   ----->  -
+
+gen_event:stop             ----->  Module:terminate/2
+
+-                          ----->  Module:code_change/3
+.fi
+.LP
+Since each event handler is one callback module, an event manager will have several callback modules which are added and deleted dynamically\&. Therefore \fIgen_event\fR\& is more tolerant of callback module errors than the other behaviours\&. If a callback function for an installed event handler fails with \fIReason\fR\&, or returns a bad value \fITerm\fR\&, the event manager will not fail\&. It will delete the event handler by calling the callback function \fIModule:terminate/2\fR\& (see below), giving as argument \fI{error,{\&'EXIT\&',Reason}}\fR\& or \fI{error,Term}\fR\&, respectively\&. No other event handler will be affected\&.
+.LP
+A gen_event process handles system messages as documented in \fBsys(3)\fR\&\&. The \fIsys\fR\& module can be used for debugging an event manager\&.
+.LP
+Note that an event manager \fIdoes\fR\& trap exit signals automatically\&.
+.LP
+The gen_event process can go into hibernation (see \fBerlang(3)\fR\&) if a callback function in a handler module specifies \fI\&'hibernate\&'\fR\& in its return value\&. This might be useful if the server is expected to be idle for a long time\&. However this feature should be used with care as hibernation implies at least two garbage collections (when hibernating and shortly after waking up) and is not something you\&'d want to do between each event handled by a busy event manager\&.
+.LP
+It\&'s also worth noting that when multiple event handlers are invoked, it\&'s sufficient that one single event handler returns a \fI\&'hibernate\&'\fR\& request for the whole event manager to go into hibernation\&.
+.LP
+Unless otherwise stated, all functions in this module fail if the specified event manager does not exist or if bad arguments are given\&.
+.SH DATA TYPES
+.nf
+
+\fBhandler()\fR\& = atom() | {atom(), term()}
+.br
+.fi
+.nf
+
+\fBhandler_args()\fR\& = term()
+.br
+.fi
+.nf
+
+\fBadd_handler_ret()\fR\& = ok | term() | {\&'EXIT\&', term()}
+.br
+.fi
+.nf
+
+\fBdel_handler_ret()\fR\& = ok | term() | {\&'EXIT\&', term()}
+.br
+.fi
+.SH EXPORTS
+.LP
+.B
+start_link() -> Result
+.br
+.B
+start_link(EventMgrName) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+EventMgrName = {local,Name} | {global,Name}
+.br
+Name = atom()
+.br
+Result = {ok,Pid} | {error,{already_started,Pid}}
+.br
+Pid = pid()
+.br
+.RE
+.RS
+.LP
+Creates an event manager process as part of a supervision tree\&. The function should be called, directly or indirectly, by the supervisor\&. It will, among other things, ensure that the event manager is linked to the supervisor\&.
+.LP
+If \fIEventMgrName={local,Name}\fR\&, the event manager is registered locally as \fIName\fR\& using \fIregister/2\fR\&\&. If \fIEventMgrName={global,Name}\fR\&, the event manager is registered globally as \fIName\fR\& using \fIglobal:register_name/2\fR\&\&. If no name is provided, the event manager is not registered\&.
+.LP
+If the event manager is successfully created the function returns \fI{ok,Pid}\fR\&, where \fIPid\fR\& is the pid of the event manager\&. If there already exists a process with the specified \fIEventMgrName\fR\& the function returns \fI{error,{already_started,Pid}}\fR\&, where \fIPid\fR\& is the pid of that process\&.
+.RE
+.LP
+.B
+start() -> Result
+.br
+.B
+start(EventMgrName) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+EventMgrName = {local,Name} | {global,Name}
+.br
+Name = atom()
+.br
+Result = {ok,Pid} | {error,{already_started,Pid}}
+.br
+Pid = pid()
+.br
+.RE
+.RS
+.LP
+Creates a stand-alone event manager process, i\&.e\&. an event manager which is not part of a supervision tree and thus has no supervisor\&.
+.LP
+See \fIstart_link/0,1\fR\& for a description of arguments and return values\&.
+.RE
+.LP
+.B
+add_handler(EventMgrRef, Handler, Args) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+EventMgr = Name | {Name,Node} | {global,Name} | pid()
+.br
+Name = Node = atom()
+.br
+Handler = Module | {Module,Id}
+.br
+Module = atom()
+.br
+Id = term()
+.br
+Args = term()
+.br
+Result = ok | {'EXIT',Reason} | term()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Adds a new event handler to the event manager \fIEventMgrRef\fR\&\&. The event manager will call \fIModule:init/1\fR\& to initiate the event handler and its internal state\&.
+.LP
+\fIEventMgrRef\fR\& can be:
+.RS 2
+.TP 2
+*
+the pid,
+.LP
+.TP 2
+*
+\fIName\fR\&, if the event manager is locally registered,
+.LP
+.TP 2
+*
+\fI{Name,Node}\fR\&, if the event manager is locally registered at another node, or
+.LP
+.TP 2
+*
+\fI{global,Name}\fR\&, if the event manager is globally registered\&.
+.LP
+.RE
+
+.LP
+\fIHandler\fR\& is the name of the callback module \fIModule\fR\& or a tuple \fI{Module,Id}\fR\&, where \fIId\fR\& is any term\&. The \fI{Module,Id}\fR\& representation makes it possible to identify a specific event handler when there are several event handlers using the same callback module\&.
+.LP
+\fIArgs\fR\& is an arbitrary term which is passed as the argument to \fIModule:init/1\fR\&\&.
+.LP
+If \fIModule:init/1\fR\& returns a correct value, the event manager adds the event handler and this function returns \fIok\fR\&\&. If \fIModule:init/1\fR\& fails with \fIReason\fR\& or returns an unexpected value \fITerm\fR\&, the event handler is ignored and this function returns \fI{\&'EXIT\&',Reason}\fR\& or \fITerm\fR\&, respectively\&.
+.RE
+.LP
+.B
+add_sup_handler(EventMgrRef, Handler, Args) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+EventMgr = Name | {Name,Node} | {global,Name} | pid()
+.br
+Name = Node = atom()
+.br
+Handler = Module | {Module,Id}
+.br
+Module = atom()
+.br
+Id = term()
+.br
+Args = term()
+.br
+Result = ok | {'EXIT',Reason} | term()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Adds a new event handler in the same way as \fIadd_handler/3\fR\& but will also supervise the connection between the event handler and the calling process\&.
+.RS 2
+.TP 2
+*
+If the calling process later terminates with \fIReason\fR\&, the event manager will delete the event handler by calling \fIModule:terminate/2\fR\& with \fI{stop,Reason}\fR\& as argument\&.
+.LP
+.TP 2
+*
+If the event handler later is deleted, the event manager sends a message\fI{gen_event_EXIT,Handler,Reason}\fR\& to the calling process\&. \fIReason\fR\& is one of the following:
+.RS 2
+.TP 2
+*
+\fInormal\fR\&, if the event handler has been removed due to a call to \fIdelete_handler/3\fR\&, or \fIremove_handler\fR\& has been returned by a callback function (see below)\&.
+.LP
+.TP 2
+*
+\fIshutdown\fR\&, if the event handler has been removed because the event manager is terminating\&.
+.LP
+.TP 2
+*
+\fI{swapped,NewHandler,Pid}\fR\&, if the process \fIPid\fR\& has replaced the event handler with another event handler \fINewHandler\fR\& using a call to \fIswap_handler/3\fR\& or \fIswap_sup_handler/3\fR\&\&.
+.LP
+.TP 2
+*
+a term, if the event handler is removed due to an error\&. Which term depends on the error\&.
+.LP
+.RE
+
+.LP
+.RE
+
+.LP
+See \fIadd_handler/3\fR\& for a description of the arguments and return values\&.
+.RE
+.LP
+.B
+notify(EventMgrRef, Event) -> ok
+.br
+.B
+sync_notify(EventMgrRef, Event) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+EventMgrRef = Name | {Name,Node} | {global,Name} | pid()
+.br
+Name = Node = atom()
+.br
+Event = term()
+.br
+.RE
+.RS
+.LP
+Sends an event notification to the event manager \fIEventMgrRef\fR\&\&. The event manager will call \fIModule:handle_event/2\fR\& for each installed event handler to handle the event\&.
+.LP
+\fInotify\fR\& is asynchronous and will return immediately after the event notification has been sent\&. \fIsync_notify\fR\& is synchronous in the sense that it will return \fIok\fR\& after the event has been handled by all event handlers\&.
+.LP
+See \fIadd_handler/3\fR\& for a description of \fIEventMgrRef\fR\&\&.
+.LP
+\fIEvent\fR\& is an arbitrary term which is passed as one of the arguments to \fIModule:handle_event/2\fR\&\&.
+.LP
+\fInotify\fR\& will not fail even if the specified event manager does not exist, unless it is specified as \fIName\fR\&\&.
+.RE
+.LP
+.B
+call(EventMgrRef, Handler, Request) -> Result
+.br
+.B
+call(EventMgrRef, Handler, Request, Timeout) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+EventMgrRef = Name | {Name,Node} | {global,Name} | pid()
+.br
+Name = Node = atom()
+.br
+Handler = Module | {Module,Id}
+.br
+Module = atom()
+.br
+Id = term()
+.br
+Request = term()
+.br
+Timeout = int()>0 | infinity
+.br
+Result = Reply | {error,Error}
+.br
+Reply = term()
+.br
+Error = bad_module | {'EXIT',Reason} | term()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Makes a synchronous call to the event handler \fIHandler\fR\& installed in the event manager \fIEventMgrRef\fR\& by sending a request and waiting until a reply arrives or a timeout occurs\&. The event manager will call \fIModule:handle_call/2\fR\& to handle the request\&.
+.LP
+See \fIadd_handler/3\fR\& for a description of \fIEventMgrRef\fR\& and \fIHandler\fR\&\&.
+.LP
+\fIRequest\fR\& is an arbitrary term which is passed as one of the arguments to \fIModule:handle_call/2\fR\&\&.
+.LP
+\fITimeout\fR\& is an integer greater than zero which specifies how many milliseconds to wait for a reply, or the atom \fIinfinity\fR\& to wait indefinitely\&. Default value is 5000\&. If no reply is received within the specified time, the function call fails\&.
+.LP
+The return value \fIReply\fR\& is defined in the return value of \fIModule:handle_call/2\fR\&\&. If the specified event handler is not installed, the function returns \fI{error,bad_module}\fR\&\&. If the callback function fails with \fIReason\fR\& or returns an unexpected value \fITerm\fR\&, this function returns \fI{error,{\&'EXIT\&',Reason}}\fR\& or \fI{error,Term}\fR\&, respectively\&.
+.RE
+.LP
+.B
+delete_handler(EventMgrRef, Handler, Args) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+EventMgrRef = Name | {Name,Node} | {global,Name} | pid()
+.br
+Name = Node = atom()
+.br
+Handler = Module | {Module,Id}
+.br
+Module = atom()
+.br
+Id = term()
+.br
+Args = term()
+.br
+Result = term() | {error,module_not_found} | {'EXIT',Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Deletes an event handler from the event manager \fIEventMgrRef\fR\&\&. The event manager will call \fIModule:terminate/2\fR\& to terminate the event handler\&.
+.LP
+See \fIadd_handler/3\fR\& for a description of \fIEventMgrRef\fR\& and \fIHandler\fR\&\&.
+.LP
+\fIArgs\fR\& is an arbitrary term which is passed as one of the arguments to \fIModule:terminate/2\fR\&\&.
+.LP
+The return value is the return value of \fIModule:terminate/2\fR\&\&. If the specified event handler is not installed, the function returns \fI{error,module_not_found}\fR\&\&. If the callback function fails with \fIReason\fR\&, the function returns \fI{\&'EXIT\&',Reason}\fR\&\&.
+.RE
+.LP
+.B
+swap_handler(EventMgrRef, {Handler1,Args1}, {Handler2,Args2}) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+EventMgrRef = Name | {Name,Node} | {global,Name} | pid()
+.br
+Name = Node = atom()
+.br
+Handler1 = Handler2 = Module | {Module,Id}
+.br
+Module = atom()
+.br
+Id = term()
+.br
+Args1 = Args2 = term()
+.br
+Result = ok | {error,Error}
+.br
+Error = {'EXIT',Reason} | term()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Replaces an old event handler with a new event handler in the event manager \fIEventMgrRef\fR\&\&.
+.LP
+See \fIadd_handler/3\fR\& for a description of the arguments\&.
+.LP
+First the old event handler \fIHandler1\fR\& is deleted\&. The event manager calls \fIModule1:terminate(Args1, \&.\&.\&.)\fR\&, where \fIModule1\fR\& is the callback module of \fIHandler1\fR\&, and collects the return value\&.
+.LP
+Then the new event handler \fIHandler2\fR\& is added and initiated by calling \fIModule2:init({Args2,Term})\fR\&, where \fIModule2\fR\& is the callback module of \fIHandler2\fR\& and \fITerm\fR\& the return value of \fIModule1:terminate/2\fR\&\&. This makes it possible to transfer information from \fIHandler1\fR\& to \fIHandler2\fR\&\&.
+.LP
+The new handler will be added even if the the specified old event handler is not installed in which case \fITerm=error\fR\&, or if \fIModule1:terminate/2\fR\& fails with \fIReason\fR\& in which case \fITerm={\&'EXIT\&',Reason}\fR\&\&. The old handler will be deleted even if \fIModule2:init/1\fR\& fails\&.
+.LP
+If there was a supervised connection between \fIHandler1\fR\& and a process \fIPid\fR\&, there will be a supervised connection between \fIHandler2\fR\& and \fIPid\fR\& instead\&.
+.LP
+If \fIModule2:init/1\fR\& returns a correct value, this function returns \fIok\fR\&\&. If \fIModule2:init/1\fR\& fails with \fIReason\fR\& or returns an unexpected value \fITerm\fR\&, this this function returns \fI{error,{\&'EXIT\&',Reason}}\fR\& or \fI{error,Term}\fR\&, respectively\&.
+.RE
+.LP
+.B
+swap_sup_handler(EventMgrRef, {Handler1,Args1}, {Handler2,Args2}) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+EventMgrRef = Name | {Name,Node} | {global,Name} | pid()
+.br
+Name = Node = atom()
+.br
+Handler1 = Handler 2 = Module | {Module,Id}
+.br
+Module = atom()
+.br
+Id = term()
+.br
+Args1 = Args2 = term()
+.br
+Result = ok | {error,Error}
+.br
+Error = {'EXIT',Reason} | term()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Replaces an event handler in the event manager \fIEventMgrRef\fR\& in the same way as \fIswap_handler/3\fR\& but will also supervise the connection between \fIHandler2\fR\& and the calling process\&.
+.LP
+See \fIswap_handler/3\fR\& for a description of the arguments and return values\&.
+.RE
+.LP
+.B
+which_handlers(EventMgrRef) -> [Handler]
+.br
+.RS
+.TP 3
+Types:
+
+EventMgrRef = Name | {Name,Node} | {global,Name} | pid()
+.br
+Name = Node = atom()
+.br
+Handler = Module | {Module,Id}
+.br
+Module = atom()
+.br
+Id = term()
+.br
+.RE
+.RS
+.LP
+Returns a list of all event handlers installed in the event manager \fIEventMgrRef\fR\&\&.
+.LP
+See \fIadd_handler/3\fR\& for a description of \fIEventMgrRef\fR\& and \fIHandler\fR\&\&.
+.RE
+.LP
+.B
+stop(EventMgrRef) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+EventMgrRef = Name | {Name,Node} | {global,Name} | pid()
+.br
+Name = Node = atom()
+.br
+.RE
+.RS
+.LP
+Terminates the event manager \fIEventMgrRef\fR\&\&. Before terminating, the event manager will call \fIModule:terminate(stop,\&.\&.\&.)\fR\& for each installed event handler\&.
+.LP
+See \fIadd_handler/3\fR\& for a description of the argument\&.
+.RE
+.SH "CALLBACK FUNCTIONS"
+
+.LP
+The following functions should be exported from a \fIgen_event\fR\& callback module\&.
+.SH EXPORTS
+.LP
+.B
+Module:init(InitArgs) -> {ok,State} | {ok,State,hibernate}
+.br
+.RS
+.TP 3
+Types:
+
+InitArgs = Args | {Args,Term}
+.br
+Args = Term = term()
+.br
+State = term()
+.br
+.RE
+.RS
+.LP
+Whenever a new event handler is added to an event manager, this function is called to initialize the event handler\&.
+.LP
+If the event handler is added due to a call to \fIgen_event:add_handler/3\fR\& or \fIgen_event:add_sup_handler/3\fR\&, \fIInitArgs\fR\& is the \fIArgs\fR\& argument of these functions\&.
+.LP
+If the event handler is replacing another event handler due to a call to \fIgen_event:swap_handler/3\fR\& or \fIgen_event:swap_sup_handler/3\fR\&, or due to a \fIswap\fR\& return tuple from one of the other callback functions, \fIInitArgs\fR\& is a tuple \fI{Args,Term}\fR\& where \fIArgs\fR\& is the argument provided in the function call/return tuple and \fITerm\fR\& is the result of terminating the old event handler, see \fIgen_event:swap_handler/3\fR\&\&.
+.LP
+The function should return \fI{ok,State}\fR\& or \fI{ok,State, hibernate}\fR\& where \fIState\fR\& is the initial internal state of the event handler\&.
+.LP
+If \fI{ok,State,hibernate}\fR\& is returned, the event manager will go into hibernation (by calling \fBproc_lib:hibernate/3\fR\&), waiting for the next event to occur\&.
+.RE
+.LP
+.B
+Module:handle_event(Event, State) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Event = term()
+.br
+State = term()
+.br
+Result = {ok,NewState} | {ok,NewState,hibernate}
+.br
+| {swap_handler,Args1,NewState,Handler2,Args2} | remove_handler
+.br
+NewState = term()
+.br
+Args1 = Args2 = term()
+.br
+Handler2 = Module2 | {Module2,Id}
+.br
+Module2 = atom()
+.br
+Id = term()
+.br
+.RE
+.RS
+.LP
+Whenever an event manager receives an event sent using \fIgen_event:notify/2\fR\& or \fIgen_event:sync_notify/2\fR\&, this function is called for each installed event handler to handle the event\&.
+.LP
+\fIEvent\fR\& is the \fIEvent\fR\& argument of \fInotify\fR\&/\fIsync_notify\fR\&\&.
+.LP
+\fIState\fR\& is the internal state of the event handler\&.
+.LP
+If the function returns \fI{ok,NewState}\fR\& or \fI{ok,NewState,hibernate}\fR\& the event handler will remain in the event manager with the possible updated internal state \fINewState\fR\&\&.
+.LP
+If \fI{ok,NewState,hibernate}\fR\& is returned, the event manager will also go into hibernation (by calling \fBproc_lib:hibernate/3\fR\&), waiting for the next event to occur\&. It is sufficient that one of the event handlers return \fI{ok,NewState,hibernate}\fR\& for the whole event manager process to hibernate\&.
+.LP
+If the function returns \fI{swap_handler,Args1,NewState,Handler2,Args2}\fR\& the event handler will be replaced by \fIHandler2\fR\& by first calling \fIModule:terminate(Args1,NewState)\fR\& and then \fIModule2:init({Args2,Term})\fR\& where \fITerm\fR\& is the return value of \fIModule:terminate/2\fR\&\&. See \fIgen_event:swap_handler/3\fR\& for more information\&.
+.LP
+If the function returns \fIremove_handler\fR\& the event handler will be deleted by calling \fIModule:terminate(remove_handler,State)\fR\&\&.
+.RE
+.LP
+.B
+Module:handle_call(Request, State) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Request = term()
+.br
+State = term()
+.br
+Result = {ok,Reply,NewState} | {ok,Reply,NewState,hibernate}
+.br
+| {swap_handler,Reply,Args1,NewState,Handler2,Args2}
+.br
+| {remove_handler, Reply}
+.br
+Reply = term()
+.br
+NewState = term()
+.br
+Args1 = Args2 = term()
+.br
+Handler2 = Module2 | {Module2,Id}
+.br
+Module2 = atom()
+.br
+Id = term()
+.br
+.RE
+.RS
+.LP
+Whenever an event manager receives a request sent using \fIgen_event:call/3,4\fR\&, this function is called for the specified event handler to handle the request\&.
+.LP
+\fIRequest\fR\& is the \fIRequest\fR\& argument of \fIcall\fR\&\&.
+.LP
+\fIState\fR\& is the internal state of the event handler\&.
+.LP
+The return values are the same as for \fIhandle_event/2\fR\& except they also contain a term \fIReply\fR\& which is the reply given back to the client as the return value of \fIcall\fR\&\&.
+.RE
+.LP
+.B
+Module:handle_info(Info, State) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Info = term()
+.br
+State = term()
+.br
+Result = {ok,NewState} | {ok,NewState,hibernate}
+.br
+| {swap_handler,Args1,NewState,Handler2,Args2} | remove_handler
+.br
+NewState = term()
+.br
+Args1 = Args2 = term()
+.br
+Handler2 = Module2 | {Module2,Id}
+.br
+Module2 = atom()
+.br
+Id = term()
+.br
+.RE
+.RS
+.LP
+This function is called for each installed event handler when an event manager receives any other message than an event or a synchronous request (or a system message)\&.
+.LP
+\fIInfo\fR\& is the received message\&.
+.LP
+See \fIModule:handle_event/2\fR\& for a description of State and possible return values\&.
+.RE
+.LP
+.B
+Module:terminate(Arg, State) -> term()
+.br
+.RS
+.TP 3
+Types:
+
+Arg = Args | {stop,Reason} | stop | remove_handler
+.br
+| {error,{'EXIT',Reason}} | {error,Term}
+.br
+Args = Reason = Term = term()
+.br
+.RE
+.RS
+.LP
+Whenever an event handler is deleted from an event manager, this function is called\&. It should be the opposite of \fIModule:init/1\fR\& and do any necessary cleaning up\&.
+.LP
+If the event handler is deleted due to a call to \fIgen_event:delete_handler\fR\&, \fIgen_event:swap_handler/3\fR\& or \fIgen_event:swap_sup_handler/3\fR\&, \fIArg\fR\& is the \fIArgs\fR\& argument of this function call\&.
+.LP
+\fIArg={stop,Reason}\fR\& if the event handler has a supervised connection to a process which has terminated with reason \fIReason\fR\&\&.
+.LP
+\fIArg=stop\fR\& if the event handler is deleted because the event manager is terminating\&.
+.LP
+The event manager will terminate if it is part of a supervision tree and it is ordered by its supervisor to terminate\&. Even if it is \fInot\fR\& part of a supervision tree, it will terminate if it receives an \fI\&'EXIT\&'\fR\& message from its parent\&.
+.LP
+\fIArg=remove_handler\fR\& if the event handler is deleted because another callback function has returned \fIremove_handler\fR\& or \fI{remove_handler,Reply}\fR\&\&.
+.LP
+\fIArg={error,Term}\fR\& if the event handler is deleted because a callback function returned an unexpected value \fITerm\fR\&, or \fIArg={error,{\&'EXIT\&',Reason}}\fR\& if a callback function failed\&.
+.LP
+\fIState\fR\& is the internal state of the event handler\&.
+.LP
+The function may return any term\&. If the event handler is deleted due to a call to \fIgen_event:delete_handler\fR\&, the return value of that function will be the return value of this function\&. If the event handler is to be replaced with another event handler due to a swap, the return value will be passed to the \fIinit\fR\& function of the new event handler\&. Otherwise the return value is ignored\&.
+.RE
+.LP
+.B
+Module:code_change(OldVsn, State, Extra) -> {ok, NewState}
+.br
+.RS
+.TP 3
+Types:
+
+OldVsn = Vsn | {down, Vsn}
+.br
+Vsn = term()
+.br
+State = NewState = term()
+.br
+Extra = term()
+.br
+.RE
+.RS
+.LP
+This function is called for an installed event handler which should update its internal state during a release upgrade/downgrade, i\&.e\&. when the instruction \fI{update,Module,Change,\&.\&.\&.}\fR\& where \fIChange={advanced,Extra}\fR\& is given in the \fI\&.appup\fR\& file\&. See \fIOTP Design Principles\fR\& for more information\&.
+.LP
+In the case of an upgrade, \fIOldVsn\fR\& is \fIVsn\fR\&, and in the case of a downgrade, \fIOldVsn\fR\& is \fI{down,Vsn}\fR\&\&. \fIVsn\fR\& is defined by the \fIvsn\fR\& attribute(s) of the old version of the callback module \fIModule\fR\&\&. If no such attribute is defined, the version is the checksum of the BEAM file\&.
+.LP
+\fIState\fR\& is the internal state of the event handler\&.
+.LP
+\fIExtra\fR\& is passed as-is from the \fI{advanced,Extra}\fR\& part of the update instruction\&.
+.LP
+The function should return the updated internal state\&.
+.RE
+.LP
+.B
+Module:format_status(Opt, [PDict, State]) -> Status
+.br
+.RS
+.TP 3
+Types:
+
+Opt = normal | terminate
+.br
+PDict = [{Key, Value}]
+.br
+State = term()
+.br
+Status = term()
+.br
+.RE
+.RS
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+This callback is optional, so event handler modules need not export it\&. If a handler does not export this function, the gen_event module uses the handler state directly for the purposes described below\&.
+
+.LP
+This function is called by a gen_event process when:
+.RS 2
+.TP 2
+*
+One of \fBsys:get_status/1,2\fR\& is invoked to get the gen_event status\&. \fIOpt\fR\& is set to the atom \fInormal\fR\& for this case\&.
+.LP
+.TP 2
+*
+The event handler terminates abnormally and gen_event logs an error\&. \fIOpt\fR\& is set to the atom \fIterminate\fR\& for this case\&.
+.LP
+.RE
+
+.LP
+This function is useful for customising the form and appearance of the event handler state for these cases\&. An event handler callback module wishing to customise the \fIsys:get_status/1,2\fR\& return value as well as how its state appears in termination error logs exports an instance of \fIformat_status/2\fR\& that returns a term describing the current state of the event handler\&.
+.LP
+\fIPDict\fR\& is the current value of the gen_event\&'s process dictionary\&.
+.LP
+\fIState\fR\& is the internal state of the event handler\&.
+.LP
+The function should return \fIStatus\fR\&, a term that customises the details of the current state of the event handler\&. Any term is allowed for \fIStatus\fR\&\&. The gen_event module uses \fIStatus\fR\& as follows:
+.RS 2
+.TP 2
+*
+When \fIsys:get_status/1,2\fR\& is called, gen_event ensures that its return value contains \fIStatus\fR\& in place of the event handler\&'s actual state term\&.
+.LP
+.TP 2
+*
+When an event handler terminates abnormally, gen_event logs \fIStatus\fR\& in place of the event handler\&'s actual state term\&.
+.LP
+.RE
+
+.LP
+One use for this function is to return compact alternative state representations to avoid having large state terms printed in logfiles\&.
+.RE
+.SH "SEE ALSO"
+
+.LP
+\fBsupervisor(3)\fR\&, \fBsys(3)\fR\&

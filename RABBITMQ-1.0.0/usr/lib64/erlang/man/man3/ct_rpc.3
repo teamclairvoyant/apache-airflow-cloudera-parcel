@@ -1,0 +1,203 @@
+.TH ct_rpc 3 "common_test 1.5.5" "" "Erlang Module Definition"
+.SH NAME
+ct_rpc \- Common Test specific layer on Erlang/OTP rpc.
+.SH DESCRIPTION
+.LP
+Common Test specific layer on Erlang/OTP rpc\&.
+.SH EXPORTS
+.LP
+.B
+app_node(App, Candidates) -> NodeName
+.br
+.RS
+.TP 3
+Types:
+
+App = atom()
+.br
+Candidates = [NodeName]
+.br
+NodeName = atom()
+.br
+.RE
+.RS
+.LP
+From a set of candidate nodes determines which of them is running the application App\&. If none of the candidate nodes is running the application the function will make the test case calling this function fail\&. This function is the same as calling \fIapp_node(App, Candidates, true)\fR\&\&.
+.RE
+.LP
+.B
+app_node(App, Candidates, FailOnBadRPC) -> NodeName
+.br
+.RS
+.TP 3
+Types:
+
+App = atom()
+.br
+Candidates = [NodeName]
+.br
+NodeName = atom()
+.br
+FailOnBadRPC = true | false
+.br
+.RE
+.RS
+.LP
+Same as \fIapp_node/2\fR\& only the \fIFailOnBadRPC\fR\& argument will determine if the search for a candidate node should stop or not if \fIbadrpc\fR\& is received at some point\&.
+.RE
+.LP
+.B
+app_node(App, Candidates, FailOnBadRPC, Cookie) -> NodeName
+.br
+.RS
+.TP 3
+Types:
+
+App = atom()
+.br
+Candidates = [NodeName]
+.br
+NodeName = atom()
+.br
+FailOnBadRPC = true | false
+.br
+Cookie = atom()
+.br
+.RE
+.RS
+.LP
+Same as \fIapp_node/2\fR\& only the \fIFailOnBadRPC\fR\& argument will determine if the search for a candidate node should stop or not if \fIbadrpc\fR\& is received at some point\&. The cookie on the client node will be set to \fICookie\fR\& for this rpc operation (use to match the server node cookie)\&.
+.RE
+.LP
+.B
+call(Node, Module, Function, Args) -> term() | {badrpc, Reason}
+.br
+.RS
+.LP
+Same as call(Node, Module, Function, Args, infinity)
+.RE
+.LP
+.B
+call(Node, Module, Function, Args, TimeOut) -> term() | {badrpc, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Node = NodeName | {Fun, FunArgs}
+.br
+Fun = function()
+.br
+FunArgs = term()
+.br
+NodeName = atom()
+.br
+Module = atom()
+.br
+Function = atom()
+.br
+Args = [term()]
+.br
+Reason = timeout | term()
+.br
+.RE
+.RS
+.LP
+Evaluates apply(Module, Function, Args) on the node Node\&. Returns whatever Function returns or {badrpc, Reason} if the remote procedure call fails\&. If Node is {Fun, FunArgs} applying Fun to FunArgs should return a node name\&.
+.RE
+.LP
+.B
+call(Node, Module, Function, Args, TimeOut, Cookie) -> term() | {badrpc, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Node = NodeName | {Fun, FunArgs}
+.br
+Fun = function()
+.br
+FunArgs = term()
+.br
+NodeName = atom()
+.br
+Module = atom()
+.br
+Function = atom()
+.br
+Args = [term()]
+.br
+Reason = timeout | term()
+.br
+Cookie = atom()
+.br
+.RE
+.RS
+.LP
+Evaluates apply(Module, Function, Args) on the node Node\&. Returns whatever Function returns or {badrpc, Reason} if the remote procedure call fails\&. If Node is {Fun, FunArgs} applying Fun to FunArgs should return a node name\&. The cookie on the client node will be set to \fICookie\fR\& for this rpc operation (use to match the server node cookie)\&.
+.RE
+.LP
+.B
+cast(Node, Module, Function, Args) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Node = NodeName | {Fun, FunArgs}
+.br
+Fun = function()
+.br
+FunArgs = term()
+.br
+NodeName = atom()
+.br
+Module = atom()
+.br
+Function = atom()
+.br
+Args = [term()]
+.br
+Reason = timeout | term()
+.br
+.RE
+.RS
+.LP
+Evaluates apply(Module, Function, Args) on the node Node\&. No response is delivered and the process which makes the call is not suspended until the evaluation is compleated as in the case of call/[3,4]\&. If Node is {Fun, FunArgs} applying Fun to FunArgs should return a node name\&.
+.RE
+.LP
+.B
+cast(Node, Module, Function, Args, Cookie) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Node = NodeName | {Fun, FunArgs}
+.br
+Fun = function()
+.br
+FunArgs = term()
+.br
+NodeName = atom()
+.br
+Module = atom()
+.br
+Function = atom()
+.br
+Args = [term()]
+.br
+Reason = timeout | term()
+.br
+Cookie = atom()
+.br
+.RE
+.RS
+.LP
+Evaluates apply(Module, Function, Args) on the node Node\&. No response is delivered and the process which makes the call is not suspended until the evaluation is compleated as in the case of call/[3,4]\&. If Node is {Fun, FunArgs} applying Fun to FunArgs should return a node name\&. The cookie on the client node will be set to \fICookie\fR\& for this rpc operation (use to match the server node cookie)\&.
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

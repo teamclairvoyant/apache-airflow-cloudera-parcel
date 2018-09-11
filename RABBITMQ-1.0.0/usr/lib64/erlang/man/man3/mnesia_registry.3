@@ -1,0 +1,42 @@
+.TH mnesia_registry 3 "mnesia 4.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+mnesia_registry \- Dump support for registries in erl_interface. 
+.SH DESCRIPTION
+.LP
+The module \fImnesia_registry\fR\& is usually part of \fIerl_interface\fR\&, but for the time being, it is a part of the Mnesia application\&.
+.LP
+\fImnesia_registry\fR\& is mainly an module intended for internal usage within OTP, but it has two functions that are exported for public use\&.
+.LP
+On C-nodes \fIerl_interface\fR\& has support for registry tables\&. These reside in RAM on the C-node but they may also be dumped into Mnesia tables\&. By default, the dumping of registry tables via \fIerl_interface\fR\& causes a corresponding Mnesia table to be created with \fImnesia_registry:create_table/1\fR\& if necessary\&.
+.LP
+The tables that are created with these functions can be administered as all other Mnesia tables\&. They may be included in backups or replicas may be added etc\&. The tables are in fact normal Mnesia tables owned by the user of the corresponding \fIerl_interface\fR\& registries\&.
+.SH EXPORTS
+.LP
+.B
+create_table(Tab) -> ok | exit(Reason)
+.br
+.RS
+.LP
+This is a wrapper function for \fImnesia:create_table/2\fR\& which creates a table (if there is no existing table) with an appropriate set of \fIattributes\fR\&\&. The table will only reside on the local node and its storage type will be the same as the \fIschema\fR\& table on the local node, ie\&. \fI{ram_copies,[node()]}\fR\& or \fI{disc_copies,[node()]}\fR\&\&.
+.LP
+It is this function that is used by \fIerl_interface\fR\& to create the Mnesia table if it did not already exist\&.
+.RE
+.LP
+.B
+create_table(Tab, TabDef) -> ok | exit(Reason)
+.br
+.RS
+.LP
+This is a wrapper function for \fImnesia:create_table/2\fR\& which creates a table (if there is no existing table) with an appropriate set of \fIattributes\fR\&\&. The attributes and \fITabDef\fR\& are forwarded to \fImnesia:create_table/2\fR\&\&. For example, if the table should reside as \fIdisc_only_copies\fR\& on all nodes a call would look like:
+.LP
+.nf
+
+          TabDef = [{{disc_only_copies, node()|nodes()]}],
+          mnesia_registry:create_table(my_reg, TabDef)
+        
+.fi
+.RE
+.SH "SEE ALSO"
+
+.LP
+mnesia(3), erl_interface(3)

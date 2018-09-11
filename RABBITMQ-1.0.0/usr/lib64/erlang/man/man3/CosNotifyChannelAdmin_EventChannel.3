@@ -1,0 +1,261 @@
+.TH CosNotifyChannelAdmin_EventChannel 3 "cosNotification 1.1.17" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+CosNotifyChannelAdmin_EventChannel \- This module implements the OMG  CosNotifyChannelAdmin::EventChannel interface.
+.SH DESCRIPTION
+.LP
+To get access to the record definitions for the structures use: 
+.br
+\fI-include_lib("cosNotification/include/*\&.hrl")\&.\fR\&
+.LP
+This module also exports the functions described in:
+.RS 2
+.TP 2
+*
+\fBCosNotification_QoSAdmin\fR\&
+.LP
+.TP 2
+*
+\fBCosNotification_AdminPropertiesAdmin\fR\&
+.LP
+.RE
+
+.SH EXPORTS
+.LP
+.B
+_get_MyFactory(Channel) -> ChannelFactory
+.br
+.RS
+.TP 3
+Types:
+
+Channel = #objref
+.br
+ChannelFactory = #objref
+.br
+.RE
+.RS
+.LP
+This readonly attribute maintains the reference of the event channel factory that created the target channel\&.
+.RE
+.LP
+.B
+_get_default_consumer_admin(Channel) -> ConsumerAdmin
+.br
+.RS
+.TP 3
+Types:
+
+Channel = #objref
+.br
+ConsumerAdmin = #objref
+.br
+.RE
+.RS
+.LP
+This is a readonly attribute which maintains a reference to a default \fIConsumerAdmin\fR\& object associated with the target object\&.
+.RE
+.LP
+.B
+_get_default_supplier_admin(Channel) -> SupplierAdmin
+.br
+.RS
+.TP 3
+Types:
+
+Channel = #objref
+.br
+SupplierAdmin = #objref
+.br
+.RE
+.RS
+.LP
+This is a readonly attribute which maintains a reference to a default \fISupplierAdmin\fR\& object associated with the target object\&.
+.RE
+.LP
+.B
+_get_default_filter_factory(Channel) -> FilterFactory
+.br
+.RS
+.TP 3
+Types:
+
+Channel = #objref
+.br
+FilterFactory = #objref
+.br
+.RE
+.RS
+.LP
+The default \fIFilterFactory\fR\& associated with the target channel is maintained by this readonly attribute\&.
+.RE
+.LP
+.B
+new_for_consumers(Channel, OpType) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Channel = #objref
+.br
+OpType = 'AND_OP' | 'OR_OP'
+.br
+Return = {ConsumerAdmin, AdminID}
+.br
+ConsumerAdmin = #objref
+.br
+AdminID = long()
+.br
+.RE
+.RS
+.LP
+This operation creates a new instance of a \fIConsumerAdmin\fR\& and supplies an Id which may be used when invoking other operations exported by this module\&. The returned object will inherit the Quality of Service properties of the target channel\&.
+.RE
+.LP
+.B
+for_consumers(Channel) -> ConsumerAdmin
+.br
+.RS
+.TP 3
+Types:
+
+Channel = #objref
+.br
+ConsumerAdmin = #objref
+.br
+.RE
+.RS
+.LP
+A new new instance of a \fIConsumerAdmin\fR\& object is created but no Id is returned\&. The returned object\&'s operation type, i\&.e\&., \fI\&'AND_OP\&'\fR\& or \fI\&'OR_OP\&'\fR\&, will be set to the value of the configuration parameter \fIfilterOp\fR\&\&. The target object\&'s Quality of Service properties will be inherited by the returned \fIConsumerAdmin\fR\&\&.
+.RE
+.LP
+.B
+new_for_suppliers(Channel, OpType) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Channel = #objref
+.br
+OpType = 'AND_OP' | 'OR_OP'
+.br
+Return = {SupplierAdmin, AdminID}
+.br
+SupplierAdmin = #objref
+.br
+AdminID = long()
+.br
+.RE
+.RS
+.LP
+Enables us to create a new instance of a \fISupplierAdmin\fR\&\&. An Id, which may be used when invoking other operations exported by this module, is also returned\&. The current Quality of Service settings associated with the target object will be inherited by the \fISupplierAdmin\fR\&\&.
+.RE
+.LP
+.B
+for_suppliers(Channel) -> SupplierAdmin
+.br
+.RS
+.TP 3
+Types:
+
+Channel = #objref
+.br
+SupplierAdmin = #objref
+.br
+.RE
+.RS
+.LP
+To create a new \fISupplierAdmin\fR\& with the target object\&'s current Quality of Service settings we can use this function\&. The returned object\&'s operation type (\fI\&'AND_OP\&'\fR\& or \fI\&'OR_OP\&'\fR\&) will be determined by the configuration variable \fIfilterOp\fR\&\&.
+.RE
+.LP
+.B
+get_consumeradmin(Channel, AdminID) -> ConsumerAdmin
+.br
+.RS
+.TP 3
+Types:
+
+Channel = #objref
+.br
+AdminID = long()
+.br
+ConsumerAdmin = #objref | {'EXCEPTION', #'CosNotifyChannelAdmin_AdminNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If the given Id is associated with a \fIConsumerAdmin\fR\& the object reference is returned\&. If such association never existed or the \fIConsumerAdmin\fR\& have terminated an exception is raised\&.
+.RE
+.LP
+.B
+get_supplieradmin(Channel, AdminID) -> SupplierAdmin
+.br
+.RS
+.TP 3
+Types:
+
+Channel = #objref
+.br
+AdminID = long()
+.br
+SupplierAdmin = #objref | {'EXCEPTION', #'CosNotifyChannelAdmin_AdminNotFound'{}}
+.br
+.RE
+.RS
+.LP
+Equal to the operation \fIget_consumeradmin/2\fR\& but a reference to a \fISupplierAdmin\fR\& is returned\&.
+.RE
+.LP
+.B
+get_all_consumeradmins(Channel) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+Channel = #objref
+.br
+Reply = [AdminID]
+.br
+AdminID = long()
+.br
+.RE
+.RS
+.LP
+To get access to all \fIConsumerAdmin\fR\& Id\&'s created by the target object, and still alive, this operation could be invoked\&.
+.RE
+.LP
+.B
+get_all_supplieradmins(Channel) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+Channel = #objref
+.br
+Reply = [AdminID]
+.br
+AdminID = long()
+.br
+.RE
+.RS
+.LP
+Equal to the operation \fIget_all_consumeradmins/1\fR\& but returns a list of all \fISupplierAdmin\fR\& object ID\&'s\&.
+.RE
+.LP
+.B
+destroy(Channel) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Channel = #objref
+.br
+.RE
+.RS
+.LP
+The \fIdestroy\fR\& operation will terminate the target channel and all associated Admin objects\&.
+.RE

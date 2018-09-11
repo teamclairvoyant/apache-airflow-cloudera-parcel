@@ -1,0 +1,219 @@
+.TH wxGraphicsPath 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxGraphicsPath \- See external documentation: wxGraphicsPath.
+.SH DESCRIPTION
+.LP
+See external documentation: wxGraphicsPath\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxGraphicsObject\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxGraphicsPath()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+moveToPoint(This::wxGraphicsPath(), P::{X::float(), Y::float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+moveToPoint(This::wxGraphicsPath(), X::float(), Y::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+addArc(This::wxGraphicsPath(), C::{X::float(), Y::float()}, R::float(), StartAngle::float(), EndAngle::float(), Clockwise::bool()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+addArc(This::wxGraphicsPath(), X::float(), Y::float(), R::float(), StartAngle::float(), EndAngle::float(), Clockwise::bool()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+addArcToPoint(This::wxGraphicsPath(), X1::float(), Y1::float(), X2::float(), Y2::float(), R::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+addCircle(This::wxGraphicsPath(), X::float(), Y::float(), R::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+addCurveToPoint(This::wxGraphicsPath(), C1::{X::float(), Y::float()}, C2::{X::float(), Y::float()}, E::{X::float(), Y::float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+addCurveToPoint(This::wxGraphicsPath(), Cx1::float(), Cy1::float(), Cx2::float(), Cy2::float(), X::float(), Y::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+addEllipse(This::wxGraphicsPath(), X::float(), Y::float(), W::float(), H::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+addLineToPoint(This::wxGraphicsPath(), P::{X::float(), Y::float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+addLineToPoint(This::wxGraphicsPath(), X::float(), Y::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+addPath(This::wxGraphicsPath(), Path::wxGraphicsPath()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+addQuadCurveToPoint(This::wxGraphicsPath(), Cx::float(), Cy::float(), X::float(), Y::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+addRectangle(This::wxGraphicsPath(), X::float(), Y::float(), W::float(), H::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+addRoundedRectangle(This::wxGraphicsPath(), X::float(), Y::float(), W::float(), H::float(), Radius::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+closeSubpath(This::wxGraphicsPath()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+contains(This::wxGraphicsPath(), C::{X::float(), Y::float()}) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBcontains(This, C, [])\fR\&\&.
+.RE
+.LP
+.B
+contains(This::wxGraphicsPath(), X::float() | term(), X::float() | term()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI contains(This::wxGraphicsPath(), X::float(), Y::float()) -> contains(This,X,Y, []) \fR\&
+.LP
+\fI contains(This::wxGraphicsPath(), C::{X::float(),Y::float()}, [Option]) -> bool() \fR\& 
+.br
+Option = {fillStyle, integer()}
+.RE
+.LP
+.B
+contains(This::wxGraphicsPath(), X::float(), Y::float(), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {fillStyle, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getBox(This::wxGraphicsPath()) -> {X::float(), Y::float(), W::float(), H::float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getCurrentPoint(This::wxGraphicsPath()) -> {X::float(), Y::float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+transform(This::wxGraphicsPath(), Matrix::wxGraphicsMatrix() (see module wxGraphicsMatrix)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

@@ -1,0 +1,507 @@
+.TH filename 3 "stdlib 1.17.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+filename \- Filename Manipulation Functions
+.SH DESCRIPTION
+.LP
+The module \fIfilename\fR\& provides a number of useful functions for analyzing and manipulating file names\&. These functions are designed so that the Erlang code can work on many different platforms with different formats for file names\&. With file name is meant all strings that can be used to denote a file\&. They can be short relative names like \fIfoo\&.erl\fR\&, very long absolute name which include a drive designator and directory names like \fID:\\usr/local\\bin\\erl/lib\\tools\\foo\&.erl\fR\&, or any variations in between\&.
+.LP
+In Windows, all functions return file names with forward slashes only, even if the arguments contain back slashes\&. Use \fIjoin/1\fR\& to normalize a file name by removing redundant directory separators\&.
+.LP
+The module supports raw file names in the way that if a binary is present, or the file name cannot be interpreted according to the return value of \fBfile:native_name_encoding/0\fR\&, a raw file name will also be returned\&. For example filename:join/1 provided with a path component being a binary (and also not being possible to interpret under the current native file name encoding) will result in a raw file name being returned (the join operation will have been performed of course)\&. For more information about raw file names, see the \fBfile\fR\& module\&.
+.SH EXPORTS
+.LP
+.nf
+
+.B
+absname(Filename) -> \fBfile:filename()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Filename = \fBfile:name()\fR\&
+.br
+.RE
+.RS
+.LP
+Converts a relative \fIFilename\fR\& and returns an absolute name\&. No attempt is made to create the shortest absolute name, because this can give incorrect results on file systems which allow links\&.
+.LP
+Unix examples:
+.LP
+.nf
+
+1> pwd()\&.
+"/usr/local"
+2> filename:absname("foo")\&.
+"/usr/local/foo"
+3> filename:absname("\&.\&./x")\&.
+"/usr/local/../x"
+4> filename:absname("/")\&.
+"/"
+.fi
+.LP
+Windows examples:
+.LP
+.nf
+
+1> pwd()\&.
+"D:/usr/local"
+2> filename:absname("foo")\&.
+"D:/usr/local/foo"
+3> filename:absname("\&.\&./x")\&.
+"D:/usr/local/../x"
+4> filename:absname("/")\&.
+"D:/"
+.fi
+.RE
+.LP
+.nf
+
+.B
+absname(Filename, Dir) -> \fBfile:filename()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Filename = \fBfile:name()\fR\&
+.br
+Dir = \fBfile:filename()\fR\&
+.br
+.RE
+.RS
+.LP
+This function works like \fIabsname/1\fR\&, except that the directory to which the file name should be made relative is given explicitly in the \fIDir\fR\& argument\&.
+.RE
+.LP
+.nf
+
+.B
+absname_join(Dir, Filename) -> \fBfile:filename()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Dir = \fBfile:filename()\fR\&
+.br
+Filename = \fBfile:name()\fR\&
+.br
+.RE
+.RS
+.LP
+Joins an absolute directory with a relative filename\&. Similar to \fIjoin/2\fR\&, but on platforms with tight restrictions on raw filename length and no support for symbolic links (read: VxWorks), leading parent directory components in \fIFilename\fR\& are matched against trailing directory components in \fIDir\fR\& so they can be removed from the result - minimizing its length\&.
+.RE
+.LP
+.nf
+
+.B
+basename(Filename) -> \fBfile:filename()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Filename = \fBfile:name()\fR\&
+.br
+.RE
+.RS
+.LP
+Returns the last component of \fIFilename\fR\&, or \fIFilename\fR\& itself if it does not contain any directory separators\&.
+.LP
+.nf
+
+5> filename:basename("foo")\&.
+"foo"
+6> filename:basename("/usr/foo")\&.
+"foo"
+7> filename:basename("/")\&.
+[]
+.fi
+.RE
+.LP
+.nf
+
+.B
+basename(Filename, Ext) -> \fBfile:filename()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Filename = Ext = \fBfile:name()\fR\&
+.br
+.RE
+.RS
+.LP
+Returns the last component of \fIFilename\fR\& with the extension \fIExt\fR\& stripped\&. This function should be used to remove a specific extension which might, or might not, be there\&. Use \fIrootname(basename(Filename))\fR\& to remove an extension that exists, but you are not sure which one it is\&.
+.LP
+.nf
+
+8> filename:basename("~/src/kalle\&.erl", "\&.erl")\&.
+"kalle"
+9> filename:basename("~/src/kalle\&.beam", "\&.erl")\&.
+"kalle.beam"
+10> filename:basename("~/src/kalle\&.old\&.erl", "\&.erl")\&.
+"kalle.old"
+11> filename:rootname(filename:basename("~/src/kalle\&.erl"))\&.
+"kalle"
+12> filename:rootname(filename:basename("~/src/kalle\&.beam"))\&.
+"kalle"
+.fi
+.RE
+.LP
+.nf
+
+.B
+dirname(Filename) -> \fBfile:filename()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Filename = \fBfile:name()\fR\&
+.br
+.RE
+.RS
+.LP
+Returns the directory part of \fIFilename\fR\&\&.
+.LP
+.nf
+
+13> filename:dirname("/usr/src/kalle\&.erl")\&.
+"/usr/src"
+14> filename:dirname("kalle\&.erl")\&.
+"."
+
+5> filename:dirname("\\\\usr\\\\src/kalle\&.erl")\&. % Windows
+"/usr/src"
+.fi
+.RE
+.LP
+.nf
+
+.B
+extension(Filename) -> \fBfile:filename()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Filename = \fBfile:name()\fR\&
+.br
+.RE
+.RS
+.LP
+Returns the file extension of \fIFilename\fR\&, including the period\&. Returns an empty string if there is no extension\&.
+.LP
+.nf
+
+15> filename:extension("foo\&.erl")\&.
+".erl"
+16> filename:extension("beam\&.src/kalle")\&.
+[]
+.fi
+.RE
+.LP
+.nf
+
+.B
+flatten(Filename) -> \fBfile:filename()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Filename = \fBfile:name()\fR\&
+.br
+.RE
+.RS
+.LP
+Converts a possibly deep list filename consisting of characters and atoms into the corresponding flat string filename\&.
+.RE
+.LP
+.nf
+
+.B
+join(Components) -> \fBfile:filename()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Components = [\fBfile:filename()\fR\&]
+.br
+.RE
+.RS
+.LP
+Joins a list of file name \fIComponents\fR\& with directory separators\&. If one of the elements of \fIComponents\fR\& includes an absolute path, for example \fI"/xxx"\fR\&, the preceding elements, if any, are removed from the result\&.
+.LP
+The result is "normalized":
+.RS 2
+.TP 2
+*
+Redundant directory separators are removed\&.
+.LP
+.TP 2
+*
+In Windows, all directory separators are forward slashes and the drive letter is in lower case\&.
+.LP
+.RE
+
+.LP
+.nf
+
+17> filename:join(["/usr", "local", "bin"])\&.
+"/usr/local/bin"
+18> filename:join(["a/b///c/"])\&.
+"a/b/c"
+
+6> filename:join(["B:a\\\\b///c/"])\&. % Windows
+"b:a/b/c"
+.fi
+.RE
+.LP
+.nf
+
+.B
+join(Name1, Name2) -> \fBfile:filename()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name1 = Name2 = \fBfile:filename()\fR\&
+.br
+.RE
+.RS
+.LP
+Joins two file name components with directory separators\&. Equivalent to \fIjoin([Name1, Name2])\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+nativename(Path) -> \fBfile:filename()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Path = \fBfile:filename()\fR\&
+.br
+.RE
+.RS
+.LP
+Converts \fIPath\fR\& to a form accepted by the command shell and native applications on the current platform\&. On Windows, forward slashes is converted to backward slashes\&. On all platforms, the name is normalized as done by \fIjoin/1\fR\&\&.
+.LP
+.nf
+
+19> filename:nativename("/usr/local/bin/")\&. % Unix
+"/usr/local/bin"
+
+7> filename:nativename("/usr/local/bin/")\&. % Windows
+"\\\\usr\\\\local\\\\bin"
+.fi
+.RE
+.LP
+.nf
+
+.B
+pathtype(Path) -> absolute | relative | volumerelative
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Path = \fBfile:name()\fR\&
+.br
+.RE
+.RS
+.LP
+Returns the type of path, one of \fIabsolute\fR\&, \fIrelative\fR\&, or \fIvolumerelative\fR\&\&.
+.RS 2
+.TP 2
+.B
+\fIabsolute\fR\&:
+The path name refers to a specific file on a specific volume\&.
+.RS 2
+.LP
+Unix example: \fI/usr/local/bin\fR\&
+.RE
+.RS 2
+.LP
+Windows example: \fID:/usr/local/bin\fR\&
+.RE
+.TP 2
+.B
+\fIrelative\fR\&:
+The path name is relative to the current working directory on the current volume\&.
+.RS 2
+.LP
+Example: \fIfoo/bar, \&.\&./src\fR\&
+.RE
+.TP 2
+.B
+\fIvolumerelative\fR\&:
+The path name is relative to the current working directory on a specified volume, or it is a specific file on the current working volume\&.
+.RS 2
+.LP
+Windows example: \fID:bar\&.erl, /bar/foo\&.erl\fR\&
+.RE
+.RE
+.RE
+.LP
+.nf
+
+.B
+rootname(Filename) -> \fBfile:filename()\fR\&
+.br
+.fi
+.br
+.nf
+
+.B
+rootname(Filename, Ext) -> \fBfile:filename()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Filename = Ext = \fBfile:name()\fR\&
+.br
+.RE
+.RS
+.LP
+Remove a filename extension\&. \fIrootname/2\fR\& works as \fIrootname/1\fR\&, except that the extension is removed only if it is \fIExt\fR\&\&.
+.LP
+.nf
+
+20> filename:rootname("/beam\&.src/kalle")\&.
+/beam.src/kalle"
+21> filename:rootname("/beam\&.src/foo\&.erl")\&.
+"/beam.src/foo"
+22> filename:rootname("/beam\&.src/foo\&.erl", "\&.erl")\&.
+"/beam.src/foo"
+23> filename:rootname("/beam\&.src/foo\&.beam", "\&.erl")\&.
+"/beam.src/foo.beam"
+.fi
+.RE
+.LP
+.nf
+
+.B
+split(Filename) -> Components
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Filename = \fBfile:name()\fR\&
+.br
+Components = [\fBfile:filename()\fR\&]
+.br
+.RE
+.RS
+.LP
+Returns a list whose elements are the path components of \fIFilename\fR\&\&.
+.LP
+.nf
+
+24> filename:split("/usr/local/bin")\&.
+["/","usr","local","bin"]
+25> filename:split("foo/bar")\&.
+["foo","bar"]
+26> filename:split("a:\\\\msdev\\\\include")\&.
+["a:/","msdev","include"]
+.fi
+.RE
+.LP
+.nf
+
+.B
+find_src(Beam) ->
+.B
+            {SourceFile, Options} | {error, {ErrorReason, Module}}
+.br
+.fi
+.br
+.nf
+
+.B
+find_src(Beam, Rules) ->
+.B
+            {SourceFile, Options} | {error, {ErrorReason, Module}}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Beam = Module | Filename
+.br
+Filename = atom() | string()
+.br
+Rules = [{BinSuffix :: string(), SourceSuffix :: string()}]
+.br
+Module = module()
+.br
+SourceFile = string()
+.br
+Options = [Option]
+.br
+Option = {i, Path :: string()}
+.br
+       | {outdir, Path :: string()}
+.br
+       | {d, atom()}
+.br
+ErrorReason = non_existing | preloaded | interpreted
+.br
+.RE
+.RS
+.LP
+Finds the source filename and compiler options for a module\&. The result can be fed to \fIcompile:file/2\fR\& in order to compile the file again\&.
+.LP
+The \fIBeam\fR\& argument, which can be a string or an atom, specifies either the module name or the path to the source code, with or without the \fI"\&.erl"\fR\& extension\&. In either case, the module must be known by the code server, i\&.e\&. \fIcode:which(Module)\fR\& must succeed\&.
+.LP
+\fIRules\fR\& describes how the source directory can be found, when the object code directory is known\&. It is a list of tuples \fI{BinSuffix, SourceSuffix}\fR\& and is interpreted as follows: If the end of the directory name where the object is located matches \fIBinSuffix\fR\&, then the source code directory has the same name, but with \fIBinSuffix\fR\& replaced by \fISourceSuffix\fR\&\&. \fIRules\fR\& defaults to:
+.LP
+.nf
+
+[{"", ""}, {"ebin", "src"}, {"ebin", "esrc"}]
+.fi
+.LP
+If the source file is found in the resulting directory, then the function returns that location together with \fIOptions\fR\&\&. Otherwise, the next rule is tried, and so on\&.
+.LP
+The function returns \fI{SourceFile, Options}\fR\& if it succeeds\&. \fISourceFile\fR\& is the absolute path to the source file without the \fI"\&.erl"\fR\& extension\&. \fIOptions\fR\& include the options which are necessary to recompile the file with \fIcompile:file/2\fR\&, but excludes options such as \fIreport\fR\& or \fIverbose\fR\& which do not change the way code is generated\&. The paths in the \fI{outdir, Path}\fR\& and \fI{i, Path}\fR\& options are guaranteed to be absolute\&.
+.RE

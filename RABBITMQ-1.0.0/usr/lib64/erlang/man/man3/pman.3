@@ -1,0 +1,59 @@
+.TH pman 3 "pman 2.7.1" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+pman \- A graphical process manager.
+.SH DESCRIPTION
+.LP
+A graphical tool used to inspect the Erlang processes executing either locally or on remote nodes\&. It is also possible to trace events in the individual processes\&.
+.SH EXPORTS
+.LP
+.B
+start()
+.br
+.B
+start(Excluded)
+.br
+.B
+start_notimeout()
+.br
+.B
+start_notimeout(Excluded)
+.br
+.RS
+.TP 3
+Types:
+
+Excluded = [Module]
+.br
+Module = atom()
+.br
+.RE
+.RS
+.LP
+Starts Pman\&. It will use the previously saved trace settings in \fIHOME/\&.erlang_tools/pman\&.opts\fR\&, where \fIHOME\fR\& is the user\&'s home directory, if such a file exists\&. Otherwise standard trace settings will be used\&. The return value should be ignored\&.
+.LP
+\fIExcluded\fR\& is a list of module names\&. If the argument is present, processes currently executing in any of these modules will not be shown by Pman\&.
+.LP
+\fIstart/0,1\fR\& will fail unless the start-up succeeds within 20 seconds, whereas \fIstart_notimeout/0,1\fR\& will wait indefinitely\&.
+.RE
+.LP
+.B
+proc(Process)
+.br
+.B
+proc(A, B, C)
+.br
+.RS
+.TP 3
+Types:
+
+Process = pid() | atom()
+.br
+A = B = C = integer()
+.br
+.RE
+.RS
+.LP
+Starts a Pman trace window for the specified process\&. The return value should be ignored\&.
+.LP
+The process to trace is given either by its pid or by its registered name\&. It is also possible to use \fIproc/3\fR\& to trace the pid represented as \fI<A,B,C>\fR\&\&.
+.RE

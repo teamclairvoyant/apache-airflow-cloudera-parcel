@@ -1,0 +1,134 @@
+.TH snmpm_network_interface_filter 3 "snmp 4.21.1" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+snmpm_network_interface_filter \- Behaviour module for the SNMP manager network-interface filter.
+.SH DESCRIPTION
+.LP
+This module defines the behaviour of the manager network interface filter\&. A \fIsnmpm_network_interface_filter\fR\& compliant module must export the following functions:
+.RS 2
+.TP 2
+*
+\fBaccept_recv/2\fR\&
+.LP
+.TP 2
+*
+\fBaccept_send/2\fR\&
+.LP
+.TP 2
+*
+\fBaccept_recv_pdu/3\fR\&
+.LP
+.TP 2
+*
+\fBaccept_send_pdu/2\fR\&
+.LP
+.RE
+
+.LP
+The semantics of them and their exact signatures are explained below\&.
+.LP
+The purpose of the network interface filter is to allow for filtering of messages (accept or reject) receive and send\&. This is done on two levels:
+.RS 2
+.TP 2
+*
+The first level is at the UDP entry / exit point, i\&.e\&. immediately after the receipt of the message, before any message processing is done (accept_recv) and immediately before sending the message, after all message processing is done (accept_send)\&.
+.LP
+.TP 2
+*
+The second level is at the MPD entry / exit point, i\&.e\&. immediately after the basic message processing (accept_recv_pdu) / immediately before the basic message processing (accept_send_pdu)\&.
+.LP
+.RE
+
+.LP
+Note that the network interface filter is something which is used by the network interface implementation provided by the application (\fIsnmpm_net_if\fR\&)\&. The default filter accepts all messages\&.
+.LP
+A network interface filter can e\&.g\&. be used during testing or for load regulation\&.
+.SH "DATA TYPES"
+
+.LP
+.nf
+
+port() = integer() > 0
+pdu_type() = 'get-request' | 'get-next-request' | 'get-response' | 'set-request' | trap | 'get-bulk-request' | 'inform-request' | report | trappdu
+    
+.fi
+.SH EXPORTS
+.LP
+.B
+accept_recv(Addr, Port) -> boolean()
+.br
+.RS
+.TP 3
+Types:
+
+Addr = ip_address()
+.br
+Port = port()
+.br
+.RE
+.RS
+.LP
+Called at the reception of a message (before \fIany\fR\& processing has been done)\&.
+.LP
+For the message to be rejected, the function \fImust\fR\& return \fIfalse\fR\&\&.
+.RE
+.LP
+.B
+accept_send(Addr, Port) -> boolean()
+.br
+.RS
+.TP 3
+Types:
+
+Addr = ip_address()
+.br
+Port = port()
+.br
+.RE
+.RS
+.LP
+Called before the sending of a message (after \fIall\fR\& processing has been done)\&.
+.LP
+For the message to be rejected, the function \fImust\fR\& return \fIfalse\fR\&\&.
+.RE
+.LP
+.B
+accept_recv_pdu(Addr, Port, PduType) -> boolean()
+.br
+.RS
+.TP 3
+Types:
+
+Addr = ip_address()
+.br
+Port = port()
+.br
+PduType = pdu_type()
+.br
+.RE
+.RS
+.LP
+Called after the basic message processing (MPD) has been done, but before the pdu is handed over to the server for primary processing\&.
+.LP
+For the pdu to be rejected, the function \fImust\fR\& return \fIfalse\fR\&\&.
+.RE
+.LP
+.B
+accept_send_pdu(Addr, Port, PduType) -> boolean()
+.br
+.RS
+.TP 3
+Types:
+
+Addr = ip_address()
+.br
+Port = port()
+.br
+PduType = pdu_type() > 0
+.br
+.RE
+.RS
+.LP
+Called before the basic message processing (MPD) is done, when a pdu has been received from the master-agent\&.
+.LP
+For the message to be rejected, the function \fImust\fR\& return \fIfalse\fR\&\&.
+.RE

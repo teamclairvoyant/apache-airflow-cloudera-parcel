@@ -1,0 +1,488 @@
+.TH regexp 3 "stdlib 1.17.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+regexp \- Regular Expression Functions for Strings
+.SH DESCRIPTION
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+This module has been obsoleted by the \fBre\fR\& module and will be removed in a future release\&.
+
+.LP
+This module contains functions for regular expression matching and substitution\&.
+.SH DATA TYPES
+.nf
+
+\fBerrordesc()\fR\& = term()
+.br
+.fi
+.nf
+
+\fBregexp()\fR\&
+.br
+.fi
+.RS
+.LP
+Internal representation of a regular expression\&.
+.RE
+.SH EXPORTS
+.LP
+.nf
+
+.B
+match(String, RegExp) -> MatchRes
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+String = string()
+.br
+RegExp = string() | \fBregexp()\fR\&
+.br
+MatchRes = {match, Start, Length} | nomatch | {error, Error}
+.br
+Start = Length = integer() >= 1
+.br
+Error = \fBerrordesc()\fR\&
+.br
+.RE
+.RS
+.LP
+Finds the first, longest match of the regular expression \fIRegExp\fR\& in \fIString\fR\&\&. This function searches for the longest possible match and returns the first one found if there are several expressions of the same length\&. It returns as follows:
+.RS 2
+.TP 2
+.B
+\fI{match,Start,Length}\fR\&:
+if the match succeeded\&. \fIStart\fR\& is the starting position of the match, and \fILength\fR\& is the length of the matching string\&.
+.TP 2
+.B
+\fInomatch\fR\&:
+if there were no matching characters\&.
+.TP 2
+.B
+\fI{error,Error}\fR\&:
+if there was an error in \fIRegExp\fR\&\&.
+.RE
+.RE
+.LP
+.nf
+
+.B
+first_match(String, RegExp) -> MatchRes
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+String = string()
+.br
+RegExp = string() | \fBregexp()\fR\&
+.br
+MatchRes = {match, Start, Length} | nomatch | {error, Error}
+.br
+Start = Length = integer() >= 1
+.br
+Error = \fBerrordesc()\fR\&
+.br
+.RE
+.RS
+.LP
+Finds the first match of the regular expression \fIRegExp\fR\& in \fIString\fR\&\&. This call is usually faster than \fImatch\fR\& and it is also a useful way to ascertain that a match exists\&. It returns as follows:
+.RS 2
+.TP 2
+.B
+\fI{match,Start,Length}\fR\&:
+if the match succeeded\&. \fIStart\fR\& is the starting position of the match and \fILength\fR\& is the length of the matching string\&.
+.TP 2
+.B
+\fInomatch\fR\&:
+if there were no matching characters\&.
+.TP 2
+.B
+\fI{error,Error}\fR\&:
+if there was an error in \fIRegExp\fR\&\&.
+.RE
+.RE
+.LP
+.nf
+
+.B
+matches(String, RegExp) -> MatchRes
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+String = string()
+.br
+RegExp = string() | \fBregexp()\fR\&
+.br
+MatchRes = {match, Matches} | {error, Error}
+.br
+Matches = [{Start, Length}]
+.br
+Start = Length = integer() >= 1
+.br
+Error = \fBerrordesc()\fR\&
+.br
+.RE
+.RS
+.LP
+Finds all non-overlapping matches of the expression \fIRegExp\fR\& in \fIString\fR\&\&. It returns as follows:
+.RS 2
+.TP 2
+.B
+\fI{match, Matches}\fR\&:
+if the regular expression was correct\&. The list will be empty if there was no match\&. Each element in the list looks like \fI{Start, Length}\fR\&, where \fIStart\fR\& is the starting position of the match, and \fILength\fR\& is the length of the matching string\&.
+.TP 2
+.B
+\fI{error,Error}\fR\&:
+if there was an error in \fIRegExp\fR\&\&.
+.RE
+.RE
+.LP
+.nf
+
+.B
+sub(String, RegExp, New) -> SubRes
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+String = string()
+.br
+RegExp = string() | \fBregexp()\fR\&
+.br
+New = NewString = string()
+.br
+SubRes = {ok, NewString, RepCount} | {error, Error}
+.br
+RepCount = 0 | 1
+.br
+Error = \fBerrordesc()\fR\&
+.br
+.RE
+.RS
+.LP
+Substitutes the first occurrence of a substring matching \fIRegExp\fR\& in \fIString\fR\& with the string \fINew\fR\&\&. A \fI&\fR\& in the string \fINew\fR\& is replaced by the matched substring of \fIString\fR\&\&. \fI\\&\fR\& puts a literal \fI&\fR\& into the replacement string\&. It returns as follows:
+.RS 2
+.TP 2
+.B
+\fI{ok,NewString,RepCount}\fR\&:
+if \fIRegExp\fR\& is correct\&. \fIRepCount\fR\& is the number of replacements which have been made (this will be either 0 or 1)\&.
+.TP 2
+.B
+\fI{error, Error}\fR\&:
+if there is an error in \fIRegExp\fR\&\&.
+.RE
+.RE
+.LP
+.nf
+
+.B
+gsub(String, RegExp, New) -> SubRes
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+String = string()
+.br
+RegExp = string() | \fBregexp()\fR\&
+.br
+New = NewString = string()
+.br
+SubRes = {ok, NewString, RepCount} | {error, Error}
+.br
+RepCount = integer() >= 0
+.br
+Error = \fBerrordesc()\fR\&
+.br
+.RE
+.RS
+.LP
+The same as \fIsub\fR\&, except that all non-overlapping occurrences of a substring matching \fIRegExp\fR\& in \fIString\fR\& are replaced by the string \fINew\fR\&\&. It returns:
+.RS 2
+.TP 2
+.B
+\fI{ok,NewString,RepCount}\fR\&:
+if \fIRegExp\fR\& is correct\&. \fIRepCount\fR\& is the number of replacements which have been made\&.
+.TP 2
+.B
+\fI{error, Error}\fR\&:
+if there is an error in \fIRegExp\fR\&\&.
+.RE
+.RE
+.LP
+.nf
+
+.B
+split(String, RegExp) -> SplitRes
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+String = string()
+.br
+RegExp = string() | \fBregexp()\fR\&
+.br
+SplitRes = {ok, FieldList} | {error, Error}
+.br
+FieldList = [string()]
+.br
+Error = \fBerrordesc()\fR\&
+.br
+.RE
+.RS
+.LP
+\fIString\fR\& is split into fields (sub-strings) by the regular expression \fIRegExp\fR\&\&.
+.LP
+If the separator expression is \fI" "\fR\& (a single space), then the fields are separated by blanks and/or tabs and leading and trailing blanks and tabs are discarded\&. For all other values of the separator, leading and trailing blanks and tabs are not discarded\&. It returns:
+.RS 2
+.TP 2
+.B
+\fI{ok, FieldList}\fR\&:
+to indicate that the string has been split up into the fields of \fIFieldList\fR\&\&.
+.TP 2
+.B
+\fI{error, Error}\fR\&:
+if there is an error in \fIRegExp\fR\&\&.
+.RE
+.RE
+.LP
+.nf
+
+.B
+sh_to_awk(ShRegExp) -> AwkRegExp
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+ShRegExp = AwkRegExp = string()
+.br
+.RE
+.RS
+.LP
+Converts the \fIsh\fR\& type regular expression \fIShRegExp\fR\& into a full \fIAWK\fR\& regular expression\&. Returns the converted regular expression string\&. \fIsh\fR\& expressions are used in the shell for matching file names and have the following special characters:
+.RS 2
+.TP 2
+.B
+\fI*\fR\&:
+matches any string including the null string\&.
+.TP 2
+.B
+\fI?\fR\&:
+matches any single character\&.
+.TP 2
+.B
+\fI[\&.\&.\&.]\fR\&:
+matches any of the enclosed characters\&. Character ranges are specified by a pair of characters separated by a \fI-\fR\&\&. If the first character after \fI[\fR\& is a \fI!\fR\&, then any character not enclosed is matched\&.
+.RE
+.LP
+It may sometimes be more practical to use \fIsh\fR\& type expansions as they are simpler and easier to use, even though they are not as powerful\&.
+.RE
+.LP
+.nf
+
+.B
+parse(RegExp) -> ParseRes
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+RegExp = string()
+.br
+ParseRes = {ok, RE} | {error, Error}
+.br
+RE = \fBregexp()\fR\&
+.br
+Error = \fBerrordesc()\fR\&
+.br
+.RE
+.RS
+.LP
+Parses the regular expression \fIRegExp\fR\& and builds the internal representation used in the other regular expression functions\&. Such representations can be used in all of the other functions instead of a regular expression string\&. This is more efficient when the same regular expression is used in many strings\&. It returns:
+.RS 2
+.TP 2
+.B
+\fI{ok, RE}\fR\&:
+if \fIRegExp\fR\& is correct and \fIRE\fR\& is the internal representation\&.
+.TP 2
+.B
+\fI{error, Error}\fR\&:
+if there is an error in \fIRegExp\fR\&\&.
+.RE
+.RE
+.LP
+.nf
+
+.B
+format_error(ErrorDescriptor) -> Chars
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+ErrorDescriptor = \fBerrordesc()\fR\&
+.br
+Chars = \fBio_lib:chars()\fR\&
+.br
+.RE
+.RS
+.LP
+Returns a string which describes the error \fIErrorDescriptor\fR\& returned when there is an error in a regular expression\&.
+.RE
+.SH "REGULAR EXPRESSIONS"
+
+.LP
+The regular expressions allowed here is a subset of the set found in \fIegrep\fR\& and in the \fIAWK\fR\& programming language, as defined in the book, \fIThe AWK Programming Language, by A\&. V\&. Aho, B\&. W\&. Kernighan, P\&. J\&. Weinberger\fR\&\&. They are composed of the following characters:
+.RS 2
+.TP 2
+.B
+c:
+matches the non-metacharacter \fIc\fR\&\&.
+.TP 2
+.B
+\\c:
+matches the escape sequence or literal character \fIc\fR\&\&.
+.TP 2
+.B
+\&.:
+matches any character\&.
+.TP 2
+.B
+^:
+matches the beginning of a string\&.
+.TP 2
+.B
+$:
+matches the end of a string\&.
+.TP 2
+.B
+[abc\&.\&.\&.]:
+character class, which matches any of the characters \fIabc\&.\&.\&.\fR\& Character ranges are specified by a pair of characters separated by a \fI-\fR\&\&.
+.TP 2
+.B
+[^abc\&.\&.\&.]:
+negated character class, which matches any character except \fIabc\&.\&.\&.\fR\&\&.
+.TP 2
+.B
+r1 | r2:
+alternation\&. It matches either \fIr1\fR\& or \fIr2\fR\&\&.
+.TP 2
+.B
+r1r2:
+concatenation\&. It matches \fIr1\fR\& and then \fIr2\fR\&\&.
+.TP 2
+.B
+r+:
+matches one or more \fIr\fR\&s\&.
+.TP 2
+.B
+r*:
+matches zero or more \fIr\fR\&s\&.
+.TP 2
+.B
+r?:
+matches zero or one \fIr\fR\&s\&.
+.TP 2
+.B
+(r):
+grouping\&. It matches \fIr\fR\&\&.
+.RE
+.LP
+The escape sequences allowed are the same as for Erlang strings:
+.RS 2
+.TP 2
+.B
+\fI\\b\fR\&:
+backspace
+.TP 2
+.B
+\fI\\f\fR\&:
+form feed
+.TP 2
+.B
+\fI\\n\fR\&:
+newline (line feed)
+.TP 2
+.B
+\fI\\r\fR\&:
+carriage return
+.TP 2
+.B
+\fI\\t\fR\&:
+tab
+.TP 2
+.B
+\fI\\e\fR\&:
+escape
+.TP 2
+.B
+\fI\\v\fR\&:
+vertical tab
+.TP 2
+.B
+\fI\\s\fR\&:
+space
+.TP 2
+.B
+\fI\\d\fR\&:
+delete
+.TP 2
+.B
+\fI\\ddd\fR\&:
+the octal value ddd
+.TP 2
+.B
+\fI\\xhh\fR\&:
+The hexadecimal value \fIhh\fR\&\&.
+.TP 2
+.B
+\fI\\x{h\&.\&.\&.}\fR\&:
+The hexadecimal value \fIh\&.\&.\&.\fR\&\&.
+.TP 2
+.B
+\fI\\c\fR\&:
+any other character literally, for example \fI\\\\\fR\& for backslash, \fI\\"\fR\& for ")
+.RE
+.LP
+To make these functions easier to use, in combination with the function \fIio:get_line\fR\& which terminates the input line with a new line, the \fI$\fR\& characters also matches a string ending with \fI"\&.\&.\&.\\n"\fR\&\&. The following examples define Erlang data types:
+.LP
+.nf
+
+Atoms     [a-z][0-9a-zA-Z_]*
+
+Variables [A-Z_][0-9a-zA-Z_]*
+
+Floats    (\\+|-)?[0-9]+\\.[0-9]+((E|e)(\\+|-)?[0-9]+)?
+.fi
+.LP
+Regular expressions are written as Erlang strings when used with the functions in this module\&. This means that any \fI\\\fR\& or \fI"\fR\& characters in a regular expression string must be written with \fI\\\fR\& as they are also escape characters for the string\&. For example, the regular expression string for Erlang floats is: \fI"(\\\\+|-)?[0-9]+\\\\\&.[0-9]+((E|e)(\\\\+|-)?[0-9]+)?"\fR\&\&.
+.LP
+It is not really necessary to have the escape sequences as part of the regular expression syntax as they can always be generated directly in the string\&. They are included for completeness and can they can also be useful when generating regular expressions, or when they are entered other than with Erlang strings\&.

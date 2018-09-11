@@ -1,0 +1,126 @@
+.TH wxGraphicsRenderer 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxGraphicsRenderer \- See external documentation: wxGraphicsRenderer.
+.SH DESCRIPTION
+.LP
+See external documentation: wxGraphicsRenderer\&.
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxGraphicsRenderer()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+getDefaultRenderer() -> wxGraphicsRenderer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+createContext(This::wxGraphicsRenderer(), Dc::wxWindowDC() (see module wxWindowDC) | wxWindow() (see module wxWindow)) -> wxGraphicsContext() (see module wxGraphicsContext)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+createPen(This::wxGraphicsRenderer(), Pen::wxPen() (see module wxPen)) -> wxGraphicsPen() (see module wxGraphicsPen)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+createBrush(This::wxGraphicsRenderer(), Brush::wxBrush() (see module wxBrush)) -> wxGraphicsBrush() (see module wxGraphicsBrush)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+createLinearGradientBrush(This::wxGraphicsRenderer(), X1::float(), Y1::float(), X2::float(), Y2::float(), C1::colour() (see module wx), C2::colour() (see module wx)) -> wxGraphicsBrush() (see module wxGraphicsBrush)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+createRadialGradientBrush(This::wxGraphicsRenderer(), Xo::float(), Yo::float(), Xc::float(), Yc::float(), Radius::float(), OColor::colour() (see module wx), CColor::colour() (see module wx)) -> wxGraphicsBrush() (see module wxGraphicsBrush)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+createFont(This::wxGraphicsRenderer(), Font::wxFont() (see module wxFont)) -> wxGraphicsFont() (see module wxGraphicsFont)
+.br
+.RS
+.LP
+Equivalent to \fBcreateFont(This, Font, [])\fR\&\&.
+.RE
+.LP
+.B
+createFont(This::wxGraphicsRenderer(), Font::wxFont() (see module wxFont), Options::[Option]) -> wxGraphicsFont() (see module wxGraphicsFont)
+.br
+.RS
+.TP 3
+Types:
+
+Option = {col, colour() (see module wx)}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+createMatrix(This::wxGraphicsRenderer()) -> wxGraphicsMatrix() (see module wxGraphicsMatrix)
+.br
+.RS
+.LP
+Equivalent to \fBcreateMatrix(This, [])\fR\&\&.
+.RE
+.LP
+.B
+createMatrix(This::wxGraphicsRenderer(), Options::[Option]) -> wxGraphicsMatrix() (see module wxGraphicsMatrix)
+.br
+.RS
+.TP 3
+Types:
+
+Option = {a, float()} | {b, float()} | {c, float()} | {d, float()} | {tx, float()} | {ty, float()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+createPath(This::wxGraphicsRenderer()) -> wxGraphicsPath() (see module wxGraphicsPath)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

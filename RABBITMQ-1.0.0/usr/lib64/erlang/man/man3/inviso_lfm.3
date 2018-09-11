@@ -1,0 +1,114 @@
+.TH inviso_lfm 3 "inviso 0.6.2" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+inviso_lfm \- An Inviso Off-Line Logfile Merger
+.SH DESCRIPTION
+.LP
+Implements an off-line logfile merger, merging binary trace-log files from several nodes together in chronological order\&. The logfile merger can also do pid-to-alias translations\&.
+.LP
+The logfile merger is supposed to be called from the Erlang shell or a higher layer trace tool\&. For it to work, all logfiles and trace information files (containing the pid-alias associations) must be located in the file system accessible from this node and organized according to the API description\&.
+.LP
+The logfile merger starts a process, the output process, which in its turn starts one reader process for every node it shall merge logfiles from\&. Note that the reason for a process for each node is not remote communication, the logfile merger is an off-line utility, it is to sort the logfile entries in chronological order\&.
+.LP
+The logfile merger can be customized both when it comes to the implementation of the reader processes and the output the output process shall generate for every logfile entry\&.
+.SH EXPORTS
+.LP
+.B
+merge(Files, OutFile) ->
+.br
+.B
+merge(Files, WorkHFun, InitHandlerData) ->
+.br
+.B
+merge(Files, BeginHFun, WorkHFun, EndHFun, InitHandlerData) -> {ok, Count} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Files = [FileDescription]
+.br
+FileDescription = FileSet | {reader,RMod,RFunc,FileSet}
+.br
+FileSet = {Node,LogFiles} | {Node,[LogFiles]}
+.br
+Node = atom()
+.br
+LogFiles = [{trace_log,[FileName]}] | [{trace_log,[FileName]},{ti_log,TiFileSpec}]
+.br
+TiFileSpec = [string()] - a list of one string.
+.br
+FileName = string()
+.br
+RMod = RFunc = atom()
+.br
+OutFile = string()
+.br
+BeginHFun = fun(InitHandlerData) -> {ok, NewHandlerData} | {error, Reason}
+.br
+WorkHFun = fun(Node, LogEntry, PidMappings, HandlerData) -> {ok, NewHandlerData}
+.br
+LogEntry = tuple()
+.br
+PidMappings = term()
+.br
+EndHFun = fun(HandlerData) -> ok | {error, Reason}
+.br
+Count = int()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Merges the logfiles in \fIFiles\fR\& together into one file in chronological order\&. The logfile merger consists of an output process and one or several reader processes\&.
+.LP
+Returns \fI{ok, Count}\fR\& where \fICount\fR\& is the total number of log entries processed, if successful\&.
+.LP
+When specifying \fILogFiles\fR\&, currently the standard reader-process only supports:
+.RS 2
+.TP 2
+*
+one single file
+.LP
+.TP 2
+*
+a list of wraplog files, following the naming convention \fI<Prefix><Nr><Suffix>\fR\&\&.
+.LP
+.RE
+
+.LP
+Note that (when using the standard reader process) it is possible to give a list of \fILogFiles\fR\&\&. The list must be sorted starting with the oldest\&. This will cause several trace-logs (from the same node) to be merged together in the same \fIOutFile\fR\&\&. The reader process will simply start reading the next file (or wrapset) when the previous is done\&.
+.LP
+\fIFileDescription == {reader,RMod,RFunc,FileSet}\fR\& indicates that \fIspawn(RMod, RFunc, [OutputPid,LogFiles])\fR\& shall create a reader process\&.
+.LP
+The output process is customized with \fIBeginHFun\fR\&, \fIWorkHFun\fR\& and \fIEndHFun\fR\&\&. If using \fImerge/2\fR\& a default output process configuration is used, basically creating a text file and writing the output line by line\&. \fIBeginHFun\fR\& is called once before requesting log entries from the reader processes\&. \fIWorkHFun\fR\& is called for every log entry (trace message) \fILogEntry\fR\&\&. Here the log entry typically gets written to the output\&. \fIPidMappings\fR\& is the translations produced by the reader process\&. \fIEndHFun\fR\& is called when all reader processes have terminated\&.
+.LP
+Currently the standard reader can only handle one ti-file (per \fILogFiles\fR\&)\&. The current inviso meta tracer is further not capable of wrapping ti-files\&. (This also because a wrapped ti-log will most likely be worthless since alias associations done in the beginning are erased but still used in the trace-log)\&.
+.LP
+The standard reader process is implemented in the module \fIinviso_lfm_tpreader\fR\& (trace port reader)\&. It understands Erlang linked in trace-port driver generated trace-logs and \fIinviso_rt_meta\fR\& generated trace information files\&.
+.RE
+.SH "WRITING YOUR OWN READER PROCESS"
+
+.LP
+Writing a reader process is not that difficult\&. It must:
+.RS 2
+.TP 2
+*
+Export an init-like function accepting two arguments, pid of the output process and the \fILogFiles\fR\& component\&. \fILogFiles\fR\& is actually only used by the reader processes, making it possible to redefine \fILogFiles\fR\& if implementing an own reader process\&.
+.LP
+.TP 2
+*
+Respond to \fI{get_next_entry, OutputPid}\fR\& messages with \fI{next_entry, self(), PidMappings, NowTimeStamp, Term}\fR\& or \fI{next_entry, self(), {error,Reason}}\fR\&\&.
+.LP
+.TP 2
+*
+Terminate normally when no more log entries are available\&.
+.LP
+.TP 2
+*
+Terminate on an incoming EXIT-signal from \fIOutputPid\fR\&\&.
+.LP
+.RE
+
+.LP
+The reader process must of course understand the format of a logfile written by the runtime component\&.

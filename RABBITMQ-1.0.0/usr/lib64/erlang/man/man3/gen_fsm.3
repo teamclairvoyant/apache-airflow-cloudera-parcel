@@ -1,0 +1,833 @@
+.TH gen_fsm 3 "stdlib 1.17.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+gen_fsm \- Generic Finite State Machine Behaviour
+.SH DESCRIPTION
+.LP
+A behaviour module for implementing a finite state machine\&. A generic finite state machine process (gen_fsm) implemented using this module will have a standard set of interface functions and include functionality for tracing and error reporting\&. It will also fit into an OTP supervision tree\&. Refer to \fBOTP Design Principles\fR\& for more information\&.
+.LP
+A gen_fsm assumes all specific parts to be located in a callback module exporting a pre-defined set of functions\&. The relationship between the behaviour functions and the callback functions can be illustrated as follows:
+.LP
+.nf
+
+gen_fsm module                    Callback module
+--------------                    ---------------
+gen_fsm:start_link                -----> Module:init/1
+
+gen_fsm:send_event                -----> Module:StateName/2
+
+gen_fsm:send_all_state_event      -----> Module:handle_event/3
+
+gen_fsm:sync_send_event           -----> Module:StateName/3
+
+gen_fsm:sync_send_all_state_event -----> Module:handle_sync_event/4
+
+-                                 -----> Module:handle_info/3
+
+-                                 -----> Module:terminate/3
+
+-                                 -----> Module:code_change/4
+.fi
+.LP
+If a callback function fails or returns a bad value, the gen_fsm will terminate\&.
+.LP
+A gen_fsm handles system messages as documented in \fBsys(3)\fR\&\&. The \fIsys\fR\& module can be used for debugging a gen_fsm\&.
+.LP
+Note that a gen_fsm does not trap exit signals automatically, this must be explicitly initiated in the callback module\&.
+.LP
+Unless otherwise stated, all functions in this module fail if the specified gen_fsm does not exist or if bad arguments are given\&.
+.LP
+The gen_fsm process can go into hibernation (see \fBerlang(3)\fR\&) if a callback function specifies \fI\&'hibernate\&'\fR\& instead of a timeout value\&. This might be useful if the server is expected to be idle for a long time\&. However this feature should be used with care as hibernation implies at least two garbage collections (when hibernating and shortly after waking up) and is not something you\&'d want to do between each call to a busy state machine\&.
+.SH EXPORTS
+.LP
+.B
+start_link(Module, Args, Options) -> Result
+.br
+.B
+start_link(FsmName, Module, Args, Options) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+FsmName = {local,Name} | {global,GlobalName}
+.br
+Name = atom()
+.br
+GlobalName = term()
+.br
+Module = atom()
+.br
+Args = term()
+.br
+Options = [Option]
+.br
+Option = {debug,Dbgs} | {timeout,Time} | {spawn_opt,SOpts}
+.br
+Dbgs = [Dbg]
+.br
+Dbg = trace | log | statistics
+.br
+| {log_to_file,FileName} | {install,{Func,FuncState}}
+.br
+SOpts = [SOpt]
+.br
+SOpt - see erlang:spawn_opt/2,3,4,5
+.br
+Result = {ok,Pid} | ignore | {error,Error}
+.br
+Pid = pid()
+.br
+Error = {already_started,Pid} | term()
+.br
+.RE
+.RS
+.LP
+Creates a gen_fsm process as part of a supervision tree\&. The function should be called, directly or indirectly, by the supervisor\&. It will, among other things, ensure that the gen_fsm is linked to the supervisor\&.
+.LP
+The gen_fsm process calls \fIModule:init/1\fR\& to initialize\&. To ensure a synchronized start-up procedure, \fIstart_link/3,4\fR\& does not return until \fIModule:init/1\fR\& has returned\&.
+.LP
+If \fIFsmName={local,Name}\fR\&, the gen_fsm is registered locally as \fIName\fR\& using \fIregister/2\fR\&\&. If \fIFsmName={global,GlobalName}\fR\&, the gen_fsm is registered globally as \fIGlobalName\fR\& using \fIglobal:register_name/2\fR\&\&. If no name is provided, the gen_fsm is not registered\&.
+.LP
+\fIModule\fR\& is the name of the callback module\&.
+.LP
+\fIArgs\fR\& is an arbitrary term which is passed as the argument to \fIModule:init/1\fR\&\&.
+.LP
+If the option \fI{timeout,Time}\fR\& is present, the gen_fsm is allowed to spend \fITime\fR\& milliseconds initializing or it will be terminated and the start function will return \fI{error,timeout}\fR\&\&.
+.LP
+If the option \fI{debug,Dbgs}\fR\& is present, the corresponding \fIsys\fR\& function will be called for each item in \fIDbgs\fR\&\&. See \fBsys(3)\fR\&\&.
+.LP
+If the option \fI{spawn_opt,SOpts}\fR\& is present, \fISOpts\fR\& will be passed as option list to the \fIspawn_opt\fR\& BIF which is used to spawn the gen_fsm process\&. See \fBerlang(3)\fR\&\&.
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+Using the spawn option \fImonitor\fR\& is currently not allowed, but will cause the function to fail with reason \fIbadarg\fR\&\&.
+
+.LP
+If the gen_fsm is successfully created and initialized the function returns \fI{ok,Pid}\fR\&, where \fIPid\fR\& is the pid of the gen_fsm\&. If there already exists a process with the specified \fIFsmName\fR\&, the function returns \fI{error,{already_started,Pid}}\fR\& where \fIPid\fR\& is the pid of that process\&.
+.LP
+If \fIModule:init/1\fR\& fails with \fIReason\fR\&, the function returns \fI{error,Reason}\fR\&\&. If \fIModule:init/1\fR\& returns \fI{stop,Reason}\fR\& or \fIignore\fR\&, the process is terminated and the function returns \fI{error,Reason}\fR\& or \fIignore\fR\&, respectively\&.
+.RE
+.LP
+.B
+start(Module, Args, Options) -> Result
+.br
+.B
+start(FsmName, Module, Args, Options) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+FsmName = {local,Name} | {global,GlobalName}
+.br
+Name = atom()
+.br
+GlobalName = term()
+.br
+Module = atom()
+.br
+Args = term()
+.br
+Options = [Option]
+.br
+Option = {debug,Dbgs} | {timeout,Time} | {spawn_opt,SOpts}
+.br
+Dbgs = [Dbg]
+.br
+Dbg = trace | log | statistics
+.br
+| {log_to_file,FileName} | {install,{Func,FuncState}}
+.br
+SOpts = [term()]
+.br
+Result = {ok,Pid} | ignore | {error,Error}
+.br
+Pid = pid()
+.br
+Error = {already_started,Pid} | term()
+.br
+.RE
+.RS
+.LP
+Creates a stand-alone gen_fsm process, i\&.e\&. a gen_fsm which is not part of a supervision tree and thus has no supervisor\&.
+.LP
+See \fBstart_link/3,4\fR\& for a description of arguments and return values\&.
+.RE
+.LP
+.B
+send_event(FsmRef, Event) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+FsmRef = Name | {Name,Node} | {global,GlobalName} | pid()
+.br
+Name = Node = atom()
+.br
+GlobalName = term()
+.br
+Event = term()
+.br
+.RE
+.RS
+.LP
+Sends an event asynchronously to the gen_fsm \fIFsmRef\fR\& and returns \fIok\fR\& immediately\&. The gen_fsm will call \fIModule:StateName/2\fR\& to handle the event, where \fIStateName\fR\& is the name of the current state of the gen_fsm\&.
+.LP
+\fIFsmRef\fR\& can be:
+.RS 2
+.TP 2
+*
+the pid,
+.LP
+.TP 2
+*
+\fIName\fR\&, if the gen_fsm is locally registered,
+.LP
+.TP 2
+*
+\fI{Name,Node}\fR\&, if the gen_fsm is locally registered at another node, or
+.LP
+.TP 2
+*
+\fI{global,GlobalName}\fR\&, if the gen_fsm is globally registered\&.
+.LP
+.RE
+
+.LP
+\fIEvent\fR\& is an arbitrary term which is passed as one of the arguments to \fIModule:StateName/2\fR\&\&.
+.RE
+.LP
+.B
+send_all_state_event(FsmRef, Event) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+FsmRef = Name | {Name,Node} | {global,GlobalName} | pid()
+.br
+Name = Node = atom()
+.br
+GlobalName = term()
+.br
+Event = term()
+.br
+.RE
+.RS
+.LP
+Sends an event asynchronously to the gen_fsm \fIFsmRef\fR\& and returns \fIok\fR\& immediately\&. The gen_fsm will call \fIModule:handle_event/3\fR\& to handle the event\&.
+.LP
+See \fBsend_event/2\fR\& for a description of the arguments\&.
+.LP
+The difference between \fIsend_event\fR\& and \fIsend_all_state_event\fR\& is which callback function is used to handle the event\&. This function is useful when sending events that are handled the same way in every state, as only one \fIhandle_event\fR\& clause is needed to handle the event instead of one clause in each state name function\&.
+.RE
+.LP
+.B
+sync_send_event(FsmRef, Event) -> Reply
+.br
+.B
+sync_send_event(FsmRef, Event, Timeout) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+FsmRef = Name | {Name,Node} | {global,GlobalName} | pid()
+.br
+Name = Node = atom()
+.br
+GlobalName = term()
+.br
+Event = term()
+.br
+Timeout = int()>0 | infinity
+.br
+Reply = term()
+.br
+.RE
+.RS
+.LP
+Sends an event to the gen_fsm \fIFsmRef\fR\& and waits until a reply arrives or a timeout occurs\&. The gen_fsm will call \fIModule:StateName/3\fR\& to handle the event, where \fIStateName\fR\& is the name of the current state of the gen_fsm\&.
+.LP
+See \fBsend_event/2\fR\& for a description of \fIFsmRef\fR\& and \fIEvent\fR\&\&.
+.LP
+\fITimeout\fR\& is an integer greater than zero which specifies how many milliseconds to wait for a reply, or the atom \fIinfinity\fR\& to wait indefinitely\&. Default value is 5000\&. If no reply is received within the specified time, the function call fails\&.
+.LP
+The return value \fIReply\fR\& is defined in the return value of \fIModule:StateName/3\fR\&\&.
+.LP
+The ancient behaviour of sometimes consuming the server exit message if the server died during the call while linked to the client has been removed in OTP R12B/Erlang 5\&.6\&.
+.RE
+.LP
+.B
+sync_send_all_state_event(FsmRef, Event) -> Reply
+.br
+.B
+sync_send_all_state_event(FsmRef, Event, Timeout) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+FsmRef = Name | {Name,Node} | {global,GlobalName} | pid()
+.br
+Name = Node = atom()
+.br
+GlobalName = term()
+.br
+Event = term()
+.br
+Timeout = int()>0 | infinity
+.br
+Reply = term()
+.br
+.RE
+.RS
+.LP
+Sends an event to the gen_fsm \fIFsmRef\fR\& and waits until a reply arrives or a timeout occurs\&. The gen_fsm will call \fIModule:handle_sync_event/4\fR\& to handle the event\&.
+.LP
+See \fBsend_event/2\fR\& for a description of \fIFsmRef\fR\& and \fIEvent\fR\&\&. See \fBsync_send_event/3\fR\& for a description of \fITimeout\fR\& and \fIReply\fR\&\&.
+.LP
+See \fBsend_all_state_event/2\fR\& for a discussion about the difference between \fIsync_send_event\fR\& and \fIsync_send_all_state_event\fR\&\&.
+.RE
+.LP
+.B
+reply(Caller, Reply) -> true
+.br
+.RS
+.TP 3
+Types:
+
+Caller - see below
+.br
+Reply = term()
+.br
+.RE
+.RS
+.LP
+This function can be used by a gen_fsm to explicitly send a reply to a client process that called \fBsync_send_event/2,3\fR\& or \fBsync_send_all_state_event/2,3\fR\&, when the reply cannot be defined in the return value of \fIModule:State/3\fR\& or \fIModule:handle_sync_event/4\fR\&\&.
+.LP
+\fICaller\fR\& must be the \fIFrom\fR\& argument provided to the callback function\&. \fIReply\fR\& is an arbitrary term, which will be given back to the client as the return value of \fIsync_send_event/2,3\fR\& or \fIsync_send_all_state_event/2,3\fR\&\&.
+.RE
+.LP
+.B
+send_event_after(Time, Event) -> Ref
+.br
+.RS
+.TP 3
+Types:
+
+Time = integer()
+.br
+Event = term()
+.br
+Ref = reference()
+.br
+.RE
+.RS
+.LP
+Sends a delayed event internally in the gen_fsm that calls this function after \fITime\fR\& ms\&. Returns immediately a reference that can be used to cancel the delayed send using \fBcancel_timer/1\fR\&\&.
+.LP
+The gen_fsm will call \fIModule:StateName/2\fR\& to handle the event, where \fIStateName\fR\& is the name of the current state of the gen_fsm at the time the delayed event is delivered\&.
+.LP
+\fIEvent\fR\& is an arbitrary term which is passed as one of the arguments to \fIModule:StateName/2\fR\&\&.
+.RE
+.LP
+.B
+start_timer(Time, Msg) -> Ref
+.br
+.RS
+.TP 3
+Types:
+
+Time = integer()
+.br
+Msg = term()
+.br
+Ref = reference()
+.br
+.RE
+.RS
+.LP
+Sends a timeout event internally in the gen_fsm that calls this function after \fITime\fR\& ms\&. Returns immediately a reference that can be used to cancel the timer using \fBcancel_timer/1\fR\&\&.
+.LP
+The gen_fsm will call \fIModule:StateName/2\fR\& to handle the event, where \fIStateName\fR\& is the name of the current state of the gen_fsm at the time the timeout message is delivered\&.
+.LP
+\fIMsg\fR\& is an arbitrary term which is passed in the timeout message, \fI{timeout, Ref, Msg}\fR\&, as one of the arguments to \fIModule:StateName/2\fR\&\&.
+.RE
+.LP
+.B
+cancel_timer(Ref) -> RemainingTime | false
+.br
+.RS
+.TP 3
+Types:
+
+Ref = reference()
+.br
+RemainingTime = integer()
+.br
+.RE
+.RS
+.LP
+Cancels an internal timer referred by \fIRef\fR\& in the gen_fsm that calls this function\&.
+.LP
+\fIRef\fR\& is a reference returned from \fBsend_event_after/2\fR\& or \fBstart_timer/2\fR\&\&.
+.LP
+If the timer has already timed out, but the event not yet been delivered, it is cancelled as if it had \fInot\fR\& timed out, so there will be no false timer event after returning from this function\&.
+.LP
+Returns the remaining time in ms until the timer would have expired if \fIRef\fR\& referred to an active timer, \fIfalse\fR\& otherwise\&.
+.RE
+.LP
+.B
+enter_loop(Module, Options, StateName, StateData)
+.br
+.B
+enter_loop(Module, Options, StateName, StateData, FsmName)
+.br
+.B
+enter_loop(Module, Options, StateName, StateData, Timeout)
+.br
+.B
+enter_loop(Module, Options, StateName, StateData, FsmName, Timeout)
+.br
+.RS
+.TP 3
+Types:
+
+Module = atom()
+.br
+Options = [Option]
+.br
+Option = {debug,Dbgs}
+.br
+Dbgs = [Dbg]
+.br
+Dbg = trace | log | statistics
+.br
+| {log_to_file,FileName} | {install,{Func,FuncState}}
+.br
+StateName = atom()
+.br
+StateData = term()
+.br
+FsmName = {local,Name} | {global,GlobalName}
+.br
+Name = atom()
+.br
+GlobalName = term()
+.br
+Timeout = int() | infinity
+.br
+.RE
+.RS
+.LP
+Makes an existing process into a gen_fsm\&. Does not return, instead the calling process will enter the gen_fsm receive loop and become a gen_fsm process\&. The process \fImust\fR\& have been started using one of the start functions in \fIproc_lib\fR\&, see \fBproc_lib(3)\fR\&\&. The user is responsible for any initialization of the process, including registering a name for it\&.
+.LP
+This function is useful when a more complex initialization procedure is needed than the gen_fsm behaviour provides\&.
+.LP
+\fIModule\fR\&, \fIOptions\fR\& and \fIFsmName\fR\& have the same meanings as when calling \fBstart[_link]/3,4\fR\&\&. However, if \fIFsmName\fR\& is specified, the process must have been registered accordingly \fIbefore\fR\& this function is called\&.
+.LP
+\fIStateName\fR\&, \fIStateData\fR\& and \fITimeout\fR\& have the same meanings as in the return value of \fBModule:init/1\fR\&\&. Also, the callback module \fIModule\fR\& does not need to export an \fIinit/1\fR\& function\&.
+.LP
+Failure: If the calling process was not started by a \fIproc_lib\fR\& start function, or if it is not registered according to \fIFsmName\fR\&\&.
+.RE
+.SH "CALLBACK FUNCTIONS"
+
+.LP
+The following functions should be exported from a \fIgen_fsm\fR\& callback module\&.
+.LP
+In the description, the expression \fIstate name\fR\& is used to denote a state of the state machine\&. \fIstate data\fR\& is used to denote the internal state of the Erlang process which implements the state machine\&.
+.SH EXPORTS
+.LP
+.B
+Module:init(Args) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Args = term()
+.br
+Result = {ok,StateName,StateData} | {ok,StateName,StateData,Timeout}
+.br
+| {ok,StateName,StateData,hibernate}
+.br
+| {stop,Reason} | ignore
+.br
+StateName = atom()
+.br
+StateData = term()
+.br
+Timeout = int()>0 | infinity
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Whenever a gen_fsm is started using \fBgen_fsm:start/3,4\fR\& or \fBgen_fsm:start_link/3,4\fR\&, this function is called by the new process to initialize\&.
+.LP
+\fIArgs\fR\& is the \fIArgs\fR\& argument provided to the start function\&.
+.LP
+If initialization is successful, the function should return \fI{ok,StateName,StateData}\fR\&, \fI{ok,StateName,StateData,Timeout}\fR\& or \fI{ok,StateName,StateData,hibernate}\fR\&, where \fIStateName\fR\& is the initial state name and \fIStateData\fR\& the initial state data of the gen_fsm\&.
+.LP
+If an integer timeout value is provided, a timeout will occur unless an event or a message is received within \fITimeout\fR\& milliseconds\&. A timeout is represented by the atom \fItimeout\fR\& and should be handled by the \fIModule:StateName/2\fR\& callback functions\&. The atom \fIinfinity\fR\& can be used to wait indefinitely, this is the default value\&.
+.LP
+If \fIhibernate\fR\& is specified instead of a timeout value, the process will go into hibernation when waiting for the next message to arrive (by calling \fBproc_lib:hibernate/3\fR\&)\&.
+.LP
+If something goes wrong during the initialization the function should return \fI{stop,Reason}\fR\&, where \fIReason\fR\& is any term, or \fIignore\fR\&\&.
+.RE
+.LP
+.B
+Module:StateName(Event, StateData) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Event = timeout | term()
+.br
+StateData = term()
+.br
+Result = {next_state,NextStateName,NewStateData}
+.br
+| {next_state,NextStateName,NewStateData,Timeout}
+.br
+| {next_state,NextStateName,NewStateData,hibernate}
+.br
+| {stop,Reason,NewStateData}
+.br
+NextStateName = atom()
+.br
+NewStateData = term()
+.br
+Timeout = int()>0 | infinity
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+There should be one instance of this function for each possible state name\&. Whenever a gen_fsm receives an event sent using \fBgen_fsm:send_event/2\fR\&, the instance of this function with the same name as the current state name \fIStateName\fR\& is called to handle the event\&. It is also called if a timeout occurs\&.
+.LP
+\fIEvent\fR\& is either the atom \fItimeout\fR\&, if a timeout has occurred, or the \fIEvent\fR\& argument provided to \fIsend_event/2\fR\&\&.
+.LP
+\fIStateData\fR\& is the state data of the gen_fsm\&.
+.LP
+If the function returns \fI{next_state,NextStateName,NewStateData}\fR\&, \fI{next_state,NextStateName,NewStateData,Timeout}\fR\& or \fI{next_state,NextStateName,NewStateData,hibernate}\fR\&, the gen_fsm will continue executing with the current state name set to \fINextStateName\fR\& and with the possibly updated state data \fINewStateData\fR\&\&. See \fIModule:init/1\fR\& for a description of \fITimeout\fR\& and \fIhibernate\fR\&\&.
+.LP
+If the function returns \fI{stop,Reason,NewStateData}\fR\&, the gen_fsm will call \fIModule:terminate(Reason,NewStateData)\fR\& and terminate\&.
+.RE
+.LP
+.B
+Module:handle_event(Event, StateName, StateData) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Event = term()
+.br
+StateName = atom()
+.br
+StateData = term()
+.br
+Result = {next_state,NextStateName,NewStateData}
+.br
+| {next_state,NextStateName,NewStateData,Timeout}
+.br
+| {next_state,NextStateName,NewStateData,hibernate}
+.br
+| {stop,Reason,NewStateData}
+.br
+NextStateName = atom()
+.br
+NewStateData = term()
+.br
+Timeout = int()>0 | infinity
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Whenever a gen_fsm receives an event sent using \fBgen_fsm:send_all_state_event/2\fR\&, this function is called to handle the event\&.
+.LP
+\fIStateName\fR\& is the current state name of the gen_fsm\&.
+.LP
+See \fIModule:StateName/2\fR\& for a description of the other arguments and possible return values\&.
+.RE
+.LP
+.B
+Module:StateName(Event, From, StateData) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Event = term()
+.br
+From = {pid(),Tag}
+.br
+StateData = term()
+.br
+Result = {reply,Reply,NextStateName,NewStateData}
+.br
+| {reply,Reply,NextStateName,NewStateData,Timeout}
+.br
+| {reply,Reply,NextStateName,NewStateData,hibernate}
+.br
+| {next_state,NextStateName,NewStateData}
+.br
+| {next_state,NextStateName,NewStateData,Timeout}
+.br
+| {next_state,NextStateName,NewStateData,hibernate}
+.br
+| {stop,Reason,Reply,NewStateData} | {stop,Reason,NewStateData}
+.br
+Reply = term()
+.br
+NextStateName = atom()
+.br
+NewStateData = term()
+.br
+Timeout = int()>0 | infinity
+.br
+Reason = normal | term()
+.br
+.RE
+.RS
+.LP
+There should be one instance of this function for each possible state name\&. Whenever a gen_fsm receives an event sent using \fBgen_fsm:sync_send_event/2,3\fR\&, the instance of this function with the same name as the current state name \fIStateName\fR\& is called to handle the event\&.
+.LP
+\fIEvent\fR\& is the \fIEvent\fR\& argument provided to \fIsync_send_event\fR\&\&.
+.LP
+\fIFrom\fR\& is a tuple \fI{Pid,Tag}\fR\& where \fIPid\fR\& is the pid of the process which called \fIsync_send_event/2,3\fR\& and \fITag\fR\& is a unique tag\&.
+.LP
+\fIStateData\fR\& is the state data of the gen_fsm\&.
+.LP
+If the function returns \fI{reply,Reply,NextStateName,NewStateData}\fR\&, \fI{reply,Reply,NextStateName,NewStateData,Timeout}\fR\& or \fI{reply,Reply,NextStateName,NewStateData,hibernate}\fR\&, \fIReply\fR\& will be given back to \fIFrom\fR\& as the return value of \fIsync_send_event/2,3\fR\&\&. The gen_fsm then continues executing with the current state name set to \fINextStateName\fR\& and with the possibly updated state data \fINewStateData\fR\&\&. See \fIModule:init/1\fR\& for a description of \fITimeout\fR\& and \fIhibernate\fR\&\&.
+.LP
+If the function returns \fI{next_state,NextStateName,NewStateData}\fR\&, \fI{next_state,NextStateName,NewStateData,Timeout}\fR\& or \fI{next_state,NextStateName,NewStateData,hibernate}\fR\&, the gen_fsm will continue executing in \fINextStateName\fR\& with \fINewStateData\fR\&\&. Any reply to \fIFrom\fR\& must be given explicitly using \fBgen_fsm:reply/2\fR\&\&.
+.LP
+If the function returns \fI{stop,Reason,Reply,NewStateData}\fR\&, \fIReply\fR\& will be given back to \fIFrom\fR\&\&. If the function returns \fI{stop,Reason,NewStateData}\fR\&, any reply to \fIFrom\fR\& must be given explicitly using \fIgen_fsm:reply/2\fR\&\&. The gen_fsm will then call \fIModule:terminate(Reason,NewStateData)\fR\& and terminate\&.
+.RE
+.LP
+.B
+Module:handle_sync_event(Event, From, StateName, StateData) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Event = term()
+.br
+From = {pid(),Tag}
+.br
+StateName = atom()
+.br
+StateData = term()
+.br
+Result = {reply,Reply,NextStateName,NewStateData}
+.br
+| {reply,Reply,NextStateName,NewStateData,Timeout}
+.br
+| {reply,Reply,NextStateName,NewStateData,hibernate}
+.br
+| {next_state,NextStateName,NewStateData}
+.br
+| {next_state,NextStateName,NewStateData,Timeout}
+.br
+| {next_state,NextStateName,NewStateData,hibernate}
+.br
+| {stop,Reason,Reply,NewStateData} | {stop,Reason,NewStateData}
+.br
+Reply = term()
+.br
+NextStateName = atom()
+.br
+NewStateData = term()
+.br
+Timeout = int()>0 | infinity
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Whenever a gen_fsm receives an event sent using \fBgen_fsm:sync_send_all_state_event/2,3\fR\&, this function is called to handle the event\&.
+.LP
+\fIStateName\fR\& is the current state name of the gen_fsm\&.
+.LP
+See \fIModule:StateName/3\fR\& for a description of the other arguments and possible return values\&.
+.RE
+.LP
+.B
+Module:handle_info(Info, StateName, StateData) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Info = term()
+.br
+StateName = atom()
+.br
+StateData = term()
+.br
+Result = {next_state,NextStateName,NewStateData}
+.br
+| {next_state,NextStateName,NewStateData,Timeout}
+.br
+| {next_state,NextStateName,NewStateData,hibernate}
+.br
+| {stop,Reason,NewStateData}
+.br
+NextStateName = atom()
+.br
+NewStateData = term()
+.br
+Timeout = int()>0 | infinity
+.br
+Reason = normal | term()
+.br
+.RE
+.RS
+.LP
+This function is called by a gen_fsm when it receives any other message than a synchronous or asynchronous event (or a system message)\&.
+.LP
+\fIInfo\fR\& is the received message\&.
+.LP
+See \fIModule:StateName/2\fR\& for a description of the other arguments and possible return values\&.
+.RE
+.LP
+.B
+Module:terminate(Reason, StateName, StateData)
+.br
+.RS
+.TP 3
+Types:
+
+Reason = normal | shutdown | {shutdown,term()} | term()
+.br
+StateName = atom()
+.br
+StateData = term()
+.br
+.RE
+.RS
+.LP
+This function is called by a gen_fsm when it is about to terminate\&. It should be the opposite of \fIModule:init/1\fR\& and do any necessary cleaning up\&. When it returns, the gen_fsm terminates with \fIReason\fR\&\&. The return value is ignored\&.
+.LP
+\fIReason\fR\& is a term denoting the stop reason, \fIStateName\fR\& is the current state name, and \fIStateData\fR\& is the state data of the gen_fsm\&.
+.LP
+\fIReason\fR\& depends on why the gen_fsm is terminating\&. If it is because another callback function has returned a stop tuple \fI{stop,\&.\&.}\fR\&, \fIReason\fR\& will have the value specified in that tuple\&. If it is due to a failure, \fIReason\fR\& is the error reason\&.
+.LP
+If the gen_fsm is part of a supervision tree and is ordered by its supervisor to terminate, this function will be called with \fIReason=shutdown\fR\& if the following conditions apply:
+.RS 2
+.TP 2
+*
+the gen_fsm has been set to trap exit signals, and
+.LP
+.TP 2
+*
+the shutdown strategy as defined in the supervisor\&'s child specification is an integer timeout value, not \fIbrutal_kill\fR\&\&.
+.LP
+.RE
+
+.LP
+Even if the gen_fsm is \fInot\fR\& part of a supervision tree, this function will be called if it receives an \fI\&'EXIT\&'\fR\& message from its parent\&. \fIReason\fR\& will be the same as in the \fI\&'EXIT\&'\fR\& message\&.
+.LP
+Otherwise, the gen_fsm will be immediately terminated\&.
+.LP
+Note that for any other reason than \fInormal\fR\&, \fIshutdown\fR\&, or \fI{shutdown,Term}\fR\& the gen_fsm is assumed to terminate due to an error and an error report is issued using \fBerror_logger:format/2\fR\&\&.
+.RE
+.LP
+.B
+Module:code_change(OldVsn, StateName, StateData, Extra) -> {ok, NextStateName, NewStateData}
+.br
+.RS
+.TP 3
+Types:
+
+OldVsn = Vsn | {down, Vsn}
+.br
+Vsn = term()
+.br
+StateName = NextStateName = atom()
+.br
+StateData = NewStateData = term()
+.br
+Extra = term()
+.br
+.RE
+.RS
+.LP
+This function is called by a gen_fsm when it should update its internal state data during a release upgrade/downgrade, i\&.e\&. when the instruction \fI{update,Module,Change,\&.\&.\&.}\fR\& where \fIChange={advanced,Extra}\fR\& is given in the \fIappup\fR\& file\&. See \fBOTP Design Principles\fR\&\&.
+.LP
+In the case of an upgrade, \fIOldVsn\fR\& is \fIVsn\fR\&, and in the case of a downgrade, \fIOldVsn\fR\& is \fI{down,Vsn}\fR\&\&. \fIVsn\fR\& is defined by the \fIvsn\fR\& attribute(s) of the old version of the callback module \fIModule\fR\&\&. If no such attribute is defined, the version is the checksum of the BEAM file\&.
+.LP
+\fIStateName\fR\& is the current state name and \fIStateData\fR\& the internal state data of the gen_fsm\&.
+.LP
+\fIExtra\fR\& is passed as-is from the \fI{advanced,Extra}\fR\& part of the update instruction\&.
+.LP
+The function should return the new current state name and updated internal data\&.
+.RE
+.LP
+.B
+Module:format_status(Opt, [PDict, StateData]) -> Status
+.br
+.RS
+.TP 3
+Types:
+
+Opt = normal | terminate
+.br
+PDict = [{Key, Value}]
+.br
+StateData = term()
+.br
+Status = term()
+.br
+.RE
+.RS
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+This callback is optional, so callback modules need not export it\&. The gen_fsm module provides a default implementation of this function that returns the callback module state data\&.
+
+.LP
+This function is called by a gen_fsm process when:
+.RS 2
+.TP 2
+*
+One of \fBsys:get_status/1,2\fR\& is invoked to get the gen_fsm status\&. \fIOpt\fR\& is set to the atom \fInormal\fR\& for this case\&.
+.LP
+.TP 2
+*
+The gen_fsm terminates abnormally and logs an error\&. \fIOpt\fR\& is set to the atom \fIterminate\fR\& for this case\&.
+.LP
+.RE
+
+.LP
+This function is useful for customising the form and appearance of the gen_fsm status for these cases\&. A callback module wishing to customise the \fIsys:get_status/1,2\fR\& return value as well as how its status appears in termination error logs exports an instance of \fIformat_status/2\fR\& that returns a term describing the current status of the gen_fsm\&.
+.LP
+\fIPDict\fR\& is the current value of the gen_fsm\&'s process dictionary\&.
+.LP
+\fIStateData\fR\& is the internal state data of the gen_fsm\&.
+.LP
+The function should return \fIStatus\fR\&, a term that customises the details of the current state and status of the gen_fsm\&. There are no restrictions on the form \fIStatus\fR\& can take, but for the \fIsys:get_status/1,2\fR\& case (when \fIOpt\fR\& is \fInormal\fR\&), the recommended form for the \fIStatus\fR\& value is \fI[{data, [{"StateData", Term}]}]\fR\& where \fITerm\fR\& provides relevant details of the gen_fsm state data\&. Following this recommendation isn\&'t required, but doing so will make the callback module status consistent with the rest of the \fIsys:get_status/1,2\fR\& return value\&.
+.LP
+One use for this function is to return compact alternative state data representations to avoid having large state terms printed in logfiles\&.
+.RE
+.SH "SEE ALSO"
+
+.LP
+\fBgen_event(3)\fR\&, \fBgen_server(3)\fR\&, \fBsupervisor(3)\fR\&, \fBproc_lib(3)\fR\&, \fBsys(3)\fR\&

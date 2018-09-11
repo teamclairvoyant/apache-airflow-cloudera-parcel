@@ -1,0 +1,444 @@
+.TH instrument 3 "tools 2.6.6.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+instrument \- Analysis and Utility Functions for Instrumentation
+.SH DESCRIPTION
+.LP
+The module \fIinstrument\fR\& contains support for studying the resource usage in an Erlang runtime system\&. Currently, only the allocation of memory can be studied\&.
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+Note that this whole module is experimental, and the representations used as well as the functionality is likely to change in the future\&.
+.LP
+The \fIinstrument\fR\& module interface was slightly changed in Erlang/OTP R9C\&.
+
+.LP
+To start an Erlang runtime system with instrumentation, use the \fI+Mi*\fR\& set of command-line arguments to the \fIerl\fR\& command (see the erts_alloc(3) and erl(1) man pages)\&.
+.LP
+The basic object of study in the case of memory allocation is a memory allocation map\&. A memory allocation map contains a list of descriptors for each allocated memory block\&. Currently, a descriptor is a 4-tuple
+.LP
+.nf
+
+        {TypeNo, Address, Size, PidDesc}    
+.fi
+.LP
+where \fITypeNo\fR\& is the memory block type number, \fIAddress\fR\& is its place in memory, and \fISize\fR\& is its size, in bytes\&. \fIPidDesc\fR\& is either a tuple \fI{X,Y,Z}\fR\& identifying the process which was executing when the block was allocated, or \fIundefined\fR\& if no process was executing\&. The pid tuple \fI{X,Y,Z}\fR\& can be transformed into a real pid by usage of the \fIc:pid/3\fR\& function\&.
+.LP
+Various details about memory allocation:
+.LP
+Memory blocks are allocated both on the heap segment and on other memory segments\&. This can cause the instrumentation functionality to report very large holes\&. Currently the instrumentation functionality doesn\&'t provide any support for distinguishing between holes between memory segments, and holes between allocated blocks inside memory segments\&. The current size of the process cannot be obtained from within Erlang, but can be seen with one of the system statistics tools, e\&.g\&., \fIps\fR\& or \fItop\fR\&\&. The Solaris utility \fIpmap\fR\& can be useful\&. It reports currently mapped memory segments\&.
+.LP
+Overhead for instrumentation: When the emulator has been started with the \fB"+Mim true"\fR\& flag, each block is preceded by a 24 bytes large header on a 32-bit machine and a 48 bytes large header on a 64-bit machine\&. When the emulator has been started with the \fB"+Mis true"\fR\& flag, each block is preceded by an 8 bytes large header\&. These are the header sizes used by the Erlang 5\&.3/OTP R9C emulator\&. Other versions of the emulator may use other header sizes\&. The function \fBblock_header_size/1\fR\& can be used for retrieving the header size used for a specific memory allocation map\&. The time overhead for managing the instrumentation data is small\&.
+.LP
+Sizes presented by the instrumentation functionality are (by the emulator) requested sizes, i\&.e\&. neither instrumentation headers nor headers used by allocators are included\&.
+.SH EXPORTS
+.LP
+.B
+allocator_descr(MemoryData, TypeNo) -> AllocDescr | invalid_type | "unknown"
+.br
+.RS
+.TP 3
+Types:
+
+MemoryData = {term(), AllocList}
+.br
+AllocList = [Desc]
+.br
+Desc = {int(), int(), int(), PidDesc}
+.br
+PidDesc = {int(), int(), int()} | undefined
+.br
+TypeNo = int()
+.br
+AllocDescr = atom() | string()
+.br
+.RE
+.RS
+.LP
+Returns the allocator description of the allocator that manages memory blocks of type number \fITypeNo\fR\& used in \fIMemoryData\fR\&\&. Valid \fITypeNo\fR\&s are in the range returned by \fBtype_no_range/1\fR\& on this specific memory allocation map\&. If \fITypeNo\fR\& is an invalid integer, \fIinvalid_type\fR\& is returned\&.
+.RE
+.LP
+.B
+block_header_size(MemoryData) -> int()
+.br
+.RS
+.TP 3
+Types:
+
+MemoryData = {term(), AllocList}
+.br
+AllocList = [Desc]
+.br
+Desc = {int(), int(), int(), PidDesc}
+.br
+PidDesc = {int(), int(), int()} | undefined
+.br
+.RE
+.RS
+.LP
+Returns the memory block header size used by the emulator that generated the memory allocation map\&. The block header size may differ between different emulators\&.
+.RE
+.LP
+.B
+class_descr(MemoryData, TypeNo) -> ClassDescr | invalid_type | "unknown"
+.br
+.RS
+.TP 3
+Types:
+
+MemoryData = {term(), AllocList}
+.br
+AllocList = [Desc]
+.br
+Desc = {int(), int(), int(), PidDesc}
+.br
+PidDesc = {int(), int(), int()} | undefined
+.br
+TypeNo = int()
+.br
+ClassDescr = atom() | string()
+.br
+.RE
+.RS
+.LP
+Returns the class description of the class that the type number \fITypeNo\fR\& used in \fIMemoryData\fR\& belongs to\&. Valid \fITypeNo\fR\&s are in the range returned by \fBtype_no_range/1\fR\& on this specific memory allocation map\&. If \fITypeNo\fR\& is an invalid integer, \fIinvalid_type\fR\& is returned\&.
+.RE
+.LP
+.B
+descr(MemoryData) -> DescrMemoryData
+.br
+.RS
+.TP 3
+Types:
+
+MemoryData = {term(), AllocList}
+.br
+AllocList = [Desc]
+.br
+Desc = {int(), int(), int(), PidDesc}
+.br
+PidDesc = {int(), int(), int()} | undefined
+.br
+DescrMemoryData = {term(), DescrAllocList}
+.br
+DescrAllocList = [DescrDesc]
+.br
+DescrDesc = {TypeDescr, int(), int(), DescrPidDesc}
+.br
+TypeDescr = atom() | string()
+.br
+DescrPidDesc = pid() | undefined
+.br
+.RE
+.RS
+.LP
+Returns a memory allocation map where the type numbers (first element of \fIDesc\fR\&) have been replaced by type descriptions, and pid tuples (fourth element of \fIDesc\fR\&) have been replaced by real pids\&.
+.RE
+.LP
+.B
+holes(MemoryData) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+MemoryData = {term(), AllocList}
+.br
+AllocList = [Desc]
+.br
+Desc = {int(), int(), int(), PidDesc}
+.br
+PidDesc = {int(), int(), int()} | undefined
+.br
+.RE
+.RS
+.LP
+Prints out the size of each hole (i\&.e\&., the space between allocated blocks) on the terminal\&. \fINOTE:\fR\& Really large holes are probably holes between memory segments\&. The memory allocation map has to be sorted (see \fBsort/1\fR\&)\&.
+.RE
+.LP
+.B
+mem_limits(MemoryData) -> {Low, High}
+.br
+.RS
+.TP 3
+Types:
+
+MemoryData = {term(), AllocList}
+.br
+AllocList = [Desc]
+.br
+Desc = {int(), int(), int(), PidDesc}
+.br
+PidDesc = {int(), int(), int()} | undefined
+.br
+Low = High = int()
+.br
+.RE
+.RS
+.LP
+Returns a tuple \fI{Low, High}\fR\& indicating the lowest and highest address used\&. The memory allocation map has to be sorted (see \fBsort/1\fR\&)\&.
+.RE
+.LP
+.B
+memory_data() -> MemoryData | false
+.br
+.RS
+.TP 3
+Types:
+
+MemoryData = {term(), AllocList}
+.br
+AllocList = [Desc]
+.br
+Desc = {int(), int(), int(), PidDesc}
+.br
+PidDesc = {int(), int(), int()} | undefined
+.br
+.RE
+.RS
+.LP
+Returns \fIMemoryData\fR\& (a the memory allocation map) if the emulator has been started with the "\fI+Mim true\fR\&" command-line argument; otherwise, \fIfalse\fR\&\&. \fINOTE:\fR\&\fImemory_data/0\fR\& blocks execution of other processes while the data is collected\&. The time it takes to collect the data can be substantial\&.
+.RE
+.LP
+.B
+memory_status(StatusType) -> [StatusInfo] | false
+.br
+.RS
+.TP 3
+Types:
+
+StatusType = total | allocators | classes | types
+.br
+StatusInfo = {About, [Info]}
+.br
+About = atom()
+.br
+Info = {InfoName, Current, MaxSinceLast, MaxEver}
+.br
+InfoName = sizes|blocks
+.br
+Current = int()
+.br
+MaxSinceLast = int()
+.br
+MaxEver = int()
+.br
+.RE
+.RS
+.LP
+Returns a list of \fIStatusInfo\fR\& if the emulator has been started with the "\fI+Mis true\fR\&" or "\fI+Mim true\fR\&" command-line argument; otherwise, \fIfalse\fR\&\&.
+.LP
+See the \fBread_memory_status/1\fR\& function for a description of the \fIStatusInfo\fR\& term\&.
+.RE
+.LP
+.B
+read_memory_data(File) -> MemoryData | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+File = string()
+.br
+MemoryData = {term(), AllocList}
+.br
+AllocList = [Desc]
+.br
+Desc = {int(), int(), int(), PidDesc}
+.br
+PidDesc = {int(), int(), int()} | undefined
+.br
+.RE
+.RS
+.LP
+Reads a memory allocation map from the file \fIFile\fR\& and returns it\&. The file is assumed to have been created by \fIstore_memory_data/1\fR\&\&. The error codes are the same as for \fIfile:consult/1\fR\&\&.
+.RE
+.LP
+.B
+read_memory_status(File) -> MemoryStatus | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+File = string()
+.br
+MemoryStatus = [{StatusType, [StatusInfo]}]
+.br
+StatusType = total | allocators | classes | types
+.br
+StatusInfo = {About, [Info]}
+.br
+About = atom()
+.br
+Info = {InfoName, Current, MaxSinceLast, MaxEver}
+.br
+InfoName = sizes|blocks
+.br
+Current = int()
+.br
+MaxSinceLast = int()
+.br
+MaxEver = int()
+.br
+.RE
+.RS
+.LP
+Reads memory allocation status from the file \fIFile\fR\& and returns it\&. The file is assumed to have been created by \fIstore_memory_status/1\fR\&\&. The error codes are the same as for \fIfile:consult/1\fR\&\&.
+.LP
+When \fIStatusType\fR\& is \fIallocators\fR\&, \fIAbout\fR\& is the allocator that the information is about\&. When \fIStatusType\fR\& is \fItypes\fR\&, \fIAbout\fR\& is the memory block type that the information is about\&. Memory block types are not described other than by their name and may vary between emulators\&. When \fIStatusType\fR\& is \fIclasses\fR\&, \fIAbout\fR\& is the memory block type class that information is presented about\&. Memory block types are classified after their use\&. Currently the following classes exist:
+.RS 2
+.TP 2
+.B
+\fIprocess_data\fR\&:
+Erlang process specific data\&.
+.TP 2
+.B
+\fIbinary_data\fR\&:
+Erlang binaries\&.
+.TP 2
+.B
+\fIatom_data\fR\&:
+Erlang atoms\&.
+.TP 2
+.B
+\fIcode_data\fR\&:
+Erlang code\&.
+.TP 2
+.B
+\fIsystem_data\fR\&:
+Other data used by the system
+.RE
+.LP
+When \fIInfoName\fR\& is \fIsizes\fR\&, \fICurrent\fR\&, \fIMaxSinceLast\fR\&, and \fIMaxEver\fR\& are, respectively, current size, maximum size since last call to \fIstore_memory_status/1\fR\& or \fImemory_status/1\fR\& with the specific \fIStatusType\fR\&, and maximum size since the emulator was started\&. When \fIInfoName\fR\& is \fIblocks\fR\&, \fICurrent\fR\&, \fIMaxSinceLast\fR\&, and \fIMaxEver\fR\& are, respectively, current number of blocks, maximum number of blocks since last call to \fIstore_memory_status/1\fR\& or \fImemory_status/1\fR\& with the specific \fIStatusType\fR\&, and maximum number of blocks since the emulator was started\&.
+.LP
+\fINOTE:\fR\&A memory block is accounted for at "the first level" allocator\&. E\&.g\&. \fIfix_alloc\fR\& allocates its memory pools via \fIll_alloc\fR\&\&. When a \fIfix_alloc\fR\& block is allocated, neither the block nor the pool in which it resides are accounted for as memory allocated via \fIll_alloc\fR\& even though it is\&.
+.RE
+.LP
+.B
+sort(MemoryData) -> MemoryData
+.br
+.RS
+.TP 3
+Types:
+
+MemoryData = {term(), AllocList}
+.br
+AllocList = [Desc]
+.br
+Desc = {int(), int(), int(), PidDesc}
+.br
+PidDesc = {int(), int(), int()} | undefined
+.br
+.RE
+.RS
+.LP
+Sorts a memory allocation map so that the addresses are in ascending order\&.
+.RE
+.LP
+.B
+store_memory_data(File) -> true|false
+.br
+.RS
+.TP 3
+Types:
+
+File = string()
+.br
+.RE
+.RS
+.LP
+Stores the current memory allocation map on the file \fIFile\fR\&\&. Returns \fItrue\fR\& if the emulator has been started with the "\fI+Mim true\fR\&" command-line argument, and the map was successfully stored; otherwise, \fIfalse\fR\&\&. The contents of the file can later be read using \fBread_memory_data/1\fR\&\&. \fINOTE:\fR\&\fIstore_memory_data/0\fR\& blocks execution of other processes while the data is collected\&. The time it takes to collect the data can be substantial\&.
+.RE
+.LP
+.B
+store_memory_status(File) -> true|false
+.br
+.RS
+.TP 3
+Types:
+
+File = string()
+.br
+.RE
+.RS
+.LP
+Stores the current memory status on the file \fIFile\fR\&\&. Returns \fItrue\fR\& if the emulator has been started with the "\fI+Mis true\fR\&", or "\fI+Mim true\fR\&" command-line arguments, and the data was successfully stored; otherwise, \fIfalse\fR\&\&. The contents of the file can later be read using \fBread_memory_status/1\fR\&\&.
+.RE
+.LP
+.B
+sum_blocks(MemoryData) -> int()
+.br
+.RS
+.TP 3
+Types:
+
+MemoryData = {term(), AllocList}
+.br
+AllocList = [Desc]
+.br
+Desc = {int(), int(), int(), PidDesc}
+.br
+PidDesc = {int(), int(), int()} | undefined
+.br
+.RE
+.RS
+.LP
+Returns the total size of the memory blocks in the list\&.
+.RE
+.LP
+.B
+type_descr(MemoryData, TypeNo) -> TypeDescr | invalid_type
+.br
+.RS
+.TP 3
+Types:
+
+MemoryData = {term(), AllocList}
+.br
+AllocList = [Desc]
+.br
+Desc = {int(), int(), int(), PidDesc}
+.br
+PidDesc = {int(), int(), int()} | undefined
+.br
+TypeNo = int()
+.br
+TypeDescr = atom() | string()
+.br
+.RE
+.RS
+.LP
+Returns the type description of a type number used in \fIMemoryData\fR\&\&. Valid \fITypeNo\fR\&s are in the range returned by \fBtype_no_range/1\fR\& on this specific memory allocation map\&. If \fITypeNo\fR\& is an invalid integer, \fIinvalid_type\fR\& is returned\&.
+.RE
+.LP
+.B
+type_no_range(MemoryData) -> {Min, Max}
+.br
+.RS
+.TP 3
+Types:
+
+MemoryData = {term(), AllocList}
+.br
+AllocList = [Desc]
+.br
+Desc = {int(), int(), int(), PidDesc}
+.br
+PidDesc = {int(), int(), int()} | undefined
+.br
+Min = int()
+.br
+Max = int()
+.br
+.RE
+.RS
+.LP
+Returns the memory block type number range used in \fIMemoryData\fR\&\&. When the memory allocation map was generated by an Erlang 5\&.3/OTP R9C or newer emulator, all integers \fIT\fR\& that satisfy \fIMin\fR\& <= \fIT\fR\& <= \fIMax\fR\& are valid type numbers\&. When the memory allocation map was generated by a pre Erlang 5\&.3/OTP R9C emulator, all integers in the range are \fInot\fR\& valid type numbers\&.
+.RE
+.SH "SEE ALSO"
+
+.LP
+\fBerts_alloc(3)\fR\&, \fBerl(1)\fR\&

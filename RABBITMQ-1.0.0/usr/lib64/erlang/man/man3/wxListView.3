@@ -1,0 +1,111 @@
+.TH wxListView 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxListView \- See external documentation: wxListView.
+.SH DESCRIPTION
+.LP
+See external documentation: wxListView\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxControl\fR\& 
+.br
+\fBwxWindow\fR\& 
+.br
+\fBwxEvtHandler\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxListView()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+clearColumnImage(This::wxListView(), Col::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+focus(This::wxListView(), Index::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getFirstSelected(This::wxListView()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getFocusedItem(This::wxListView()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getNextSelected(This::wxListView(), Item::integer()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isSelected(This::wxListView(), Index::integer()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+select(This::wxListView(), N::integer()) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBselect(This, N, [])\fR\&\&.
+.RE
+.LP
+.B
+select(This::wxListView(), N::integer(), Options::[Option]) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Option = {on, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setColumnImage(This::wxListView(), Col::integer(), Image::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

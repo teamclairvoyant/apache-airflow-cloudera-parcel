@@ -1,0 +1,109 @@
+.TH wxIdleEvent 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxIdleEvent \- See external documentation: wxIdleEvent.
+.SH DESCRIPTION
+.LP
+See external documentation: wxIdleEvent\&.
+.RS 2
+.TP 2
+.B
+Use \fBwxEvtHandler:connect/3\fR\& with EventType::
+\fIidle\fR\&
+.RE
+.LP
+See also the message variant \fB#wxIdle{\fR\&} event record type\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxEvent\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxIdleEvent()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+canSend(Win::wxWindow() (see module wxWindow)) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getMode() -> WxIdleMode
+.br
+.RS
+.TP 3
+Types:
+
+WxIdleMode = integer()
+.br
+.RE
+.RS
+.LP
+See external documentation\&. 
+.br
+WxIdleMode is one of ?wxIDLE_PROCESS_ALL | ?wxIDLE_PROCESS_SPECIFIED
+.RE
+.LP
+.B
+requestMore(This::wxIdleEvent()) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBrequestMore(This, [])\fR\&\&.
+.RE
+.LP
+.B
+requestMore(This::wxIdleEvent(), Options::[Option]) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Option = {needMore, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+moreRequested(This::wxIdleEvent()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setMode(Mode::WxIdleMode) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+WxIdleMode = integer()
+.br
+.RE
+.RS
+.LP
+See external documentation\&. 
+.br
+WxIdleMode is one of ?wxIDLE_PROCESS_ALL | ?wxIDLE_PROCESS_SPECIFIED
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

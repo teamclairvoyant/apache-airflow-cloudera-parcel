@@ -1,0 +1,68 @@
+.TH eunit 3 "eunit 2.2.1" "" "Erlang Module Definition"
+.SH NAME
+eunit \- This module is the main EUnit user interface.
+.SH DESCRIPTION
+.LP
+This module is the main EUnit user interface\&.
+.SH EXPORTS
+.LP
+.B
+start() -> term() 
+.br
+.RS
+.LP
+Starts the EUnit server\&. Normally, you don\&'t need to call this function; it is started automatically\&.
+.RE
+.LP
+.B
+stop() -> term() 
+.br
+.RS
+.LP
+Stops the EUnit server\&. Normally, you don\&'t need to call this function\&.
+.RE
+.LP
+.B
+test(Tests) -> term() 
+.br
+.RS
+.LP
+Equivalent to \fBtest(Tests, [])\fR\&\&.
+.RE
+.LP
+.B
+test(Tests::term(), Options::[term()]) -> ok | {error, term()}
+.br
+.RS
+.LP
+Runs a set of tests\&. The format of \fITests\fR\& is described in the section \fBEUnit test representation\fR\& of the overview\&.
+.LP
+Example:
+.LP
+.nf
+  eunit:test(fred)
+.fi
+.LP
+runs all tests in the module \fIfred\fR\& and also any tests in the module \fIfred_tests\fR\&, if that module exists\&.
+.LP
+Options:
+.RS 2
+.TP 2
+.B
+\fIverbose\fR\&:
+Displays more details about the running tests\&.
+.RE
+.LP
+Options in the environment variable EUNIT are also included last in the option list, i\&.e\&., have lower precedence than those in \fIOptions\fR\&\&.
+.LP
+\fISee also:\fR\& \fBtest/1\fR\&\&.
+.RE
+.SH AUTHORS
+.LP
+Mickaël Rémond
+.I
+<mickael\&.remond@process-one\&.net>
+.LP
+Richard Carlsson
+.I
+<carlsson\&.richard@gmail\&.com>

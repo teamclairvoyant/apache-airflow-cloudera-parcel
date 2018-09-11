@@ -1,0 +1,298 @@
+.TH wxBitmap 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxBitmap \- See external documentation: wxBitmap.
+.SH DESCRIPTION
+.LP
+See external documentation: wxBitmap\&.
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxBitmap()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+new() -> wxBitmap()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+new(X::string() | term()) -> wxBitmap()
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI new(Filename::string()) -> new(Filename, []) \fR\&
+.LP
+\fI new(Image::wxImage:wxImage()) -> new(Image, []) \fR\&
+.RE
+.LP
+.B
+new(X::integer() | string() | term(), X::integer() | term()) -> wxBitmap()
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI new(Width::integer(), Height::integer()) -> new(Width,Height, []) \fR\&
+.LP
+\fI new(Filename::string(), [Option]) -> wxBitmap() \fR\& 
+.br
+Option = {type, WxBitmapType} 
+.br
+WxBitmapType = integer() 
+.br
+WxBitmapType is one of ?wxBITMAP_TYPE_INVALID | ?wxBITMAP_TYPE_BMP | ?wxBITMAP_TYPE_BMP_RESOURCE | ?wxBITMAP_TYPE_RESOURCE | ?wxBITMAP_TYPE_ICO | ?wxBITMAP_TYPE_ICO_RESOURCE | ?wxBITMAP_TYPE_CUR | ?wxBITMAP_TYPE_CUR_RESOURCE | ?wxBITMAP_TYPE_XBM | ?wxBITMAP_TYPE_XBM_DATA | ?wxBITMAP_TYPE_XPM | ?wxBITMAP_TYPE_XPM_DATA | ?wxBITMAP_TYPE_TIF | ?wxBITMAP_TYPE_TIF_RESOURCE | ?wxBITMAP_TYPE_GIF | ?wxBITMAP_TYPE_GIF_RESOURCE | ?wxBITMAP_TYPE_PNG | ?wxBITMAP_TYPE_PNG_RESOURCE | ?wxBITMAP_TYPE_JPEG | ?wxBITMAP_TYPE_JPEG_RESOURCE | ?wxBITMAP_TYPE_PNM | ?wxBITMAP_TYPE_PNM_RESOURCE | ?wxBITMAP_TYPE_PCX | ?wxBITMAP_TYPE_PCX_RESOURCE | ?wxBITMAP_TYPE_PICT | ?wxBITMAP_TYPE_PICT_RESOURCE | ?wxBITMAP_TYPE_ICON | ?wxBITMAP_TYPE_ICON_RESOURCE | ?wxBITMAP_TYPE_ANI | ?wxBITMAP_TYPE_IFF | ?wxBITMAP_TYPE_TGA | ?wxBITMAP_TYPE_MACCURSOR | ?wxBITMAP_TYPE_MACCURSOR_RESOURCE | ?wxBITMAP_TYPE_ANY
+.LP
+\fI new(Image::wxImage:wxImage(), [Option]) -> wxBitmap() \fR\& 
+.br
+Option = {depth, integer()}
+.RE
+.LP
+.B
+new(X::binary() | integer(), X::integer(), X::integer() | term()) -> wxBitmap()
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI new(Bits::binary(), Width::integer(), Height::integer()) -> new(Bits,Width,Height, []) \fR\&
+.LP
+\fI new(Width::integer(), Height::integer(), [Option]) -> wxBitmap() \fR\& 
+.br
+Option = {depth, integer()}
+.RE
+.LP
+.B
+new(Bits::binary(), Width::integer(), Height::integer(), Options::[Option]) -> wxBitmap()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {depth, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+convertToImage(This::wxBitmap()) -> wxImage() (see module wxImage)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+copyFromIcon(This::wxBitmap(), Icon::wxIcon() (see module wxIcon)) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+create(This::wxBitmap(), Width::integer(), Height::integer()) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBcreate(This, Width, Height, [])\fR\&\&.
+.RE
+.LP
+.B
+create(This::wxBitmap(), Width::integer(), Height::integer(), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {depth, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getDepth(This::wxBitmap()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getHeight(This::wxBitmap()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getPalette(This::wxBitmap()) -> wxPalette() (see module wxPalette)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getMask(This::wxBitmap()) -> wxMask() (see module wxMask)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getWidth(This::wxBitmap()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getSubBitmap(This::wxBitmap(), Rect::{X::integer(), Y::integer(), W::integer(), H::integer()}) -> wxBitmap()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+loadFile(This::wxBitmap(), Name::string()) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBloadFile(This, Name, [])\fR\&\&.
+.RE
+.LP
+.B
+loadFile(This::wxBitmap(), Name::string(), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {type, WxBitmapType}
+.br
+WxBitmapType = integer()
+.br
+.RE
+.RS
+.LP
+See external documentation\&. 
+.br
+WxBitmapType is one of ?wxBITMAP_TYPE_INVALID | ?wxBITMAP_TYPE_BMP | ?wxBITMAP_TYPE_BMP_RESOURCE | ?wxBITMAP_TYPE_RESOURCE | ?wxBITMAP_TYPE_ICO | ?wxBITMAP_TYPE_ICO_RESOURCE | ?wxBITMAP_TYPE_CUR | ?wxBITMAP_TYPE_CUR_RESOURCE | ?wxBITMAP_TYPE_XBM | ?wxBITMAP_TYPE_XBM_DATA | ?wxBITMAP_TYPE_XPM | ?wxBITMAP_TYPE_XPM_DATA | ?wxBITMAP_TYPE_TIF | ?wxBITMAP_TYPE_TIF_RESOURCE | ?wxBITMAP_TYPE_GIF | ?wxBITMAP_TYPE_GIF_RESOURCE | ?wxBITMAP_TYPE_PNG | ?wxBITMAP_TYPE_PNG_RESOURCE | ?wxBITMAP_TYPE_JPEG | ?wxBITMAP_TYPE_JPEG_RESOURCE | ?wxBITMAP_TYPE_PNM | ?wxBITMAP_TYPE_PNM_RESOURCE | ?wxBITMAP_TYPE_PCX | ?wxBITMAP_TYPE_PCX_RESOURCE | ?wxBITMAP_TYPE_PICT | ?wxBITMAP_TYPE_PICT_RESOURCE | ?wxBITMAP_TYPE_ICON | ?wxBITMAP_TYPE_ICON_RESOURCE | ?wxBITMAP_TYPE_ANI | ?wxBITMAP_TYPE_IFF | ?wxBITMAP_TYPE_TGA | ?wxBITMAP_TYPE_MACCURSOR | ?wxBITMAP_TYPE_MACCURSOR_RESOURCE | ?wxBITMAP_TYPE_ANY
+.RE
+.LP
+.B
+ok(This::wxBitmap()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+saveFile(This::wxBitmap(), Name::string(), Type::WxBitmapType) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBsaveFile(This, Name, Type, [])\fR\&\&.
+.RE
+.LP
+.B
+saveFile(This::wxBitmap(), Name::string(), Type::WxBitmapType, Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {palette, wxPalette() (see module wxPalette)}
+.br
+WxBitmapType = integer()
+.br
+.RE
+.RS
+.LP
+See external documentation\&. 
+.br
+WxBitmapType is one of ?wxBITMAP_TYPE_INVALID | ?wxBITMAP_TYPE_BMP | ?wxBITMAP_TYPE_BMP_RESOURCE | ?wxBITMAP_TYPE_RESOURCE | ?wxBITMAP_TYPE_ICO | ?wxBITMAP_TYPE_ICO_RESOURCE | ?wxBITMAP_TYPE_CUR | ?wxBITMAP_TYPE_CUR_RESOURCE | ?wxBITMAP_TYPE_XBM | ?wxBITMAP_TYPE_XBM_DATA | ?wxBITMAP_TYPE_XPM | ?wxBITMAP_TYPE_XPM_DATA | ?wxBITMAP_TYPE_TIF | ?wxBITMAP_TYPE_TIF_RESOURCE | ?wxBITMAP_TYPE_GIF | ?wxBITMAP_TYPE_GIF_RESOURCE | ?wxBITMAP_TYPE_PNG | ?wxBITMAP_TYPE_PNG_RESOURCE | ?wxBITMAP_TYPE_JPEG | ?wxBITMAP_TYPE_JPEG_RESOURCE | ?wxBITMAP_TYPE_PNM | ?wxBITMAP_TYPE_PNM_RESOURCE | ?wxBITMAP_TYPE_PCX | ?wxBITMAP_TYPE_PCX_RESOURCE | ?wxBITMAP_TYPE_PICT | ?wxBITMAP_TYPE_PICT_RESOURCE | ?wxBITMAP_TYPE_ICON | ?wxBITMAP_TYPE_ICON_RESOURCE | ?wxBITMAP_TYPE_ANI | ?wxBITMAP_TYPE_IFF | ?wxBITMAP_TYPE_TGA | ?wxBITMAP_TYPE_MACCURSOR | ?wxBITMAP_TYPE_MACCURSOR_RESOURCE | ?wxBITMAP_TYPE_ANY
+.RE
+.LP
+.B
+setDepth(This::wxBitmap(), Depth::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setHeight(This::wxBitmap(), Height::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setMask(This::wxBitmap(), Mask::wxMask() (see module wxMask)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setPalette(This::wxBitmap(), Palette::wxPalette() (see module wxPalette)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setWidth(This::wxBitmap(), Width::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+destroy(This::wxBitmap()) -> ok
+.br
+.RS
+.LP
+Destroys this object, do not use object again
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

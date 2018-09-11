@@ -1,0 +1,70 @@
+.TH wxArtProvider 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxArtProvider \- See external documentation: wxArtProvider.
+.SH DESCRIPTION
+.LP
+See external documentation: wxArtProvider\&.
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxArtProvider()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+getBitmap(Id::string()) -> wxBitmap() (see module wxBitmap)
+.br
+.RS
+.LP
+Equivalent to \fBgetBitmap(Id, [])\fR\&\&.
+.RE
+.LP
+.B
+getBitmap(Id::string(), Options::[Option]) -> wxBitmap() (see module wxBitmap)
+.br
+.RS
+.TP 3
+Types:
+
+Option = {client, string()} | {size, {W::integer(), H::integer()}}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getIcon(Id::string()) -> wxIcon() (see module wxIcon)
+.br
+.RS
+.LP
+Equivalent to \fBgetIcon(Id, [])\fR\&\&.
+.RE
+.LP
+.B
+getIcon(Id::string(), Options::[Option]) -> wxIcon() (see module wxIcon)
+.br
+.RS
+.TP 3
+Types:
+
+Option = {client, string()} | {size, {W::integer(), H::integer()}}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

@@ -1,0 +1,139 @@
+.TH wxGraphicsMatrix 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxGraphicsMatrix \- See external documentation: wxGraphicsMatrix.
+.SH DESCRIPTION
+.LP
+See external documentation: wxGraphicsMatrix\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxGraphicsObject\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxGraphicsMatrix()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+concat(This::wxGraphicsMatrix(), T::wxGraphicsMatrix()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+get(This::wxGraphicsMatrix()) -> {A::float(), B::float(), C::float(), D::float(), Tx::float(), Ty::float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getNativeMatrix(This::wxGraphicsMatrix()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+invert(This::wxGraphicsMatrix()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isEqual(This::wxGraphicsMatrix(), T::wxGraphicsMatrix()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isIdentity(This::wxGraphicsMatrix()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rotate(This::wxGraphicsMatrix(), Angle::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+scale(This::wxGraphicsMatrix(), XScale::float(), YScale::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+translate(This::wxGraphicsMatrix(), Dx::float(), Dy::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+set(This::wxGraphicsMatrix()) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBset(This, [])\fR\&\&.
+.RE
+.LP
+.B
+set(This::wxGraphicsMatrix(), Options::[Option]) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Option = {a, float()} | {b, float()} | {c, float()} | {d, float()} | {tx, float()} | {ty, float()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+transformPoint(This::wxGraphicsMatrix()) -> {X::float(), Y::float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+transformDistance(This::wxGraphicsMatrix()) -> {Dx::float(), Dy::float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

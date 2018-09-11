@@ -1,0 +1,139 @@
+.TH snmpa_network_interface 3 "snmp 4.21.1" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+snmpa_network_interface \- Behaviour module for the SNMP agent network interface.
+.SH DESCRIPTION
+.LP
+This module defines the behaviour of the agent network interface\&. A \fIsnmpa_network_interface\fR\& compliant module must export the following functions:
+.RS 2
+.TP 2
+*
+\fBstart_link/4\fR\&
+.LP
+.TP 2
+*
+\fBinfo/1\fR\&
+.LP
+.TP 2
+*
+\fBget_log_type/1\fR\&
+.LP
+.TP 2
+*
+\fBset_log_type/2\fR\&
+.LP
+.TP 2
+*
+\fBverbosity/2\fR\&
+.LP
+.RE
+
+.LP
+The semantics of them and their exact signatures are explained below\&.
+.LP
+But this is not enough\&. There is also a set of \fImandatory\fR\& messages which the network interface entity must be able to receive and be able to send\&. This is described in chapter \fBsnmp_agent_netif\fR\&\&.
+.SH EXPORTS
+.LP
+.B
+start_link(Prio, NoteStore, MasterAgent, Opts) -> {ok, Pid} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Prio = priority()
+.br
+NoteStore = pid()
+.br
+MasterAgent = pid()
+.br
+Opts = [opt()]
+.br
+opt() = {verbosity, verbosity()} | {versions, versions()} | term()
+.br
+versions() = [version()]
+.br
+version() = v1 | v2 | v3
+.br
+.RE
+.RS
+.LP
+Start-link the network interface process\&.
+.LP
+\fINoteStore\fR\& is the pid of the note-store process and \fIMasterAgent\fR\& is the pid of the master-agent process\&.
+.LP
+\fIOpts\fR\& is an (basically) implementation dependent list of options to the network interface process\&. There are however a number of options which \fImust\fR\& be handled: \fIversions\fR\& and \fIverbosity\fR\&\&.
+.RE
+.LP
+.B
+info(Pid) -> [{Key, Value}]
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+.RE
+.RS
+.LP
+The info returned is basically up to the implementer to decide\&. This implementation provided by the application provides info about memory allocation and various socket information\&.
+.LP
+The info returned by this function is returned together with other info collected by the agent when the \fBinfo\fR\& function is called (tagged with with the key \fInet_if\fR\&)\&.
+.RE
+.LP
+.B
+verbosity(Pid, Verbosity) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+Verbosity = verbosity()
+.br
+.RE
+.RS
+.LP
+Change the verbosity of a running network interface process\&.
+.RE
+.LP
+.B
+get_log_type(Pid) -> {ok, LogType} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+LogType = atl_type()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+The Audit Trail Log is managed by the network interface process\&. So, it is this process that has to retrieve the actual log-type\&.
+.RE
+.LP
+.B
+set_log_type(Pid, NewType) -> {ok, OldType} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+NewType = OldType = atl_type()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+The Audit Trail Log is managed by the network interface process\&. So, it is this process that has to do the actual changing of the type\&.
+.LP
+See \fBset_log_type\fR\& for more info\&.
+.RE

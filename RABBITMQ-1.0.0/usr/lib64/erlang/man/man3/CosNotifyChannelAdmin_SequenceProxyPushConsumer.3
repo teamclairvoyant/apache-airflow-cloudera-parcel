@@ -1,0 +1,113 @@
+.TH CosNotifyChannelAdmin_SequenceProxyPushConsumer 3 "cosNotification 1.1.17" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+CosNotifyChannelAdmin_SequenceProxyPushConsumer \- This module implements the OMG  CosNotifyChannelAdmin::SequenceProxyPushConsumer interface.
+.SH DESCRIPTION
+.LP
+To get access to the record definitions for the structures use: 
+.br
+\fI-include_lib("cosNotification/include/*\&.hrl")\&.\fR\&
+.LP
+This module also exports the functions described in:
+.RS 2
+.TP 2
+*
+\fBCosNotifyComm_NotifyPublish\fR\&
+.LP
+.TP 2
+*
+\fBCosNotification_QoSAdmin\fR\&
+.LP
+.TP 2
+*
+\fBCosNotifyFilter_FilterAdmin\fR\&
+.LP
+.TP 2
+*
+\fBCosNotifyChannelAdmin_ProxyConsumer\fR\&
+.LP
+.RE
+
+.SH EXPORTS
+.LP
+.B
+connect_sequence_push_supplier(SequenceProxyPushConsumer, PushSupplier) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+SequenceProxyPushConsumer = #objref
+.br
+PushSupplier = #objref
+.br
+Reply = ok | {'EXCEPTION', #'CosEventChannelAdmin_AlreadyConnected'{}}
+.br
+.RE
+.RS
+.LP
+This operation connects a \fIPushSupplier\fR\& to the target object\&. If a connection already exists the \fIAlreadyConnected\fR\& exception is raised\&.
+.RE
+.LP
+.B
+push_structured_events(SequenceProxyPushConsumer, EventBatch) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+SequenceProxyPushConsumer = #objref
+.br
+EventBatch = [StructuredEvent]
+.br
+StructuredEvent = #'CosNotification_StructuredEvent'{header, filterable_data, remainder_of_body}
+.br
+header = EventHeader
+.br
+filterable_data = [#'CosNotification_Property'{name, value}]
+.br
+name = string()
+.br
+value = #any
+.br
+remainder_of_body = #any
+.br
+EventHeader = #'CosNotification_EventHeader'{fixed_header, variable_header}
+.br
+fixed_header = FixedEventHeader
+.br
+variable_header = OptionalHeaderFields
+.br
+FixedEventHeader = #'CosNotification_FixedEventHeader'{event_type, event_name}
+.br
+event_type = EventType
+.br
+event_name = string()
+.br
+EventType = #'CosNotification_EventType'{domain_name, type_name}
+.br
+domain_name = type_name = string()
+.br
+OptionalHeaderFields = [#'CosNotification_Property'{name, value}]
+.br
+Reply = ok | {'EXCEPTION', #'CosEventChannelAdmin_Disconnected'{}}
+.br
+.RE
+.RS
+.LP
+A client must use this operation when it wishes to push a new sequence of events to the target object\&. If no connection exists the \fIDisconnected\fR\& exception is raised\&.
+.RE
+.LP
+.B
+disconnect_sequence_push_consumer(SequenceProxyPushConsumer) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+SequenceProxyPushConsumer = #objref
+.br
+.RE
+.RS
+.LP
+This operation cause the target object to close the connection and terminate\&.
+.RE

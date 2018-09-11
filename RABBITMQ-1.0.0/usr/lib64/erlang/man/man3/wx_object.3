@@ -1,0 +1,206 @@
+.TH wx_object 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wx_object \- wx_object - Generic wx object behaviour.
+.SH DESCRIPTION
+.LP
+wx_object - Generic wx object behaviour
+.LP
+This is a behaviour module that can be used for "sub classing" wx objects\&. It works like a regular gen_server module and creates a server per object\&.
+.LP
+NOTE: Currently no form of inheritance is implemented\&.
+.LP
+The user module should export:
+.LP
+init(Args) should return 
+.br
+{wxObject, State} | {wxObject, State, Timeout} | ignore | {stop, Reason}
+.LP
+handle_call(Msg, {From, Tag}, State) should return 
+.br
+{reply, Reply, State} | {reply, Reply, State, Timeout} | {noreply, State} | {noreply, State, Timeout} | {stop, Reason, Reply, State}
+.LP
+Asynchronous window event handling: 
+.br
+handle_event(#wx{}, State) should return 
+.br
+{noreply, State} | {noreply, State, Timeout} | {stop, Reason, State}
+.LP
+Info is message e\&.g\&. {\&'EXIT\&', P, R}, {nodedown, N}, \&.\&.\&. 
+.br
+handle_info(Info, State) should return , \&.\&.\&. 
+.br
+{noreply, State} | {noreply, State, Timeout} | {stop, Reason, State}
+.LP
+When stop is returned in one of the functions above with Reason = normal | shutdown | Term, terminate(State) is called\&. It lets the user module clean up, it is always called when server terminates or when wxObject() in the driver is deleted\&. If the Parent process terminates the Module:terminate/2 function is called\&. 
+.br
+terminate(Reason, State)
+.LP
+Example:
+.LP
+.nf
+  -module(myDialog).
+  -export([new/2, show/1, destroy/1]).  %% API
+  -export([init/1, handle_call/3, handle_event/2,
+           handle_info/2, code_change/3, terminate/2]).
+           new/2, showModal/1, destroy/1]).  %% Callbacks
+ 
+  %% Client API
+  new(Parent, Msg) ->
+     wx_object:start(?MODULE, [Parent,Id], []).
+ 
+  show(Dialog) ->
+     wx_object:call(Dialog, show_modal).
+ 
+  destroy(Dialog) ->
+     wx_object:call(Dialog, destroy).
+ 
+  %% Server Implementation ala gen_server
+  init([Parent, Str]) ->
+     Dialog = wxDialog:new(Parent, 42, "Testing", []),
+     ...
+     wxDialog:connect(Dialog, command_button_clicked),
+     {Dialog, MyState}.
+ 
+  handle_call(show, _From, State) ->
+     wxDialog:show(State#state.win),
+     {reply, ok, State};
+  ...
+  handle_event(#wx{}, State) ->
+     io:format("Users clicked button~n",[]),
+     {noreply, State};
+  ...
+.fi
+.SH EXPORTS
+.LP
+.B
+start(Mod, Args, Options) -> wxWindow() (see module wxWindow)
+.br
+.RS
+.TP 3
+Types:
+
+Mod = atom()
+.br
+Args = term()
+.br
+Options = [{timeout, Timeout} | {debug, [Flag]}]
+.br
+Flag = trace | log | {logfile, File} | statistics | debug
+.br
+.RE
+.RS
+.LP
+Starts a generic wx_object server and invokes Mod:init(Args) in the new process\&.
+.RE
+.LP
+.B
+start(Name, Mod, Args, Options) -> wxWindow() (see module wxWindow)
+.br
+.RS
+.TP 3
+Types:
+
+Name = {local, atom()}
+.br
+Mod = atom()
+.br
+Args = term()
+.br
+Options = [{timeout, Timeout} | {debug, [Flag]}]
+.br
+Flag = trace | log | {logfile, File} | statistics | debug
+.br
+.RE
+.RS
+.LP
+Starts a generic wx_object server and invokes Mod:init(Args) in the new process\&.
+.RE
+.LP
+.B
+start_link(Mod, Args, Options) -> wxWindow() (see module wxWindow)
+.br
+.RS
+.TP 3
+Types:
+
+Mod = atom()
+.br
+Args = term()
+.br
+Options = [{timeout, Timeout} | {debug, [Flag]}]
+.br
+Flag = trace | log | {logfile, File} | statistics | debug
+.br
+.RE
+.RS
+.LP
+Starts a generic wx_object server and invokes Mod:init(Args) in the new process\&.
+.RE
+.LP
+.B
+start_link(Name, Mod, Args, Options) -> wxWindow() (see module wxWindow)
+.br
+.RS
+.TP 3
+Types:
+
+Name = {local, atom()}
+.br
+Mod = atom()
+.br
+Args = term()
+.br
+Options = [{timeout, Timeout} | {debug, [Flag]}]
+.br
+Flag = trace | log | {logfile, File} | statistics | debug
+.br
+.RE
+.RS
+.LP
+Starts a generic wx_object server and invokes Mod:init(Args) in the new process\&.
+.RE
+.LP
+.B
+call(Ref::wxObject() | atom() | pid(), Request::term()) -> term()
+.br
+.RS
+.LP
+Make a call to a wx_object server\&. The call waits until it gets a result\&. Invokes handle_call(Request, From, State) in the server
+.RE
+.LP
+.B
+call(Ref::wxObject() | atom() | pid(), Request::term(), Timeout::integer()) -> term()
+.br
+.RS
+.LP
+Make a call to a wx_object server with a timeout\&. Invokes handle_call(Request, From, State) in server
+.RE
+.LP
+.B
+cast(Ref::wxObject() | atom() | pid(), Request::term()) -> ok
+.br
+.RS
+.LP
+Make a cast to a wx_object server\&. Invokes handle_cast(Request, State) in the server
+.RE
+.LP
+.B
+get_pid(Ref::wxObject()) -> pid()
+.br
+.RS
+.LP
+Get the pid of the object handle\&.
+.RE
+.LP
+.B
+reply(From::tuple(), Reply::term()) -> pid()
+.br
+.RS
+.LP
+Get the pid of the object handle\&.
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

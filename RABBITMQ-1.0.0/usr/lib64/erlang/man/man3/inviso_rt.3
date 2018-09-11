@@ -1,0 +1,333 @@
+.TH inviso_rt 3 "inviso 0.6.2" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+inviso_rt \- Direct API to the Inviso Runtime Component
+.SH DESCRIPTION
+.LP
+The \fIinviso_rt\fR\& API is normally only used when programming autostart scripts or similar mechanisms\&. The reason is that the runtime component is part of the Runtime_tools application and will therefore always be available\&. But the regular inviso API is part of the Inviso application not necessarily available on the node doing an autostart\&. It is of course possible to runt a "lean" tracer only using the runtime component manually (i\&.e not through autostart)\&. The runtime component shall otherwise be controlled through the control component, which is accessed with the \fIinviso\fR\& API\&.
+.SH EXPORTS
+.LP
+.B
+init_tracing(TracerData) -> NodeResult | {error,Reason}
+.br
+.RS
+.LP
+See \fBinviso:init_tracing/2\fR\& for details\&.
+.RE
+.LP
+.B
+tp(Mod,Func,Arity,MatchSpec,Opts) ->
+.br
+.B
+tp(Mod,Func,Arity,MatchSpec) -> NodeResult | {error,Reason}
+.br
+.B
+tp(PatternList) -> NodeResult | {error,Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Mod,Func = atom() | '_' | ModRegExp | {DirRegExp,ModRegExp}
+.br
+ModRegExp = regexp_string()
+.br
+DirRegExp = regexp_string()
+.br
+Arity = int() | '_'
+.br
+MatchSpec = true | false | [] | matchspec()
+.br
+PatternList = [Pattern],
+.br
+Pattern = {Mod,Func,Arity,MatchSpec,Opts}
+.br
+Opts = [Opt]
+.br
+Opt = only_loaded
+.br
+NodeResult = {ok,[Ans]} | {error,Reason}
+.br
+Ans = int() | {error,Reason}
+.br
+.RE
+.RS
+.LP
+Set global trace patterns\&. The integer replied if the call was successfull describes the number of matched functions\&. Using wildcards follows the rules for wildcards of \fIerlang:trace_pattern\fR\&\&. It is for instance illegal to specify \fIM==\&'_\&'\fR\& while \fIF\fR\& is not \fI\&'_\&'\fR\&\&.
+.LP
+Modules can also be specified using Erlang regular expressions as described in the \fIregexp\fR\& module\&. If \fI{DirRegExp,ModRegExp}\fR\& is used, module selection will further be restricted by that the module must be loaded from a location containing \fIDirRegExp\fR\& somewhere in the path\&. This can be used to for instance trace on all modules belonging to a certain application\&.
+.RE
+.LP
+.B
+tpl(Mod,Func,Arity,MatchSpec) ->
+.br
+.B
+tpl(Mod,Func,Arity,MatchSpec,Opts) -> NodeResult | {error,Reason}
+.br
+.B
+tpl(PatternList) -> NodeResult | {error,Reason}
+.br
+.RS
+.LP
+See \fBtp/N\fR\& function above for details on arguments and return values\&.
+.LP
+Set local trace pattern on specified functions\&.
+.RE
+.LP
+.B
+ctp(Mod,Func,Arity) -> NodeResult | {error,Reason}
+.br
+.RS
+.LP
+See \fBtp/N\fR\& for argument descriptions\&.
+.LP
+Clear global trace patterns\&.
+.RE
+.LP
+.B
+ctpl(Mod,Func,Arity) -> NodeResult | {error,Reason}
+.br
+.RS
+.LP
+See \fBtp/N\fR\& for argument description\&.
+.LP
+Clear local trace patterns\&.
+.RE
+.LP
+.B
+tf(PidSpec,FlagList) -> NodeResult | {error,Reason}
+.br
+.B
+tf(TraceConfList) -> NodeResult | {error,Reason}
+.br
+.RS
+.TP 3
+Types:
+
+TraceConfList = [{PidSpec,FlagList}]
+.br
+FlagList = [Flag]
+.br
+PidSpec = all | new| existing | pid() | locally_registered_name()
+.br
+Flag = all process trace flags allowed.
+.br
+NodeResult = {ok,[Ans]} | {error,Reason}
+.br
+Ans = int() | {error,Reason}
+.br
+.RE
+.RS
+.LP
+Set process trace flags\&. The integer returned if the call was successful describes the matched number of processes\&.
+.RE
+.LP
+.B
+ctf(PidSpec,FlagList) -> NodeResult | {error,Reason}
+.br
+.B
+ctf(TraceConfList) -> NodeResult | {error,Reason}
+.br
+.RS
+.LP
+See \fBtf/1,2\fR\& for arguments and return value description\&.
+.LP
+Clear process trace flags\&.
+.RE
+.LP
+.B
+init_tpm(Mod,Func,Arity,CallFunc) -> NodeResult | {error,Reason}
+.br
+.B
+init_tpm(Mod,Func,Arity,InitFunc,CallFunc,ReturnFunc,RemoveFunc) -> NodeResult | {error,Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Mod = Func = atom()
+.br
+Arity = int()
+.br
+NodeResult = ok | {error,Reason}
+.br
+InitFunc = RemoveFunc = {Module,Function} | function()/4 | void
+.br
+.RE
+.RS
+.LP
+See \fBinviso:init_tpm/5,7\fR\& for details\&.
+.RE
+.LP
+.B
+tpm(Mod,Func,Arity,MS) -> NodeResult | {error,Reason}
+.br
+.B
+tpm(Mod,Func,Arity,MS,CallFunc) -> NodeResults | {error,Reason}
+.br
+.B
+tpm(Mod,Func,Arity,MS,InitFunc,CallFunc,ReturnFunc,RemoveFunc) -> NodeResults | {error,Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Mod = Func = atom() =/= '_'
+.br
+Arity = int()
+.br
+MS = match_spec()
+.br
+InitFunc = CallFunc = ReturnFunc = RemoveFunc = {Module,Function} | function()
+.br
+NodeResult = {ok,1} | {ok,0} | {error,Reason}
+.br
+.RE
+.RS
+.LP
+See \fBinviso:tpm/4,5,8\fR\& for details\&.
+.RE
+.LP
+.B
+tpm_tracer(Mod,Func,Arity,MS) -> NodeResult | {error,Reason}
+.br
+.B
+tpm_tracer(Mod,Func,Arity,MS,CallFunc) -> NodeResults | {error,Reason}
+.br
+.B
+tpm_tracer(Mod,Func,Arity,MS,InitFunc,CallFunc,ReturnFunc,RemoveFunc) -> NodeResults | {error,Reason}
+.br
+.RS
+.LP
+See inviso:tpm_tracer/4,5,8 for details\&.
+.RE
+.LP
+.B
+tpm_ms(Mod,Func,Arity,MSname,MS) ->d NodeResult | {error,Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Mod = Func = atom()
+.br
+Arity = int()
+.br
+MSname = term()
+.br
+MatchSpec = [match_spec()]
+.br
+NodeResult = {ok,1} | {ok,0} | {error,Reason}
+.br
+.RE
+.RS
+.LP
+See \fBinviso:tpm_ms/5\fR\& for details\&.
+.RE
+.LP
+.B
+tpm_ms_tracer(Mod,Func,Arity,MSname,MS) ->d NodeResult | {error,Reason}
+.br
+.RS
+.LP
+See inviso:tpm_ms_tracer/5 for details\&.
+.RE
+.LP
+.B
+ctpm_ms(Mod,Func,Arity,MSname) -> NodeResult | {error,Reason}
+.br
+.RS
+.TP 3
+Types:
+
+NodeResult = ok | {error,Reason}
+.br
+.RE
+.RS
+.LP
+See \fBinviso:ctpm_ms/4\fR\& for details\&.
+.RE
+.LP
+.B
+ctpm(Mod,Func,Arity) -> {ok,NodeResults} | NodeResult | {error,Reason}
+.br
+.RS
+.TP 3
+Types:
+
+NodeResults = [{Node,NodeResult}]
+.br
+NodeResult = ok | {error,Reason}
+.br
+.RE
+.RS
+.LP
+See \fBinviso:ctpm/3\fR\& for details\&.
+.RE
+.LP
+.B
+local_register() ->NodeResult | {error,Reason}
+.br
+.RS
+.TP 3
+Types:
+
+NodeResult = {R1,R2}
+.br
+R1 = R2 = {ok,0} | {ok,1} | {error,Reason}
+.br
+.RE
+.RS
+.LP
+See \fBinviso:tpm_localnames/0\fR\& for details\&.
+.RE
+.LP
+.B
+remove_local_register() ->NodeResult | {error,Reason}
+.br
+.RS
+.TP 3
+Types:
+
+NodeResult = {R1,R2} | {error,Reason}
+.br
+R1 = R2 = ok | {error,Reason}
+.br
+.RE
+.RS
+.LP
+See \fBinviso:ctpm_localnames/0\fR\& for details\&.
+.RE
+.LP
+.B
+global_register() ->NodeResult | {error,Reason}
+.br
+.RS
+.TP 3
+Types:
+
+NodeResult = {R1,R2} | {error,Reason}
+.br
+R1 = R2 = {ok,0} | {ok,1} | {error,Reason}
+.br
+.RE
+.RS
+.LP
+See \fBinviso:tpm_globalnames/0\fR\& for details\&.
+.RE
+.LP
+.B
+remove_global_register() ->NodeResult | {error,Reason}
+.br
+.RS
+.TP 3
+Types:
+
+NodeResult = {R1,R2} | {error,Reason}
+.br
+R1 = R2 = ok | {error,Reason}
+.br
+.RE
+.RS
+.LP
+See \fBinviso:ctpm_globalnames/0\fR\& for details\&.
+.RE

@@ -1,0 +1,261 @@
+.TH wxMenuBar 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxMenuBar \- See external documentation: wxMenuBar.
+.SH DESCRIPTION
+.LP
+See external documentation: wxMenuBar\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxWindow\fR\& 
+.br
+\fBwxEvtHandler\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxMenuBar()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+new() -> wxMenuBar()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+new(Style::integer()) -> wxMenuBar()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+append(This::wxMenuBar(), Menu::wxMenu() (see module wxMenu), Title::string()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+check(This::wxMenuBar(), Itemid::integer(), Check::bool()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+enable(This::wxMenuBar()) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBenable(This, [])\fR\&\&.
+.RE
+.LP
+.B
+enable(This::wxMenuBar(), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {enable, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+enable(This::wxMenuBar(), Itemid::integer(), Enable::bool()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+enableTop(This::wxMenuBar(), Pos::integer(), Flag::bool()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+findMenu(This::wxMenuBar(), Title::string()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+findMenuItem(This::wxMenuBar(), MenuString::string(), ItemString::string()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+findItem(This::wxMenuBar(), Id::integer()) -> wxMenuItem() (see module wxMenuItem)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getHelpString(This::wxMenuBar(), Itemid::integer()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getLabel(This::wxMenuBar()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getLabel(This::wxMenuBar(), Itemid::integer()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getLabelTop(This::wxMenuBar(), Pos::integer()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getMenu(This::wxMenuBar(), Pos::integer()) -> wxMenu() (see module wxMenu)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getMenuCount(This::wxMenuBar()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+insert(This::wxMenuBar(), Pos::integer(), Menu::wxMenu() (see module wxMenu), Title::string()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isChecked(This::wxMenuBar(), Itemid::integer()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isEnabled(This::wxMenuBar()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isEnabled(This::wxMenuBar(), Itemid::integer()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+remove(This::wxMenuBar(), Pos::integer()) -> wxMenu() (see module wxMenu)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+replace(This::wxMenuBar(), Pos::integer(), Menu::wxMenu() (see module wxMenu), Title::string()) -> wxMenu() (see module wxMenu)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setHelpString(This::wxMenuBar(), Itemid::integer(), HelpString::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setLabel(This::wxMenuBar(), S::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setLabel(This::wxMenuBar(), Itemid::integer(), Label::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setLabelTop(This::wxMenuBar(), Pos::integer(), Label::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+destroy(This::wxMenuBar()) -> ok
+.br
+.RS
+.LP
+Destroys this object, do not use object again
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

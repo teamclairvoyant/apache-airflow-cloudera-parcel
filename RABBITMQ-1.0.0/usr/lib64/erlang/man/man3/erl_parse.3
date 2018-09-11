@@ -1,0 +1,256 @@
+.TH erl_parse 3 "stdlib 1.17.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+erl_parse \- The Erlang Parser
+.SH DESCRIPTION
+.LP
+This module is the basic Erlang parser which converts tokens into the abstract form of either forms (i\&.e\&., top-level constructs), expressions, or terms\&. The Abstract Format is described in the \fBERTS User\&'s Guide\fR\&\&. Note that a token list must end with the \fIdot\fR\& token in order to be acceptable to the parse functions (see \fBerl_scan(3)\fR\&)\&.
+.SH DATA TYPES
+.nf
+
+\fBabstract_clause()\fR\& = term()
+.br
+.fi
+.RS
+.LP
+Parse tree for Erlang clause\&.
+.RE
+.nf
+
+\fBabstract_expr()\fR\& = term()
+.br
+.fi
+.RS
+.LP
+Parse tree for Erlang expression\&.
+.RE
+.nf
+
+\fBabstract_form()\fR\& = term()
+.br
+.fi
+.RS
+.LP
+Parse tree for Erlang form\&.
+.RE
+.nf
+
+\fBerror_description()\fR\& = term()
+.br
+.fi
+.nf
+
+\fBerror_info()\fR\& = {\fBerl_scan:line()\fR\&, module(), \fBerror_description()\fR\&}
+.br
+.fi
+.nf
+
+\fBtoken()\fR\& = {Tag :: atom(), Line :: \fBerl_scan:line()\fR\&}
+.br
+.fi
+.SH EXPORTS
+.LP
+.nf
+
+.B
+parse_form(Tokens) -> {ok, AbsForm} | {error, ErrorInfo}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Tokens = [\fBtoken()\fR\&]
+.br
+AbsForm = \fBabstract_form()\fR\&
+.br
+ErrorInfo = \fBerror_info()\fR\&
+.br
+.RE
+.RS
+.LP
+This function parses \fITokens\fR\& as if it were a form\&. It returns:
+.RS 2
+.TP 2
+.B
+\fI{ok, AbsForm}\fR\&:
+The parsing was successful\&. \fIAbsForm\fR\& is the abstract form of the parsed form\&.
+.TP 2
+.B
+\fI{error, ErrorInfo}\fR\&:
+An error occurred\&.
+.RE
+.RE
+.LP
+.nf
+
+.B
+parse_exprs(Tokens) -> {ok, ExprList} | {error, ErrorInfo}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Tokens = [\fBtoken()\fR\&]
+.br
+ExprList = [\fBabstract_expr()\fR\&]
+.br
+ErrorInfo = \fBerror_info()\fR\&
+.br
+.RE
+.RS
+.LP
+This function parses \fITokens\fR\& as if it were a list of expressions\&. It returns:
+.RS 2
+.TP 2
+.B
+\fI{ok, ExprList}\fR\&:
+The parsing was successful\&. \fIExprList\fR\& is a list of the abstract forms of the parsed expressions\&.
+.TP 2
+.B
+\fI{error, ErrorInfo}\fR\&:
+An error occurred\&.
+.RE
+.RE
+.LP
+.nf
+
+.B
+parse_term(Tokens) -> {ok, Term} | {error, ErrorInfo}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Tokens = [\fBtoken()\fR\&]
+.br
+Term = term()
+.br
+ErrorInfo = \fBerror_info()\fR\&
+.br
+.RE
+.RS
+.LP
+This function parses \fITokens\fR\& as if it were a term\&. It returns:
+.RS 2
+.TP 2
+.B
+\fI{ok, Term}\fR\&:
+The parsing was successful\&. \fITerm\fR\& is the Erlang term corresponding to the token list\&.
+.TP 2
+.B
+\fI{error, ErrorInfo}\fR\&:
+An error occurred\&.
+.RE
+.RE
+.LP
+.B
+format_error(ErrorDescriptor) -> Chars
+.br
+.RS
+.TP 3
+Types:
+
+ErrorDescriptor =
+.br
+Chars = [char() | Chars]
+.br
+.RE
+.RS
+.LP
+Uses an \fIErrorDescriptor\fR\& and returns a string which describes the error\&. This function is usually called implicitly when an \fIErrorInfo\fR\& structure is processed (see below)\&.
+.RE
+.LP
+.nf
+
+.B
+tokens(AbsTerm) -> Tokens
+.br
+.fi
+.br
+.nf
+
+.B
+tokens(AbsTerm, MoreTokens) -> Tokens
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+AbsTerm = \fBabstract_expr()\fR\&
+.br
+MoreTokens = Tokens = [\fBtoken()\fR\&]
+.br
+.RE
+.RS
+.LP
+This function generates a list of tokens representing the abstract form \fIAbsTerm\fR\& of an expression\&. Optionally, it appends \fIMoreTokens\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+normalise(AbsTerm) -> Data
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+AbsTerm = \fBabstract_expr()\fR\&
+.br
+Data = term()
+.br
+.RE
+.RS
+.LP
+Converts the abstract form \fIAbsTerm\fR\& of a term into a conventional Erlang data structure (i\&.e\&., the term itself)\&. This is the inverse of \fIabstract/1\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+abstract(Data) -> AbsTerm
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Data = term()
+.br
+AbsTerm = \fBabstract_expr()\fR\&
+.br
+.RE
+.RS
+.LP
+Converts the Erlang data structure \fIData\fR\& into an abstract form of type \fIAbsTerm\fR\&\&. This is the inverse of \fInormalise/1\fR\&\&.
+.RE
+.SH "ERROR INFORMATION"
+
+.LP
+The \fIErrorInfo\fR\& mentioned above is the standard \fIErrorInfo\fR\& structure which is returned from all IO modules\&. It has the format:
+.LP
+.nf
+
+    {ErrorLine, Module, ErrorDescriptor}    
+.fi
+.LP
+A string which describes the error is obtained with the following call:
+.LP
+.nf
+
+    Module:format_error(ErrorDescriptor)    
+.fi
+.SH "SEE ALSO"
+
+.LP
+\fBio(3)\fR\&, \fBerl_scan(3)\fR\&, ERTS User\&'s Guide

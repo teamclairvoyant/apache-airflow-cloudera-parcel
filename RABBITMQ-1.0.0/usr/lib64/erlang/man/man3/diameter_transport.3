@@ -1,0 +1,78 @@
+.TH diameter_transport 3 "diameter 0.10" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+diameter_transport \- Diameter transport interface.
+.SH DESCRIPTION
+.LP
+A module specified as a \fItransport_module\fR\& to \fBdiameter:add_transport/2\fR\& must implement the interface documented here\&. The interface consists of a function with which diameter starts a transport process and a message interface with which the transport process communicates with the process that starts it (aka its parent)\&.
+.SH EXPORTS
+.LP
+.B
+Mod:start({Type, Ref}, Svc, Opts) -> {ok, Pid} | {ok, Pid, LAddrs} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Type = connect | accept
+.br
+Ref = reference()
+.br
+Svc = #diameter_service{}
+.br
+Opts = term()
+.br
+Pid = pid()
+.br
+LAddrs = [ip_address()]
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Start a transport process\&. Called by diameter as a consequence of a call to \fBdiameter:add_transport/2\fR\& in order to establish or accept a transport connection respectively\&. A transport process maintains a connection with a single remote peer\&.
+.LP
+The first argument indicates whether the transport process in question is being started for a connecting (\fIconnect\fR\&) or listening (\fIaccept\fR\&) transport\&. In the latter case, transport processes are started as required to accept connections from multiple peers\&. Ref is in each case the same value that was returned from the call to \fBdiameter:add_transport/2\fR\& that has lead to starting of a transport process\&.
+.LP
+A transport process must implement the message interface documented below\&. It should retain the pid of its parent, monitor the parent and terminate if it dies\&. It should not link to the parent\&. It should exit if its transport connection with its peer is lost\&.
+.LP
+Transport processes for a given service are started sequentially\&.
+.LP
+The start function should use the \&'Host-IP-Address\&' list on the service, namely \fISvc#diameter_service\&.host_ip_address\fR\&, and/or \fIOpts\fR\& to select an appropriate list of local IP addresses, and should return this list if different from the service addresses\&. The returned list is used to populate \&'Host-IP-Address\&' AVPs in outgoing capabilities exchange messages, the service addresses being used otherwise\&.
+.RE
+.SH "MESSAGES"
+
+.LP
+All messages sent over the transport interface are of the form \fI{diameter, term()}\fR\&\&.
+.LP
+A transport process can expect the following messages from diameter\&.
+.RS 2
+.TP 2
+.B
+\fI{diameter, {send, Packet}}\fR\&:
+An outbound Diameter message\&. Packet can be either \fIbinary()\fR\& (the message to be sent) or a \fI#diameter_packet{}\fR\& whose \fItransport_data\fR\& field containes a value other than undefined\&.
+.TP 2
+.B
+\fI{diameter, {close, Pid}}\fR\&:
+A request to close the transport connection\&. The transport process should terminate after closing the connection\&. Pid is the pid() of the parent process\&.
+.RE
+.LP
+A transport process should send the following messages to its parent\&.
+.RS 2
+.TP 2
+.B
+\fI{diameter, {self(), connected}}\fR\&:
+Inform the parent that the transport process with Type = accept has established a connection with the peer\&. Not sent if the transport process has Type = connect\&.
+.TP 2
+.B
+\fI{diameter, {self(), connected, Remote}}\fR\&:
+Inform the parent that the transport process with Type = connect has established a connection with a peer\&. Not sent if the transport process has Type = accept\&. Remote is an arbitrary term that uniquely identifies the remote endpoint to which the transport has connected\&.
+.TP 2
+.B
+\fI{diameter, {recv, Packet}}\fR\&:
+An inbound Diameter message\&. Packet can be either \fIbinary()\fR\& (the message to be sent) or \fI#diameter_packet{}\fR\& whose \fIpacket\fR\& field contains a \fIbinary()\fR\&\&. Any value (other than undefined) set in the \fItransport_data\fR\& field will be passed back with a corresponding answer message in the case that the inbound message is a request unless the sender sets another value\&. How the \fItransport_data\fR\& is used/interpreted is up to the transport module\&.
+.RE
+.SH "SEE ALSO"
+
+.LP
+\fBdiameter_tcp(3)\fR\&, \fBdiameter_sctp(3)\fR\&

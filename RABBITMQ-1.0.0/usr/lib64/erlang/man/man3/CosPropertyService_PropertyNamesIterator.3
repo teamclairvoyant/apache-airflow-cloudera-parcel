@@ -1,0 +1,79 @@
+.TH CosPropertyService_PropertyNamesIterator 3 "cosProperty 1.1.14" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+CosPropertyService_PropertyNamesIterator \- This module implements the OMG CosPropertyService::PropertyNamesIterator interface.
+.SH DESCRIPTION
+.LP
+To get access to the record definitions for the structures use: 
+.br
+\fI-include_lib("cosProperty/include/CosPropertyService\&.hrl")\&.\fR\&
+.SH EXPORTS
+.LP
+.B
+reset(Iterator) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Iterator = #objref
+.br
+.RE
+.RS
+.LP
+This operation resets the position to the first property name\&.
+.RE
+.LP
+.B
+next_one(Iterator) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+Iterator = #objref
+.br
+Reply = {boolean(), Name}
+.br
+Name = string()
+.br
+.RE
+.RS
+.LP
+This operation returns true if a Property Name exists at the current position and the out parameter is a valid Property Name\&. If false is returned the out parameter is a non-valid Property Name\&.
+.RE
+.LP
+.B
+next_n(Iterator, HowMany) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+Iterator = #objref
+.br
+HowMany = long()
+.br
+Reply = {boolean(), [Name]}
+.br
+Name = string()
+.br
+.RE
+.RS
+.LP
+This operation returns true if the requested number of Property Names can be delivered and there are additional property names\&. If false is returned a sequence of max \fIHowMany\fR\& property names will be returned and no more Property Names can be delivered\&.
+.RE
+.LP
+.B
+destroy(Iterator) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Iterator = #objref
+.br
+.RE
+.RS
+.LP
+This operation will terminate the Iterator and all subsequent calls will fail\&.
+.RE

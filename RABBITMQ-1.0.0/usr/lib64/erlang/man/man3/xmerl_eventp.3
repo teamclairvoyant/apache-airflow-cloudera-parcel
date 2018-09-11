@@ -1,0 +1,56 @@
+.TH xmerl_eventp 3 "xmerl 1.2.10" "" "Erlang Module Definition"
+.SH NAME
+xmerl_eventp \- Simple event-based front-ends to xmerl_scan for processing
+  of XML documents in streams and for parsing in SAX style.
+.SH DESCRIPTION
+.LP
+Simple event-based front-ends to xmerl_scan for processing of XML documents in streams and for parsing in SAX style\&. Each contain more elaborate settings of xmerl_scan that makes usage of the customization functions\&.
+.SH EXPORTS
+.LP
+.B
+file_sax(Fname::string(), CallBackModule::atom(), UserState, Options::option_list()) -> NewUserState
+.br
+.RS
+.LP
+Parse file containing an XML document, SAX style\&. Wrapper for a call to the XML parser \fIxmerl_scan\fR\& with a \fIhook_fun\fR\& for using xmerl export functionality directly after an entity is parsed\&.
+.RE
+.LP
+.B
+stream(Fname::string(), Options::option_list()) -> xmlElement()
+.br
+.RS
+.LP
+Parse file containing an XML document as a stream, DOM style\&. Wrapper for a call to the XML parser \fIxmerl_scan\fR\& with a \fIcontinuation_fun\fR\& for handling streams of XML data\&. Note that the \fIcontinuation_fun\fR\&, \fIacc_fun\fR\&, \fIfetch_fun\fR\&, \fIrules\fR\& and \fIclose_fun\fR\& options cannot be user defined using this parser\&.
+.RE
+.LP
+.B
+stream_sax(Fname, CallBack::CallBackModule, UserState, Options) -> xmlElement()
+.br
+.RS
+.TP 3
+Types:
+
+Fname = string()
+.br
+CallBackModule = atom()
+.br
+Options = option_list()
+.br
+.RE
+.RS
+.LP
+Parse file containing an XML document as a stream, SAX style\&. Wrapper for a call to the XML parser \fIxmerl_scan\fR\& with a \fIcontinuation_fun\fR\& for handling streams of XML data\&. Note that the \fIcontinuation_fun\fR\&, \fIacc_fun\fR\&, \fIfetch_fun\fR\&, \fIrules\fR\&, \fIhook_fun\fR\&, \fIclose_fun\fR\& and \fIuser_state\fR\& options cannot be user defined using this parser\&.
+.RE
+.LP
+.B
+string_sax(String::list(), CallBackModule::atom(), UserState, Options::option_list()) -> xmlElement()
+.br
+.RS
+.LP
+Parse file containing an XML document, SAX style\&. Wrapper for a call to the XML parser \fIxmerl_scan\fR\& with a \fIhook_fun\fR\& for using xmerl export functionality directly after an entity is parsed\&.
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

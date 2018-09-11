@@ -1,0 +1,49 @@
+.TH snmpa_error 3 "snmp 4.21.1" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+snmpa_error \- Functions for Reporting SNMP Errors
+.SH DESCRIPTION
+.LP
+The module \fIsnmpa_error\fR\& contains two callback functions which are called if an error occurs at different times during agent operation\&. These functions in turn calls the corresponding function in the configured error report module, which implements the actual report functionality\&.
+.LP
+Two simple implementation(s) is provided with the toolkit; the modules \fBsnmpa_error_logger\fR\& which is the default and \fBsnmpa_error_io\fR\&\&.
+.LP
+The error report module is configured using the directive \fIerror_report_mod\fR\&, see \fBconfiguration parameters\fR\&\&.
+.SH EXPORTS
+.LP
+.B
+config_err(Format, Args) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+Format = string()
+.br
+Args = list()
+.br
+.RE
+.RS
+.LP
+The function is called if an error occurs during the configuration phase, for example if a syntax error is found in a configuration file\&.
+.LP
+\fIFormat\fR\& and \fIArgs\fR\& are as in \fIio:format(Format, Args)\fR\&\&.
+.RE
+.LP
+.B
+user_err(Format, Args) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+Format = string()
+.br
+Args = list()
+.br
+.RE
+.RS
+.LP
+The function is called if a user related error occurs at run-time, for example if a user defined instrumentation function returns erroneous\&.
+.LP
+\fIFormat\fR\& and \fIArgs\fR\& are as in \fIio:format(Format, Args)\fR\&\&.
+.RE

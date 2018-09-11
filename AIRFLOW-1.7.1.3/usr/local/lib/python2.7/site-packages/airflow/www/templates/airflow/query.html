@@ -1,0 +1,65 @@
+{% extends "airflow/master.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block head_css %}
+{{ super() }}
+<link rel="stylesheet" type="text/css"
+    href="{{ url_for("static", filename="main.css") }}">
+<link rel="stylesheet" type="text/css"
+    href="{{ url_for("static", filename="dataTables.bootstrap.css") }}">
+{% endblock %}
+
+{% block body %}
+  <h2>Ad Hoc Query</h2>
+  <form method="get" id="query_form">
+    <div class="form-inline">
+        <input name="_csrf_token" type="hidden" value="{{ csrf_token() }}">
+        {{ form.conn_id }}
+        <input type="submit" class="btn btn-default" value="Run!">
+        <input type="button" class="btn btn-default" value=".csv" id="csv">
+        <span id="results"></span><br>
+        <div id='ace_container'>
+            {{ form.sql(rows=10) }}
+        </div>
+    </div>
+  </form>
+  {{ results|safe }}
+{% endblock %}
+{% block tail %}
+  {{ super() }}
+  <script src="{{ url_for('static', filename='ace.js') }}"></script>
+  <script src="{{ url_for('static', filename='mode-sql.js') }}"></script>
+  <script src="{{ url_for('static', filename='jquery.dataTables.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='theme-crimson_editor.js') }}"></script>
+  <script>
+    $( document ).ready(function() {
+        var editor = ace.edit("sql");
+        var textarea = $('textarea[name="sql"]').hide();
+        function sync() {
+            textarea.val(editor.getSession().getValue());
+        }
+        editor.setTheme("ace/theme/crimson_editor");
+        editor.setOptions({
+            minLines: 3,
+            maxLines: Infinity,
+        });
+        editor.getSession().setMode("ace/mode/sql");
+        editor.getSession().on('change', sync);
+        editor.focus();
+        $('table.dataframe').dataTable({
+            "scrollX": true,
+            "iDisplayLength": 100,
+            "aaSorting": [],
+        });
+        $('select').addClass("form-control");
+        sync();
+        $("#query_form").submit(function(event){
+            $("#results").html("<img width='25'src='{{ url_for('static', filename='loading.gif') }}'>");
+        });
+        $("#csv").on("click", function(){
+            window.location += '&csv=true';
+        })
+    });
+  </script>
+{% endblock %}

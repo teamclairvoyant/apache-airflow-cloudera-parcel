@@ -1,0 +1,261 @@
+.TH cpu_sup 3 "os_mon 2.2.7" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+cpu_sup \- A CPU Load and CPU Utilization Supervisor Process
+.SH DESCRIPTION
+.LP
+\fIcpu_sup\fR\& is a process which supervises the CPU load and CPU utilization\&. It is part of the OS_Mon application, see \fBos_mon(6)\fR\&\&. Available for Unix, although CPU utilization values (\fIutil/0,1\fR\&) are only available for Solaris and Linux\&.
+.LP
+The load values are proportional to how long time a runnable Unix process has to spend in the run queue before it is scheduled\&. Accordingly, higher values mean more system load\&. The returned value divided by 256 produces the figure displayed by \fIrup\fR\& and \fItop\fR\&\&. What is displayed as 2\&.00 in \fIrup\fR\&, is displayed as load up to the second mark in \fIxload\fR\&\&.
+.LP
+For example, \fIrup\fR\& displays a load of 128 as 0\&.50, and 512 as 2\&.00\&.
+.LP
+If the user wants to view load values as percentage of machine capacity, then this way of measuring presents a problem, because the load values are not restricted to a fixed interval\&. In this case, the following simple mathematical transformation can produce the load value as a percentage:
+.LP
+.nf
+
+      PercentLoad = 100 * (1 - D/(D + Load))
+    
+.fi
+.LP
+\fID\fR\& determines which load value should be associated with which percentage\&. Choosing \fID\fR\& = 50 means that 128 is 60% load, 256 is 80%, 512 is 90%, and so on\&.
+.LP
+Another way of measuring system load is to divide the number of busy CPU cycles by the total number of CPU cycles\&. This produces values in the 0-100 range immediately\&. However, this method hides the fact that a machine can be more or less saturated\&. CPU utilization is therefore a better name than system load for this measure\&.
+.LP
+A server which receives just enough requests to never become idle will score a CPU utilization of 100%\&. If the server receives 50% more requests, it will still scores 100%\&. When the system load is calculated with the percentage formula shown previously, the load will increase from 80% to 87%\&.
+.LP
+The \fIavg1/0\fR\&, \fIavg5/0\fR\&, and \fIavg15/0\fR\& functions can be used for retrieving system load values, and the \fIutil/0\fR\& and \fIutil/1\fR\& functions can be used for retrieving CPU utilization values\&.
+.LP
+When run on Linux, \fIcpu_sup\fR\& assumes that the \fI/proc\fR\& file system is present and accessible by \fIcpu_sup\fR\&\&. If it is not, \fIcpu_sup\fR\& will terminate\&.
+.SH EXPORTS
+.LP
+.B
+nprocs() -> UnixProcesses | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+UnixProcesses = int()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Returns the number of UNIX processes running on this machine\&. This is a crude way of measuring the system load, but it may be of interest in some cases\&.
+.LP
+Returns 0 if \fIcpu_sup\fR\& is not available\&.
+.RE
+.LP
+.B
+avg1() -> SystemLoad | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+SystemLoad = int()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Returns the average system load in the last minute, as described above\&. 0 represents no load, 256 represents the load reported as 1\&.00 by \fIrup\fR\&\&.
+.LP
+Returns 0 if \fIcpu_sup\fR\& is not available\&.
+.RE
+.LP
+.B
+avg5() -> SystemLoad | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+SystemLoad = int()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Returns the average system load in the last five minutes, as described above\&. 0 represents no load, 256 represents the load reported as 1\&.00 by \fIrup\fR\&\&.
+.LP
+Returns 0 if \fIcpu_sup\fR\& is not available\&.
+.RE
+.LP
+.B
+avg15() -> SystemLoad | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+SystemLoad = int()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Returns the average system load in the last 15 minutes, as described above\&. 0 represents no load, 256 represents the load reported as 1\&.00 by \fIrup\fR\&\&.
+.LP
+Returns 0 if \fIcpu_sup\fR\& is not available\&.
+.RE
+.LP
+.B
+util() -> CpuUtil | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+CpuUtil = float()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Returns CPU utilization since the last call to \fIutil/0\fR\& or \fIutil/1\fR\& by the calling process\&.
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+The returned value of the first call to \fIutil/0\fR\& or \fIutil/1\fR\& by a process will on most systems be the CPU utilization since system boot, but this is not guaranteed and the value should therefore be regarded as garbage\&. This also applies to the first call after a restart of \fIcpu_sup\fR\&\&.
+
+.LP
+The CPU utilization is defined as the sum of the percentage shares of the CPU cycles spent in all busy processor states (see \fIutil/1\fR\& below) in average on all CPUs\&.
+.LP
+Returns 0 if \fIcpu_sup\fR\& is not available\&.
+.RE
+.LP
+.B
+util(Opts) -> UtilSpec | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Opts = [detailed | per_cpu]
+.br
+UtilSpec = UtilDesc | [UtilDesc]
+.br
+UtilDesc = {Cpus, Busy, NonBusy, Misc}
+.br
+Cpus = all | int() | [int()]()
+.br
+Busy = NonBusy = {State, Share} | Share
+.br
+State = user | nice_user | kernel
+.br
+| wait | idle | atom()
+.br
+Share = float()
+.br
+Misc = []
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Returns CPU utilization since the last call to \fIutil/0\fR\& or \fIutil/1\fR\& by the calling process, in more detail than \fIutil/0\fR\&\&.
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+The returned value of the first call to \fIutil/0\fR\& or \fIutil/1\fR\& by a process will on most systems be the CPU utilization since system boot, but this is not guaranteed and the value should therefore be regarded as garbage\&. This also applies to the first call after a restart of \fIcpu_sup\fR\&\&.
+
+.LP
+Currently recognized options:
+.RS 2
+.TP 2
+.B
+\fIdetailed\fR\&:
+The returned \fIUtilDesc\fR\&(s) will be even more detailed\&.
+.TP 2
+.B
+\fIper_cpu\fR\&:
+Each CPU will be specified separately (assuming this information can be retrieved from the operating system), that is, a list with one \fIUtilDesc\fR\& per CPU will be returned\&.
+.RE
+.LP
+Description of \fIUtilDesc = {Cpus, Busy, NonBusy, Misc}\fR\&:
+.RS 2
+.TP 2
+.B
+\fICpus\fR\&:
+If the \fIdetailed\fR\& and/or \fIper_cpu\fR\& option is given, this is the CPU number, or a list of the CPU numbers\&.
+.RS 2
+.LP
+If not, this is the atom \fIall\fR\& which implies that the \fIUtilDesc\fR\& contains information about all CPUs\&.
+.RE
+.TP 2
+.B
+\fIBusy\fR\&:
+If the \fIdetailed\fR\& option is given, this is a list of \fI{State, Share}\fR\& tuples, where each tuple contains information about a processor state that has been identified as a busy processor state (see below)\&. The atom \fIState\fR\& is the name of the state, and the float \fIShare\fR\& represents the percentage share of the CPU cycles spent in this state since the last call to \fIutil/0\fR\& or \fIutil/1\fR\&\&.
+.RS 2
+.LP
+If not, this is the sum of the percentage shares of the CPU cycles spent in all states identified as busy\&.
+.RE
+.RS 2
+.LP
+If the \fIper_cpu\fR\& is not given, the value(s) presented are the average of all CPUs\&.
+.RE
+.TP 2
+.B
+\fINonBusy\fR\&:
+Similar to \fIBusy\fR\&, but for processor states that have been identified as non-busy (see below)\&.
+.TP 2
+.B
+\fIMisc\fR\&:
+Currently unused; reserved for future use\&.
+.RE
+.LP
+Currently these processor states are identified as busy:
+.RS 2
+.TP 2
+.B
+\fIuser\fR\&:
+Executing code in user mode\&.
+.TP 2
+.B
+\fInice_user\fR\&:
+Executing code in low priority (nice) user mode\&. This state is currently only identified on Linux\&.
+.TP 2
+.B
+\fIkernel\fR\&:
+Executing code in kernel mode\&.
+.RE
+.LP
+Currently these processor states are identified as non-busy:
+.RS 2
+.TP 2
+.B
+\fIwait\fR\&:
+Waiting\&. This state is currently only identified on Solaris\&.
+.TP 2
+.B
+\fIidle\fR\&:
+Idle\&.
+.RE
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+Identified processor states may be different on different operating systems and may change between different versions of \fIcpu_sup\fR\& on the same operating system\&. The sum of the percentage shares of the CPU cycles spent in all busy and all non-busy processor states will always add up to 100%, though\&.
+
+.LP
+Returns \fI{all,0,0,[]}\fR\& if \fIcpu_sup\fR\& is not available\&.
+.RE
+.SH "SEE ALSO"
+
+.LP
+\fBos_mon(3)\fR\&

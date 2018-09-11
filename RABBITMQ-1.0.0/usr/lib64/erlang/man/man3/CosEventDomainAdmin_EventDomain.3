@@ -1,0 +1,803 @@
+.TH CosEventDomainAdmin_EventDomain 3 "cosEventDomain 1.1.11" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+CosEventDomainAdmin_EventDomain \- This module implements the Event Domain interface.
+.SH DESCRIPTION
+.LP
+To get access to all definitions include necessary \fIhrl\fR\& files by using:
+.br
+\fI-include_lib("cosEventDomain/include/*\&.hrl")\&.\fR\&
+.LP
+This module also exports the functions described in:
+.RS 2
+.TP 2
+*
+\fICosNotification_QoSAdmin\fR\&
+.LP
+.TP 2
+*
+\fICosNotification_AdminPropertiesAdmin\fR\&
+.LP
+.RE
+
+.SH EXPORTS
+.LP
+.B
+add_channel(EventDomain, Channel) -> MemberID
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = Channel = #objref
+.br
+MemberID = long()
+.br
+.RE
+.RS
+.LP
+Adds the given channel to the target domain\&. The channel must be a \fICosNotifyChannelAdmin::EventChannel\fR\&\&.
+.RE
+.LP
+.B
+get_all_channels(EventDomain) -> MemberIDSeq
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+MemberIDSeq = [long()]
+.br
+.RE
+.RS
+.LP
+Returns a a sequence of all channels associated with the target object\&.
+.RE
+.LP
+.B
+get_channel(EventDomain, MemberID) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+MemberID = long()
+.br
+Reply = Channel | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+Channel = #objref
+.br
+.RE
+.RS
+.LP
+If the target domain have a \fICosNotifyChannelAdmin::EventChannel\fR\& represented by the given id this channel is returned\&. Otherwise, an exception is raised\&.
+.RE
+.LP
+.B
+remove_channel(EventDomain, MemberID) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+MemberID = long()
+.br
+Reply = ok | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If a \fICosNotifyChannelAdmin::EventChannel\fR\& with the \fIMemberID\fR\& exists it will removed and all its \fIConnections\fR\& terminated\&. Otherwise an exception is raised\&.
+.RE
+.LP
+.B
+add_connection(EventDomain, Connection) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Connection = 'CosEventDomainAdmin_Connection'{supplier_id=MemberID, consumer_id=MemberID, ctype=Type, notification_style=Style}
+.br
+MemberID = long()
+.br
+Type = 'ANY_EVENT' | 'STRUCTURED_EVENT' | 'SEQUENCE_EVENT'
+.br
+Style = 'Pull' | 'Push'
+.br
+Reply = ConnectionID | {'EXCEPTION', Exc}
+.br
+ConnectionID = long()
+.br
+Exc = #'CosNotifyChannelAdmin_ChannelNotFound'{} | #'CosNotifyChannelAdmin_TypeError'{} | #'CosEventDomainAdmin_AlreadyExists'{} | #'CosEventDomainAdmin_DiamondCreationForbidden'{diam=RouteSeq} | #'CosEventDomainAdmin_CycleCreationForbidden'{cyc=MemberIDSeq}
+.br
+RouteSeq = [MemberIDSeq]
+.br
+MemberIDSeq = [long()]
+.br
+.RE
+.RS
+.LP
+The Connection parameter must contain valid data to enable the target domain to setup a connection between two channels\&. The struct members \fIsupplier_id\fR\& and \fIconsumer_id\fR\& determines which channel should produce and consume events\&. which type of events and if the supplier should push or the consumer pull events is determined by \fIctype\fR\& and \fInotification_style\fR\& respectively\&.
+.LP
+If the target domain is not able to setup the connection the appropriate exception is raised\&.
+.RE
+.LP
+.B
+get_all_connections(EventDomain) -> ConnectionIDSeq
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+ConnectionIDSeq = [long()]
+.br
+.RE
+.RS
+.LP
+This operation returns a sequence of all connections within the target domain\&.
+.RE
+.LP
+.B
+get_connection(EventDomain, ConnectionID) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+ConnectionID = long()
+.br
+Reply = Connection | {'EXCEPTION', #'CosEventDomainAdmin_ConnectionNotFound'{}}
+.br
+Connection = 'CosEventDomainAdmin_Connection'{supplier_id=MemberID, consumer_id=MemberID, ctype=Type, notification_style=Style}
+.br
+MemberID = long()
+.br
+Type = 'ANY_EVENT' | 'STRUCTURED_EVENT' | 'SEQUENCE_EVENT'
+.br
+Style = 'Pull' | 'Push'
+.br
+.RE
+.RS
+.LP
+If a connection identified by the given id exists within the target domain, a \fI#\&'CosEventDomainAdmin_Connection\&'{}\fR\& which describe the connection is returned\&. Otherwise, an exception is raised\&.
+.RE
+.LP
+.B
+remove_connection(EventDomain, ConnectionID) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+ConnectionID = long()
+.br
+Reply = ok | {'EXCEPTION', #'CosEventDomainAdmin_ConnectionNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If the supplied connection id exists, the connection the id represents is terminated\&. Otherwise, an exception is raised\&.
+.RE
+.LP
+.B
+get_offer_channels(EventDomain, MemberID) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+MemberID = long()
+.br
+Reply = MemberIDSeq | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+This operation returns a sequence, containing the member id\&'s of all channels within the target domain which will supply events to the channel identified by the given id\&. But, if no such id exists in this domain, an exception is raised\&.
+.RE
+.LP
+.B
+get_subscription_channels(EventDomain, MemberID) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Reply = MemberIDSeq | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+This operations behaves like \fIget_subscription_channels\fR\&; the difference is that the id\&'s returned identifies channels which will consume events supplied by the channel associated with the given id\&.
+.RE
+.LP
+.B
+destroy(EventDomain) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+.RE
+.RS
+.LP
+Calling this operation will terminate all connections within the target domain\&. The domain will terminate but all channels will not be affected\&.
+.RE
+.LP
+.B
+get_cycles(EventDomain) -> RouteSeq
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+RouteSeq = [MemberIDSeq]
+.br
+MemberIDSeq = [long()]
+.br
+.RE
+.RS
+.LP
+Returns a list of all cycles within the target domain\&.
+.RE
+.LP
+.B
+get_diamonds(EventDomain) -> DiamondSeq
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+DiamondSeq = [RouteSeq]
+.br
+RouteSeq = [MemberIDSeq]
+.br
+MemberIDSeq = [long()]
+.br
+.RE
+.RS
+.LP
+Returns a list of all diamonds within the target domain
+.RE
+.LP
+.B
+set_default_consumer_channel(EventDomain, MemberID) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Reply = MemberID | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+MemberID = long()
+.br
+.RE
+.RS
+.LP
+If the given id represents a channel within the target domain, this channel will be used when connection a supplier client without specifying a certain channel\&. If no such channel exists an exceptions is raised\&.
+.RE
+.LP
+.B
+set_default_supplier_channel(EventDomain, MemberID) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Reply = MemberID | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+MemberID = long()
+.br
+.RE
+.RS
+.LP
+If the given id represents a channel within the target domain, this channel will be used when connection a consumer client without specifying a certain channel\&. If no such channel exists an exceptions is raised\&.
+.RE
+.LP
+.B
+connect_push_consumer(EventDomain, Consumer) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Consumer = CosEventComm::PushConsumer
+.br
+Reply = CosNotifyChannelAdmin::ProxyPushSupplier | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If a default Channel have been set, this operation connects the given PushConsumer to it\&. Otherwise, the \fI#\&'CosNotifyChannelAdmin_ChannelNotFound\&'{}\fR\& exception is raised\&.
+.RE
+.LP
+.B
+connect_pull_consumer(EventDomain, Consumer) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Consumer = CosEventComm::PullConsumer
+.br
+Reply = CosNotifyChannelAdmin::ProxyPullSupplier | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If a default Channel have been set, this operation connects the given PullConsumer to it\&. Otherwise, the \fI#\&'CosNotifyChannelAdmin_ChannelNotFound\&'{}\fR\& exception is raised\&.
+.RE
+.LP
+.B
+connect_push_supplier(EventDomain, Supplier) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Supplier = CosEventComm::PushSupplier
+.br
+Reply = CosNotifyChannelAdmin::ProxyPushConsumer | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If a default Channel have been set, this operation connects the given PushSupplier to it\&. Otherwise, the \fI#\&'CosNotifyChannelAdmin_ChannelNotFound\&'{}\fR\& exception is raised\&.
+.RE
+.LP
+.B
+connect_pull_supplier(EventDomain, Supplier) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Supplier = CosEventComm::PullSupplier
+.br
+Reply = CosNotifyChannelAdmin::ProxyPushConsumer | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If a default Channel have been set, this operation connects the given PullSupplier to it\&. Otherwise, the \fI#\&'CosNotifyChannelAdmin_ChannelNotFound\&'{}\fR\& exception is raised\&.
+.RE
+.LP
+.B
+connect_structured_push_consumer(EventDomain, Consumer) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Consumer = CosNotifyComm::StructuredPushConsumer
+.br
+Reply = CosNotifyChannelAdmin::StructuredProxyPushSupplier | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If a default Channel have been set, this operation connects the given StructuredPushConsumer to it\&. Otherwise, the \fI#\&'CosNotifyChannelAdmin_ChannelNotFound\&'{}\fR\& exception is raised\&.
+.RE
+.LP
+.B
+connect_structured_pull_consumer(EventDomain, Consumer) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Consumer = CosNotifyComm::StructuredPullConsumer
+.br
+Reply = CosNotifyChannelAdmin::StructuredProxyPullSupplier | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If a default Channel have been set, this operation connects the given StructuredPullConsumer to it\&. Otherwise, the \fI#\&'CosNotifyChannelAdmin_ChannelNotFound\&'{}\fR\& exception is raised\&.
+.RE
+.LP
+.B
+connect_structured_push_supplier(EventDomain, Supplier) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Supplier = CosNotifyComm::StructuredPushSupplier
+.br
+Reply = CosNotifyChannelAdmin::StructuredProxyPushConsumer | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If a default Channel have been set, this operation connects the given StructuredPushSupplier to it\&. Otherwise, the \fI#\&'CosNotifyChannelAdmin_ChannelNotFound\&'{}\fR\& exception is raised\&.
+.RE
+.LP
+.B
+connect_structured_pull_supplier(EventDomain, Supplier) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Supplier = CosNotifyComm::StructuredPullSupplier
+.br
+Reply = CosNotifyChannelAdmin::StructuredProxyPullConsume | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If a default Channel have been set, this operation connects the given StructuredPullSupplier to it\&. Otherwise, the \fI#\&'CosNotifyChannelAdmin_ChannelNotFound\&'{}\fR\& exception is raised\&.
+.RE
+.LP
+.B
+connect_sequence_push_consumer(EventDomain, Consumer) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Consumer = CosNotifyComm::SequencePushConsumer
+.br
+Reply = CosNotifyChannelAdmin::SequenceProxyPushSupplier | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If a default Channel have been set, this operation connects the given SequencePushConsumer to it\&. Otherwise, the \fI#\&'CosNotifyChannelAdmin_ChannelNotFound\&'{}\fR\& exception is raised\&.
+.RE
+.LP
+.B
+connect_sequence_pull_consumer(EventDomain, Consumer) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Consumer = CosNotifyComm::SequencePullConsumer
+.br
+Reply = CosNotifyChannelAdmin::SequenceProxyPullSupplier | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If a default Channel have been set, this operation connects the given SequencePullConsumer to it\&. Otherwise, the \fI#\&'CosNotifyChannelAdmin_ChannelNotFound\&'{}\fR\& exception is raised\&.
+.RE
+.LP
+.B
+connect_sequence_push_supplier(EventDomain, Supplier) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Supplier = CosNotifyComm::SequencePushSupplier
+.br
+Reply = CosNotifyChannelAdmin::SequenceProxyPushConsumer | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If a default Channel have been set, this operation connects the given SequencePushSupplier to it\&. Otherwise, the \fI#\&'CosNotifyChannelAdmin_ChannelNotFound\&'{}\fR\& exception is raised\&.
+.RE
+.LP
+.B
+connect_sequence_pull_supplier(EventDomain, Supplier) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Supplier = CosNotifyComm::SequencePullSupplier
+.br
+Reply = CosNotifyChannelAdmin::SequenceProxyPullConsumer | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If a default Channel have been set, this operation connects the given SequencePullSupplier to it\&. Otherwise, the \fI#\&'CosNotifyChannelAdmin_ChannelNotFound\&'{}\fR\& exception is raised\&.
+.RE
+.LP
+.B
+connect_push_consumer_with_id(EventDomain, Consumer, MemberID) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Consumer = CosEventComm::PushConsumer
+.br
+MemberID = long()
+.br
+Reply = CosNotifyChannelAdmin::ProxyPushSupplier | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If a Channel associated with the given MemberID exists within the target Domain, this operation connects the given PushConsumer to it\&. Otherwise, the \fI#\&'CosNotifyChannelAdmin_ChannelNotFound\&'{}\fR\& exception is raised\&.
+.RE
+.LP
+.B
+connect_pull_consumer_with_id(EventDomain, Consumer, MemberID) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Consumer = CosEventComm::PullConsumer
+.br
+MemberID = long()
+.br
+Reply = CosNotifyChannelAdmin::ProxyPullSupplier | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If a Channel associated with the given MemberID exists within the target Domain, this operation connects the given PullConsumer to it\&. Otherwise, the \fI#\&'CosNotifyChannelAdmin_ChannelNotFound\&'{}\fR\& exception is raised\&.
+.RE
+.LP
+.B
+connect_push_supplier_with_id(EventDomain, Supplier, MemberID) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Supplier = CosEventComm::PushSupplier
+.br
+MemberID = long()
+.br
+Reply = CosNotifyChannelAdmin::ProxyPushConsumer | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If a Channel associated with the given MemberID exists within the target Domain, this operation connects the given PushSupplier to it\&. Otherwise, the \fI#\&'CosNotifyChannelAdmin_ChannelNotFound\&'{}\fR\& exception is raised\&.
+.RE
+.LP
+.B
+connect_pull_supplier_with_id(EventDomain, Supplier, MemberID) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Supplier = CosEventComm::PullSupplier
+.br
+MemberID = long()
+.br
+Reply = CosNotifyChannelAdmin::ProxyPushConsumer | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If a Channel associated with the given MemberID exists within the target Domain, this operation connects the given PullSupplier to it\&. Otherwise, the \fI#\&'CosNotifyChannelAdmin_ChannelNotFound\&'{}\fR\& exception is raised\&.
+.RE
+.LP
+.B
+connect_structured_push_consumer_with_id(EventDomain, Consumer, MemberID) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Consumer = CosNotifyComm::StructuredPushConsumer
+.br
+MemberID = long()
+.br
+Reply = CosNotifyChannelAdmin::StructuredProxyPushSupplier | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If a Channel associated with the given MemberID exists within the target Domain, this operation connects the given StructuredPushConsumer to it\&. Otherwise, the \fI#\&'CosNotifyChannelAdmin_ChannelNotFound\&'{}\fR\& exception is raised\&.
+.RE
+.LP
+.B
+connect_structured_pull_consumer_with_id(EventDomain, Consumer, MemberID) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Consumer = CosNotifyComm::StructuredPullConsumer
+.br
+MemberID = long()
+.br
+Reply = CosNotifyChannelAdmin::StructuredProxyPullSupplier | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If a Channel associated with the given MemberID exists within the target Domain, this operation connects the given StructuredPullConsumer to it\&. Otherwise, the \fI#\&'CosNotifyChannelAdmin_ChannelNotFound\&'{}\fR\& exception is raised\&.
+.RE
+.LP
+.B
+connect_structured_push_supplier_with_id(EventDomain, Supplier, MemberID) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Supplier = CosNotifyComm::StructuredPushSupplier
+.br
+MemberID = long()
+.br
+Reply = CosNotifyChannelAdmin::StructuredProxyPushConsumer | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If a Channel associated with the given MemberID exists within the target Domain, this operation connects the given StructuredPushSupplier to it\&. Otherwise, the \fI#\&'CosNotifyChannelAdmin_ChannelNotFound\&'{}\fR\& exception is raised\&.
+.RE
+.LP
+.B
+connect_structured_pull_supplier_with_id(EventDomain, Supplier, MemberID) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Supplier = CosNotifyComm::StructuredPullSupplier
+.br
+MemberID = long()
+.br
+Reply = CosNotifyChannelAdmin::StructuredProxyPullConsumer | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If a Channel associated with the given MemberID exists within the target Domain, this operation connects the given StructuredPullSupplier to it\&. Otherwise, the \fI#\&'CosNotifyChannelAdmin_ChannelNotFound\&'{}\fR\& exception is raised\&.
+.RE
+.LP
+.B
+connect_sequence_push_consumer_with_id(EventDomain, Consumer, MemberID) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Consumer = CosNotifyComm::SequencePushConsumer
+.br
+MemberID = long()
+.br
+Reply = CosNotifyChannelAdmin::SequenceProxyPushSupplier | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If a Channel associated with the given MemberID exists within the target Domain, this operation connects the given SequencePushConsumer to it\&. Otherwise, the \fI#\&'CosNotifyChannelAdmin_ChannelNotFound\&'{}\fR\& exception is raised\&.
+.RE
+.LP
+.B
+connect_sequence_pull_consumer_with_id(EventDomain, Consumer, MemberID) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Consumer = CosNotifyComm::SequencePullConsumer
+.br
+MemberID = long()
+.br
+Reply = CosNotifyChannelAdmin::SequenceProxyPullSupplier | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If a Channel associated with the given MemberID exists within the target Domain, this operation connects the given SequencePullConsumer to it\&. Otherwise, the \fI#\&'CosNotifyChannelAdmin_ChannelNotFound\&'{}\fR\& exception is raised\&.
+.RE
+.LP
+.B
+connect_sequence_push_supplier_with_id(EventDomain, Supplier, MemberID) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Supplier = CosNotifyComm::SequencePushSupplier
+.br
+MemberID = long()
+.br
+Reply = CosNotifyChannelAdmin::SequenceProxyPushConsumer | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If a Channel associated with the given MemberID exists within the target Domain, this operation connects the given SequencePushSupplier to it\&. Otherwise, the \fI#\&'CosNotifyChannelAdmin_ChannelNotFound\&'{}\fR\& exception is raised\&.
+.RE
+.LP
+.B
+connect_sequence_pull_supplier_with_id(EventDomain, Supplier, MemberID) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+EventDomain = #objref
+.br
+Supplier = CosNotifyComm::SequencePullSupplier
+.br
+MemberID = long()
+.br
+Reply = CosNotifyChannelAdmin::SequenceProxyPullConsumer | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+.RE
+.RS
+.LP
+If a Channel associated with the given MemberID exists within the target Domain, this operation connects the given SequencePullSupplier to it\&. Otherwise, the \fI#\&'CosNotifyChannelAdmin_ChannelNotFound\&'{}\fR\& exception is raised\&.
+.RE

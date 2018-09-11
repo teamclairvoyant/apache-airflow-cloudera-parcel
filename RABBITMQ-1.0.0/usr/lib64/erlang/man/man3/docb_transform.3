@@ -1,0 +1,161 @@
+.TH docb_transform 3 "docbuilder 0.9.8.11" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+docb_transform \- Transform XML to HTML
+.SH DESCRIPTION
+.LP
+\fIdocb_transform\fR\& contains functions for transforming XML documentation source code to HTML\&.
+.SH EXPORTS
+.LP
+.B
+file(File) -> ok | {error, Reason}
+.br
+.B
+file(File, Options) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+File = string()
+.br
+Options = [Opt]
+.br
+Opt -- see below
+.br
+.RE
+.RS
+.LP
+Transforms XML documentation source code to HTML\&.
+.LP
+\fIFile\fR\& is a documentation source file, given with or without the \fI\&.xml\fR\& extension as \fIName\&.xml\fR\& or \fIName\fR\&\&.
+.LP
+If \fIFile\fR\& contains XML code according to a basic DTD (\fIchapter\fR\&, \fIerlref\fR\&, \&.\&.\&.), the resulting HTML file is named \fIName\&.html\fR\&\&.
+.LP
+If \fIFile\fR\& contains XML code according to a compound DTD (\fIapplication\fR\& or \fIpart\fR\&), several files are created:
+.RS 2
+.TP 2
+*
+A cover page for the application with two frames, \fIName_frame\&.html\fR\&\&.
+.LP
+.TP 2
+*
+The contents of the left frame and a front page, \fIName\&.html\fR\& and \fIName_first\&.html\fR\&\&.
+.LP
+.TP 2
+*
+A bibliography and a glossary, \fIName_cite\&.html\fR\& and \fIName_term\&.html\fR\&\&.
+.LP
+.TP 2
+*
+In the case of an \fIapplication\fR\& DTD an index is created, \fIName\&.kwc\fR\& and \fIName_index\&.html\fR\&\&. 
+.LP
+.TP 2
+*
+One HTML file for each file included from \fIFile\fR\&\&. 
+.LP
+.TP 2
+*
+Also, if there exists a \fIfascicules\&.xml\fR\& file where the value of the \fIentry\fR\& attribute for \fIFile\fR\& is \fI"yes"\fR\&, the cover page is copied to \fIindex\&.html\fR\&\&. 
+.LP
+.RE
+
+.RE
+.SH "OPTIONS"
+
+.RS 2
+.TP 2
+.B
+\fI{html_mod, Module}, Module=atom()\fR\&:
+A callback module can be used for specifying HTML snippets that should be included in the generated HTML files, see below\&.
+.TP 2
+.B
+\fI{outdir, Dir}, Dir=string()\fR\&:
+Destination for generated files\&. Default is current working directory\&.
+.TP 2
+.B
+\fI{number, Number}, Number=int()\fR\&:
+First chapter number when transforming a \fIchapter\fR\& file\&. Default is 1\&.
+.TP 2
+.B
+\fI{ptype, unix|windows}\fR\&:
+For \fIpath\fR\& elements, the specified file path should be presented\&.
+.TP 2
+.B
+\fIsilent\fR\&:
+Silent - no warnings, only error information is printed\&.
+.TP 2
+.B
+\fI{top, Index}, Index=string()\fR\&:
+Specifies the value of "Top" in the left frame of a front page, which normally should be some kind of top index file for the documentation\&.
+.TP 2
+.B
+\fI{vsn, Vsn}, Vsn=string()\fR\&:
+Application version number\&. Overrides a version number defined in the XML document\&. Visible in the left frame and on the front page\&.
+.TP 2
+.B
+\fI{term_defs, File}, File=string()\fR\&:
+Use the global glossary definitions in \fIFile\fR\&, which should contain a list of tuples \fI{Id, Name, Definition, Owner}\fR\&\&. See the section \fB<term>, <termdef> - Glossary\fR\& in the User\&'s Guide\&.
+.TP 2
+.B
+\fI{cite_defs, File}, File=string()\fR\&:
+Use the global bibliography definitions in \fIFile\fR\&, which should contain a list of tuples \fI{Id, Title, Info, Owner}\fR\&\&. See the section \fB<cite>, <citedef> - Bibliography\fR\& in the User\&'s Guide\&.
+.RE
+.SH "CALLBACK MODULE"
+
+.LP
+A \fIhtml_mod\fR\& callback module can include the functions specified below\&. Note that there is no check that the resulting HTML code is valid\&. All functions are optional\&.
+.SH EXPORTS
+.LP
+.B
+Module:head() -> string()
+.br
+.RS
+.LP
+Defines a HTML snippet to be included in the head of a document, after the \fI<HEAD>\fR\& start tag and \fI<TITLE>\fR\& tag:
+.LP
+.nf
+
+<HTML>
+<HEAD>
+  <TITLE>...</TITLE>
+  - snippet is included here -
+  ...
+</HEAD>
+...
+</HTML>
+	
+.fi
+.RE
+.LP
+.B
+Module:top() -> string()
+.br
+.RS
+.LP
+Defines a HTML snippet to be included at the top of a document, after the \fI<BODY>\fR\& start tag\&.
+.RE
+.LP
+.B
+Module:bottom() -> string()
+.br
+.RS
+.LP
+Defines a HTML snippet to be included at the bottom of a document, before the \fI</BODY>\fR\& end tag\&.
+.RE
+.LP
+.B
+Module:seealso(SeeAlso) -> Href
+.br
+.RS
+.TP 3
+Types:
+
+SeeAlso = Href = string()
+.br
+.RE
+.RS
+.LP
+When referring to another part of the document, or another document, the XML tag \fI<seealso>\fR\& is used: \fI<seealso marker="File#Marker">\&.\&.\&.text\&.\&.\&.</seealso>\fR\&\&. By default, this is translated to \fI<A HREF="File\&.html#Marker>\&.\&.\&.text\&.\&.\&.</A>\fR\&\&.
+.LP
+This function makes it possible to specify an alternative translation \fIHref\fR\& of the \fImarker\fR\& attribute value \fISeeAlso\fR\&\&. For example, in OTP this is used to resolve cross references between applications\&.
+.RE

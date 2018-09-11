@@ -1,0 +1,595 @@
+.TH inet_res 3 "kernel 2.14.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+inet_res \- A Rudimentary DNS Client
+.SH DESCRIPTION
+.LP
+Performs DNS name resolving towards recursive name servers
+.LP
+See also \fB ERTS User\&'s Guide: Inet configuration \fR\& for more information on how to configure an Erlang runtime system for IP communication and how to enable this DNS client by defining \fI\&'dns\&'\fR\& as a lookup method\&. It then acts as a backend for the resolving functions in \fBinet\fR\&\&.
+.LP
+This DNS client can resolve DNS records even if it is not used for normal name resolving in the node\&.
+.LP
+This is not a full-fledged resolver\&. It is just a DNS client that relies on asking trusted recursive nameservers\&.
+.SH "NAME RESOLVING"
+
+.LP
+UDP queries are used unless resolver option \fIusevc\fR\& is \fItrue\fR\&, which forces TCP queries\&. If the query is to large for UDP, TCP is used instead\&. For regular DNS queries 512 bytes is the size limit\&. When EDNS is enabled (resolver option \fIedns\fR\& is set to the EDNS version i\&.e \fI0\fR\& instead of \fIfalse\fR\&), resolver option \fIudp_payload_size\fR\& sets the limit\&. If a nameserver replies with the TC bit set (truncation), indicating the answer is incomplete, the query is retried to that nameserver using TCP\&. The resolver option \fIudp_payload_size\fR\& also sets the advertised size for the max allowed reply size, if EDNS is enabled, otherwise the nameserver uses the limit 512 byte\&. If the reply is larger it gets truncated, forcing a TCP re-query\&.
+.LP
+For UDP queries, the resolver options \fItimeout\fR\& and \fIretry\fR\& control retransmission\&. Each nameserver in the \fInameservers\fR\& list is tried with a timeout of \fItimeout\fR\& / \fIretry\fR\&\&. Then all nameservers are tried again doubling the timeout, for a total of \fIretry\fR\& times\&.
+.LP
+For queries that not use the \fIsearch\fR\& list, if the query to all \fInameservers\fR\& results in \fI{error,nxdomain}\fR\&or an empty answer, the same query is tried for the \fIalt_nameservers\fR\&\&.
+.SH DATA TYPES
+.LP
+Resolver types:
+.nf
+
+\fBres_option()\fR\& = {alt_nameservers, [\fBnameserver()\fR\&]}
+.br
+             | {edns, 0 | false}
+.br
+             | {inet6, boolean()}
+.br
+             | {nameservers, [\fBnameserver()\fR\&]}
+.br
+             | {recurse, boolean()}
+.br
+             | {retry, integer()}
+.br
+             | {timeout, integer()}
+.br
+             | {udp_payload_size, integer()}
+.br
+             | {usevc, boolean()}
+.br
+.fi
+.nf
+
+\fBnameserver()\fR\& = {\fBinet:ip_address()\fR\&, Port :: 1\&.\&.65535}
+.br
+.fi
+.nf
+
+\fBres_error()\fR\& = formerr
+.br
+            | qfmterror
+.br
+            | servfail
+.br
+            | nxdomain
+.br
+            | notimp
+.br
+            | refused
+.br
+            | badvers
+.br
+            | timeout
+.br
+.fi
+.LP
+DNS types:
+.nf
+
+\fBdns_name()\fR\& = string()
+.br
+.fi
+.RS
+.LP
+A string with no adjacent dots\&.
+.RE
+.nf
+
+\fBrr_type()\fR\& = a
+.br
+          | aaaa
+.br
+          | cname
+.br
+          | gid
+.br
+          | hinfo
+.br
+          | ns
+.br
+          | mb
+.br
+          | md
+.br
+          | mg
+.br
+          | mf
+.br
+          | minfo
+.br
+          | mx
+.br
+          | naptr
+.br
+          | null
+.br
+          | ptr
+.br
+          | soa
+.br
+          | spf
+.br
+          | srv
+.br
+          | txt
+.br
+          | uid
+.br
+          | uinfo
+.br
+          | unspec
+.br
+          | wks
+.br
+.fi
+.nf
+
+\fBdns_class()\fR\& = in | chaos | hs | any
+.br
+.fi
+.nf
+
+\fBdns_msg()\fR\& = term()
+.br
+.fi
+.RS
+.LP
+This is the start of a hiearchy of opaque data structures that can be examined with access functions in inet_dns that return lists of {Field,Value} tuples\&. The arity 2 functions just return the value for a given field\&. 
+.LP
+.nf
+
+dns_msg() = DnsMsg
+    inet_dns:msg(DnsMsg) ->
+        [ {header, dns_header()}
+        | {qdlist, dns_query()}
+        | {anlist, dns_rr()}
+        | {nslist, dns_rr()}
+        | {arlist, dns_rr()} ]
+    inet_dns:msg(DnsMsg, header) -> dns_header() % for example
+    inet_dns:msg(DnsMsg, Field) -> Value
+
+dns_header() = DnsHeader
+    inet_dns:header(DnsHeader) ->
+        [ {id, integer()}
+        | {qr, boolean()}
+        | {opcode, 'query' | iquery | status | integer()}
+        | {aa, boolean()}
+        | {tc, boolean()}
+        | {rd, boolean()}
+        | {ra, boolean()}
+        | {pr, boolean()}
+        | {rcode, integer(0..16)} ]
+    inet_dns:header(DnsHeader, Field) -> Value
+
+query_type() = axfr | mailb | maila | any | rr_type()
+
+dns_query() = DnsQuery
+    inet_dns:dns_query(DnsQuery) ->
+        [ {domain, dns_name()}
+        | {type, query_type()}
+        | {class, dns_class()} ]
+    inet_dns:dns_query(DnsQuery, Field) -> Value
+
+dns_rr() = DnsRr
+    inet_dns:rr(DnsRr) -> DnsRrFields | DnsRrOptFields
+    DnsRrFields = [ {domain, dns_name()}
+                  | {type, rr_type()}
+                  | {class, dns_class()}
+                  | {ttl, integer()}
+                  | {data, dns_data()} ]
+    DnsRrOptFields = [ {domain, dns_name()}
+                     | {type, opt}
+                     | {udp_payload_size, integer()}
+                     | {ext_rcode, integer()}
+                     | {version, integer()}
+                     | {z, integer()}
+                     | {data, dns_data()} ]
+    inet_dns:rr(DnsRr, Field) -> Value
+
+There is an info function for the types above:
+
+inet_dns:record_type(dns_msg()) -> msg;
+inet_dns:record_type(dns_header()) -> header;
+inet_dns:record_type(dns_query()) -> dns_query;
+inet_dns:record_type(dns_rr()) -> rr;
+inet_dns:record_type(_) -> undefined.
+
+So; inet_dns:(inet_dns:record_type(X))(X) will convert
+any of these data structures into a {Field,Value} list.
+.fi
+.RE
+.nf
+
+\fBdns_data()\fR\& = \fBdns_name()\fR\&
+.br
+           | \fBinet:ip4_address()\fR\&
+.br
+           | \fBinet:ip6_address()\fR\&
+.br
+           | {MName :: \fBdns_name()\fR\&,
+.br
+              RName :: \fBdns_name()\fR\&,
+.br
+              Serial :: integer(),
+.br
+              Refresh :: integer(),
+.br
+              Retry :: integer(),
+.br
+              Expiry :: integer(),
+.br
+              Minimum :: integer()}
+.br
+           | {\fBinet:ip4_address()\fR\&,
+.br
+              Proto :: integer(),
+.br
+              BitMap :: binary()}
+.br
+           | {CpuString :: string(), OsString :: string()}
+.br
+           | {RM :: \fBdns_name()\fR\&, EM :: \fBdns_name()\fR\&}
+.br
+           | {Prio :: integer(), \fBdns_name()\fR\&}
+.br
+           | {Prio :: integer(),
+.br
+              Weight :: integer(),
+.br
+              Port :: integer(),
+.br
+              \fBdns_name()\fR\&}
+.br
+           | {Order :: integer(),
+.br
+              Preference :: integer(),
+.br
+              Flags :: string(),
+.br
+              Services :: string(),
+.br
+              Regexp :: string(),
+.br
+              \fBdns_name()\fR\&}
+.br
+           | [string()]
+.br
+           | binary()
+.br
+.fi
+.RS
+.LP
+\fIRegexp\fR\& is a string with characters encoded in the UTF-8 coding standard\&.
+.RE
+.SH EXPORTS
+.LP
+.nf
+
+.B
+getbyname(Name, Type) -> {ok, Hostent} | {error, Reason}
+.br
+.fi
+.br
+.nf
+
+.B
+getbyname(Name, Type, Timeout) -> {ok, Hostent} | {error, Reason}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = \fBdns_name()\fR\&
+.br
+Type = \fBrr_type()\fR\&
+.br
+Timeout = timeout()
+.br
+Hostent = \fBinet:hostent()\fR\&
+.br
+Reason = \fBinet:posix()\fR\& | \fBres_error()\fR\&
+.br
+.RE
+.RS
+.LP
+Resolve a DNS record of the given type for the given host, of class \fIin\fR\&\&. On success returns a \fIhostent()\fR\& record with \fIdns_data()\fR\& elements in the address list field\&.
+.LP
+This function uses the resolver option \fIsearch\fR\& that is a list of domain names\&. If the name to resolve contains no dots, it is prepended to each domain name in the search list, and they are tried in order\&. If the name contains dots, it is first tried as an absolute name and if that fails the search list is used\&. If the name has a trailing dot it is simply supposed to be an absolute name and the search list is not used\&.
+.RE
+.LP
+.nf
+
+.B
+gethostbyaddr(Address) -> {ok, Hostent} | {error, Reason}
+.br
+.fi
+.br
+.nf
+
+.B
+gethostbyaddr(Address, Timeout) -> {ok, Hostent} | {error, Reason}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Address = \fBinet:ip_address()\fR\&
+.br
+Timeout = timeout()
+.br
+Hostent = \fBinet:hostent()\fR\&
+.br
+Reason = \fBinet:posix()\fR\& | \fBres_error()\fR\&
+.br
+.RE
+.RS
+.LP
+Backend functions used by \fB inet:gethostbyaddr/1 \fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+gethostbyname(Name) -> {ok, Hostent} | {error, Reason}
+.br
+.fi
+.br
+.nf
+
+.B
+gethostbyname(Name, Family) -> {ok, Hostent} | {error, Reason}
+.br
+.fi
+.br
+.nf
+
+.B
+gethostbyname(Name, Family, Timeout) ->
+.B
+                 {ok, Hostent} | {error, Reason}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = \fBdns_name()\fR\&
+.br
+Hostent = \fBinet:hostent()\fR\&
+.br
+Timeout = timeout()
+.br
+Family = \fBinet:address_family()\fR\&
+.br
+Reason = \fBinet:posix()\fR\& | \fBres_error()\fR\&
+.br
+.RE
+.RS
+.LP
+Backend functions used by \fB inet:gethostbyname/1,2 \fR\&\&.
+.LP
+This function uses the resolver option \fIsearch\fR\& just like \fBgetbyname/2,3\fR\&\&.
+.LP
+If the resolver option \fIinet6\fR\& is \fItrue\fR\&, an IPv6 address is looked up, and if that fails the IPv4 address is looked up and returned on IPv6 mapped IPv4 format\&.
+.RE
+.LP
+.nf
+
+.B
+lookup(Name, Class, Type) -> [\fBdns_data()\fR\&]
+.br
+.fi
+.br
+.nf
+
+.B
+lookup(Name, Class, Type, Opts) -> [\fBdns_data()\fR\&]
+.br
+.fi
+.br
+.nf
+
+.B
+lookup(Name, Class, Type, Opts, Timeout) -> [\fBdns_data()\fR\&]
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = \fBdns_name()\fR\& | \fBinet:ip_address()\fR\&
+.br
+Class = \fBdns_class()\fR\&
+.br
+Type = \fBrr_type()\fR\&
+.br
+Opts = [\fBres_option()\fR\& | verbose]
+.br
+Timeout = timeout()
+.br
+.RE
+.RS
+.LP
+Resolve the DNS data for the record of the given type and class for the given name\&. On success filters out the answer records with the correct \fIClass\fR\& and \fIType\fR\& and returns a list of their data fields\&. So a lookup for type \fIany\fR\& will give an empty answer since the answer records have specific types that are not \fIany\fR\&\&. An empty answer as well as a failed lookup returns an empty list\&.
+.LP
+Calls \fBresolve/2\&.\&.4\fR\& with the same arguments and filters the result, so \fIOpts\fR\& is explained there\&.
+.RE
+.LP
+.nf
+
+.B
+resolve(Name, Class, Type) -> {ok, \fBdns_msg()\fR\&} | Error
+.br
+.fi
+.br
+.nf
+
+.B
+resolve(Name, Class, Type, Opts) -> {ok, \fBdns_msg()\fR\&} | Error
+.br
+.fi
+.br
+.nf
+
+.B
+resolve(Name, Class, Type, Opts, Timeout) ->
+.B
+           {ok, \fBdns_msg()\fR\&} | Error
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = \fBdns_name()\fR\& | \fBinet:ip_address()\fR\&
+.br
+Class = \fBdns_class()\fR\&
+.br
+Type = \fBrr_type()\fR\&
+.br
+Opts = [Opt]
+.br
+Opt = \fBres_option()\fR\& | verbose | atom()
+.br
+Timeout = timeout()
+.br
+Error = {error, Reason} | {error, {Reason, \fBdns_msg()\fR\&}}
+.br
+Reason = \fBinet:posix()\fR\& | \fBres_error()\fR\&
+.br
+.RE
+.RS
+.LP
+Resolve a DNS record of the given type and class for the given name\&. The returned \fIdns_msg()\fR\& can be examined using access functions in \fIinet_db\fR\& as described in \fBDNS types\fR\&\&.
+.LP
+If \fIName\fR\& is an \fIip_address()\fR\&, the domain name to query for is generated as the standard reverse "\&.IN-ADDR\&.ARPA\&." name for an IPv4 address, or the "\&.IP6\&.ARPA\&." name for an IPv6 address\&. In this case you most probably want to use \fIClass = in\fR\& and \fIType = ptr\fR\& but it is not done automatically\&.
+.LP
+\fIOpts\fR\& override the corresponding resolver options\&. If the option \fInameservers\fR\& is given, it is also assumed that it is the complete list of nameserves, so the resolver option \fIalt_nameserves\fR\& is ignored\&. Of course, if that option is also given to this function, it is used\&.
+.LP
+The \fIverbose\fR\& option (or rather \fI{verbose,true}\fR\&), causes diagnostics printout through \fBio:format/2\fR\& of queries, replies retransmissions, etc, similar to from utilities like \fIdig\fR\&, \fInslookup\fR\& et\&.al\&.
+.LP
+If \fIOpt\fR\& is an arbitrary atom it is interpreted as \fI{Opt,true}\fR\& unless the atom string starts with \fI"no"\fR\& making the interpretation \fI{Opt,false}\fR\&\&. For example: \fIusevc\fR\& is an alias for \fI{usevc,true}\fR\&, and \fInousevc\fR\& an alias for \fI{usevc,false}\fR\&\&.
+.LP
+The \fIinet6\fR\& option currently has no effect on this function\&. You probably want to use \fIType = a | aaaa\fR\& instead\&.
+.RE
+.SH "EXAMPLES"
+
+.LP
+Access functions example: how \fBlookup/3\fR\& could have been implemented using \fBresolve/3\fR\& from outside the module\&.
+.LP
+.nf
+
+    example_lookup(Name, Class, Type) ->
+        case inet_res:resolve(Name, Class, Type) of
+            {ok,Msg} ->
+                [inet_dns:rr(RR, data)
+                 || RR <- inet_dns:msg(Msg, anlist),
+                    inet_dns:rr(RR, type) =:= Type,
+                    inet_dns:rr(RR, class) =:= Class];
+            {error,_} ->
+                []
+        end.
+.fi
+.SH "LEGACY FUNCTIONS"
+
+.LP
+These have been deprecated due to the annoying double meaning of the nameservers/timeout argument, and because they had no decent place for a resolver options list\&.
+.SH EXPORTS
+.LP
+.nf
+
+.B
+nslookup(Name, Class, Type) -> {ok, \fBdns_msg()\fR\&} | {error, Reason}
+.br
+.fi
+.br
+.nf
+
+.B
+nslookup(Name, Class, Type, Timeout) ->
+.B
+            {ok, \fBdns_msg()\fR\&} | {error, Reason}
+.br
+.fi
+.br
+.nf
+
+.B
+nslookup(Name, Class, Type, Nameservers) ->
+.B
+            {ok, \fBdns_msg()\fR\&} | {error, Reason}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = \fBdns_name()\fR\& | \fBinet:ip_address()\fR\&
+.br
+Class = \fBdns_class()\fR\&
+.br
+Type = \fBrr_type()\fR\&
+.br
+Timeout = timeout()
+.br
+Nameservers = [\fBnameserver()\fR\&]
+.br
+Reason = \fBinet:posix()\fR\& | \fBres_error()\fR\&
+.br
+.RE
+.RS
+.LP
+Resolve a DNS record of the given type and class for the given name\&.
+.RE
+.LP
+.nf
+
+.B
+nnslookup(Name, Class, Type, Nameservers) ->
+.B
+             {ok, \fBdns_msg()\fR\&} | {error, Reason}
+.br
+.fi
+.br
+.nf
+
+.B
+nnslookup(Name, Class, Type, Nameservers, Timeout) ->
+.B
+             {ok, \fBdns_msg()\fR\&} | {error, Reason}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = \fBdns_name()\fR\& | \fBinet:ip_address()\fR\&
+.br
+Class = \fBdns_class()\fR\&
+.br
+Type = \fBrr_type()\fR\&
+.br
+Timeout = timeout()
+.br
+Nameservers = [\fBnameserver()\fR\&]
+.br
+Reason = \fBinet:posix()\fR\&
+.br
+.RE
+.RS
+.LP
+Resolve a DNS record of the given type and class for the given name\&.
+.RE

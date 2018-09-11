@@ -1,0 +1,1371 @@
+.TH ct_ssh 3 "common_test 1.5.5" "" "Erlang Module Definition"
+.SH NAME
+ct_ssh \- SSH/SFTP client module.
+.SH DESCRIPTION
+.LP
+SSH/SFTP client module\&.
+.LP
+ct_ssh uses the OTP ssh application and more detailed information about e\&.g\&. functions, types and options can be found in the documentation for this application\&.
+.LP
+The \fIServer\fR\& argument in the SFTP functions should only be used for SFTP sessions that have been started on existing SSH connections (i\&.e\&. when the original connection type is \fIssh\fR\&)\&. Whenever the connection type is \fIsftp\fR\&, use the SSH connection reference only\&.
+.LP
+The following options are valid for specifying an SSH/SFTP connection (i\&.e\&. may be used as config elements):
+.LP
+.nf
+
+  
+    [{ConnType, Addr},
+     {port, Port},
+     {user, UserName}
+     {password, Pwd}
+     {user_dir, String}
+     {public_key_alg, PubKeyAlg}
+     {connect_timeout, Timeout}
+     {key_cb, KeyCallbackMod}]
+   
+.fi
+.LP
+\fIConnType = ssh | sftp\fR\&\&.
+.LP
+Please see ssh(3) for other types\&.
+.LP
+All timeout parameters in ct_ssh functions are values in milliseconds\&.
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIconnection() = handle() | target_name() (see module ct)\fR\&:
+
+.TP 2
+.B
+\fIhandle() = handle() (see module ct_gen_conn)\fR\&:
+
+.RS 2
+.LP
+Handle for a specific SSH/SFTP connection\&.
+.RE
+.TP 2
+.B
+\fIssh_sftp_return() = term()\fR\&:
+
+.RS 2
+.LP
+A return value from an ssh_sftp function\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+apread(SSH, Handle, Position, Length) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+apread(SSH, Server, Handle, Position, Length) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+apwrite(SSH, Handle, Position, Data) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+apwrite(SSH, Server, Handle, Position, Data) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+aread(SSH, Handle, Len) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+aread(SSH, Server, Handle, Len) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+awrite(SSH, Handle, Data) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+awrite(SSH, Server, Handle, Data) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+close(SSH, Handle) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+close(SSH, Server, Handle) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+connect(KeyOrName) -> {ok, Handle} | {error, Reason}
+.br
+.RS
+.LP
+Equivalent to \fBconnect(KeyOrName, host, [])\fR\&\&.
+.RE
+.LP
+.B
+connect(KeyOrName, ConnType) -> {ok, Handle} | {error, Reason}
+.br
+.RS
+.LP
+Equivalent to \fBconnect(KeyOrName, ConnType, [])\fR\&\&.
+.RE
+.LP
+.B
+connect(KeyOrName, ConnType, ExtraOpts) -> {ok, Handle} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+KeyOrName = Key | Name
+.br
+Key = atom()
+.br
+Name = target_name() (see module ct)
+.br
+ConnType = ssh | sftp | host
+.br
+ExtraOpts = ssh_connect_options()
+.br
+Handle = handle()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Open an SSH or SFTP connection using the information associated with \fIKeyOrName\fR\&\&.
+.LP
+If \fIName\fR\& (an alias name for \fIKey\fR\&), is used to identify the connection, this name may be used as connection reference for subsequent calls\&. It\&'s only possible to have one open connection at a time associated with \fIName\fR\&\&. If \fIKey\fR\& is used, the returned handle must be used for subsequent calls (multiple connections may be opened using the config data specified by \fIKey\fR\&)\&.
+.LP
+\fIConnType\fR\& will always override the type specified in the address tuple in the configuration data (and in \fIExtraOpts\fR\&)\&. So it is possible to for example open an sftp connection directly using data originally specifying an ssh connection\&. The value \fIhost\fR\& means the connection type specified by the host option (either in the configuration data or in \fIExtraOpts\fR\&) will be used\&.
+.LP
+\fIExtraOpts\fR\& (optional) are extra SSH options to be added to the config data for \fIKeyOrName\fR\&\&. The extra options will override any existing options with the same key in the config data\&. For details on valid SSH options, see the documentation for the OTP ssh application\&.
+.RE
+.LP
+.B
+del_dir(SSH, Name) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+del_dir(SSH, Server, Name) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+delete(SSH, Name) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+delete(SSH, Server, Name) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+disconnect(SSH) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Close an SSH/SFTP connection\&.
+.RE
+.LP
+.B
+exec(SSH, Command) -> {ok, Data} | {error, Reason}
+.br
+.RS
+.LP
+Equivalent to \fBexec(SSH, Command, DefaultTimeout)\fR\&\&.
+.RE
+.LP
+.B
+exec(SSH, Command, Timeout) -> {ok, Data} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Command = string()
+.br
+Timeout = integer()
+.br
+Data = list()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Requests server to perform \fICommand\fR\&\&. A session channel is opened automatically for the request\&. \fIData\fR\& is received from the server as a result of the command\&.
+.RE
+.LP
+.B
+exec(SSH, ChannelId, Command, Timeout) -> {ok, Data} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+ChannelId = integer()
+.br
+Command = string()
+.br
+Timeout = integer()
+.br
+Data = list()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Requests server to perform \fICommand\fR\&\&. A previously opened session channel is used for the request\&. \fIData\fR\& is received from the server as a result of the command\&.
+.RE
+.LP
+.B
+get_file_info(SSH, Handle) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+get_file_info(SSH, Server, Handle) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+list_dir(SSH, Path) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+list_dir(SSH, Server, Path) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+make_dir(SSH, Name) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+make_dir(SSH, Server, Name) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+make_symlink(SSH, Name, Target) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+make_symlink(SSH, Server, Name, Target) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+open(SSH, File, Mode) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+open(SSH, Server, File, Mode) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+opendir(SSH, Path) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+opendir(SSH, Server, Path) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+position(SSH, Handle, Location) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+position(SSH, Server, Handle, Location) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+pread(SSH, Handle, Position, Length) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+pread(SSH, Server, Handle, Position, Length) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+pwrite(SSH, Handle, Position, Data) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+pwrite(SSH, Server, Handle, Position, Data) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+read(SSH, Handle, Len) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+read(SSH, Server, Handle, Len) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+read_file(SSH, File) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+read_file(SSH, Server, File) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+read_file_info(SSH, Name) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+read_file_info(SSH, Server, Name) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+read_link(SSH, Name) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+read_link(SSH, Server, Name) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+read_link_info(SSH, Name) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+read_link_info(SSH, Server, Name) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+receive_response(SSH, ChannelId) -> {ok, Data} | {error, Reason}
+.br
+.RS
+.LP
+Equivalent to \fBreceive_response(SSH, ChannelId, close)\fR\&\&.
+.RE
+.LP
+.B
+receive_response(SSH, ChannelId, End) -> {ok, Data} | {error, Reason}
+.br
+.RS
+.LP
+Equivalent to \fBreceive_response(SSH, ChannelId, End, DefaultTimeout)\fR\&\&.
+.RE
+.LP
+.B
+receive_response(SSH, ChannelId, End, Timeout) -> {ok, Data} | {timeout, Data} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+ChannelId = integer()
+.br
+End = Fun | close | timeout
+.br
+Timeout = integer()
+.br
+Data = list()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Receives expected data from server on the specified session channel\&.
+.LP
+If \fIEnd == close\fR\&, data is returned to the caller when the channel is closed by the server\&. If a timeout occurs before this happens, the function returns \fI{timeout,Data}\fR\& (where \fIData\fR\& is the data received so far)\&. If \fIEnd == timeout\fR\&, a timeout is expected and \fI{ok,Data}\fR\& is returned both in the case of a timeout and when the channel is closed\&. If \fIEnd\fR\& is a fun, this fun will be called with one argument - the data value in a received \fIssh_cm\fR\& message (see ssh_connection(3))\&. The fun should return \fItrue\fR\& to end the receiving operation (and have the so far collected data returned), or \fIfalse\fR\& to wait for more data from the server\&. (Note that even if a fun is supplied, the function returns immediately if the server closes the channel)\&.
+.RE
+.LP
+.B
+rename(SSH, OldName, NewName) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+rename(SSH, Server, OldName, NewName) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+send(SSH, ChannelId, Data) -> ok | {error, Reason}
+.br
+.RS
+.LP
+Equivalent to \fBsend(SSH, ChannelId, 0, Data, DefaultTimeout)\fR\&\&.
+.RE
+.LP
+.B
+send(SSH, ChannelId, Data, Timeout) -> ok | {error, Reason}
+.br
+.RS
+.LP
+Equivalent to \fBsend(SSH, ChannelId, 0, Data, Timeout)\fR\&\&.
+.RE
+.LP
+.B
+send(SSH, ChannelId, Type, Data, Timeout) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+ChannelId = integer()
+.br
+Type = integer()
+.br
+Data = list()
+.br
+Timeout = integer()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Send data to server on specified session channel\&.
+.RE
+.LP
+.B
+send_and_receive(SSH, ChannelId, Data) -> {ok, Data} | {error, Reason}
+.br
+.RS
+.LP
+Equivalent to \fBsend_and_receive(SSH, ChannelId, Data, close)\fR\&\&.
+.RE
+.LP
+.B
+send_and_receive(SSH, ChannelId, Data, End) -> {ok, Data} | {error, Reason}
+.br
+.RS
+.LP
+Equivalent to \fBsend_and_receive(SSH, ChannelId, 0, Data, End, DefaultTimeout)\fR\&\&.
+.RE
+.LP
+.B
+send_and_receive(SSH, ChannelId, Data, End, Timeout) -> {ok, Data} | {error, Reason}
+.br
+.RS
+.LP
+Equivalent to \fBsend_and_receive(SSH, ChannelId, 0, Data, End, Timeout)\fR\&\&.
+.RE
+.LP
+.B
+send_and_receive(SSH, ChannelId, Type, Data, End, Timeout) -> {ok, Data} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+ChannelId = integer()
+.br
+Type = integer()
+.br
+Data = list()
+.br
+End = Fun | close | timeout
+.br
+Timeout = integer()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Send data to server on specified session channel and wait to receive the server response\&.
+.LP
+See \fIreceive_response/4\fR\& for details on the \fIEnd\fR\& argument\&.
+.RE
+.LP
+.B
+session_close(SSH, ChannelId) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+ChannelId = integer()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Closes an SSH session channel\&.
+.RE
+.LP
+.B
+session_open(SSH) -> {ok, ChannelId} | {error, Reason}
+.br
+.RS
+.LP
+Equivalent to \fBsession_open(SSH, DefaultTimeout)\fR\&\&.
+.RE
+.LP
+.B
+session_open(SSH, Timeout) -> {ok, ChannelId} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Timeout = integer()
+.br
+ChannelId = integer()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Opens a channel for an SSH session\&.
+.RE
+.LP
+.B
+sftp_connect(SSH) -> {ok, Server} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Server = pid()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Starts an SFTP session on an already existing SSH connection\&. \fIServer\fR\& identifies the new session and must be specified whenever SFTP requests are to be sent\&.
+.RE
+.LP
+.B
+subsystem(SSH, ChannelId, Subsystem) -> Status | {error, Reason}
+.br
+.RS
+.LP
+Equivalent to \fBsubsystem(SSH, ChannelId, Subsystem, DefaultTimeout)\fR\&\&.
+.RE
+.LP
+.B
+subsystem(SSH, ChannelId, Subsystem, Timeout) -> Status | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+ChannelId = integer()
+.br
+Subsystem = string()
+.br
+Timeout = integer()
+.br
+Status = success | failure
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Sends a request to execute a predefined subsystem\&.
+.RE
+.LP
+.B
+write(SSH, Handle, Data) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+write(SSH, Server, Handle, Data) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+write_file(SSH, File, Iolist) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+write_file(SSH, Server, File, Iolist) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+write_file_info(SSH, Name, Info) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.LP
+.B
+write_file_info(SSH, Server, Name, Info) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SSH = connection()
+.br
+Result = ssh_sftp_return() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+For info and other types, see ssh_sftp(3)\&.
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

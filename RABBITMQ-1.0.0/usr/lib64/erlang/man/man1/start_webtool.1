@@ -1,0 +1,74 @@
+.TH start_webtool 1 "webtool 0.8.9" "Ericsson AB" "User Commands"
+.SH NAME
+start_webtool \- WebTool Start Script
+.SH DESCRIPTION
+.LP
+The \fIstart_webtool\fR\& script starts WebTool, a WebTool application and a web browser pointing to this application\&.
+.SH EXPORTS
+.LP
+.B
+start_webtool application [ browser ]
+.br
+.RS
+.LP
+Starts WebTool, the given WebTool Application and a web browser pointing to this application\&.
+.LP
+If no argument is given, a list of available applications is displayed, e\&.g\&.
+.LP
+.nf
+
+>start_webtool
+Starting webtool...
+WebTool is available at http://localhost:8888/
+Or  http://127.0.0.1:8888/
+
+Usage: start_webtool application [ browser ]
+
+Available applications are: [orber,appmon,crashdump_viewer,webcover]
+Default browser is 'iexplore' (Internet Explorer) on Windows or else 'firefox'        
+.fi
+.LP
+To start any of the listed applications, give the application name as the first argument, e\&.g\&.
+.LP
+.nf
+
+>start_webtool webcover
+Starting webtool...
+WebTool is available at http://localhost:8888/
+Or  http://127.0.0.1:8888/
+Starting webcover...
+Sending URL to netscape...done        
+.fi
+.LP
+The WebTool application WebCover is then started and the default browser is used\&. The default browser is Internet Explorer on Windows or else Firefox\&.
+.LP
+To use another browser, give the browser\&'s start command as the second argument, e\&.g\&.
+.LP
+.nf
+
+>start_webtool webcover mozilla
+Starting webtool...
+WebTool is available at http://localhost:8888/
+Or  http://127.0.0.1:8888/
+Starting webcover...
+Sending URL to mozilla...done        
+.fi
+.LP
+If the given browser name is not known to WebTool, WebTool will run it as a command with the start URL as the only argument, e\&.g\&.
+.LP
+.nf
+
+>start_webtool webcover mybrowser
+Starting webtool...
+WebTool is available at http://localhost:8888/
+Or  http://127.0.0.1:8888/
+Starting webcover...
+Starting mybrowser...        
+.fi
+.LP
+Here the command \fI"mybrowser http://localhost:8888/webcover"\fR\& is executed\&.
+.RE
+.SH "SEE ALSO"
+
+.LP
+\fBwebtool(3)\fR\&

@@ -1,0 +1,231 @@
+.TH CosNotifyChannelAdmin_SupplierAdmin 3 "cosNotification 1.1.17" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+CosNotifyChannelAdmin_SupplierAdmin \- This module implements the OMG CosNotifyChannelAdmin::SupplierAdmin interface.
+.SH DESCRIPTION
+.LP
+To get access to the record definitions for the structures use: 
+.br
+\fI-include_lib("cosNotification/include/*\&.hrl")\&.\fR\&
+.LP
+This module also exports the functions described in:
+.RS 2
+.TP 2
+*
+\fBCosNotification_QoSAdmin\fR\&
+.LP
+.TP 2
+*
+\fBCosNotifyComm_NotifyPublish\fR\&
+.LP
+.TP 2
+*
+\fBCosNotifyFilter_FilterAdmin\fR\&
+.LP
+.RE
+
+.SH EXPORTS
+.LP
+.B
+_get_MyID(SupplierAdmin) -> AdminID
+.br
+.RS
+.TP 3
+Types:
+
+SupplierAdmin = #objref
+.br
+AdminID = long()
+.br
+.RE
+.RS
+.LP
+When a \fISupplierAdmin\fR\& object is created it is given a unique Id by the creating channel\&. This readonly attribute maintains this Id\&.
+.RE
+.LP
+.B
+_get_MyChannel(SupplierAdmin) -> Channel
+.br
+.RS
+.TP 3
+Types:
+
+SupplierAdmin = #objref
+.br
+Channel = #objref
+.br
+.RE
+.RS
+.LP
+The creating channel\&'s reference is maintained by this readonly attribute\&.
+.RE
+.LP
+.B
+_get_MyOperator(SupplierAdmin) -> OpType
+.br
+.RS
+.TP 3
+Types:
+
+SupplierAdmin = #objref
+.br
+OpType = 'AND_OP' | 'OR_OP'
+.br
+.RE
+.RS
+.LP
+The Operation Type, which determines the semantics the target object will use for any associated \fIFilters\fR\&, is maintained by this readonly attribute\&.
+.RE
+.LP
+.B
+_get_pull_consumers(SupplierAdmin) -> ProxyIDSeq
+.br
+.RS
+.TP 3
+Types:
+
+SupplierAdmin = #objref
+.br
+ProxyIDSeq = [ProxyID]
+.br
+ProxyID = long()
+.br
+.RE
+.RS
+.LP
+A sequence of all associated \fIPullProxy\fR\& Id\&'s is maintained by this readonly attribute\&.
+.RE
+.LP
+.B
+_get_push_consumers(SupplierAdmin) -> ProxyIDSeq
+.br
+.RS
+.TP 3
+Types:
+
+SupplierAdmin = #objref
+.br
+ProxyIDSeq = [ProxyID]
+.br
+ProxyID = long()
+.br
+.RE
+.RS
+.LP
+This operation returns all \fIPushProxy\fR\& Id\&'s created by the target object\&.
+.RE
+.LP
+.B
+get_proxy_consumer(SupplierAdmin, ProxyID) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+SupplierAdmin = #objref
+.br
+ProxyID = long()
+.br
+Reply = Proxy | {'EXCEPTION', #'CosNotifyChannelAdmin_ProxyNotFound'{}}
+.br
+Proxy = #objref
+.br
+.RE
+.RS
+.LP
+The Proxy which corresponds to the given Id is returned by this operation\&.
+.RE
+.LP
+.B
+obtain_notification_pull_consumer(SupplierAdmin, SupplierType) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+SupplierAdmin = #objref
+.br
+SupplierType = 'ANY_EVENT' | 'STRUCTURED_EVENT' | 'SEQUENCE_EVENT'
+.br
+Reply = {Proxy, ProxyID}
+.br
+Proxy = #objref
+.br
+ProxyID = long()
+.br
+.RE
+.RS
+.LP
+This operation creates a new proxy and returns its object reference along with its ID\&. The \fISupplierType\fR\& parameter determines the event type accepted by the proxy\&.
+.RE
+.LP
+.B
+obtain_pull_consumer(SupplierAdmin) -> Proxy
+.br
+.RS
+.TP 3
+Types:
+
+SupplierAdmin = #objref
+.br
+Proxy = #objref
+.br
+.RE
+.RS
+.LP
+A proxy which accepts \fI#any{}\fR\& events is created by this operation\&.
+.RE
+.LP
+.B
+obtain_notification_push_consumer(SupplierAdmin, SupplierType) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+SupplierAdmin = #objref
+.br
+SupplierType = 'ANY_EVENT' | 'STRUCTURED_EVENT' | 'SEQUENCE_EVENT'
+.br
+Reply = {Proxy, ProxyID}
+.br
+Proxy = #objref
+.br
+ProxyID = long()
+.br
+.RE
+.RS
+.LP
+Determined by the \fISupplierType\fR\& parameter a compliant proxy is created and its object reference along with its Id is returned by this operation\&.
+.RE
+.LP
+.B
+obtain_push_consumer(SupplierAdmin) -> Proxy
+.br
+.RS
+.TP 3
+Types:
+
+SupplierAdmin = #objref
+.br
+Proxy = #objref
+.br
+.RE
+.RS
+.LP
+A proxy which accepts \fI#any{}\fR\& events is created by this operation\&.
+.RE
+.LP
+.B
+destroy(SupplierAdmin) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+SupplierAdmin = #objref
+.br
+.RE
+.RS
+.LP
+This operation terminates the SupplierAdmin object and notifies the creating channel that the target object no longer is active\&.
+.RE

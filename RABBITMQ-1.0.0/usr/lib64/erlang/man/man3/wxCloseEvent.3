@@ -1,0 +1,91 @@
+.TH wxCloseEvent 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxCloseEvent \- See external documentation: wxCloseEvent.
+.SH DESCRIPTION
+.LP
+See external documentation: wxCloseEvent\&.
+.RS 2
+.TP 2
+.B
+Use \fBwxEvtHandler:connect/3\fR\& with EventType::
+\fIclose_window\fR\&, \fIend_session\fR\&, \fIquery_end_session\fR\&
+.RE
+.LP
+See also the message variant \fB#wxClose{\fR\&} event record type\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxEvent\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxCloseEvent()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+canVeto(This::wxCloseEvent()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getLoggingOff(This::wxCloseEvent()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setCanVeto(This::wxCloseEvent(), CanVeto::bool()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setLoggingOff(This::wxCloseEvent(), LogOff::bool()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+veto(This::wxCloseEvent()) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBveto(This, [])\fR\&\&.
+.RE
+.LP
+.B
+veto(This::wxCloseEvent(), Options::[Option]) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Option = {veto, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

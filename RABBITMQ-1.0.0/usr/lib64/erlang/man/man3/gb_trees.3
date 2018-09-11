@@ -1,0 +1,521 @@
+.TH gb_trees 3 "stdlib 1.17.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+gb_trees \- General Balanced Trees
+.SH DESCRIPTION
+.LP
+An efficient implementation of Prof\&. Arne Andersson\&'s General Balanced Trees\&. These have no storage overhead compared to unbalanced binary trees, and their performance is in general better than AVL trees\&.
+.LP
+This module considers two keys as different if and only if they do not compare equal (\fI==\fR\&)\&.
+.SH "DATA STRUCTURE"
+
+.LP
+Data structure:
+.LP
+.nf
+
+      
+- {Size, Tree}, where `Tree' is composed of nodes of the form:
+  - {Key, Value, Smaller, Bigger}, and the "empty tree" node:
+  - nil.
+.fi
+.LP
+There is no attempt to balance trees after deletions\&. Since deletions do not increase the height of a tree, this should be OK\&.
+.LP
+Original balance condition \fIh(T) <= ceil(c * log(|T|))\fR\& has been changed to the similar (but not quite equivalent) condition \fI2 ^ h(T) <= |T| ^ c\fR\&\&. This should also be OK\&.
+.LP
+Performance is comparable to the AVL trees in the Erlang book (and faster in general due to less overhead); the difference is that deletion works for these trees, but not for the book\&'s trees\&. Behaviour is logarithmic (as it should be)\&.
+.SH DATA TYPES
+.nf
+
+.B
+\fBgb_tree()\fR\&
+.br
+.fi
+.RS
+.LP
+A GB tree\&.
+.RE
+.nf
+
+\fBiter()\fR\&
+.br
+.fi
+.RS
+.LP
+A GB tree iterator\&.
+.RE
+.SH EXPORTS
+.LP
+.nf
+
+.B
+balance(Tree1) -> Tree2
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Tree1 = Tree2 = gb_tree()
+.br
+.RE
+.RS
+.LP
+Rebalances \fITree1\fR\&\&. Note that this is rarely necessary, but may be motivated when a large number of nodes have been deleted from the tree without further insertions\&. Rebalancing could then be forced in order to minimise lookup times, since deletion only does not rebalance the tree\&.
+.RE
+.LP
+.nf
+
+.B
+delete(Key, Tree1) -> Tree2
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Key = term()
+.br
+Tree1 = Tree2 = gb_tree()
+.br
+.RE
+.RS
+.LP
+Removes the node with key \fIKey\fR\& from \fITree1\fR\&; returns new tree\&. Assumes that the key is present in the tree, crashes otherwise\&.
+.RE
+.LP
+.nf
+
+.B
+delete_any(Key, Tree1) -> Tree2
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Key = term()
+.br
+Tree1 = Tree2 = gb_tree()
+.br
+.RE
+.RS
+.LP
+Removes the node with key \fIKey\fR\& from \fITree1\fR\& if the key is present in the tree, otherwise does nothing; returns new tree\&.
+.RE
+.LP
+.nf
+
+.B
+empty() -> gb_tree()
+.br
+.fi
+.br
+.RS
+.LP
+Returns a new empty tree
+.RE
+.LP
+.nf
+
+.B
+enter(Key, Val, Tree1) -> Tree2
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Key = Val = term()
+.br
+Tree1 = Tree2 = gb_tree()
+.br
+.RE
+.RS
+.LP
+Inserts \fIKey\fR\& with value \fIVal\fR\& into \fITree1\fR\& if the key is not present in the tree, otherwise updates \fIKey\fR\& to value \fIVal\fR\& in \fITree1\fR\&\&. Returns the new tree\&.
+.RE
+.LP
+.nf
+
+.B
+from_orddict(List) -> Tree
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+List = [{Key :: term(), Val :: term()}]
+.br
+Tree = gb_tree()
+.br
+.RE
+.RS
+.LP
+Turns an ordered list \fIList\fR\& of key-value tuples into a tree\&. The list must not contain duplicate keys\&.
+.RE
+.LP
+.nf
+
+.B
+get(Key, Tree) -> Val
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Key = term()
+.br
+Tree = gb_tree()
+.br
+Val = term()
+.br
+.RE
+.RS
+.LP
+Retrieves the value stored with \fIKey\fR\& in \fITree\fR\&\&. Assumes that the key is present in the tree, crashes otherwise\&.
+.RE
+.LP
+.nf
+
+.B
+lookup(Key, Tree) -> none | {value, Val}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Key = Val = term()
+.br
+Tree = gb_tree()
+.br
+.RE
+.RS
+.LP
+Looks up \fIKey\fR\& in \fITree\fR\&; returns \fI{value, Val}\fR\&, or \fInone\fR\& if \fIKey\fR\& is not present\&.
+.RE
+.LP
+.nf
+
+.B
+insert(Key, Val, Tree1) -> Tree2
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Key = Val = term()
+.br
+Tree1 = Tree2 = gb_tree()
+.br
+.RE
+.RS
+.LP
+Inserts \fIKey\fR\& with value \fIVal\fR\& into \fITree1\fR\&; returns the new tree\&. Assumes that the key is not present in the tree, crashes otherwise\&.
+.RE
+.LP
+.nf
+
+.B
+is_defined(Key, Tree) -> boolean()
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Key = term()
+.br
+Tree = gb_tree()
+.br
+.RE
+.RS
+.LP
+Returns \fItrue\fR\& if \fIKey\fR\& is present in \fITree\fR\&, otherwise \fIfalse\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+is_empty(Tree) -> boolean()
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Tree = gb_tree()
+.br
+.RE
+.RS
+.LP
+Returns \fItrue\fR\& if \fITree\fR\& is an empty tree, and \fIfalse\fR\& otherwise\&.
+.RE
+.LP
+.nf
+
+.B
+iterator(Tree) -> Iter
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Tree = gb_tree()
+.br
+Iter = \fBiter()\fR\&
+.br
+.RE
+.RS
+.LP
+Returns an iterator that can be used for traversing the entries of \fITree\fR\&; see \fInext/1\fR\&\&. The implementation of this is very efficient; traversing the whole tree using \fInext/1\fR\& is only slightly slower than getting the list of all elements using \fIto_list/1\fR\& and traversing that\&. The main advantage of the iterator approach is that it does not require the complete list of all elements to be built in memory at one time\&.
+.RE
+.LP
+.nf
+
+.B
+keys(Tree) -> [Key]
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Tree = gb_tree()
+.br
+Key = term()
+.br
+.RE
+.RS
+.LP
+Returns the keys in \fITree\fR\& as an ordered list\&.
+.RE
+.LP
+.nf
+
+.B
+largest(Tree) -> {Key, Val}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Tree = gb_tree()
+.br
+Key = Val = term()
+.br
+.RE
+.RS
+.LP
+Returns \fI{Key, Val}\fR\&, where \fIKey\fR\& is the largest key in \fITree\fR\&, and \fIVal\fR\& is the value associated with this key\&. Assumes that the tree is nonempty\&.
+.RE
+.LP
+.nf
+
+.B
+map(Function, Tree1) -> Tree2
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Function = fun((K :: term(), V1 :: term()) -> V2 :: term())
+.br
+Tree1 = Tree2 = gb_tree()
+.br
+.RE
+.RS
+.LP
+Maps the function F(K, V1) -> V2 to all key-value pairs of the tree \fITree1\fR\& and returns a new tree \fITree2\fR\& with the same set of keys as \fITree1\fR\& and the new set of values \fIV2\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+next(Iter1) -> none | {Key, Val, Iter2}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Iter1 = Iter2 = \fBiter()\fR\&
+.br
+Key = Val = term()
+.br
+.RE
+.RS
+.LP
+Returns \fI{Key, Val, Iter2}\fR\& where \fIKey\fR\& is the smallest key referred to by the iterator \fIIter1\fR\&, and \fIIter2\fR\& is the new iterator to be used for traversing the remaining nodes, or the atom \fInone\fR\& if no nodes remain\&.
+.RE
+.LP
+.nf
+
+.B
+size(Tree) -> integer() >= 0
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Tree = gb_tree()
+.br
+.RE
+.RS
+.LP
+Returns the number of nodes in \fITree\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+smallest(Tree) -> {Key, Val}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Tree = gb_tree()
+.br
+Key = Val = term()
+.br
+.RE
+.RS
+.LP
+Returns \fI{Key, Val}\fR\&, where \fIKey\fR\& is the smallest key in \fITree\fR\&, and \fIVal\fR\& is the value associated with this key\&. Assumes that the tree is nonempty\&.
+.RE
+.LP
+.nf
+
+.B
+take_largest(Tree1) -> {Key, Val, Tree2}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Tree1 = Tree2 = gb_tree()
+.br
+Key = Val = term()
+.br
+.RE
+.RS
+.LP
+Returns \fI{Key, Val, Tree2}\fR\&, where \fIKey\fR\& is the largest key in \fITree1\fR\&, \fIVal\fR\& is the value associated with this key, and \fITree2\fR\& is this tree with the corresponding node deleted\&. Assumes that the tree is nonempty\&.
+.RE
+.LP
+.nf
+
+.B
+take_smallest(Tree1) -> {Key, Val, Tree2}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Tree1 = Tree2 = gb_tree()
+.br
+Key = Val = term()
+.br
+.RE
+.RS
+.LP
+Returns \fI{Key, Val, Tree2}\fR\&, where \fIKey\fR\& is the smallest key in \fITree1\fR\&, \fIVal\fR\& is the value associated with this key, and \fITree2\fR\& is this tree with the corresponding node deleted\&. Assumes that the tree is nonempty\&.
+.RE
+.LP
+.nf
+
+.B
+to_list(Tree) -> [{Key, Val}]
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Tree = gb_tree()
+.br
+Key = Val = term()
+.br
+.RE
+.RS
+.LP
+Converts a tree into an ordered list of key-value tuples\&.
+.RE
+.LP
+.nf
+
+.B
+update(Key, Val, Tree1) -> Tree2
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Key = Val = term()
+.br
+Tree1 = Tree2 = gb_tree()
+.br
+.RE
+.RS
+.LP
+Updates \fIKey\fR\& to value \fIVal\fR\& in \fITree1\fR\&; returns the new tree\&. Assumes that the key is present in the tree\&.
+.RE
+.LP
+.nf
+
+.B
+values(Tree) -> [Val]
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Tree = gb_tree()
+.br
+Val = term()
+.br
+.RE
+.RS
+.LP
+Returns the values in \fITree\fR\& as an ordered list, sorted by their corresponding keys\&. Duplicates are not removed\&.
+.RE
+.SH "SEE ALSO"
+
+.LP
+\fBgb_sets(3)\fR\&, \fBdict(3)\fR\&

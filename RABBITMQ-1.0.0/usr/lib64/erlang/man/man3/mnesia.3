@@ -1,0 +1,2235 @@
+.TH mnesia 3 "mnesia 4.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+mnesia \- A Distributed Telecommunications DBMS 
+.SH DESCRIPTION
+.LP
+\fIMnesia\fR\& is a distributed DataBase Management System (DBMS), appropriate for telecommunications applications and other Erlang applications which require continuous operation and exhibit soft real-time properties\&.
+.LP
+Listed below are some of the most important and attractive capabilities, Mnesia provides:
+.RS 2
+.TP 2
+*
+A relational/object hybrid data model which is suitable for telecommunications applications\&.
+.LP
+.TP 2
+*
+A specifically designed DBMS query language, QLC (as an add-on library)\&.
+.LP
+.TP 2
+*
+Persistence\&. Tables may be coherently kept on disc as well as in main memory\&.
+.LP
+.TP 2
+*
+Replication\&. Tables may be replicated at several nodes\&.
+.LP
+.TP 2
+*
+Atomic transactions\&. A series of table manipulation operations can be grouped into a single atomic transaction\&.
+.LP
+.TP 2
+*
+Location transparency\&. Programs can be written without knowledge of the actual location of data\&.
+.LP
+.TP 2
+*
+Extremely fast real time data searches\&.
+.LP
+.TP 2
+*
+Schema manipulation routines\&. It is possible to reconfigure the DBMS at runtime without stopping the system\&.
+.LP
+.RE
+
+.LP
+This Reference Manual describes the Mnesia API\&. This includes functions used to define and manipulate Mnesia tables\&.
+.LP
+All functions documented in these pages can be used in any combination with queries using the list comprehension notation\&. The query notation is described in the QLC\&'s man page\&.
+.LP
+Data in Mnesia is organized as a set of tables\&. Each table has a name which must be an atom\&. Each table is made up of Erlang records\&. The user is responsible for the record definitions\&. Each table also has a set of properties\&. Below are some of the properties that are associated with each table:
+.RS 2
+.TP 2
+*
+\fItype\fR\&\&. Each table can either have \&'set\&', \&'ordered_set\&' or \&'bag\&' semantics\&. Note: currently \&'ordered_set\&' is not supported for \&'disc_only_copies\&'\&. If a table is of type \&'set\&' it means that each key leads to either one or zero records\&. 
+.br
+If a new item is inserted with the same key as an existing record, the old record is overwritten\&. On the other hand, if a table is of type \&'bag\&', each key can map to several records\&. However, all records in type bag tables are unique, only the keys may be duplicated\&.
+.LP
+.TP 2
+*
+\fIrecord_name\fR\&\&. All records stored in a table must have the same name\&. You may say that the records must be instances of the same record type\&.
+.LP
+.TP 2
+*
+\fIram_copies\fR\& A table can be replicated on a number of Erlang nodes\&. The \fIram_copies\fR\& property specifies a list of Erlang nodes where RAM copies are kept\&. These copies can be dumped to disc at regular intervals\&. However, updates to these copies are not written to disc on a transaction basis\&.
+.LP
+.TP 2
+*
+\fIdisc_copies\fR\& The \fIdisc_copies\fR\& property specifies a list of Erlang nodes where the table is kept in RAM as well as on disc\&. All updates of the table are performed on the actual table and are also logged to disc\&. If a table is of type \fIdisc_copies\fR\& at a certain node, it means that the entire table is resident in RAM memory as well as on disc\&. Each transaction performed on the table is appended to a LOG file as well as written into the RAM table\&.
+.LP
+.TP 2
+*
+\fIdisc_only_copies\fR\& Some, or all, table replicas can be kept on disc only\&. These replicas are considerably slower than the RAM based replicas\&.
+.LP
+.TP 2
+*
+\fIindex\fR\& This is a list of attribute names, or integers, which specify the tuple positions on which Mnesia shall build and maintain an extra index table\&.
+.LP
+.TP 2
+*
+\fIlocal_content\fR\& When an application requires tables whose contents is local to each node, \fIlocal_content\fR\& tables may be used\&. The name of the table is known to all Mnesia nodes, but its contents is unique on each node\&. This means that access to such a table must be done locally\&. Set the \fIlocal_content\fR\& field to \fItrue\fR\& if you want to enable the \fIlocal_content\fR\& behavior\&. The default is \fIfalse\fR\&\&.
+.LP
+.TP 2
+*
+\fImajority\fR\& This attribute can be either \fItrue\fR\& or \fIfalse\fR\& (default is \fIfalse\fR\&)\&. When \fItrue\fR\&, a majority of the table replicas must be available for an update to succeed\&. Majority checking can be enabled on tables with mission-critical data, where it is vital to avoid inconsistencies due to network splits\&.
+.LP
+.TP 2
+*
+\fIsnmp\fR\& Each (set based) Mnesia table can be automatically turned into an SNMP ordered table as well\&. This property specifies the types of the SNMP keys\&.
+.LP
+.TP 2
+*
+\fIattributes\fR\&\&. The names of the attributes for the records that are inserted in the table\&.
+.LP
+.RE
+
+.LP
+See \fImnesia:create_table/2\fR\& about the complete set of table properties and their details\&.
+.LP
+This document uses a table of persons to illustrate various examples\&. The following record definition is assumed:
+.LP
+.nf
+
+-record(person, {name,
+                 age = 0,
+                 address = unknown,
+                 salary = 0,
+                 children = []}),
+    
+.fi
+.LP
+The first attribute of the record is the primary key, or key for short\&.
+.LP
+The function descriptions are sorted in alphabetic order\&. \fIHint:\fR\& start to read about \fImnesia:create_table/2\fR\&, \fImnesia:lock/2\fR\& and \fImnesia:activity/4\fR\& before you continue on and learn about the rest\&.
+.LP
+Writing or deleting in transaction context creates a local copy of each modified record during the transaction\&. During iteration, i\&.e\&. \fImnesia:fold[lr]/4\fR\& \fImnesia:next/2\fR\& \fImnesia:prev/2\fR\& \fImnesia:snmp_get_next_index/2\fR\&, mnesia will compensate for every written or deleted record, which may reduce the performance\&. If possible avoid writing or deleting records in the same transaction before iterating over the table\&.
+.SH EXPORTS
+.LP
+.B
+abort(Reason) -> transaction abort 
+.br
+.RS
+.LP
+Makes the transaction silently return the tuple \fI{aborted, Reason}\fR\&\&. The abortion of a Mnesia transaction means that an exception will be thrown to an enclosing \fIcatch\fR\&\&. Thus, the expression \fIcatch mnesia:abort(x)\fR\& does not abort the transaction\&.
+.RE
+.LP
+.B
+activate_checkpoint(Args) -> {ok,Name,Nodes} | {error,Reason}
+.br
+.RS
+.LP
+A checkpoint is a consistent view of the system\&. A checkpoint can be activated on a set of tables\&. This checkpoint can then be traversed and will present a view of the system as it existed at the time when the checkpoint was activated, even if the tables are being or have been manipulated\&.
+.LP
+\fIArgs\fR\& is a list of the following tuples:
+.RS 2
+.TP 2
+*
+\fI{name,Name}\fR\&\&. \fIName\fR\& of checkpoint\&. Each checkpoint must have a name which is unique to the associated nodes\&. The name can be reused only once the checkpoint has been deactivated\&. By default, a name which is probably unique is generated\&.
+.LP
+.TP 2
+*
+\fI{max,MaxTabs}\fR\&\&. \fIMaxTabs\fR\& is a list of tables that should be included in the checkpoint\&. The default is []\&. For these tables, the redundancy will be maximized and checkpoint information will be retained together with all replicas\&. The checkpoint becomes more fault tolerant if the tables have several replicas\&. When a new replica is added by means of the schema manipulation function \fImnesia:add_table_copy/3\fR\&, a retainer will also be attached automatically\&.
+.LP
+.TP 2
+*
+\fI{min,MinTabs}\fR\&\&. \fIMinTabs\fR\& is a list of tables that should be included in the checkpoint\&. The default is []\&. For these tables, the redundancy will be minimized and the checkpoint information will only be retained with one replica, preferably on the local node\&.
+.LP
+.TP 2
+*
+\fI{allow_remote,Bool}\fR\&\&. \fIfalse\fR\& means that all retainers must be local\&. The checkpoint cannot be activated if a table does not reside locally\&. \fItrue\fR\& allows retainers to be allocated on any node\&. Default is set to \fItrue\fR\&\&.
+.LP
+.TP 2
+*
+\fI{ram_overrides_dump,Bool}\fR\&\&. Only applicable for \fIram_copies\fR\&\&. \fIBool\fR\& allows you to choose to backup the table state as it is in RAM, or as it is on disc\&. \fItrue\fR\& means that the latest committed records in RAM should be included in the checkpoint\&. These are the records that the application accesses\&. \fIfalse\fR\& means that the records dumped to DAT files should be included in the checkpoint\&. These are the records that will be loaded at startup\&. Default is \fIfalse\fR\&\&.
+.LP
+.RE
+
+.LP
+Returns \fI{ok,Name,Nodes}\fR\& or \fI{error,Reason}\fR\&\&. \fIName\fR\& is the (possibly generated) name of the checkpoint\&. \fINodes\fR\& are the nodes that are involved in the checkpoint\&. Only nodes that keep a checkpoint retainer know about the checkpoint\&.
+.RE
+.LP
+.B
+activity(AccessContext, Fun [, Args]) -> ResultOfFun | exit(Reason)
+.br
+.RS
+.LP
+Invokes \fImnesia:activity(AccessContext, Fun, Args, AccessMod)\fR\& where \fIAccessMod\fR\& is the default access callback module obtained by \fImnesia:system_info(access_module)\fR\&\&. \fIArgs\fR\& defaults to the empty list \fI[]\fR\&\&.
+.RE
+.LP
+.B
+activity(AccessContext, Fun, Args, AccessMod) -> ResultOfFun | exit(Reason)
+.br
+.RS
+.LP
+This function executes the functional object \fIFun\fR\& with the arguments \fIArgs\fR\&\&.
+.LP
+The code which executes inside the activity can consist of a series of table manipulation functions, which is performed in a \fIAccessContext\fR\&\&. Currently, the following access contexts are supported:
+.RS 2
+.TP 2
+.B
+\fItransaction\fR\&:
+Short for \fI{transaction, infinity}\fR\&
+.TP 2
+.B
+\fI{transaction, Retries}\fR\&:
+Invokes \fImnesia:transaction(Fun, Args, Retries)\fR\&\&. Note that the result from the \fIFun\fR\& is returned if the transaction was successful (atomic), otherwise the function exits with an abort reason\&.
+.TP 2
+.B
+\fIsync_transaction\fR\&:
+Short for \fI{sync_transaction, infinity}\fR\&
+.TP 2
+.B
+\fI{sync_transaction, Retries}\fR\&:
+Invokes \fImnesia:sync_transaction(Fun, Args, Retries)\fR\&\&. Note that the result from the \fIFun\fR\& is returned if the transaction was successful (atomic), otherwise the function exits with an abort reason\&.
+.TP 2
+.B
+\fIasync_dirty\fR\&:
+Invokes \fImnesia:async_dirty(Fun, Args)\fR\&\&.
+.TP 2
+.B
+\fIsync_dirty\fR\&:
+Invokes \fImnesia:sync_dirty(Fun, Args)\fR\&\&.
+.TP 2
+.B
+\fIets\fR\&:
+Invokes \fImnesia:ets(Fun, Args)\fR\&\&.
+.RE
+.LP
+This function (\fImnesia:activity/4\fR\&) differs in an important aspect from the \fImnesia:transaction\fR\&, \fImnesia:sync_transaction\fR\&, \fImnesia:async_dirty\fR\&, \fImnesia:sync_dirty\fR\& and \fImnesia:ets\fR\& functions\&. The \fIAccessMod\fR\& argument is the name of a callback module which implements the \fImnesia_access\fR\& behavior\&.
+.LP
+Mnesia will forward calls to the following functions:
+.RS 2
+.TP 2
+*
+mnesia:lock/2 (read_lock_table/1, write_lock_table/1)
+.LP
+.TP 2
+*
+mnesia:write/3 (write/1, s_write/1)
+.LP
+.TP 2
+*
+mnesia:delete/3 (delete/1, s_delete/1)
+.LP
+.TP 2
+*
+mnesia:delete_object/3 (delete_object/1, s_delete_object/1)
+.LP
+.TP 2
+*
+mnesia:read/3 (read/1, wread/1)
+.LP
+.TP 2
+*
+mnesia:match_object/3 (match_object/1)
+.LP
+.TP 2
+*
+mnesia:all_keys/1
+.LP
+.TP 2
+*
+mnesia:first/1
+.LP
+.TP 2
+*
+mnesia:last/1
+.LP
+.TP 2
+*
+mnesia:prev/2
+.LP
+.TP 2
+*
+mnesia:next/2
+.LP
+.TP 2
+*
+mnesia:index_match_object/4 (index_match_object/2)
+.LP
+.TP 2
+*
+mnesia:index_read/3
+.LP
+.TP 2
+*
+mnesia:table_info/2
+.LP
+.RE
+
+.LP
+to the corresponding:
+.RS 2
+.TP 2
+*
+AccessMod:lock(ActivityId, Opaque, LockItem, LockKind)
+.LP
+.TP 2
+*
+AccessMod:write(ActivityId, Opaque, Tab, Rec, LockKind)
+.LP
+.TP 2
+*
+AccessMod:delete(ActivityId, Opaque, Tab, Key, LockKind)
+.LP
+.TP 2
+*
+AccessMod:delete_object(ActivityId, Opaque, Tab, RecXS, LockKind)
+.LP
+.TP 2
+*
+AccessMod:read(ActivityId, Opaque, Tab, Key, LockKind)
+.LP
+.TP 2
+*
+AccessMod:match_object(ActivityId, Opaque, Tab, Pattern, LockKind)
+.LP
+.TP 2
+*
+AccessMod:all_keys(ActivityId, Opaque, Tab, LockKind)
+.LP
+.TP 2
+*
+AccessMod:first(ActivityId, Opaque, Tab)
+.LP
+.TP 2
+*
+AccessMod:last(ActivityId, Opaque, Tab)
+.LP
+.TP 2
+*
+AccessMod:prev(ActivityId, Opaque, Tab, Key)
+.LP
+.TP 2
+*
+AccessMod:next(ActivityId, Opaque, Tab, Key)
+.LP
+.TP 2
+*
+AccessMod:index_match_object(ActivityId, Opaque, Tab, Pattern, Attr, LockKind)
+.LP
+.TP 2
+*
+AccessMod:index_read(ActivityId, Opaque, Tab, SecondaryKey, Attr, LockKind)
+.LP
+.TP 2
+*
+AccessMod:table_info(ActivityId, Opaque, Tab, InfoItem)
+.LP
+.RE
+
+.LP
+where \fIActivityId\fR\& is a record which represents the identity of the enclosing Mnesia activity\&. The first field (obtained with \fIelement(1, ActivityId)\fR\& contains an atom which may be interpreted as the type of the activity: \fI\&'ets\&'\fR\&, \fI\&'async_dirty\&'\fR\&, \fI\&'sync_dirty\&'\fR\& or \fI\&'tid\&'\fR\&\&. \fI\&'tid\&'\fR\& means that the activity is a transaction\&. The structure of the rest of the identity record is internal to Mnesia\&.
+.LP
+\fIOpaque\fR\& is an opaque data structure which is internal to Mnesia\&.
+.RE
+.LP
+.B
+add_table_copy(Tab, Node, Type) -> {aborted, R} | {atomic, ok}
+.br
+.RS
+.LP
+This function makes another copy of a table at the node \fINode\fR\&\&. The \fIType\fR\& argument must be either of the atoms \fIram_copies\fR\&, \fIdisc_copies\fR\&, or \fIdisc_only_copies\fR\&\&. For example, the following call ensures that a disc replica of the \fIperson\fR\& table also exists at node \fINode\fR\&\&.
+.LP
+.nf
+
+mnesia:add_table_copy(person, Node, disc_copies)
+        
+.fi
+.LP
+This function can also be used to add a replica of the table named \fIschema\fR\&\&.
+.RE
+.LP
+.B
+add_table_index(Tab, AttrName) -> {aborted, R} | {atomic, ok}
+.br
+.RS
+.LP
+Table indices can and should be used whenever the user wants to frequently use some other field than the key field to look up records\&. If this other field has an index associated with it, these lookups can occur in constant time and space\&. For example, if our application wishes to use the age field of persons to efficiently find all person with a specific age, it might be a good idea to have an index on the age field\&. This can be accomplished with the following call:
+.LP
+.nf
+
+mnesia:add_table_index(person, age)
+        
+.fi
+.LP
+Indices do not come free, they occupy space which is proportional to the size of the table\&. They also cause insertions into the table to execute slightly slower\&.
+.RE
+.LP
+.B
+all_keys(Tab) -> KeyList | transaction abort
+.br
+.RS
+.LP
+This function returns a list of all keys in the table named \fITab\fR\&\&. The semantics of this function is context sensitive\&. See \fImnesia:activity/4\fR\& for more information\&. In transaction context it acquires a read lock on the entire table\&.
+.RE
+.LP
+.B
+async_dirty(Fun, [, Args]) -> ResultOfFun | exit(Reason)
+.br
+.RS
+.LP
+Call the \fIFun\fR\& in a context which is not protected by a transaction\&. The Mnesia function calls performed in the \fIFun\fR\& are mapped to the corresponding dirty functions\&. This still involves logging, replication and subscriptions, but there is no locking, local transaction storage, or commit protocols involved\&. Checkpoint retainers and indices are updated, but they will be updated dirty\&. As for normal mnesia:dirty_* operations, the operations are performed semi-asynchronously\&. See \fImnesia:activity/4\fR\& and the Mnesia User\&'s Guide for more details\&.
+.LP
+It is possible to manipulate the Mnesia tables without using transactions\&. This has some serious disadvantages, but is considerably faster since the transaction manager is not involved and no locks are set\&. A dirty operation does, however, guarantee a certain level of consistency and it is not possible for the dirty operations to return garbled records\&. All dirty operations provide location transparency to the programmer and a program does not have to be aware of the whereabouts of a certain table in order to function\&.
+.LP
+\fINote:\fR\&It is more than 10 times more efficient to read records dirty than within a transaction\&.
+.LP
+Depending on the application, it may be a good idea to use the dirty functions for certain operations\&. Almost all Mnesia functions which can be called within transactions have a dirty equivalent which is much more efficient\&. However, it must be noted that it is possible for the database to be left in an inconsistent state if dirty operations are used to update it\&. Dirty operations should only be used for performance reasons when it is absolutely necessary\&.
+.LP
+\fINote:\fR\& Calling (nesting) a \fImnesia:[a]sync_dirty\fR\& inside a transaction context will inherit the transaction semantics\&.
+.RE
+.LP
+.B
+backup(Opaque [, BackupMod]) -> ok | {error,Reason}
+.br
+.RS
+.LP
+Activates a new checkpoint covering all Mnesia tables, including the schema, with maximum degree of redundancy and performs a backup using \fIbackup_checkpoint/2/3\fR\&\&. The default value of the backup callback module \fIBackupMod\fR\& is obtained by \fImnesia:system_info(backup_module)\fR\&\&.
+.RE
+.LP
+.B
+backup_checkpoint(Name, Opaque [, BackupMod]) -> ok | {error,Reason}
+.br
+.RS
+.LP
+The tables are backed up to external media using the backup module \fIBackupMod\fR\&\&. Tables with the local contents property is being backed up as they exist on the current node\&. \fIBackupMod\fR\& is the default backup callback module obtained by \fImnesia:system_info(backup_module)\fR\&\&. See the User\&'s Guide about the exact callback interface (the \fImnesia_backup behavior\fR\&)\&.
+.RE
+.LP
+.B
+change_config(Config, Value) -> {error, Reason} | {ok, ReturnValue}
+.br
+.RS
+.LP
+The \fIConfig\fR\& should be an atom of the following configuration parameters:
+.RS 2
+.TP 2
+.B
+\fIextra_db_nodes\fR\&:
+\fIValue\fR\& is a list of nodes which Mnesia should try to connect to\&. The \fIReturnValue\fR\& will be those nodes in \fIValue\fR\& that Mnesia are connected to\&. 
+.br
+Note: This function shall only be used to connect to newly started ram nodes (N\&.D\&.R\&.S\&.N\&.) with an empty schema\&. If for example it is used after the network have been partitioned it may lead to inconsistent tables\&. 
+.br
+Note: Mnesia may be connected to other nodes than those returned in \fIReturnValue\fR\&\&.
+.TP 2
+.B
+\fIdc_dump_limit\fR\&:
+\fIValue\fR\& is a number\&. See description in \fIConfiguration Parameters\fR\& below\&. The \fIReturnValue\fR\& is the new value\&. Note this configuration parameter is not persistent, it will be lost when mnesia stopped\&.
+.RE
+.RE
+.LP
+.B
+change_table_access_mode(Tab, AccessMode) -> {aborted, R} | {atomic, ok}
+.br
+.RS
+.LP
+The \fIAcccessMode\fR\& is by default the atom \fIread_write\fR\& but it may also be set to the atom \fIread_only\fR\&\&. If the \fIAccessMode\fR\& is set to \fIread_only\fR\&, it means that it is not possible to perform updates to the table\&. At startup Mnesia always loads \fIread_only\fR\& tables locally regardless of when and if Mnesia was terminated on other nodes\&.
+.RE
+.LP
+.B
+change_table_copy_type(Tab, Node, To) -> {aborted, R} | {atomic, ok}
+.br
+.RS
+.LP
+For example:
+.LP
+.nf
+
+mnesia:change_table_copy_type(person, node(), disc_copies)
+        
+.fi
+.LP
+Transforms our \fIperson\fR\& table from a RAM table into a disc based table at \fINode\fR\&\&.
+.LP
+This function can also be used to change the storage type of the table named \fIschema\fR\&\&. The schema table can only have \fIram_copies\fR\& or \fIdisc_copies\fR\& as the storage type\&. If the storage type of the schema is \fIram_copies\fR\&, no other table can be disc resident on that node\&.
+.RE
+.LP
+.B
+change_table_load_order(Tab, LoadOrder) -> {aborted, R} | {atomic, ok}
+.br
+.RS
+.LP
+The \fILoadOrder\fR\& priority is by default \fI0\fR\& (zero) but may be set to any integer\&. The tables with the highest \fILoadOrder\fR\& priority will be loaded first at startup\&.
+.RE
+.LP
+.B
+change_table_majority(Tab, Majority) -> {aborted, R} | {atomic, ok}
+.br
+.RS
+.LP
+\fIMajority\fR\& must be a boolean; the default is \fIfalse\fR\&\&. When \fItrue\fR\&, a majority of the table\&'s replicas must be available for an update to succeed\&. When used on fragmented tables, \fITab\fR\& must be the name base table\&. Directly changing the majority setting on individual fragments is not allowed\&.
+.RE
+.LP
+.B
+clear_table(Tab) -> {aborted, R} | {atomic, ok}
+.br
+.RS
+.LP
+Deletes all entries in the table \fITab\fR\&\&.
+.RE
+.LP
+.B
+create_schema(DiscNodes) -> ok | {error,Reason}
+.br
+.RS
+.LP
+Creates a new database on disc\&. Various files are created in the local Mnesia directory of each node\&. Note that the directory must be unique for each node\&. Two nodes may never share the same directory\&. If possible, use a local disc device in order to improve performance\&.
+.LP
+\fImnesia:create_schema/1\fR\& fails if any of the Erlang nodes given as \fIDiscNodes\fR\& are not alive, if Mnesia is running on anyone of the nodes, or if anyone of the nodes already has a schema\&. Use \fImnesia:delete_schema/1\fR\& to get rid of old faulty schemas\&.
+.LP
+\fINote:\fR\& Only nodes with disc should be included in \fIDiscNodes\fR\&\&. Disc-less nodes, that is nodes where all tables including the schema only resides in RAM, may not be included\&.
+.RE
+.LP
+.B
+create_table(Name, TabDef) -> {atomic, ok} | {aborted, Reason}
+.br
+.RS
+.LP
+This function creates a Mnesia table called \fIName\fR\& according to the argument \fITabDef\fR\&\&. This list must be a list of \fI{Item, Value}\fR\& tuples, where the following values are allowed:
+.RS 2
+.TP 2
+*
+\fI{access_mode, Atom}\fR\&\&. The access mode is by default the atom \fIread_write\fR\& but it may also be set to the atom \fIread_only\fR\&\&. If the \fIAccessMode\fR\& is set to \fIread_only\fR\&, it means that it is not possible to perform updates to the table\&.
+.RS 2
+.LP
+At startup Mnesia always loads \fIread_only\fR\& tables locally regardless of when and if Mnesia was terminated on other nodes\&. This argument returns the access mode of the table\&. The access mode may either be read_only or read_write\&.
+.RE
+.LP
+.TP 2
+*
+\fI{attributes, AtomList}\fR\& a list of the attribute names for the records that are supposed to populate the table\&. The default value is \fI[key, val]\fR\&\&. The table must have at least one extra attribute in addition to the key\&.
+.RS 2
+.LP
+When accessing single attributes in a record, it is not necessary, or even recommended, to hard code any attribute names as atoms\&. Use the construct \fIrecord_info(fields, RecordName)\fR\& instead\&. It can be used for records of type \fIRecordName\fR\&
+.RE
+.LP
+.TP 2
+*
+\fI{disc_copies, Nodelist}\fR\&, where \fINodelist\fR\& is a list of the nodes where this table is supposed to have disc copies\&. If a table replica is of type \fIdisc_copies\fR\&, all write operations on this particular replica of the table are written to disc as well as to the RAM copy of the table\&.
+.RS 2
+.LP
+It is possible to have a replicated table of type \fIdisc_copies\fR\& on one node, and another type on another node\&. The default value is \fI[]\fR\&
+.RE
+.LP
+.TP 2
+*
+\fI{disc_only_copies, Nodelist}\fR\&, where \fINodelist\fR\& is a list of the nodes where this table is supposed to have \fIdisc_only_copies\fR\&\&. A disc only table replica is kept on disc only and unlike the other replica types, the contents of the replica will not reside in RAM\&. These replicas are considerably slower than replicas held in RAM\&.
+.LP
+.TP 2
+*
+\fI{index, Intlist}\fR\&, where \fIIntlist\fR\& is a list of attribute names (atoms) or record fields for which Mnesia shall build and maintain an extra index table\&. The \fIqlc\fR\& query compiler may or may not utilize any additional indices while processing queries on a table\&.
+.LP
+.TP 2
+*
+\fI{load_order, Integer}\fR\&\&. The load order priority is by default \fI0\fR\& (zero) but may be set to any integer\&. The tables with the highest load order priority will be loaded first at startup\&.
+.LP
+.TP 2
+*
+\fI{majority, Flag}\fR\&, where \fIFlag\fR\& must be a boolean\&. If \fItrue\fR\&, any (non-dirty) update to the table will abort unless a majority of the table\&'s replicas are available for the commit\&. When used on a fragmented table, all fragments will be given the same majority setting\&.
+.LP
+.TP 2
+*
+\fI{ram_copies, Nodelist}\fR\&, where \fINodelist\fR\& is a list of the nodes where this table is supposed to have RAM copies\&. A table replica of type \fIram_copies\fR\& is obviously not written to disc on a per transaction basis\&. It is possible to dump \fIram_copies\fR\& replicas to disc with the function \fImnesia:dump_tables(Tabs)\fR\&\&. The default value for this attribute is \fI[node()]\fR\&\&.
+.LP
+.TP 2
+*
+\fI{record_name, Name}\fR\&, where \fIName\fR\& must be an atom\&. All records, stored in the table, must have this name as the first element\&. It defaults to the same name as the name of the table\&.
+.LP
+.TP 2
+*
+\fI{snmp, SnmpStruct}\fR\&\&. See \fImnesia:snmp_open_table/2\fR\& for a description of \fISnmpStruct\fR\&\&. If this attribute is present in the \fIArgList\fR\& to \fImnesia:create_table/2\fR\&, the table is immediately accessible by means of the Simple Network Management Protocol (SNMP)\&. This means that applications which use SNMP to manipulate and control the system can be designed easily, since Mnesia provides a direct mapping between the logical tables that make up an SNMP control application and the physical data which makes up a Mnesia table\&.
+.LP
+.TP 2
+*
+\fI{type, Type}\fR\&, where \fIType\fR\& must be either of the atoms \fIset\fR\&, \fIordered_set\fR\& or \fIbag\fR\&\&. The default value is \fIset\fR\&\&. In a \fIset\fR\& all records have unique keys and in a \fIbag\fR\& several records may have the same key, but the record content is unique\&. If a non-unique record is stored the old, conflicting record(s) will simply be overwritten\&. Note: currently \&'ordered_set\&' is not supported for \&'disc_only_copies\&'\&.
+.LP
+.TP 2
+*
+\fI{local_content, Bool}\fR\&, where \fIBool\fR\& must be either \fItrue\fR\& or \fIfalse\fR\&\&. The default value is \fIfalse\fR\&\&.
+.LP
+.RE
+
+.LP
+For example, the following call creates the \fIperson\fR\& table previously defined and replicates it on 2 nodes:
+.LP
+.nf
+
+mnesia:create_table(person, 
+    [{ram_copies, [N1, N2]},
+     {attributes, record_info(fields,person)}]).
+        
+.fi
+.LP
+If it was required that Mnesia build and maintain an extra index table on the \fIaddress\fR\& attribute of all the \fIperson\fR\& records that are inserted in the table, the following code would be issued:
+.LP
+.nf
+
+mnesia:create_table(person,
+    [{ram_copies, [N1, N2]},
+     {index, [address]},
+     {attributes, record_info(fields,person)}]).
+        
+.fi
+.LP
+The specification of \fIindex\fR\& and \fIattributes\fR\& may be hard coded as \fI{index, [2]}\fR\& and \fI{attributes, [name, age, address, salary, children]}\fR\& respectively\&.
+.LP
+\fImnesia:create_table/2\fR\& writes records into the \fIschema\fR\& table\&. This function, as well as all other schema manipulation functions, are implemented with the normal transaction management system\&. This guarantees that schema updates are performed on all nodes in an atomic manner\&.
+.RE
+.LP
+.B
+deactivate_checkpoint(Name) -> ok | {error, Reason}
+.br
+.RS
+.LP
+The checkpoint is automatically deactivated when some of the tables involved have no retainer attached to them\&. This may happen when nodes go down or when a replica is deleted\&. Checkpoints will also be deactivated with this function\&. \fIName\fR\& is the name of an active checkpoint\&.
+.RE
+.LP
+.B
+del_table_copy(Tab, Node) -> {aborted, R} | {atomic, ok}
+.br
+.RS
+.LP
+Deletes the replica of table \fITab\fR\& at node \fINode\fR\&\&. When the last replica is deleted with this function, the table disappears entirely\&.
+.LP
+This function may also be used to delete a replica of the table named \fIschema\fR\&\&. Then the mnesia node will be removed\&. Note: Mnesia must be stopped on the node first\&.
+.RE
+.LP
+.B
+del_table_index(Tab, AttrName) -> {aborted, R} | {atomic, ok}
+.br
+.RS
+.LP
+This function deletes the index on attribute with name \fIAttrName\fR\& in a table\&.
+.RE
+.LP
+.B
+delete({Tab, Key}) -> transaction abort | ok 
+.br
+.RS
+.LP
+Invokes \fImnesia:delete(Tab, Key, write)\fR\&
+.RE
+.LP
+.B
+delete(Tab, Key, LockKind) -> transaction abort | ok 
+.br
+.RS
+.LP
+Deletes all records in table \fITab\fR\& with the key \fIKey\fR\&\&.
+.LP
+The semantics of this function is context sensitive\&. See \fImnesia:activity/4\fR\& for more information\&. In transaction context it acquires a lock of type \fILockKind\fR\& in the record\&. Currently the lock types \fIwrite\fR\& and \fIsticky_write\fR\& are supported\&.
+.RE
+.LP
+.B
+delete_object(Record) -> transaction abort | ok 
+.br
+.RS
+.LP
+Invokes \fImnesia:delete_object(Tab, Record, write)\fR\& where \fITab\fR\& is \fIelement(1, Record)\fR\&\&.
+.RE
+.LP
+.B
+delete_object(Tab, Record, LockKind) -> transaction abort | ok 
+.br
+.RS
+.LP
+If a table is of type \fIbag\fR\&, we may sometimes want to delete only some of the records with a certain key\&. This can be done with the \fIdelete_object/3\fR\& function\&. A complete record must be supplied to this function\&.
+.LP
+The semantics of this function is context sensitive\&. See \fImnesia:activity/4\fR\& for more information\&. In transaction context it acquires a lock of type \fILockKind\fR\& on the record\&. Currently the lock types \fIwrite\fR\& and \fIsticky_write\fR\& are supported\&.
+.RE
+.LP
+.B
+delete_schema(DiscNodes) -> ok | {error,Reason}
+.br
+.RS
+.LP
+Deletes a database created with \fImnesia:create_schema/1\fR\&\&. \fImnesia:delete_schema/1\fR\& fails if any of the Erlang nodes given as \fIDiscNodes\fR\& is not alive, or if Mnesia is running on any of the nodes\&.
+.LP
+After the database has been deleted, it may still be possible to start Mnesia as a disc-less node\&. This depends on how the configuration parameter \fIschema_location\fR\& is set\&.
+.LP
+
+.RS -4
+.B
+Warning:
+.RE
+This function must be used with extreme caution since it makes existing persistent data obsolete\&. Think twice before using it\&.
+
+.RE
+.LP
+.B
+delete_table(Tab) -> {aborted, Reason} | {atomic, ok} 
+.br
+.RS
+.LP
+Permanently deletes all replicas of table \fITab\fR\&\&.
+.RE
+.LP
+.B
+dirty_all_keys(Tab) -> KeyList | exit({aborted, Reason})\&.
+.br
+.RS
+.LP
+This is the dirty equivalent of the \fImnesia:all_keys/1\fR\& function\&.
+.RE
+.LP
+.B
+dirty_delete({Tab, Key}) -> ok | exit({aborted, Reason}) 
+.br
+.RS
+.LP
+Invokes \fImnesia:dirty_delete(Tab, Key)\fR\&\&.
+.RE
+.LP
+.B
+dirty_delete(Tab, Key) -> ok | exit({aborted, Reason}) 
+.br
+.RS
+.LP
+This is the dirty equivalent of the \fImnesia:delete/3\fR\& function\&.
+.RE
+.LP
+.B
+dirty_delete_object(Record) 
+.br
+.RS
+.LP
+Invokes \fImnesia:dirty_delete_object(Tab, Record)\fR\& where \fITab\fR\& is \fIelement(1, Record)\fR\&\&.
+.RE
+.LP
+.B
+dirty_delete_object(Tab, Record) 
+.br
+.RS
+.LP
+This is the dirty equivalent of the \fImnesia:delete_object/3\fR\& function\&.
+.RE
+.LP
+.B
+dirty_first(Tab) -> Key | exit({aborted, Reason}) 
+.br
+.RS
+.LP
+Records in \fIset\fR\& or \fIbag\fR\& tables are not ordered\&. However, there is an ordering of the records which is not known to the user\&. Accordingly, it is possible to traverse a table by means of this function in conjunction with the \fImnesia:dirty_next/2\fR\& function\&.
+.LP
+If there are no records at all in the table, this function returns the atom \fI\&'$end_of_table\&'\fR\&\&. For this reason, it is highly undesirable, but not disallowed, to use this atom as the key for any user records\&.
+.RE
+.LP
+.B
+dirty_index_match_object(Pattern, Pos)
+.br
+.RS
+.LP
+Invokes \fImnesia:dirty_index_match_object(Tab, Pattern, Pos)\fR\& where \fITab\fR\& is \fIelement(1, Pattern)\fR\&\&.
+.RE
+.LP
+.B
+dirty_index_match_object(Tab, Pattern, Pos)
+.br
+.RS
+.LP
+This is the dirty equivalent of the \fImnesia:index_match_object/4\fR\& function\&.
+.RE
+.LP
+.B
+dirty_index_read(Tab, SecondaryKey, Pos)
+.br
+.RS
+.LP
+This is the dirty equivalent of the \fImnesia:index_read/3\fR\& function\&.
+.RE
+.LP
+.B
+dirty_last(Tab) -> Key | exit({aborted, Reason}) 
+.br
+.RS
+.LP
+This function works exactly like \fImnesia:dirty_first/1\fR\& but returns the last object in Erlang term order for the \fIordered_set\fR\& table type\&. For all other table types, \fImnesia:dirty_first/1\fR\& and \fImnesia:dirty_last/1\fR\& are synonyms\&.
+.RE
+.LP
+.B
+dirty_match_object(Pattern) -> RecordList | exit({aborted, Reason})\&.
+.br
+.RS
+.LP
+Invokes \fImnesia:dirty_match_object(Tab, Pattern)\fR\& where \fITab\fR\& is \fIelement(1, Pattern)\fR\&\&.
+.RE
+.LP
+.B
+dirty_match_object(Tab, Pattern) -> RecordList | exit({aborted, Reason})\&.
+.br
+.RS
+.LP
+This is the dirty equivalent of the \fImnesia:match_object/3\fR\& function\&.
+.RE
+.LP
+.B
+dirty_next(Tab, Key) -> Key | exit({aborted, Reason}) 
+.br
+.RS
+.LP
+This function makes it possible to traverse a table and perform operations on all records in the table\&. When the end of the table is reached, the special key \fI\&'$end_of_table\&'\fR\& is returned\&. Otherwise, the function returns a key which can be used to read the actual record\&.The behavior is undefined if another Erlang process performs write operations on the table while it is being traversed with the \fImnesia:dirty_next/2\fR\& function\&.
+.RE
+.LP
+.B
+dirty_prev(Tab, Key) -> Key | exit({aborted, Reason}) 
+.br
+.RS
+.LP
+This function works exactly like \fImnesia:dirty_next/2\fR\& but returns the previous object in Erlang term order for the ordered_set table type\&. For all other table types, \fImnesia:dirty_next/2\fR\& and \fImnesia:dirty_prev/2\fR\& are synonyms\&.
+.RE
+.LP
+.B
+dirty_read({Tab, Key}) -> ValueList | exit({aborted, Reason}
+.br
+.RS
+.LP
+Invokes \fImnesia:dirty_read(Tab, Key)\fR\&\&.
+.RE
+.LP
+.B
+dirty_read(Tab, Key) -> ValueList | exit({aborted, Reason}
+.br
+.RS
+.LP
+This is the dirty equivalent of the \fImnesia:read/3\fR\& function\&.
+.RE
+.LP
+.B
+dirty_select(Tab, MatchSpec) -> ValueList | exit({aborted, Reason}
+.br
+.RS
+.LP
+This is the dirty equivalent of the \fImnesia:select/2\fR\& function\&.
+.RE
+.LP
+.B
+dirty_slot(Tab, Slot) -> RecordList | exit({aborted, Reason})
+.br
+.RS
+.LP
+This function can be used to traverse a table in a manner similar to the \fImnesia:dirty_next/2\fR\& function\&. A table has a number of slots which range from 0 (zero) to some unknown upper bound\&. The function \fImnesia:dirty_slot/2\fR\& returns the special atom \fI\&'$end_of_table\&'\fR\& when the end of the table is reached\&. The behavior of this function is undefined if a write operation is performed on the table while it is being traversed\&.
+.RE
+.LP
+.B
+dirty_update_counter({Tab, Key}, Incr) -> NewVal | exit({aborted, Reason})
+.br
+.RS
+.LP
+Invokes \fImnesia:dirty_update_counter(Tab, Key, Incr)\fR\&\&.
+.RE
+.LP
+.B
+dirty_update_counter(Tab, Key, Incr) -> NewVal | exit({aborted, Reason})
+.br
+.RS
+.LP
+There are no special counter records in Mnesia\&. However, records of the form \fI{Tab, Key, Integer}\fR\& can be used as (possibly disc resident) counters, when \fITab\fR\& is a \fIset\fR\&\&. This function updates a counter with a positive or negative number\&. However, counters can never become less than zero\&. There are two significant differences between this function and the action of first reading the record, performing the arithmetics, and then writing the record:
+.RS 2
+.TP 2
+*
+It is much more efficient
+.LP
+.TP 2
+*
+\fImnesia:dirty_update_counter/3\fR\& is performed as an atomic operation despite the fact that it is not protected by a transaction\&.
+.LP
+.RE
+
+.LP
+If two processes perform \fImnesia:dirty_update_counter/3\fR\& simultaneously, both updates will take effect without the risk of losing one of the updates\&. The new value \fINewVal\fR\& of the counter is returned\&.
+.LP
+If \fIKey\fR\& don\&'t exits, a new record is created with the value \fIIncr\fR\& if it is larger than 0, otherwise it is set to 0\&.
+.RE
+.LP
+.B
+dirty_write(Record) -> ok | exit({aborted, Reason})
+.br
+.RS
+.LP
+Invokes \fImnesia:dirty_write(Tab, Record)\fR\& where \fITab\fR\& is \fIelement(1, Record)\fR\&\&.
+.RE
+.LP
+.B
+dirty_write(Tab, Record) -> ok | exit({aborted, Reason})
+.br
+.RS
+.LP
+This is the dirty equivalent of \fImnesia:write/3\fR\&\&.
+.RE
+.LP
+.B
+dump_log() -> dumped
+.br
+.RS
+.LP
+Performs a user initiated dump of the local log file\&. This is usually not necessary since Mnesia, by default, manages this automatically\&.
+.RE
+.LP
+.B
+dump_tables(TabList) -> {atomic, ok} | {aborted, Reason}
+.br
+.RS
+.LP
+This function dumps a set of \fIram_copies\fR\& tables to disc\&. The next time the system is started, these tables are initiated with the data found in the files that are the result of this dump\&. None of the tables may have disc resident replicas\&.
+.RE
+.LP
+.B
+dump_to_textfile(Filename) 
+.br
+.RS
+.LP
+Dumps all local tables of a mnesia system into a text file which can then be edited (by means of a normal text editor) and then later be reloaded with \fImnesia:load_textfile/1\fR\&\&. Only use this function for educational purposes\&. Use other functions to deal with real backups\&.
+.RE
+.LP
+.B
+error_description(Error) -> String 
+.br
+.RS
+.LP
+All Mnesia transactions, including all the schema update functions, either return the value \fI{atomic, Val}\fR\& or the tuple \fI{aborted, Reason}\fR\&\&. The \fIReason\fR\& can be either of the following atoms\&. The \fIerror_description/1\fR\& function returns a descriptive string which describes the error\&.
+.RS 2
+.TP 2
+*
+\fInested_transaction\fR\&\&. Nested transactions are not allowed in this context\&.
+.LP
+.TP 2
+*
+\fIbadarg\fR\&\&. Bad or invalid argument, possibly bad type\&.
+.LP
+.TP 2
+*
+\fIno_transaction\fR\&\&. Operation not allowed outside transactions\&.
+.LP
+.TP 2
+*
+\fIcombine_error\fR\&\&. Table options were illegally combined\&.
+.LP
+.TP 2
+*
+\fIbad_index\fR\&\&. Index already exists or was out of bounds\&.
+.LP
+.TP 2
+*
+\fIalready_exists\fR\&\&. Schema option is already set\&.
+.LP
+.TP 2
+*
+\fIindex_exists\fR\&\&. Some operations cannot be performed on tabs with index\&.
+.LP
+.TP 2
+*
+\fIno_exists\fR\&\&. Tried to perform operation on non-existing, or not alive, item\&.
+.LP
+.TP 2
+*
+\fIsystem_limit\fR\&\&. Some system_limit was exhausted\&.
+.LP
+.TP 2
+*
+\fImnesia_down\fR\&\&. A transaction involving records at some remote node which died while transaction was executing\&. Record(s) are no longer available elsewhere in the network\&.
+.LP
+.TP 2
+*
+\fInot_a_db_node\fR\&\&. A node which does not exist in the schema was mentioned\&.
+.LP
+.TP 2
+*
+\fIbad_type\fR\&\&. Bad type on some arguments\&.
+.LP
+.TP 2
+*
+\fInode_not_running\fR\&\&. Node not running\&.
+.LP
+.TP 2
+*
+\fItruncated_binary_file\fR\&\&. Truncated binary in file\&.
+.LP
+.TP 2
+*
+\fIactive\fR\&\&. Some delete operations require that all active records are removed\&.
+.LP
+.TP 2
+*
+\fIillegal\fR\&\&. Operation not supported on record\&.
+.LP
+.RE
+
+.LP
+The \fIError\fR\& may be \fIReason\fR\&, \fI{error, Reason}\fR\&, or \fI{aborted, Reason}\fR\&\&. The \fIReason\fR\& may be an atom or a tuple with \fIReason\fR\& as an atom in the first field\&.
+.RE
+.LP
+.B
+ets(Fun, [, Args]) -> ResultOfFun | exit(Reason)
+.br
+.RS
+.LP
+Call the \fIFun\fR\& in a raw context which is not protected by a transaction\&. The Mnesia function call is performed in the \fIFun\fR\& are performed directly on the local \fIets\fR\& tables on the assumption that the local storage type is \fIram_copies\fR\& and the tables are not replicated to other nodes\&. Subscriptions are not triggered and checkpoints are not updated, but it is extremely fast\&. This function can also be applied to \fIdisc_copies\fR\& tables if all operations are read only\&. See \fImnesia:activity/4\fR\& and the Mnesia User\&'s Guide for more details\&.
+.LP
+\fINote:\fR\& Calling (nesting) a \fImnesia:ets\fR\& inside a transaction context will inherit the transaction semantics\&.
+.RE
+.LP
+.B
+first(Tab) -> Key | transaction abort 
+.br
+.RS
+.LP
+Records in \fIset\fR\& or \fIbag\fR\& tables are not ordered\&. However, there is an ordering of the records which is not known to the user\&. Accordingly, it is possible to traverse a table by means of this function in conjunction with the \fImnesia:next/2\fR\& function\&.
+.LP
+If there are no records at all in the table, this function returns the atom \fI\&'$end_of_table\&'\fR\&\&. For this reason, it is highly undesirable, but not disallowed, to use this atom as the key for any user records\&.
+.RE
+.LP
+.B
+foldl(Function, Acc, Table) -> NewAcc | transaction abort 
+.br
+.RS
+.LP
+Iterates over the table \fITable\fR\& and calls \fIFunction(Record, NewAcc)\fR\& for each \fIRecord\fR\& in the table\&. The term returned from \fIFunction\fR\& will be used as the second argument in the next call to the \fIFunction\fR\&\&.
+.LP
+\fIfoldl\fR\& returns the same term as the last call to \fIFunction\fR\& returned\&.
+.RE
+.LP
+.B
+foldr(Function, Acc, Table) -> NewAcc | transaction abort 
+.br
+.RS
+.LP
+This function works exactly like \fIfoldl/3\fR\& but iterates the table in the opposite order for the \fIordered_set\fR\& table type\&. For all other table types, \fIfoldr/3\fR\& and \fIfoldl/3\fR\& are synonyms\&.
+.RE
+.LP
+.B
+force_load_table(Tab) -> yes | ErrorDescription 
+.br
+.RS
+.LP
+The Mnesia algorithm for table load might lead to a situation where a table cannot be loaded\&. This situation occurs when a node is started and Mnesia concludes, or suspects, that another copy of the table was active after this local copy became inactive due to a system crash\&.
+.LP
+If this situation is not acceptable, this function can be used to override the strategy of the Mnesia table load algorithm\&. This could lead to a situation where some transaction effects are lost with a inconsistent database as result, but for some applications high availability is more important than consistent data\&.
+.RE
+.LP
+.B
+index_match_object(Pattern, Pos) -> transaction abort | ObjList
+.br
+.RS
+.LP
+Invokes \fImnesia:index_match_object(Tab, Pattern, Pos, read)\fR\& where \fITab\fR\& is \fIelement(1, Pattern)\fR\&\&.
+.RE
+.LP
+.B
+index_match_object(Tab, Pattern, Pos, LockKind) -> transaction abort | ObjList
+.br
+.RS
+.LP
+In a manner similar to the \fImnesia:index_read/3\fR\& function, we can also utilize any index information when we try to match records\&. This function takes a pattern which obeys the same rules as the \fImnesia:match_object/3\fR\& function with the exception that this function requires the following conditions:
+.RS 2
+.TP 2
+*
+The table \fITab\fR\& must have an index on position \fIPos\fR\&\&.
+.LP
+.TP 2
+*
+The element in position \fIPos\fR\& in \fIPattern\fR\& must be bound\&. \fIPos\fR\& may either be an integer (#record\&.Field), or an attribute name\&.
+.LP
+.RE
+
+.LP
+The two index search functions described here are automatically invoked when searching tables with \fIqlc\fR\& list comprehensions and also when using the low level \fImnesia:[dirty_]match_object\fR\& functions\&.
+.LP
+
+.LP
+The semantics of this function is context sensitive\&. See \fImnesia:activity/4\fR\& for more information\&. In transaction context it acquires a lock of type \fILockKind\fR\& on the entire table or on a single record\&. Currently, the lock type \fIread\fR\& is supported\&.
+.RE
+.LP
+.B
+index_read(Tab, SecondaryKey, Pos) -> transaction abort | RecordList 
+.br
+.RS
+.LP
+Assume there is an index on position \fIPos\fR\& for a certain record type\&. This function can be used to read the records without knowing the actual key for the record\&. For example, with an index in position 1 of the \fIperson\fR\& table, the call \fImnesia:index_read(person, 36, #person\&.age)\fR\& returns a list of all persons with age equal to 36\&. \fIPos\fR\& may also be an attribute name (atom), but if the notation \fImnesia:index_read(person, 36, age)\fR\& is used, the field position will be searched for in runtime, for each call\&.
+.LP
+The semantics of this function is context sensitive\&. See \fImnesia:activity/4\fR\& for more information\&. In transaction context it acquires a read lock on the entire table\&.
+.RE
+.LP
+.B
+info() -> ok 
+.br
+.RS
+.LP
+Prints some information about the system on the tty\&. This function may be used even if Mnesia is not started\&. However, more information will be displayed if Mnesia is started\&.
+.RE
+.LP
+.B
+install_fallback(Opaque) -> ok | {error,Reason}
+.br
+.RS
+.LP
+Invokes \fImnesia:install_fallback(Opaque, Args)\fR\& where \fIArgs\fR\& is \fI[{scope, global}]\fR\&\&.
+.RE
+.LP
+.B
+install_fallback(Opaque), BackupMod) -> ok | {error,Reason}
+.br
+.RS
+.LP
+Invokes \fImnesia:install_fallback(Opaque, Args)\fR\& where \fIArgs\fR\& is \fI[{scope, global}, {module, BackupMod}]\fR\&\&.
+.RE
+.LP
+.B
+install_fallback(Opaque, Args) -> ok | {error,Reason}
+.br
+.RS
+.LP
+This function is used to install a backup as fallback\&. The fallback will be used to restore the database at the next start-up\&. Installation of fallbacks requires Erlang to be up and running on all the involved nodes, but it does not matter if Mnesia is running or not\&. The installation of the fallback will fail if the local node is not one of the disc resident nodes in the backup\&.
+.LP
+\fIArgs\fR\& is a list of the following tuples:
+.RS 2
+.TP 2
+*
+\fI{module, BackupMod}\fR\&\&. All accesses of the backup media is performed via a callback module named \fIBackupMod\fR\&\&. The \fIOpaque\fR\& argument is forwarded to the callback module which may interpret it as it wish\&. The default callback module is called \fImnesia_backup\fR\& and it interprets the \fIOpaque\fR\& argument as a local filename\&. The default for this module is also configurable via the \fI-mnesia mnesia_backup\fR\& configuration parameter\&.
+.LP
+.TP 2
+*
+\fI{scope, Scope}\fR\& The \fIScope\fR\& of a fallback may either be \fIglobal\fR\& for the entire database or \fIlocal\fR\& for one node\&. By default, the installation of a fallback is a global operation which either is performed all nodes with disc resident schema or none\&. Which nodes that are disc resident or not, is determined from the schema info in the backup\&.
+.RS 2
+.LP
+If the \fIScope\fR\& of the operation is \fIlocal\fR\& the fallback will only be installed on the local node\&.
+.RE
+.LP
+.TP 2
+*
+\fI{mnesia_dir, AlternateDir}\fR\& This argument is only valid if the scope of the installation is \fIlocal\fR\&\&. Normally the installation of a fallback is targeted towards the Mnesia directory as configured with the \fI-mnesia dir\fR\& configuration parameter\&. But by explicitly supplying an \fIAlternateDir\fR\& the fallback will be installed there regardless of the Mnesia directory configuration parameter setting\&. After installation of a fallback on an alternate Mnesia directory that directory is fully prepared for usage as an active Mnesia directory\&.
+.RS 2
+.LP
+This is a somewhat dangerous feature which must be used with care\&. By unintentional mixing of directories you may easily end up with a inconsistent database, if the same backup is installed on more than one directory\&.
+.RE
+.LP
+.RE
+
+.RE
+.LP
+.B
+is_transaction() -> boolean 
+.br
+.RS
+.LP
+When this function is executed inside a transaction context it returns \fItrue\fR\&, otherwise \fIfalse\fR\&\&.
+.RE
+.LP
+.B
+last(Tab) -> Key | transaction abort 
+.br
+.RS
+.LP
+This function works exactly like \fImnesia:first/1\fR\& but returns the last object in Erlang term order for the \fIordered_set\fR\& table type\&. For all other table types, \fImnesia:first/1\fR\& and \fImnesia:last/1\fR\& are synonyms\&.
+.RE
+.LP
+.B
+load_textfile(Filename)
+.br
+.RS
+.LP
+Loads a series of definitions and data found in the text file (generated with \fImnesia:dump_to_textfile/1\fR\&) into Mnesia\&. This function also starts Mnesia and possibly creates a new schema\&. This function is intended for educational purposes only and using other functions to deal with real backups, is recommended\&.
+.RE
+.LP
+.B
+lock(LockItem, LockKind) -> Nodes | ok | transaction abort
+.br
+.RS
+.LP
+Write locks are normally acquired on all nodes where a replica of the table resides (and is active)\&. Read locks are acquired on one node (the local node if a local replica exists)\&. Most of the context sensitive access functions acquire an implicit lock if they are invoked in a transaction context\&. The granularity of a lock may either be a single record or an entire table\&.
+.LP
+The normal usage is to call the function without checking the return value since it exits if it fails and the transaction is restarted by the transaction manager\&. It returns all the locked nodes if a write lock is acquired, and \fIok\fR\& if it was a read lock\&.
+.LP
+This function \fImnesia:lock/2\fR\& is intended to support explicit locking on tables but also intended for situations when locks need to be acquired regardless of how tables are replicated\&. Currently, two \fILockKind\fR\&\&'s are supported:
+.RS 2
+.TP 2
+.B
+\fIwrite\fR\&:
+Write locks are exclusive, which means that if one transaction manages to acquire a write lock on an item, no other transaction may acquire any kind of lock on the same item\&.
+.TP 2
+.B
+\fIread\fR\&:
+Read locks may be shared, which means that if one transaction manages to acquire a read lock on an item, other transactions may also acquire a read lock on the same item\&. However, if someone has a read lock no one can acquire a write lock at the same item\&. If some one has a write lock no one can acquire a read lock nor a write lock at the same item\&.
+.RE
+.LP
+Conflicting lock requests are automatically queued if there is no risk of a deadlock\&. Otherwise the transaction must be aborted and executed again\&. Mnesia does this automatically as long as the upper limit of maximum \fIretries\fR\& is not reached\&. See \fImnesia:transaction/3\fR\& for the details\&.
+.LP
+For the sake of completeness sticky write locks will also be described here even if a sticky write lock is not supported by this particular function:
+.RS 2
+.TP 2
+.B
+\fIsticky_write\fR\&:
+Sticky write locks are a mechanism which can be used to optimize write lock acquisition\&. If your application uses replicated tables mainly for fault tolerance (as opposed to read access optimization purpose), sticky locks may be the best option available\&.
+.RS 2
+.LP
+When a sticky write lock is acquired, all nodes will be informed which node is locked\&. Subsequently, sticky lock requests from the same node will be performed as a local operation without any communication with other nodes\&. The sticky lock lingers on the node even after the transaction has ended\&. See the Mnesia User\&'s Guide for more information\&.
+.RE
+.RE
+.LP
+Currently, two kinds of \fILockItem\fR\&\&'s are supported by this function:
+.RS 2
+.TP 2
+.B
+\fI{table, Tab}\fR\&:
+This acquires a lock of type \fILockKind\fR\& on the entire table \fITab\fR\&\&.
+.TP 2
+.B
+\fI{global, GlobalKey, Nodes}\fR\&:
+This acquires a lock of type \fILockKind\fR\& on the global resource \fIGlobalKey\fR\&\&. The lock is acquired on all active nodes in the \fINodes\fR\& list\&.
+.RE
+.LP
+Locks are released when the outermost transaction ends\&.
+.LP
+The semantics of this function is context sensitive\&. See \fImnesia:activity/4\fR\& for more information\&. In transaction context it acquires locks otherwise it just ignores the request\&.
+.RE
+.LP
+.B
+match_object(Pattern) ->transaction abort | RecList 
+.br
+.RS
+.LP
+Invokes \fImnesia:match_object(Tab, Pattern, read)\fR\& where \fITab\fR\& is \fIelement(1, Pattern)\fR\&\&.
+.RE
+.LP
+.B
+match_object(Tab, Pattern, LockKind) ->transaction abort | RecList 
+.br
+.RS
+.LP
+This function takes a pattern with \&'don\&'t care\&' variables denoted as a \&'_\&' parameter\&. This function returns a list of records which matched the pattern\&. Since the second element of a record in a table is considered to be the key for the record, the performance of this function depends on whether this key is bound or not\&.
+.LP
+For example, the call \fImnesia:match_object(person, {person, \&'_\&', 36, \&'_\&', \&'_\&'}, read)\fR\& returns a list of all person records with an age field of thirty-six (36)\&.
+.LP
+The function \fImnesia:match_object/3\fR\& automatically uses indices if these exist\&. However, no heuristics are performed in order to select the best index\&.
+.LP
+The semantics of this function is context sensitive\&. See \fImnesia:activity/4\fR\& for more information\&. In transaction context it acquires a lock of type \fILockKind\fR\& on the entire table or a single record\&. Currently, the lock type \fIread\fR\& is supported\&.
+.RE
+.LP
+.B
+move_table_copy(Tab, From, To) -> {aborted, Reason} | {atomic, ok}
+.br
+.RS
+.LP
+Moves the copy of table \fITab\fR\& from node \fIFrom\fR\& to node \fITo\fR\&\&.
+.LP
+The storage type is preserved\&. For example, a RAM table moved from one node remains a RAM on the new node\&. It is still possible for other transactions to read and write in the table while it is being moved\&.
+.LP
+This function cannot be used on \fIlocal_content\fR\& tables\&.
+.RE
+.LP
+.B
+next(Tab, Key) -> Key | transaction abort 
+.br
+.RS
+.LP
+This function makes it possible to traverse a table and perform operations on all records in the table\&. When the end of the table is reached, the special key \fI\&'$end_of_table\&'\fR\& is returned\&. Otherwise, the function returns a key which can be used to read the actual record\&.
+.RE
+.LP
+.B
+prev(Tab, Key) -> Key | transaction abort 
+.br
+.RS
+.LP
+This function works exactly like \fImnesia:next/2\fR\& but returns the previous object in Erlang term order for the ordered_set table type\&. For all other table types, \fImnesia:next/2\fR\& and \fImnesia:prev/2\fR\& are synonyms\&.
+.RE
+.LP
+.B
+read({Tab, Key}) -> transaction abort | RecordList 
+.br
+.RS
+.LP
+Invokes \fImnesia:read(Tab, Key, read)\fR\&\&.
+.RE
+.LP
+.B
+read(Tab, Key) -> transaction abort | RecordList 
+.br
+.RS
+.LP
+Invokes \fImnesia:read(Tab, Key, read)\fR\&\&.
+.RE
+.LP
+.B
+read(Tab, Key, LockKind) -> transaction abort | RecordList 
+.br
+.RS
+.LP
+This function reads all records from table \fITab\fR\& with key \fIKey\fR\&\&. This function has the same semantics regardless of the location of \fITab\fR\&\&. If the table is of type \fIbag\fR\&, the \fImnesia:read(Tab, Key)\fR\& can return an arbitrarily long list\&. If the table is of type \fIset\fR\&, the list is either of length 1, or \fI[]\fR\&\&.
+.LP
+The semantics of this function is context sensitive\&. See \fImnesia:activity/4\fR\& for more information\&. In transaction context it acquires a lock of type \fILockKind\fR\&\&. Currently, the lock types \fIread\fR\&, \fIwrite\fR\& and \fIsticky_write\fR\& are supported\&.
+.LP
+If the user wants to update the record it is more efficient to use \fIwrite/sticky_write\fR\& as the LockKind\&. If majority checking is active on the table, it will be checked as soon as a write lock is attempted\&. This can be used to quickly abort if the majority condition isn\&'t met\&.
+.RE
+.LP
+.B
+read_lock_table(Tab) -> ok | transaction abort
+.br
+.RS
+.LP
+Invokes \fImnesia:lock({table, Tab}, read)\fR\&\&.
+.RE
+.LP
+.B
+report_event(Event) -> ok
+.br
+.RS
+.LP
+When tracing a system of Mnesia applications it is useful to be able to interleave Mnesia\&'s own events with application related events that give information about the application context\&.
+.LP
+Whenever the application begins a new and demanding Mnesia task, or if it is entering a new interesting phase in its execution, it may be a good idea to use \fImnesia:report_event/1\fR\&\&. The \fIEvent\fR\& may be any term and generates a \fI{mnesia_user, Event}\fR\& event for any processes that subscribe to Mnesia system events\&.
+.RE
+.LP
+.B
+restore(Opaque, Args) -> {atomic, RestoredTabs} |{aborted, Reason}
+.br
+.RS
+.LP
+With this function, tables may be restored online from a backup without restarting Mnesia\&. \fIOpaque\fR\& is forwarded to the backup module\&. \fIArgs\fR\& is a list of the following tuples:
+.RS 2
+.TP 2
+*
+\fI{module,BackupMod}\fR\& The backup module \fIBackupMod\fR\& will be used to access the backup media\&. If omitted, the default backup module will be used\&.
+.LP
+.TP 2
+*
+\fI{skip_tables, TabList}\fR\& Where \fITabList\fR\& is a list of tables which should not be read from the backup\&. 
+.LP
+.TP 2
+*
+\fI{clear_tables, TabList}\fR\& Where \fITabList\fR\& is a list of tables which should be cleared, before the records from the backup are inserted, ie\&. all records in the tables are deleted before the tables are restored\&. Schema information about the tables is not cleared or read from backup\&. 
+.LP
+.TP 2
+*
+\fI{keep_tables, TabList}\fR\& Where \fITabList\fR\& is a list of tables which should be not be cleared, before the records from the backup are inserted, i\&.e\&. the records in the backup will be added to the records in the table\&. Schema information about the tables is not cleared or read from backup\&. 
+.LP
+.TP 2
+*
+\fI{recreate_tables, TabList}\fR\& Where \fITabList\fR\& is a list of tables which should be re-created, before the records from the backup are inserted\&. The tables are first deleted and then created with the schema information from the backup\&. All the nodes in the backup needs to be up and running\&. 
+.LP
+.TP 2
+*
+\fI{default_op, Operation}\fR\& Where \fIOperation\fR\& is one of the following operations \fIskip_tables\fR\&, \fIclear_tables\fR\&, \fIkeep_tables\fR\& or \fIrecreate_tables\fR\&\&. The default operation specifies which operation should be used on tables from the backup which are not specified in any of the lists above\&. If omitted, the operation \fIclear_tables\fR\& will be used\&. 
+.LP
+.RE
+
+.LP
+The affected tables are write locked during the restoration, but regardless of the lock conflicts caused by this, the applications can continue to do their work while the restoration is being performed\&. The restoration is performed as one single transaction\&.
+.LP
+If the database is huge, it may not be possible to restore it online\&. In such cases, the old database must be restored by installing a fallback and then restart\&.
+.RE
+.LP
+.B
+s_delete({Tab, Key}) -> ok | transaction abort 
+.br
+.RS
+.LP
+Invokes \fImnesia:delete(Tab, Key, sticky_write)\fR\&
+.RE
+.LP
+.B
+s_delete_object(Record) -> ok | transaction abort 
+.br
+.RS
+.LP
+Invokes \fImnesia:delete_object(Tab, Record, sticky_write)\fR\& where \fITab\fR\& is \fIelement(1, Record)\fR\&\&.
+.RE
+.LP
+.B
+s_write(Record) -> ok | transaction abort 
+.br
+.RS
+.LP
+Invokes \fImnesia:write(Tab, Record, sticky_write)\fR\& where \fITab\fR\& is \fIelement(1, Record)\fR\&\&.
+.RE
+.LP
+.B
+schema() -> ok 
+.br
+.RS
+.LP
+Prints information about all table definitions on the tty\&.
+.RE
+.LP
+.B
+schema(Tab) -> ok 
+.br
+.RS
+.LP
+Prints information about one table definition on the tty\&.
+.RE
+.LP
+.B
+select(Tab, MatchSpec [, Lock]) -> transaction abort | [Object] 
+.br
+.RS
+.LP
+Matches the objects in the table \fITab\fR\& using a match_spec as described in the ERTS Users Guide\&. Optionally a lock \fIread\fR\& or \fIwrite\fR\& can be given as the third argument, default is \fIread\fR\&\&. The return value depends on the \fIMatchSpec\fR\&\&.
+.LP
+\fINote:\fR\& for best performance \fIselect\fR\& should be used before any modifying operations are done on that table in the same transaction, i\&.e\&. don\&'t use \fIwrite\fR\& or \fIdelete\fR\& before a \fIselect\fR\&\&.
+.LP
+In its simplest forms the match_spec\&'s look like this:
+.RS 2
+.TP 2
+*
+MatchSpec = [MatchFunction]
+.LP
+.TP 2
+*
+MatchFunction = {MatchHead, [Guard], [Result]}
+.LP
+.TP 2
+*
+MatchHead = tuple() | record()
+.LP
+.TP 2
+*
+Guard = {"Guardtest name", \&.\&.\&.}
+.LP
+.TP 2
+*
+Result = "Term construct"
+.LP
+.RE
+
+.LP
+See the ERTS Users Guide and \fIets\fR\& documentation for a complete description of the select\&.
+.LP
+For example to find the names of all male persons with an age over 30 in table Tab do:
+.LP
+.nf
+
+MatchHead = #person{name='$1', sex=male, age='$2', _='_'},
+Guard = {'>', '$2', 30},
+Result = '$1',
+mnesia:select(Tab,[{MatchHead, [Guard], [Result]}]),
+        
+.fi
+.RE
+.LP
+.B
+select(Tab, MatchSpec, NObjects, Lock) -> transaction abort | {[Object],Cont} | \&'$end_of_table\&'
+.br
+.RS
+.LP
+Matches the objects in the table \fITab\fR\& using a match_spec as described in ERTS users guide, and returns a chunk of terms and a continuation, the wanted number of returned terms is specified by the \fINObjects\fR\& argument\&. The lock argument can be \fIread\fR\& or \fIwrite\fR\&\&. The continuation should be used as argument to \fImnesia:select/1\fR\&, if more or all answers are needed\&.
+.LP
+\fINote:\fR\& for best performance \fIselect\fR\& should be used before any modifying operations are done on that table in the same transaction, i\&.e\&. don\&'t use \fImnesia:write\fR\& or \fImnesia:delete\fR\& before a \fImnesia:select\fR\&\&. For efficiency the \fINObjects\fR\& is a recommendation only and the result may contain anything from an empty list to all available results\&.
+.RE
+.LP
+.B
+select(Cont) -> transaction abort | {[Object],Cont} | \&'$end_of_table\&'
+.br
+.RS
+.LP
+Selects more objects with the match specification initiated by \fImnesia:select/4\fR\&\&.
+.LP
+\fINote:\fR\& Any modifying operations, i\&.e\&. \fImnesia:write\fR\& or \fImnesia:delete\fR\&, that are done between the \fImnesia:select/4\fR\& and \fImnesia:select/1\fR\& calls will not be visible in the result\&.
+.RE
+.LP
+.B
+set_debug_level(Level) -> OldLevel
+.br
+.RS
+.LP
+Changes the internal debug level of Mnesia\&. See the chapter about configuration parameters for details\&.
+.RE
+.LP
+.B
+set_master_nodes(MasterNodes) -> ok | {error, Reason} 
+.br
+.RS
+.LP
+For each table Mnesia will determine its replica nodes (\fITabNodes\fR\&) and invoke \fImnesia:set_master_nodes(Tab, TabMasterNodes)\fR\& where \fITabMasterNodes\fR\& is the intersection of \fIMasterNodes\fR\& and \fITabNodes\fR\&\&. See \fImnesia:set_master_nodes/2\fR\& about the semantics\&.
+.RE
+.LP
+.B
+set_master_nodes(Tab, MasterNodes) -> ok | {error, Reason} 
+.br
+.RS
+.LP
+If the application detects that there has been a communication failure (in a potentially partitioned network) which may have caused an inconsistent database, it may use the function \fImnesia:set_master_nodes(Tab, MasterNodes)\fR\& to define from which nodes each table will be loaded\&. At startup Mnesia\&'s normal table load algorithm will be bypassed and the table will be loaded from one of the master nodes defined for the table, regardless of when and if Mnesia was terminated on other nodes\&. The \fIMasterNodes\fR\& may only contain nodes where the table has a replica and if the \fIMasterNodes\fR\& list is empty, the master node recovery mechanism for the particular table will be reset and the normal load mechanism will be used at next restart\&.
+.LP
+The master node setting is always local and it may be changed regardless of whether Mnesia is started or not\&.
+.LP
+The database may also become inconsistent if the \fImax_wait_for_decision\fR\& configuration parameter is used or if \fImnesia:force_load_table/1\fR\& is used\&.
+.RE
+.LP
+.B
+snmp_close_table(Tab) -> {aborted, R} | {atomic, ok}
+.br
+.RS
+.LP
+Removes the possibility for SNMP to manipulate the table\&.
+.RE
+.LP
+.B
+snmp_get_mnesia_key(Tab, RowIndex) -> {ok, Key} | undefined
+.br
+.RS
+.TP 3
+Types:
+
+Tab ::= atom()
+.br
+RowIndex ::= [integer()]
+.br
+Key ::= key() | {key(), key(), ...}
+.br
+key() ::= integer() | string() | [integer()]
+.br
+.RE
+.RS
+.LP
+Transforms an SNMP index to the corresponding Mnesia key\&. If the SNMP table has multiple keys, the key is a tuple of the key columns\&.
+.RE
+.LP
+.B
+snmp_get_next_index(Tab, RowIndex) -> {ok, NextIndex} | endOfTable
+.br
+.RS
+.TP 3
+Types:
+
+Tab ::= atom()
+.br
+RowIndex ::= [integer()]
+.br
+NextIndex ::= [integer()]
+.br
+.RE
+.RS
+.LP
+The \fIRowIndex\fR\& may specify a non-existing row\&. Specifically, it might be the empty list\&. Returns the index of the next lexicographical row\&. If \fIRowIndex\fR\& is the empty list, this function will return the index of the first row in the table\&.
+.RE
+.LP
+.B
+snmp_get_row(Tab, RowIndex) -> {ok, Row} | undefined
+.br
+.RS
+.TP 3
+Types:
+
+Tab ::= atom()
+.br
+RowIndex ::= [integer()]
+.br
+Row ::= record(Tab)
+.br
+.RE
+.RS
+.LP
+Makes it possible to read a row by its SNMP index\&. This index is specified as an SNMP OBJECT IDENTIFIER, a list of integers\&.
+.RE
+.LP
+.B
+snmp_open_table(Tab, SnmpStruct) -> {aborted, R} | {atomic, ok}
+.br
+.RS
+.TP 3
+Types:
+
+Tab ::= atom()
+.br
+SnmpStruct ::= [{key, type()}]
+.br
+type() ::= type_spec() | {type_spec(), type_spec(), ...}
+.br
+type_spec() ::= fix_string | string | integer
+.br
+.RE
+.RS
+.LP
+It is possible to establish a direct one to one mapping between Mnesia tables and SNMP tables\&. Many telecommunication applications are controlled and monitored by the SNMP protocol\&. This connection between Mnesia and SNMP makes it simple and convenient to achieve this\&.
+.LP
+The \fISnmpStruct\fR\& argument is a list of SNMP information\&. Currently, the only information needed is information about the key types in the table\&. It is not possible to handle multiple keys in Mnesia, but many SNMP tables have multiple keys\&. Therefore, the following convention is used: if a table has multiple keys, these must always be stored as a tuple of the keys\&. Information about the key types is specified as a tuple of atoms describing the types\&. The only significant type is \fIfix_string\fR\&\&. This means that a string has fixed size\&. For example:
+.LP
+.nf
+
+mnesia:snmp_open_table(person, [{key, string}])
+        
+.fi
+.LP
+causes the \fIperson\fR\& table to be ordered as an SNMP table\&.
+.LP
+Consider the following schema for a table of company employees\&. Each employee is identified by department number and name\&. The other table column stores the telephone number:
+.LP
+.nf
+
+mnesia:create_table(employee,
+    [{snmp, [{key, {integer, string}}]},
+     {attributes, record_info(fields, employees)}]),
+        
+.fi
+.LP
+The corresponding SNMP table would have three columns; \fIdepartment\fR\&, \fIname\fR\& and \fItelno\fR\&\&.
+.LP
+It is possible to have table columns that are not visible through the SNMP protocol\&. These columns must be the last columns of the table\&. In the previous example, the SNMP table could have columns \fIdepartment\fR\& and \fIname\fR\& only\&. The application could then use the \fItelno\fR\& column internally, but it would not be visible to the SNMP managers\&.
+.LP
+In a table monitored by SNMP, all elements must be integers, strings, or lists of integers\&.
+.LP
+When a table is SNMP ordered, modifications are more expensive than usual, O(logN)\&. And more memory is used\&.
+.LP
+\fINote:\fR\&Only the lexicographical SNMP ordering is implemented in Mnesia, not the actual SNMP monitoring\&.
+.RE
+.LP
+.B
+start() -> ok | {error, Reason} 
+.br
+.RS
+.LP
+The start-up procedure for a set of Mnesia nodes is a fairly complicated operation\&. A Mnesia system consists of a set of nodes, with Mnesia started locally on all participating nodes\&. Normally, each node has a directory where all the Mnesia files are written\&. This directory will be referred to as the Mnesia directory\&. Mnesia may also be started on disc-less nodes\&. See \fImnesia:create_schema/1\fR\& and the Mnesia User\&'s Guide for more information about disc-less nodes\&.
+.LP
+The set of nodes which makes up a Mnesia system is kept in a schema and it is possible to add and remove Mnesia nodes from the schema\&. The initial schema is normally created on disc with the function \fImnesia:create_schema/1\fR\&\&. On disc-less nodes, a tiny default schema is generated each time Mnesia is started\&. During the start-up procedure, Mnesia will exchange schema information between the nodes in order to verify that the table definitions are compatible\&.
+.LP
+Each schema has a unique cookie which may be regarded as a unique schema identifier\&. The cookie must be the same on all nodes where Mnesia is supposed to run\&. See the Mnesia User\&'s Guide for more information about these details\&.
+.LP
+The schema file, as well as all other files which Mnesia needs, are kept in the Mnesia directory\&. The command line option \fI-mnesia dir Dir\fR\& can be used to specify the location of this directory to the Mnesia system\&. If no such command line option is found, the name of the directory defaults to \fIMnesia\&.Node\fR\&\&.
+.LP
+\fIapplication:start(mnesia)\fR\& may also be used\&.
+.RE
+.LP
+.B
+stop() -> stopped 
+.br
+.RS
+.LP
+Stops Mnesia locally on the current node\&.
+.LP
+\fIapplication:stop(mnesia)\fR\& may also be used\&.
+.RE
+.LP
+.B
+subscribe(EventCategory)
+.br
+.RS
+.LP
+Ensures that a copy of all events of type \fIEventCategory\fR\& are sent to the caller\&. The event types available are described in the Mnesia User\&'s Guide\&.
+.RE
+.LP
+.B
+sync_dirty(Fun, [, Args]) -> ResultOfFun | exit(Reason) 
+.br
+.RS
+.LP
+Call the \fIFun\fR\& in a context which is not protected by a transaction\&. The Mnesia function calls performed in the \fIFun\fR\& are mapped to the corresponding dirty functions\&. It is performed in almost the same context as \fImnesia:async_dirty/1,2\fR\&\&. The difference is that the operations are performed synchronously\&. The caller waits for the updates to be performed on all active replicas before the \fIFun\fR\& returns\&. See \fImnesia:activity/4\fR\& and the Mnesia User\&'s Guide for more details\&.
+.RE
+.LP
+.B
+sync_transaction(Fun, [[, Args], Retries]) -> {aborted, Reason} | {atomic, ResultOfFun} 
+.br
+.RS
+.LP
+This function waits until data have been committed and logged to disk (if disk is used) on every involved node before it returns, otherwise it behaves as \fImnesia:transaction/[1,2,3]\fR\&\&.
+.LP
+This functionality can be used to avoid that one process may overload a database on another node\&.
+.RE
+.LP
+.B
+system_info(InfoKey) -> Info | exit({aborted, Reason})
+.br
+.RS
+.LP
+Returns information about the Mnesia system, such as transaction statistics, db_nodes, and configuration parameters\&. Valid keys are:
+.RS 2
+.TP 2
+*
+\fIall\fR\&\&. This argument returns a list of all local system information\&. Each element is a \fI{InfoKey, InfoVal}\fR\& tuples\&.\fINote:\fR\& New \fIInfoKey\fR\&\&'s may be added and old undocumented \fIInfoKey\fR\&\&'s may be removed without notice\&.
+.LP
+.TP 2
+*
+\fIaccess_module\fR\&\&. This argument returns the name of the module which is configured to be the activity access callback module\&.
+.LP
+.TP 2
+*
+\fIauto_repair\fR\&\&. This argument returns \fItrue\fR\& or \fIfalse\fR\& to indicate if Mnesia is configured to invoke the auto repair facility on corrupted disc files\&.
+.LP
+.TP 2
+*
+\fIbackup_module\fR\&\&. This argument returns the name of the module which is configured to be the backup callback module\&.
+.LP
+.TP 2
+*
+\fIcheckpoints\fR\&\&. This argument returns a list of the names of the checkpoints currently active on this node\&.
+.LP
+.TP 2
+*
+\fIevent_module\fR\&\&. This argument returns the name of the module which is the event handler callback module\&.
+.LP
+.TP 2
+*
+\fIdb_nodes\fR\&\&. This argument returns the nodes which make up the persistent database\&. Disc less nodes will only be included in the list of nodes if they explicitly has been added to the schema, e\&.g\&. with \fImnesia:add_table_copy/3\fR\&\&. The function can be invoked even if Mnesia is not yet running\&.
+.LP
+.TP 2
+*
+\fIdebug\fR\&\&. This argument returns the current debug level of Mnesia\&.
+.LP
+.TP 2
+*
+\fIdirectory\fR\&\&. This argument returns the name of the Mnesia directory\&. It can be invoked even if Mnesia is not yet running\&.
+.LP
+.TP 2
+*
+\fIdump_log_load_regulation\fR\&\&. This argument returns a boolean which tells whether Mnesia is configured to load regulate the dumper process or not\&. This feature is temporary and will disappear in future releases\&.
+.LP
+.TP 2
+*
+\fIdump_log_time_threshold\fR\&\&. This argument returns the time threshold for transaction log dumps in milliseconds\&.
+.LP
+.TP 2
+*
+\fIdump_log_update_in_place\fR\&\&. This argument returns a boolean which tells whether Mnesia is configured to perform the updates in the dets files directly or if the updates should be performed in a copy of the dets files\&.
+.LP
+.TP 2
+*
+\fIdump_log_write_threshold\fR\&\&. This argument returns the write threshold for transaction log dumps as the number of writes to the transaction log\&.
+.LP
+.TP 2
+*
+\fIextra_db_nodes\fR\&\&. This argument returns a list of extra db_nodes to be contacted at start-up\&.
+.LP
+.TP 2
+*
+\fIfallback_activated\fR\&\&. This argument returns true if a fallback is activated, otherwise false\&.
+.LP
+.TP 2
+*
+\fIheld_locks\fR\&\&. This argument returns a list of all locks held by the local Mnesia lock manager\&.
+.LP
+.TP 2
+*
+\fIis_running\fR\&\&. This argument returns \fIyes\fR\& or \fIno\fR\& to indicate if Mnesia is running\&. It may also return \fIstarting\fR\& or \fIstopping\fR\&\&. Can be invoked even if Mnesia is not yet running\&.
+.LP
+.TP 2
+*
+\fIlocal_tables\fR\&\&. This argument returns a list of all tables which are configured to reside locally\&.
+.LP
+.TP 2
+*
+\fIlock_queue\fR\&\&. This argument returns a list of all transactions that are queued for execution by the local lock manager\&.
+.LP
+.TP 2
+*
+\fIlog_version\fR\&\&. This argument returns the version number of the Mnesia transaction log format\&.
+.LP
+.TP 2
+*
+\fImaster_node_tables\fR\&\&. This argument returns a list of all tables with at least one master node\&.
+.LP
+.TP 2
+*
+\fIprotocol_version\fR\&\&. This argument returns the version number of the Mnesia inter-process communication protocol\&.
+.LP
+.TP 2
+*
+\fIrunning_db_nodes\fR\&\&. This argument returns a list of nodes where Mnesia currently is running\&. This function can be invoked even if Mnesia is not yet running, but it will then have slightly different semantics\&. If Mnesia is down on the local node, the function will return those other \fIdb_nodes\fR\& and \fIextra_db_nodes\fR\& that for the moment are up and running\&. If Mnesia is started, the function will return those nodes that Mnesia on the local node is fully connected to\&. Only those nodes that Mnesia has exchanged schema information with are included as \fIrunning_db_nodes\fR\&\&. After the merge of schemas, the local Mnesia system is fully operable and applications may perform access of remote replicas\&. Before the schema merge Mnesia will only operate locally\&. Sometimes there may be more nodes included in the \fIrunning_db_nodes\fR\& list than all \fIdb_nodes\fR\& and \fIextra_db_nodes\fR\& together\&.
+.LP
+.TP 2
+*
+\fIschema_location\fR\&\&. This argument returns the initial schema location\&.
+.LP
+.TP 2
+*
+\fIsubscribers\fR\&\&. This argument returns a list of local processes currently subscribing to system events\&.
+.LP
+.TP 2
+*
+\fItables\fR\&\&. This argument returns a list of all locally known tables\&.
+.LP
+.TP 2
+*
+\fItransactions\fR\&\&. This argument returns a list of all currently active local transactions\&.
+.LP
+.TP 2
+*
+\fItransaction_failures\fR\&\&. This argument returns a number which indicates how many transactions have failed since Mnesia was started\&.
+.LP
+.TP 2
+*
+\fItransaction_commits\fR\&\&. This argument returns a number which indicates how many transactions have terminated successfully since Mnesia was started\&.
+.LP
+.TP 2
+*
+\fItransaction_restarts\fR\&\&. This argument returns a number which indicates how many transactions have been restarted since Mnesia was started\&.
+.LP
+.TP 2
+*
+\fItransaction_log_writes\fR\&\&. This argument returns a number which indicates the number of write operation that have been performed to the transaction log since start-up\&.
+.LP
+.TP 2
+*
+\fIuse_dir\fR\&\&. This argument returns a boolean which indicates whether the Mnesia directory is used or not\&. Can be invoked even if Mnesia is not yet running\&.
+.LP
+.TP 2
+*
+\fIversion\fR\&\&. This argument returns the current version number of Mnesia\&.
+.LP
+.RE
+
+.RE
+.LP
+.B
+table(Tab [,[Option]]) -> QueryHandle 
+.br
+.RS
+.LP
+Returns a QLC (Query List Comprehension) query handle, see \fBqlc(3)\fR\&\&.The module \fIqlc\fR\& implements a query language, it can use mnesia tables as sources of data\&. Calling \fImnesia:table/1,2\fR\& is the means to make the \fImnesia\fR\& table \fITab\fR\& usable to QLC\&.
+.LP
+The list of Options may contain mnesia options or QLC options, the following options are recognized by Mnesia: \fI{traverse, SelectMethod},{lock, Lock},{n_objects,Number}\fR\&, any other option is forwarded to QLC\&. The \fIlock\fR\& option may be \fIread\fR\& or \fIwrite\fR\&, default is \fIread\fR\&\&. The option \fIn_objects\fR\& specifies (roughly) the number of objects returned from mnesia to QLC\&. Queries to remote tables may need a larger chunks to reduce network overhead, default \fI100\fR\& objects at a time are returned\&. The option \fItraverse\fR\& determines the method to traverse the whole table (if needed), the default method is \fIselect\fR\&:
+.RS 2
+.TP 2
+*
+\fIselect\fR\&\&. The table is traversed by calling \fImnesia:select/4\fR\& and \fImnesia:select/1\fR\&\&. The match specification (the second argument of \fIselect/3\fR\&) is assembled by QLC: simple filters are translated into equivalent match specifications while more complicated filters have to be applied to all objects returned by \fIselect/3\fR\& given a match specification that matches all objects\&.
+.LP
+.TP 2
+*
+\fI{select, MatchSpec}\fR\&\&. As for \fIselect\fR\& the table is traversed by calling \fImnesia:select/3\fR\& and \fImnesia:select/1\fR\&\&. The difference is that the match specification is explicitly given\&. This is how to state match specifications that cannot easily be expressed within the syntax provided by QLC\&.
+.LP
+.RE
+
+.RE
+.LP
+.B
+table_info(Tab, InfoKey) -> Info | exit({aborted, Reason})
+.br
+.RS
+.LP
+The \fItable_info/2\fR\& function takes two arguments\&. The first is the name of a Mnesia table, the second is one of the following keys:
+.RS 2
+.TP 2
+*
+\fIall\fR\&\&. This argument returns a list of all local table information\&. Each element is a \fI{InfoKey, ItemVal}\fR\& tuples\&. \fINote:\fR\& New \fIInfoItem\fR\&\&'s may be added and old undocumented \fIInfoItem\fR\&\&'s may be removed without notice\&.
+.LP
+.TP 2
+*
+\fIaccess_mode\fR\&\&. This argument returns the access mode of the table\&. The access mode may either be read_only or read_write\&.
+.LP
+.TP 2
+*
+\fIarity\fR\&\&. This argument returns the arity of records in the table as specified in the schema\&.
+.LP
+.TP 2
+*
+\fIattributes\fR\&\&. This argument returns the table attribute names which are specified in the schema\&.
+.LP
+.TP 2
+*
+\fIcheckpoints\fR\&\&. This argument returns the names of the currently active checkpoints which involves this table on this node\&.
+.LP
+.TP 2
+*
+\fIcookie\fR\&\&. This argument returns a table cookie which is a unique system generated identifier for the table\&. The cookie is used internally to ensure that two different table definitions using the same table name cannot accidentally be intermixed\&. The cookie is generated when the table is initially created\&.
+.LP
+.TP 2
+*
+\fIdisc_copies\fR\&\&. This argument returns the nodes where a disc_copy of the table resides according to the schema\&.
+.LP
+.TP 2
+*
+\fIdisc_only_copies \fR\&\&. This argument returns the nodes where a disc_only_copy of the table resides according to the schema\&.
+.LP
+.TP 2
+*
+\fIindex\fR\&\&. This argument returns the list of index position integers for the table\&.
+.LP
+.TP 2
+*
+\fIload_node\fR\&\&. This argument returns the name of the node that Mnesia loaded the table from\&. The structure of the returned value is unspecified but may be useful for debugging purposes\&.
+.LP
+.TP 2
+*
+\fIload_order\fR\&\&. This argument returns the load order priority of the table\&. It is an integer and defaults to \fI0\fR\& (zero)\&.
+.LP
+.TP 2
+*
+\fIload_reason\fR\&\&. This argument returns the reason of why Mnesia decided to load the table\&. The structure of the returned value is unspecified but may be useful for debugging purposes\&.
+.LP
+.TP 2
+*
+\fIlocal_content\fR\&\&. This argument returns \fItrue\fR\& or \fIfalse\fR\& to indicate whether the table is configured to have locally unique content on each node\&.
+.LP
+.TP 2
+*
+\fImaster_nodes\fR\&\&. This argument returns the master nodes of a table\&.
+.LP
+.TP 2
+*
+\fImemory\fR\&\&. This argument returns the number of words allocated to the table on this node\&.
+.LP
+.TP 2
+*
+\fIram_copies\fR\&\&. This argument returns the nodes where a ram_copy of the table resides according to the schema\&.
+.LP
+.TP 2
+*
+\fIrecord_name\fR\&\&. This argument returns the record name, common for all records in the table
+.LP
+.TP 2
+*
+\fIsize\fR\&\&. This argument returns the number of records inserted in the table\&.
+.LP
+.TP 2
+*
+\fIsnmp\fR\&\&. This argument returns the SNMP struct\&. \fI[]\fR\&meaning that the table currently has no SNMP properties\&.
+.LP
+.TP 2
+*
+\fIstorage_type\fR\&\&.This argument returns the local storage type of the table\&. It can be \fIdisc_copies\fR\&, \fIram_copies\fR\&, \fIdisc_only_copies\fR\&, or the atom \fIunknown\fR\&\&. \fIunknown\fR\& is returned for all tables which only reside remotely\&.
+.LP
+.TP 2
+*
+\fIsubscribers\fR\&\&. This argument returns a list of local processes currently subscribing to local table events which involve this table on this node\&.
+.LP
+.TP 2
+*
+\fItype\fR\&\&. This argument returns the table type, which is either \fIbag\fR\&, \fIset\fR\& or \fIordered_set\fR\&\&.\&.
+.LP
+.TP 2
+*
+\fIuser_properties\fR\&\&. This argument returns the user associated table properties of the table\&. It is a list of the stored property records\&.
+.LP
+.TP 2
+*
+\fIversion\fR\&\&. This argument returns the current version of the table definition\&. The table version is incremented when the table definition is changed\&. The table definition may be incremented directly when the table definition has been changed in a schema transaction, or when a committed table definition is merged with table definitions from other nodes during start-up\&.
+.LP
+.TP 2
+*
+\fIwhere_to_read\fR\&\&.This argument returns the node where the table can be read\&. If the value \fInowhere\fR\& is returned, the table is not loaded, or it resides at a remote node which is not running\&.
+.LP
+.TP 2
+*
+\fIwhere_to_write\fR\&\&. This argument returns a list of the nodes that currently hold an active replica of the table\&.
+.LP
+.TP 2
+*
+\fIwild_pattern\fR\&\&. This argument returns a structure which can be given to the various match functions for a certain table\&. A record tuple is where all record fields have the value \fI\&'_\&'\fR\&\&.
+.LP
+.RE
+
+.RE
+.LP
+.B
+transaction(Fun [[, Args], Retries]) -> {aborted, Reason} | {atomic, ResultOfFun}
+.br
+.RS
+.LP
+This function executes the functional object \fIFun\fR\& with arguments \fIArgs\fR\& as a transaction\&.
+.LP
+The code which executes inside the transaction can consist of a series of table manipulation functions\&. If something goes wrong inside the transaction as a result of a user error or a certain table not being available, the entire transaction is aborted and the function \fItransaction/1\fR\& returns the tuple \fI{aborted, Reason}\fR\&\&.
+.LP
+If all is well, \fI{atomic, ResultOfFun}\fR\& is returned where \fIResultOfFun\fR\& is the value of the last expression in \fIFun\fR\&\&.
+.LP
+A function which adds a family to the database can be written as follows if we have a structure \fI{family, Father, Mother, ChildrenList}\fR\&:
+.LP
+.nf
+
+add_family({family, F, M, Children}) ->
+    ChildOids = lists:map(fun oid/1, Children),
+    Trans = fun() ->      
+        mnesia:write(F#person{children = ChildOids}, 
+        mnesia:write(M#person{children = ChildOids},
+        Write = fun(Child) -> mnesia:write(Child) end,
+        lists:foreach(Write, Children)
+    end,
+    mnesia:transaction(Trans).
+
+oid(Rec) -> {element(1, Rec), element(2, Rec)}.
+        
+.fi
+.LP
+This code adds a set of people to the database\&. Running this code within one transaction will ensure that either the whole family is added to the database, or the whole transaction aborts\&. For example, if the last child is badly formatted, or the executing process terminates due to an \fI\&'EXIT\&'\fR\& signal while executing the family code, the transaction aborts\&. Accordingly, the situation where half a family is added can never occur\&.
+.LP
+It is also useful to update the database within a transaction if several processes concurrently update the same records\&. For example, the function \fIraise(Name, Amount)\fR\&, which adds \fIAmount\fR\& to the salary field of a person, should be implemented as follows:
+.LP
+.nf
+
+raise(Name, Amount) ->
+    mnesia:transaction(fun() ->
+        case mnesia:wread({person, Name}) of
+            [P] ->
+                Salary = Amount + P#person.salary,
+                P2 = P#person{salary = Salary},
+                mnesia:write(P2);
+            _ ->
+                mnesia:abort("No such person")
+        end
+    end).
+        
+.fi
+.LP
+When this function executes within a transaction, several processes running on different nodes can concurrently execute the \fIraise/2\fR\& function without interfering with each other\&.
+.LP
+Since Mnesia detects deadlocks, a transaction can be restarted any number of times\&. This function will attempt a restart as specified in \fIRetries\fR\&\&. \fIRetries\fR\& must be an integer greater than 0 or the atom \fIinfinity\fR\&\&. Default is \fIinfinity\fR\&\&.
+.RE
+.LP
+.B
+transform_table(Tab, Fun, NewAttributeList, NewRecordName) -> {aborted, R} | {atomic, ok} 
+.br
+.RS
+.LP
+This function applies the argument \fIFun\fR\& to all records in the table\&. \fIFun\fR\& is a function which takes a record of the old type and returns a transformed record of the new type\&. The \fIFun\fR\& argument can also be the atom \fIignore\fR\&, it indicates that only the meta data about the table will be updated\&. Usage of \fIignore\fR\& is not recommended but included as a possibility for the user do to his own transform\&. \fINewAttributeList\fR\& and \fINewRecordName\fR\& specifies the attributes and the new record type of converted table\&. Table name will always remain unchanged, if the record_name is changed only the mnesia functions which uses table identifiers will work, e\&.g\&. \fImnesia:write/3\fR\& will work but \fImnesia:write/1\fR\& will not\&.
+.RE
+.LP
+.B
+transform_table(Tab, Fun, NewAttributeList) -> {aborted, R} | {atomic, ok} 
+.br
+.RS
+.LP
+Invokes \fImnesia:transform_table(Tab, Fun, NewAttributeList, RecName)\fR\& where \fIRecName\fR\& is \fImnesia:table_info(Tab, record_name)\fR\&\&.
+.RE
+.LP
+.B
+traverse_backup(Source, [SourceMod,] Target, [TargetMod,] Fun, Acc) -> {ok, LastAcc} | {error, Reason}
+.br
+.RS
+.LP
+With this function it is possible to iterate over a backup, either for the purpose of transforming it into a new backup, or just reading it\&. The arguments are explained briefly below\&. See the Mnesia User\&'s Guide for additional details\&.
+.RS 2
+.TP 2
+*
+\fISourceMod\fR\& and \fITargetMod\fR\& are the names of the modules which actually access the backup media\&. 
+.LP
+.TP 2
+*
+\fISource\fR\& and \fITarget\fR\& are opaque data used exclusively by the modules \fISourceMod\fR\& and \fITargetMod\fR\& for the purpose of initializing the backup media\&. 
+.LP
+.TP 2
+*
+\fIAcc\fR\& is an initial accumulator value\&. 
+.LP
+.TP 2
+*
+\fIFun(BackupItems, Acc)\fR\& is applied to each item in the backup\&. The Fun must return a tuple \fI{BackupItems,NewAcc}\fR\&, where \fIBackupItems\fR\& is a list of valid backup items, and \fINewAcc\fR\& is a new accumulator value\&. The returned backup items are written in the target backup\&. 
+.LP
+.TP 2
+*
+\fILastAcc\fR\& is the last accumulator value\&. This is the last \fINewAcc\fR\& value that was returned by \fIFun\fR\&\&. 
+.LP
+.RE
+
+.RE
+.LP
+.B
+uninstall_fallback() -> ok | {error,Reason}
+.br
+.RS
+.LP
+Invokes \fImnesia:uninstall_fallback([{scope, global}])\fR\&\&.
+.RE
+.LP
+.B
+uninstall_fallback(Args) -> ok | {error,Reason}
+.br
+.RS
+.LP
+This function is used to de-install a fallback before it has been used to restore the database\&. This is normally a distributed operation that is either performed on all nodes with disc resident schema or none\&. Uninstallation of fallbacks requires Erlang to be up and running on all involved nodes, but it does not matter if Mnesia is running or not\&. Which nodes that are considered as disc-resident nodes is determined from the schema info in the local fallback\&.
+.LP
+\fIArgs\fR\& is a list of the following tuples:
+.RS 2
+.TP 2
+*
+\fI{module, BackupMod}\fR\&\&. See \fImnesia:install_fallback/2\fR\& about the semantics\&.
+.LP
+.TP 2
+*
+\fI{scope, Scope}\fR\& See \fImnesia:install_fallback/2\fR\& about the semantics\&.
+.LP
+.TP 2
+*
+\fI{mnesia_dir, AlternateDir}\fR\& See \fImnesia:install_fallback/2\fR\& about the semantics\&.
+.LP
+.RE
+
+.RE
+.LP
+.B
+unsubscribe(EventCategory)
+.br
+.RS
+.LP
+Stops sending events of type \fIEventCategory\fR\& to the caller\&.
+.RE
+.LP
+.B
+wait_for_tables(TabList,Timeout) -> ok | {timeout, BadTabList} | {error, Reason} 
+.br
+.RS
+.LP
+Some applications need to wait for certain tables to be accessible in order to do useful work\&. \fImnesia:wait_for_tables/2\fR\& hangs until all tables in the \fITabList\fR\& are accessible, or until \fItimeout\fR\& is reached\&.
+.RE
+.LP
+.B
+wread({Tab, Key}) -> transaction abort | RecordList 
+.br
+.RS
+.LP
+Invoke \fImnesia:read(Tab, Key, write)\fR\&\&.
+.RE
+.LP
+.B
+write(Record) -> transaction abort | ok 
+.br
+.RS
+.LP
+Invoke \fImnesia:write(Tab, Record, write)\fR\& where \fITab\fR\& is \fIelement(1, Record)\fR\&\&.
+.RE
+.LP
+.B
+write(Tab, Record, LockKind) -> transaction abort | ok 
+.br
+.RS
+.LP
+Writes the record \fIRecord\fR\& to the table \fITab\fR\&\&.
+.LP
+The function returns \fIok\fR\&, or aborts if an error occurs\&. For example, the transaction aborts if no \fIperson\fR\& table exists\&.
+.LP
+The semantics of this function is context sensitive\&. See \fImnesia:activity/4\fR\& for more information\&. In transaction context it acquires a lock of type \fILockKind\fR\&\&. The following lock types are supported: \fIwrite\fR\& and \fIsticky_write\fR\&\&.
+.RE
+.LP
+.B
+write_lock_table(Tab) -> ok | transaction abort
+.br
+.RS
+.LP
+Invokes \fImnesia:lock({table, Tab}, write)\fR\&\&.
+.RE
+.SH "CONFIGURATION PARAMETERS"
+
+.LP
+Mnesia reads the following application configuration parameters:
+.RS 2
+.TP 2
+*
+\fI-mnesia access_module Module\fR\&\&. The name of the Mnesia activity access callback module\&. The default is \fImnesia\fR\&\&.
+.LP
+.TP 2
+*
+\fI-mnesia auto_repair true | false\fR\&\&. This flag controls whether Mnesia will try to automatically repair files that have not been properly closed\&. The default is \fItrue\fR\&\&.
+.LP
+.TP 2
+*
+\fI-mnesia backup_module Module\fR\&\&. The name of the Mnesia backup callback module\&. The default is \fImnesia_backup\fR\&\&.
+.LP
+.TP 2
+*
+\fI-mnesia debug Level\fR\& Controls the debug level of Mnesia\&. Possible values are:
+.RS 2
+.TP 2
+.B
+\fInone\fR\&:
+No trace outputs at all\&. This is the default setting\&.
+.TP 2
+.B
+\fIverbose\fR\&:
+Activates tracing of important debug events\&. These debug events generate \fI{mnesia_info, Format, Args}\fR\& system events\&. Processes may subscribe to these events with \fImnesia:subscribe/1\fR\&\&. The events are always sent to Mnesia\&'s event handler\&.
+.TP 2
+.B
+\fIdebug\fR\&:
+Activates all events at the verbose level plus full trace of all debug events\&. These debug events generate \fI{mnesia_info, Format, Args}\fR\& system events\&. Processes may subscribe to these events with \fImnesia:subscribe/1\fR\&\&. The events are always sent to the Mnesia event handler\&. On this debug level, the Mnesia event handler starts subscribing to updates in the schema table\&.
+.TP 2
+.B
+\fItrace\fR\&:
+Activates all events at the level debug\&. On this debug level, the Mnesia event handler starts subscribing to updates on all Mnesia tables\&. This level is only intended for debugging small toy systems since many large events may be generated\&.
+.TP 2
+.B
+\fIfalse\fR\&:
+An alias for none\&.
+.TP 2
+.B
+\fItrue\fR\&:
+An alias for debug\&.
+.RE
+.LP
+.TP 2
+*
+\fI-mnesia core_dir Directory\fR\&\&. The name of the directory where Mnesia core files is stored or false\&. Setting it implies that also ram only nodes, will generate a core file if a crash occurs\&.
+.LP
+.TP 2
+*
+\fI-mnesia dc_dump_limit Number\fR\&\&. Controls how often \fIdisc_copies\fR\& tables are dumped from memory\&. Tables are dumped when \fIfilesize(Log) > (filesize(Tab)/Dc_dump_limit)\fR\&\&. Lower values reduces cpu overhead but increases disk space and startup times\&. The default is 4\&.
+.LP
+.TP 2
+*
+\fI-mnesia dir Directory\fR\&\&. The name of the directory where all Mnesia data is stored\&. The name of the directory must be unique for the current node\&. Two nodes may, under no circumstances, share the same Mnesia directory\&. The results are totally unpredictable\&.
+.LP
+.TP 2
+*
+\fI-mnesia dump_log_load_regulation true | false\fR\&\&. Controls if the log dumps should be performed as fast as possible or if the dumper should do its own load regulation\&. This feature is temporary and will disappear in a future release\&. The default is \fIfalse\fR\&\&.
+.LP
+.TP 2
+*
+\fI-mnesia dump_log_update_in_place true | false\fR\&\&. Controls if log dumps are performed on a copy of the original data file, or if the log dump is performed on the original data file\&. The default is \fItrue\fR\&
+.LP
+.TP 2
+*
+\fI-mnesia dump_log_write_threshold Max\fR\&, where \fIMax\fR\& is an integer which specifies the maximum number of writes allowed to the transaction log before a new dump of the log is performed\&. It defaults to 100 log writes\&.
+.LP
+.TP 2
+*
+\fI-mnesia dump_log_time_threshold Max\fR\&, where \fIMax\fR\& is an integer which specifies the dump log interval in milliseconds\&. It defaults to 3 minutes\&. If a dump has not been performed within \fIdump_log_time_threshold\fR\& milliseconds, then a new dump is performed regardless of how many writes have been performed\&.
+.LP
+.TP 2
+*
+\fI-mnesia event_module Module\fR\&\&. The name of the Mnesia event handler callback module\&. The default is \fImnesia_event\fR\&\&.
+.LP
+.TP 2
+*
+\fI-mnesia extra_db_nodes Nodes\fR\& specifies a list of nodes, in addition to the ones found in the schema, with which Mnesia should also establish contact\&. The default value is the empty list \fI[]\fR\&\&.
+.LP
+.TP 2
+*
+\fI-mnesia fallback_error_function {UserModule, UserFunc}\fR\& specifies a user supplied callback function which will be called if a fallback is installed and mnesia goes down on another node\&. Mnesia will call the function with one argument the name of the dying node, e\&.g\&. \fIUserModule:UserFunc(DyingNode)\fR\&\&. Mnesia should be restarted or else the database could be inconsistent\&. The default behaviour is to terminate mnesia\&.
+.LP
+.TP 2
+*
+\fI-mnesia max_wait_for_decision Timeout\fR\&\&. Specifies how long Mnesia will wait for other nodes to share their knowledge regarding the outcome of an unclear transaction\&. By default the \fITimeout\fR\& is set to the atom \fIinfinity\fR\&, which implies that if Mnesia upon startup encounters a "heavyweight transaction" whose outcome is unclear, the local Mnesia will wait until Mnesia is started on some (in worst cases all) of the other nodes that were involved in the interrupted transaction\&. This is a very rare situation, but when/if it happens, Mnesia does not guess if the transaction on the other nodes was committed or aborted\&. Mnesia will wait until it knows the outcome and then act accordingly\&.
+.RS 2
+.LP
+If \fITimeout\fR\& is set to an integer value in milliseconds, Mnesia will force "heavyweight transactions" to be finished, even if the outcome of the transaction for the moment is unclear\&. After \fITimeout\fR\& milliseconds, Mnesia will commit/abort the transaction and continue with the startup\&. This may lead to a situation where the transaction is committed on some nodes and aborted on other nodes\&. If the transaction was a schema transaction, the inconsistency may be fatal\&.
+.RE
+.LP
+.TP 2
+*
+\fI-mnesia no_table_loaders NUMBER\fR\& specifies the number of parallel table loaders during start\&. More loaders can be good if the network latency is high or if many tables contains few records\&. The default value is \fI2\fR\&\&.
+.LP
+.TP 2
+*
+\fI-mnesia send_compressed Level\fR\& specifies the level of compression to be used when copying a table from the local node to another one\&. The default level is 0\&.
+.RS 2
+.LP
+\fILevel\fR\& must be an integer in the interval [0, 9], with 0 representing no compression and 9 representing maximum compression\&. Before setting it to a non-zero value, make sure the remote nodes understand this configuration\&.
+.RE
+.LP
+.TP 2
+*
+\fI-mnesia schema_location Loc\fR\& controls where Mnesia will look for its schema\&. The parameter \fILoc\fR\& may be one of the following atoms:
+.RS 2
+.TP 2
+.B
+\fIdisc\fR\&:
+Mandatory disc\&. The schema is assumed to be located in the Mnesia directory\&. If the schema cannot be found, Mnesia refuses to start\&. This is the old behavior\&.
+.TP 2
+.B
+\fIram\fR\&:
+Mandatory RAM\&. The schema resides in RAM only\&. At start-up, a tiny new schema is generated\&. This default schema just contains the definition of the schema table and only resides on the local node\&. Since no other nodes are found in the default schema, the configuration parameter \fIextra_db_nodes\fR\& must be used in order to let the node share its table definitions with other nodes\&. (The \fIextra_db_nodes\fR\& parameter may also be used on disc based nodes\&.)
+.TP 2
+.B
+\fIopt_disc\fR\&:
+Optional disc\&. The schema may reside either on disc or in RAM\&. If the schema is found on disc, Mnesia starts as a disc based node and the storage type of the schema table is \fIdisc_copies\fR\&\&. If no schema is found on disc, Mnesia starts as a disc-less node and the storage type of the schema table is \fIram_copies\fR\&\&. The default value for the application parameter is \fIopt_disc\fR\&\&.
+.RE
+.LP
+.RE
+
+.LP
+First the SASL application parameters are checked, then the command line flags are checked, and finally, the default value is chosen\&.
+.SH "SEE ALSO"
+
+.LP
+mnesia_registry(3), mnesia_session(3), qlc(3), dets(3), ets(3), disk_log(3), application(3)

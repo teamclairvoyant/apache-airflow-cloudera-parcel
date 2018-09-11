@@ -1,0 +1,199 @@
+.TH wxControlWithItems 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxControlWithItems \- See external documentation: wxControlWithItems.
+.SH DESCRIPTION
+.LP
+See external documentation: wxControlWithItems\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxControl\fR\& 
+.br
+\fBwxWindow\fR\& 
+.br
+\fBwxEvtHandler\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxControlWithItems()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+append(This::wxControlWithItems(), Item::string()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+append(This::wxControlWithItems(), Item::string(), ClientData::term()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+appendStrings(This::wxControlWithItems(), Strings::[[string()]]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+clear(This::wxControlWithItems()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+delete(This::wxControlWithItems(), N::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+findString(This::wxControlWithItems(), S::string()) -> integer()
+.br
+.RS
+.LP
+Equivalent to \fBfindString(This, S, [])\fR\&\&.
+.RE
+.LP
+.B
+findString(This::wxControlWithItems(), S::string(), Options::[Option]) -> integer()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {bCase, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getClientData(This::wxControlWithItems(), N::integer()) -> term()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setClientData(This::wxControlWithItems(), N::integer(), ClientData::term()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getCount(This::wxControlWithItems()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getSelection(This::wxControlWithItems()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getString(This::wxControlWithItems(), N::integer()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getStringSelection(This::wxControlWithItems()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+insert(This::wxControlWithItems(), Item::string(), Pos::integer()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+insert(This::wxControlWithItems(), Item::string(), Pos::integer(), ClientData::term()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isEmpty(This::wxControlWithItems()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+select(This::wxControlWithItems(), N::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setSelection(This::wxControlWithItems(), N::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setString(This::wxControlWithItems(), N::integer(), S::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setStringSelection(This::wxControlWithItems(), S::string()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

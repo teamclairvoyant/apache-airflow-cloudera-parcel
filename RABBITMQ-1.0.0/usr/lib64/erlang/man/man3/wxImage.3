@@ -1,0 +1,918 @@
+.TH wxImage 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxImage \- See external documentation: wxImage.
+.SH DESCRIPTION
+.LP
+See external documentation: wxImage\&.
+.LP
+All (default) image handlers are initialized\&.
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxImage()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+new() -> wxImage()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+new(Name::string()) -> wxImage()
+.br
+.RS
+.LP
+Equivalent to \fBnew(Name, [])\fR\&\&.
+.RE
+.LP
+.B
+new(X::integer() | string(), X::integer() | term()) -> wxImage()
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI new(Width::integer(), Height::integer()) -> new(Width,Height, []) \fR\&
+.LP
+\fI new(Name::string(), [Option]) -> wxImage() \fR\& 
+.br
+Option = {type, integer()} | {index, integer()}
+.RE
+.LP
+.B
+new(X::integer() | string(), X::integer() | string(), X::binary() | term()) -> wxImage()
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI new(Width::integer(), Height::integer(), Data::binary()) -> new(Width,Height,Data, []) \fR\&
+.LP
+\fI new(Width::integer(), Height::integer(), [Option]) -> wxImage() \fR\& 
+.br
+Option = {clear, bool()}
+.LP
+\fI new(Name::string(), Mimetype::string(), [Option]) -> wxImage() \fR\& 
+.br
+Option = {index, integer()}
+.RE
+.LP
+.B
+new(Width::integer(), Height::integer(), Data::binary(), X::binary() | term()) -> wxImage()
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI new(Width::integer(), Height::integer(), Data::binary(), Alpha::binary()) -> new(Width,Height,Data,Alpha, []) \fR\&
+.LP
+\fI new(Width::integer(), Height::integer(), Data::binary(), [Option]) -> wxImage() \fR\& 
+.br
+Option = {static_data, bool()}
+.RE
+.LP
+.B
+new(Width::integer(), Height::integer(), Data::binary(), Alpha::binary(), Options::[Option]) -> wxImage()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {static_data, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+blur(This::wxImage(), Radius::integer()) -> wxImage()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+blurHorizontal(This::wxImage(), Radius::integer()) -> wxImage()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+blurVertical(This::wxImage(), Radius::integer()) -> wxImage()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+convertAlphaToMask(This::wxImage()) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBconvertAlphaToMask(This, [])\fR\&\&.
+.RE
+.LP
+.B
+convertAlphaToMask(This::wxImage(), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {threshold, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+convertToGreyscale(This::wxImage()) -> wxImage()
+.br
+.RS
+.LP
+Equivalent to \fBconvertToGreyscale(This, [])\fR\&\&.
+.RE
+.LP
+.B
+convertToGreyscale(This::wxImage(), Options::[Option]) -> wxImage()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {lr, float()} | {lg, float()} | {lb, float()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+convertToMono(This::wxImage(), R::integer(), G::integer(), B::integer()) -> wxImage()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+copy(This::wxImage()) -> wxImage()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+create(This::wxImage(), Width::integer(), Height::integer()) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBcreate(This, Width, Height, [])\fR\&\&.
+.RE
+.LP
+.B
+create(This::wxImage(), Width::integer(), Height::integer(), X::binary() | term()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI create(This::wxImage(), Width::integer(), Height::integer(), Data::binary()) -> create(This,Width,Height,Data, []) \fR\&
+.LP
+\fI create(This::wxImage(), Width::integer(), Height::integer(), [Option]) -> bool() \fR\& 
+.br
+Option = {clear, bool()}
+.RE
+.LP
+.B
+create(This::wxImage(), Width::integer(), Height::integer(), Data::binary(), X::binary() | term()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI create(This::wxImage(), Width::integer(), Height::integer(), Data::binary(), Alpha::binary()) -> create(This,Width,Height,Data,Alpha, []) \fR\&
+.LP
+\fI create(This::wxImage(), Width::integer(), Height::integer(), Data::binary(), [Option]) -> bool() \fR\& 
+.br
+Option = {static_data, bool()}
+.RE
+.LP
+.B
+create(This::wxImage(), Width::integer(), Height::integer(), Data::binary(), Alpha::binary(), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {static_data, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+Destroy(This::wxImage()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+findFirstUnusedColour(This::wxImage()) -> {bool(), R::integer(), G::integer(), B::integer()}
+.br
+.RS
+.LP
+Equivalent to \fBfindFirstUnusedColour(This, [])\fR\&\&.
+.RE
+.LP
+.B
+findFirstUnusedColour(This::wxImage(), Options::[Option]) -> {bool(), R::integer(), G::integer(), B::integer()}
+.br
+.RS
+.TP 3
+Types:
+
+Option = {startR, integer()} | {startG, integer()} | {startB, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getImageExtWildcard() -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getAlpha(This::wxImage()) -> binary()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getAlpha(This::wxImage(), X::integer(), Y::integer()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getBlue(This::wxImage(), X::integer(), Y::integer()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getData(This::wxImage()) -> binary()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getGreen(This::wxImage(), X::integer(), Y::integer()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getImageCount(Name::string()) -> integer()
+.br
+.RS
+.LP
+Equivalent to \fBgetImageCount(Name, [])\fR\&\&.
+.RE
+.LP
+.B
+getImageCount(Name::string(), Options::[Option]) -> integer()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {type, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getHeight(This::wxImage()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getMaskBlue(This::wxImage()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getMaskGreen(This::wxImage()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getMaskRed(This::wxImage()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getOrFindMaskColour(This::wxImage()) -> {bool(), R::integer(), G::integer(), B::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getPalette(This::wxImage()) -> wxPalette() (see module wxPalette)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getRed(This::wxImage(), X::integer(), Y::integer()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getSubImage(This::wxImage(), Rect::{X::integer(), Y::integer(), W::integer(), H::integer()}) -> wxImage()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getWidth(This::wxImage()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+hasAlpha(This::wxImage()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+hasMask(This::wxImage()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getOption(This::wxImage(), Name::string()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getOptionInt(This::wxImage(), Name::string()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+hasOption(This::wxImage(), Name::string()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+initAlpha(This::wxImage()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+initStandardHandlers() -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isTransparent(This::wxImage(), X::integer(), Y::integer()) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBisTransparent(This, X, Y, [])\fR\&\&.
+.RE
+.LP
+.B
+isTransparent(This::wxImage(), X::integer(), Y::integer(), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {threshold, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+loadFile(This::wxImage(), Name::string()) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBloadFile(This, Name, [])\fR\&\&.
+.RE
+.LP
+.B
+loadFile(This::wxImage(), Name::string(), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {type, integer()} | {index, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+loadFile(This::wxImage(), Name::string(), Mimetype::string(), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {index, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+ok(This::wxImage()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+removeHandler(Name::string()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+mirror(This::wxImage()) -> wxImage()
+.br
+.RS
+.LP
+Equivalent to \fBmirror(This, [])\fR\&\&.
+.RE
+.LP
+.B
+mirror(This::wxImage(), Options::[Option]) -> wxImage()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {horizontally, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+replace(This::wxImage(), R1::integer(), G1::integer(), B1::integer(), R2::integer(), G2::integer(), B2::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rescale(This::wxImage(), Width::integer(), Height::integer()) -> wxImage()
+.br
+.RS
+.LP
+Equivalent to \fBrescale(This, Width, Height, [])\fR\&\&.
+.RE
+.LP
+.B
+rescale(This::wxImage(), Width::integer(), Height::integer(), Options::[Option]) -> wxImage()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {quality, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+resize(This::wxImage(), Size::{W::integer(), H::integer()}, Pos::{X::integer(), Y::integer()}) -> wxImage()
+.br
+.RS
+.LP
+Equivalent to \fBresize(This, Size, Pos, [])\fR\&\&.
+.RE
+.LP
+.B
+resize(This::wxImage(), Size::{W::integer(), H::integer()}, Pos::{X::integer(), Y::integer()}, Options::[Option]) -> wxImage()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {r, integer()} | {g, integer()} | {b, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rotate(This::wxImage(), Angle::float(), Centre_of_rotation::{X::integer(), Y::integer()}) -> wxImage()
+.br
+.RS
+.LP
+Equivalent to \fBrotate(This, Angle, Centre_of_rotation, [])\fR\&\&.
+.RE
+.LP
+.B
+rotate(This::wxImage(), Angle::float(), Centre_of_rotation::{X::integer(), Y::integer()}, Options::[Option]) -> wxImage()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {interpolating, bool()} | {offset_after_rotation, {X::integer(), Y::integer()}}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rotateHue(This::wxImage(), Angle::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rotate90(This::wxImage()) -> wxImage()
+.br
+.RS
+.LP
+Equivalent to \fBrotate90(This, [])\fR\&\&.
+.RE
+.LP
+.B
+rotate90(This::wxImage(), Options::[Option]) -> wxImage()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {clockwise, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+saveFile(This::wxImage(), Name::string()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+saveFile(This::wxImage(), Name::string(), X::integer() | string()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI saveFile(This::wxImage(), Name::string(), Type::integer()) -> bool() \fR\& 
+.LP
+\fI saveFile(This::wxImage(), Name::string(), Mimetype::string()) -> bool() \fR\& 
+.RE
+.LP
+.B
+scale(This::wxImage(), Width::integer(), Height::integer()) -> wxImage()
+.br
+.RS
+.LP
+Equivalent to \fBscale(This, Width, Height, [])\fR\&\&.
+.RE
+.LP
+.B
+scale(This::wxImage(), Width::integer(), Height::integer(), Options::[Option]) -> wxImage()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {quality, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+size(This::wxImage(), Size::{W::integer(), H::integer()}, Pos::{X::integer(), Y::integer()}) -> wxImage()
+.br
+.RS
+.LP
+Equivalent to \fBsize(This, Size, Pos, [])\fR\&\&.
+.RE
+.LP
+.B
+size(This::wxImage(), Size::{W::integer(), H::integer()}, Pos::{X::integer(), Y::integer()}, Options::[Option]) -> wxImage()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {r, integer()} | {g, integer()} | {b, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setAlpha(This::wxImage(), Alpha::binary()) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBsetAlpha(This, Alpha, [])\fR\&\&.
+.RE
+.LP
+.B
+setAlpha(This::wxImage(), Alpha::binary(), Options::[Option]) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Option = {static_data, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setAlpha(This::wxImage(), X::integer(), Y::integer(), Alpha::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setData(This::wxImage(), Data::binary()) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBsetData(This, Data, [])\fR\&\&.
+.RE
+.LP
+.B
+setData(This::wxImage(), Data::binary(), Options::[Option]) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Option = {static_data, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setData(This::wxImage(), Data::binary(), New_width::integer(), New_height::integer()) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBsetData(This, Data, New_width, New_height, [])\fR\&\&.
+.RE
+.LP
+.B
+setData(This::wxImage(), Data::binary(), New_width::integer(), New_height::integer(), Options::[Option]) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Option = {static_data, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setMask(This::wxImage()) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBsetMask(This, [])\fR\&\&.
+.RE
+.LP
+.B
+setMask(This::wxImage(), Options::[Option]) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Option = {mask, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setMaskColour(This::wxImage(), R::integer(), G::integer(), B::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setMaskFromImage(This::wxImage(), Mask::wxImage(), Mr::integer(), Mg::integer(), Mb::integer()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setOption(This::wxImage(), Name::string(), X::integer() | string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI setOption(This::wxImage(), Name::string(), Value::integer()) -> ok \fR\& 
+.LP
+\fI setOption(This::wxImage(), Name::string(), Value::string()) -> ok \fR\& 
+.RE
+.LP
+.B
+setPalette(This::wxImage(), Palette::wxPalette() (see module wxPalette)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setRGB(This::wxImage(), Rect::{X::integer(), Y::integer(), W::integer(), H::integer()}, R::integer(), G::integer(), B::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setRGB(This::wxImage(), X::integer(), Y::integer(), R::integer(), G::integer(), B::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+destroy(This::wxImage()) -> ok
+.br
+.RS
+.LP
+Destroys this object, do not use object again
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

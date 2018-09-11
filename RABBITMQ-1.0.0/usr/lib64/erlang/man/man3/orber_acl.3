@@ -1,0 +1,83 @@
+.TH orber_acl 3 "orber 3.6.22" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+orber_acl \- Orber ACL operations
+.SH DESCRIPTION
+.LP
+This module contains functions intended for analyzing Access Control List (ACL) filters\&. The filters uses a extended format of Classless Inter Domain Routing (CIDR)\&. For example, \fI"123\&.123\&.123\&.10"\fR\& limits the connection to that particular host, while \fI"123\&.123\&.123\&.10/17"\fR\& allows connections to or from any host equal to the 17 most significant bits\&. Orber also allow the user to specify a certain port or port range, for example, \fI"123\&.123\&.123\&.10/17#4001"\fR\& and \fI"123\&.123\&.123\&.10/17#4001/5001"\fR\& respectively\&. IPv4 or none compressed IPv6 strings are accepted\&.
+.SH EXPORTS
+.LP
+.B
+match(IP, Direction) -> boolean()
+.br
+.B
+match(IP, Direction, GetInfo) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+IP = tuple() | [integer()]
+.br
+Direction = tcp_in | ssl_in | tcp_out | ssl_out
+.br
+GetInfo = boolean()
+.br
+Reply = boolean() | {boolean(), [Interface], PortInfo}
+.br
+Interface = string()
+.br
+PortInfo = integer() | {integer(), integer()}
+.br
+.RE
+.RS
+.LP
+If \fIGetInfo\fR\& is not supplied or set to false, this operation returns a boolean which tells if the IPv4 or IPv6 address would pass the ACL filter, defined by the \fIiiop_acl\fR\& configuration parameter, or not\&. When \fIGetInfo\fR\& is set to true, a tuple which, besides the boolean that tells if access was granted, also include the defined interfaces and port(s)\&. This operation requires that Orber is running and can be used on a live node to determine if Orber has been properly configured\&.
+.RE
+.LP
+.B
+verify(IP, Filter, Family) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+IP = string()
+.br
+Filter = string()
+.br
+Family = inet | inet6
+.br
+Reply = true | {false, From, To} | {error, string()}
+.br
+From = string()
+.br
+To = string()
+.br
+.RE
+.RS
+.LP
+This operation returns true if the IPv4 or IPv6 address would pass the supplied ACL\&. If that is not the case, a tuple containing the accepted range is returned\&. This operation should only be used for test purposes\&.
+.RE
+.LP
+.B
+range(Filter, Family) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+Filter = string()
+.br
+Family = inet | inet6
+.br
+Reply = {ok, From, To} | {error, string()}
+.br
+From = string()
+.br
+To = string()
+.br
+.RE
+.RS
+.LP
+Returns the range of accepted IP addresses based on the supplied filter\&. This operation should only be used for test purposes\&.
+.RE

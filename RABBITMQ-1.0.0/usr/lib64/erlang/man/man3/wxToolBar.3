@@ -1,0 +1,454 @@
+.TH wxToolBar 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxToolBar \- See external documentation: wxToolBar.
+.SH DESCRIPTION
+.LP
+See external documentation: wxToolBar\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxControl\fR\& 
+.br
+\fBwxWindow\fR\& 
+.br
+\fBwxEvtHandler\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxToolBar()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+addControl(This::wxToolBar(), Control::wxControl() (see module wxControl)) -> wx() (see module wx)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+addSeparator(This::wxToolBar()) -> wx() (see module wx)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+addTool(This::wxToolBar(), Tool::wx() (see module wx)) -> wx() (see module wx)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+addTool(This::wxToolBar(), Toolid::integer(), Bitmap::wxBitmap() (see module wxBitmap)) -> wx() (see module wx)
+.br
+.RS
+.LP
+Equivalent to \fBaddTool(This, Toolid, Bitmap, [])\fR\&\&.
+.RE
+.LP
+.B
+addTool(This::wxToolBar(), Toolid::integer(), X::string() | term(), X::term()) -> wx() (see module wx)
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI addTool(This::wxToolBar(), Toolid::integer(), Label::string(), Bitmap::wxBitmap:wxBitmap()) -> addTool(This,Toolid,Label,Bitmap, []) \fR\&
+.LP
+\fI addTool(This::wxToolBar(), Toolid::integer(), Bitmap::wxBitmap:wxBitmap(), BmpDisabled::wxBitmap:wxBitmap()) -> addTool(This,Toolid,Bitmap,BmpDisabled, []) \fR\&
+.LP
+\fI addTool(This::wxToolBar(), Toolid::integer(), Bitmap::wxBitmap:wxBitmap(), [Option]) -> wx:wx() \fR\& 
+.br
+Option = {shortHelpString, string()} | {longHelpString, string()}
+.RE
+.LP
+.B
+addTool(This::wxToolBar(), Toolid::integer(), X::string() | term(), X::term(), X::term()) -> wx() (see module wx)
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI addTool(This::wxToolBar(), Toolid::integer(), Label::string(), Bitmap::wxBitmap:wxBitmap(), BmpDisabled::wxBitmap:wxBitmap()) -> addTool(This,Toolid,Label,Bitmap,BmpDisabled, []) \fR\&
+.LP
+\fI addTool(This::wxToolBar(), Toolid::integer(), Label::string(), Bitmap::wxBitmap:wxBitmap(), [Option]) -> wx:wx() \fR\& 
+.br
+Option = {shortHelp, string()} | {kind, WxItemKind} 
+.br
+WxItemKind = integer() 
+.br
+WxItemKind is one of ?wxITEM_SEPARATOR | ?wxITEM_NORMAL | ?wxITEM_CHECK | ?wxITEM_RADIO | ?wxITEM_MAX
+.LP
+\fI addTool(This::wxToolBar(), Toolid::integer(), Bitmap::wxBitmap:wxBitmap(), BmpDisabled::wxBitmap:wxBitmap(), [Option]) -> wx:wx() \fR\& 
+.br
+Option = {toggle, bool()} | {clientData, wx:wx()} | {shortHelpString, string()} | {longHelpString, string()}
+.RE
+.LP
+.B
+addTool(This::wxToolBar(), Toolid::integer(), X::term() | string(), X::term(), X::bool() | term(), X::integer() | term()) -> wx() (see module wx)
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI addTool(This::wxToolBar(), Toolid::integer(), Bitmap::wxBitmap:wxBitmap(), BmpDisabled::wxBitmap:wxBitmap(), Toggle::bool(), XPos::integer()) -> addTool(This,Toolid,Bitmap,BmpDisabled,Toggle,XPos, []) \fR\&
+.LP
+\fI addTool(This::wxToolBar(), Toolid::integer(), Label::string(), Bitmap::wxBitmap:wxBitmap(), BmpDisabled::wxBitmap:wxBitmap(), [Option]) -> wx:wx() \fR\& 
+.br
+Option = {kind, WxItemKind} | {shortHelp, string()} | {longHelp, string()} | {data, wx:wx()} 
+.br
+WxItemKind = integer() 
+.br
+WxItemKind is one of ?wxITEM_SEPARATOR | ?wxITEM_NORMAL | ?wxITEM_CHECK | ?wxITEM_RADIO | ?wxITEM_MAX
+.RE
+.LP
+.B
+addTool(This::wxToolBar(), Toolid::integer(), Bitmap::wxBitmap() (see module wxBitmap), BmpDisabled::wxBitmap() (see module wxBitmap), Toggle::bool(), XPos::integer(), Options::[Option]) -> wx() (see module wx)
+.br
+.RS
+.TP 3
+Types:
+
+Option = {yPos, integer()} | {clientData, wx() (see module wx)} | {shortHelp, string()} | {longHelp, string()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+addCheckTool(This::wxToolBar(), Toolid::integer(), Label::string(), Bitmap::wxBitmap() (see module wxBitmap)) -> wx() (see module wx)
+.br
+.RS
+.LP
+Equivalent to \fBaddCheckTool(This, Toolid, Label, Bitmap, [])\fR\&\&.
+.RE
+.LP
+.B
+addCheckTool(This::wxToolBar(), Toolid::integer(), Label::string(), Bitmap::wxBitmap() (see module wxBitmap), Options::[Option]) -> wx() (see module wx)
+.br
+.RS
+.TP 3
+Types:
+
+Option = {bmpDisabled, wxBitmap() (see module wxBitmap)} | {shortHelp, string()} | {longHelp, string()} | {data, wx() (see module wx)}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+addRadioTool(This::wxToolBar(), Toolid::integer(), Label::string(), Bitmap::wxBitmap() (see module wxBitmap)) -> wx() (see module wx)
+.br
+.RS
+.LP
+Equivalent to \fBaddRadioTool(This, Toolid, Label, Bitmap, [])\fR\&\&.
+.RE
+.LP
+.B
+addRadioTool(This::wxToolBar(), Toolid::integer(), Label::string(), Bitmap::wxBitmap() (see module wxBitmap), Options::[Option]) -> wx() (see module wx)
+.br
+.RS
+.TP 3
+Types:
+
+Option = {bmpDisabled, wxBitmap() (see module wxBitmap)} | {shortHelp, string()} | {longHelp, string()} | {data, wx() (see module wx)}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+deleteTool(This::wxToolBar(), Toolid::integer()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+deleteToolByPos(This::wxToolBar(), Pos::integer()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+enableTool(This::wxToolBar(), Toolid::integer(), Enable::bool()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+findById(This::wxToolBar(), Toolid::integer()) -> wx() (see module wx)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+findControl(This::wxToolBar(), Toolid::integer()) -> wxControl() (see module wxControl)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+findToolForPosition(This::wxToolBar(), X::integer(), Y::integer()) -> wx() (see module wx)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getToolSize(This::wxToolBar()) -> {W::integer(), H::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getToolBitmapSize(This::wxToolBar()) -> {W::integer(), H::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getMargins(This::wxToolBar()) -> {W::integer(), H::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getToolEnabled(This::wxToolBar(), Toolid::integer()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getToolLongHelp(This::wxToolBar(), Toolid::integer()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getToolPacking(This::wxToolBar()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getToolPos(This::wxToolBar(), Id::integer()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getToolSeparation(This::wxToolBar()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getToolShortHelp(This::wxToolBar(), Toolid::integer()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getToolState(This::wxToolBar(), Toolid::integer()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+insertControl(This::wxToolBar(), Pos::integer(), Control::wxControl() (see module wxControl)) -> wx() (see module wx)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+insertSeparator(This::wxToolBar(), Pos::integer()) -> wx() (see module wx)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+insertTool(This::wxToolBar(), Pos::integer(), Tool::wx() (see module wx)) -> wx() (see module wx)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+insertTool(This::wxToolBar(), Pos::integer(), Toolid::integer(), Bitmap::wxBitmap() (see module wxBitmap)) -> wx() (see module wx)
+.br
+.RS
+.LP
+Equivalent to \fBinsertTool(This, Pos, Toolid, Bitmap, [])\fR\&\&.
+.RE
+.LP
+.B
+insertTool(This::wxToolBar(), Pos::integer(), Toolid::integer(), X::string() | term(), X::term()) -> wx() (see module wx)
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI insertTool(This::wxToolBar(), Pos::integer(), Toolid::integer(), Label::string(), Bitmap::wxBitmap:wxBitmap()) -> insertTool(This,Pos,Toolid,Label,Bitmap, []) \fR\&
+.LP
+\fI insertTool(This::wxToolBar(), Pos::integer(), Toolid::integer(), Bitmap::wxBitmap:wxBitmap(), [Option]) -> wx:wx() \fR\& 
+.br
+Option = {bmpDisabled, wxBitmap:wxBitmap()} | {toggle, bool()} | {clientData, wx:wx()} | {shortHelp, string()} | {longHelp, string()}
+.RE
+.LP
+.B
+insertTool(This::wxToolBar(), Pos::integer(), Toolid::integer(), Label::string(), Bitmap::wxBitmap() (see module wxBitmap), Options::[Option]) -> wx() (see module wx)
+.br
+.RS
+.TP 3
+Types:
+
+Option = {bmpDisabled, wxBitmap() (see module wxBitmap)} | {kind, WxItemKind} | {shortHelp, string()} | {longHelp, string()} | {clientData, wx() (see module wx)}
+.br
+WxItemKind = integer()
+.br
+.RE
+.RS
+.LP
+See external documentation\&. 
+.br
+WxItemKind is one of ?wxITEM_SEPARATOR | ?wxITEM_NORMAL | ?wxITEM_CHECK | ?wxITEM_RADIO | ?wxITEM_MAX
+.RE
+.LP
+.B
+realize(This::wxToolBar()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+removeTool(This::wxToolBar(), Toolid::integer()) -> wx() (see module wx)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setMargins(This::wxToolBar(), X::integer(), Y::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setToolBitmapSize(This::wxToolBar(), Size::{W::integer(), H::integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setToolLongHelp(This::wxToolBar(), Toolid::integer(), HelpString::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setToolPacking(This::wxToolBar(), Packing::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setToolShortHelp(This::wxToolBar(), Id::integer(), HelpString::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setToolSeparation(This::wxToolBar(), Separation::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+toggleTool(This::wxToolBar(), Toolid::integer(), Toggle::bool()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

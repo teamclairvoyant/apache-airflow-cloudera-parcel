@@ -1,0 +1,742 @@
+.TH beam_lib 3 "stdlib 1.17.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+beam_lib \- An Interface To the BEAM File Format
+.SH DESCRIPTION
+.LP
+\fIbeam_lib\fR\& provides an interface to files created by the BEAM compiler ("BEAM files")\&. The format used, a variant of "EA IFF 1985" Standard for Interchange Format Files, divides data into chunks\&.
+.LP
+Chunk data can be returned as binaries or as compound terms\&. Compound terms are returned when chunks are referenced by names (atoms) rather than identifiers (strings)\&. The names recognized and the corresponding identifiers are:
+.RS 2
+.TP 2
+*
+\fIabstract_code ("Abst")\fR\&
+.LP
+.TP 2
+*
+\fIattributes ("Attr")\fR\&
+.LP
+.TP 2
+*
+\fIcompile_info ("CInf")\fR\&
+.LP
+.TP 2
+*
+\fIexports ("ExpT")\fR\&
+.LP
+.TP 2
+*
+\fIlabeled_exports ("ExpT")\fR\&
+.LP
+.TP 2
+*
+\fIimports ("ImpT")\fR\&
+.LP
+.TP 2
+*
+\fIindexed_imports ("ImpT")\fR\&
+.LP
+.TP 2
+*
+\fIlocals ("LocT")\fR\&
+.LP
+.TP 2
+*
+\fIlabeled_locals ("LocT")\fR\&
+.LP
+.TP 2
+*
+\fIatoms ("Atom")\fR\&
+.LP
+.RE
+
+.SH "DEBUG INFORMATION/ABSTRACT CODE"
+
+.LP
+The option \fIdebug_info\fR\& can be given to the compiler (see \fBcompile(3)\fR\&) in order to have debug information in the form of abstract code (see \fBThe Abstract Format\fR\& in ERTS User\&'s Guide) stored in the \fIabstract_code\fR\& chunk\&. Tools such as Debugger and Xref require the debug information to be included\&.
+.LP
+
+.RS -4
+.B
+Warning:
+.RE
+Source code can be reconstructed from the debug information\&. Use encrypted debug information (see below) to prevent this\&.
+
+.LP
+The debug information can also be removed from BEAM files using \fBstrip/1\fR\&, \fBstrip_files/1\fR\& and/or \fBstrip_release/1\fR\&\&.
+.SS "Reconstructing source code"
+
+.LP
+Here is an example of how to reconstruct source code from the debug information in a BEAM file \fIBeam\fR\&:
+.LP
+.nf
+
+      {ok,{_,[{abstract_code,{_,AC}}]}} = beam_lib:chunks(Beam,[abstract_code]).
+      io:fwrite("~s~n", [erl_prettypr:format(erl_syntax:form_list(AC))]).
+.fi
+.SS "Encrypted debug information"
+
+.LP
+The debug information can be encrypted in order to keep the source code secret, but still being able to use tools such as Xref or Debugger\&.
+.LP
+To use encrypted debug information, a key must be provided to the compiler and \fIbeam_lib\fR\&\&. The key is given as a string and it is recommended that it contains at least 32 characters and that both upper and lower case letters as well as digits and special characters are used\&.
+.LP
+The default type -- and currently the only type -- of crypto algorithm is \fIdes3_cbc\fR\&, three rounds of DES\&. The key string will be scrambled using \fIerlang:md5/1\fR\& to generate the actual keys used for \fIdes3_cbc\fR\&\&.
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+As far as we know by the time of writing, it is infeasible to break \fIdes3_cbc\fR\& encryption without any knowledge of the key\&. Therefore, as long as the key is kept safe and is unguessable, the encrypted debug information \fIshould\fR\& be safe from intruders\&.
+
+.LP
+There are two ways to provide the key:
+.RS 2
+.TP 2
+*
+Use the compiler option \fI{debug_info,Key}\fR\&, see \fBcompile(3)\fR\&, and the function \fBcrypto_key_fun/1\fR\& to register a fun which returns the key whenever \fIbeam_lib\fR\& needs to decrypt the debug information\&.
+.RS 2
+.LP
+If no such fun is registered, \fIbeam_lib\fR\& will instead search for a \fI\&.erlang\&.crypt\fR\& file, see below\&.
+.RE
+.LP
+.TP 2
+*
+Store the key in a text file named \fI\&.erlang\&.crypt\fR\&\&.
+.RS 2
+.LP
+In this case, the compiler option \fIencrypt_debug_info\fR\& can be used, see \fBcompile(3)\fR\&\&.
+.RE
+.LP
+.RE
+
+.SS ".erlang.crypt"
+
+.LP
+\fIbeam_lib\fR\& searches for \fI\&.erlang\&.crypt\fR\& in the current directory and then the home directory for the current user\&. If the file is found and contains a key, \fIbeam_lib\fR\& will implicitly create a crypto key fun and register it\&.
+.LP
+The \fI\&.erlang\&.crypt\fR\& file should contain a single list of tuples:
+.LP
+.nf
+
+      {debug_info, Mode, Module, Key}
+.fi
+.LP
+\fIMode\fR\& is the type of crypto algorithm; currently, the only allowed value thus is \fIdes3_cbc\fR\&\&. \fIModule\fR\& is either an atom, in which case \fIKey\fR\& will only be used for the module \fIModule\fR\&, or \fI[]\fR\&, in which case \fIKey\fR\& will be used for all modules\&. \fIKey\fR\& is the non-empty key string\&.
+.LP
+The \fIKey\fR\& in the first tuple where both \fIMode\fR\& and \fIModule\fR\& matches will be used\&.
+.LP
+Here is an example of an \fI\&.erlang\&.crypt\fR\& file that returns the same key for all modules:
+.LP
+.nf
+
+[{debug_info, des3_cbc, [], "%>7}|pc/DM6Cga*68$Mw]L#&_Gejr]G^"}].
+.fi
+.LP
+And here is a slightly more complicated example of an \fI\&.erlang\&.crypt\fR\& which provides one key for the module \fIt\fR\&, and another key for all other modules:
+.LP
+.nf
+
+[{debug_info, des3_cbc, t, "My KEY"},
+ {debug_info, des3_cbc, [], "%>7}|pc/DM6Cga*68$Mw]L#&_Gejr]G^"}].
+.fi
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+Do not use any of the keys in these examples\&. Use your own keys\&.
+
+.SH DATA TYPES
+.nf
+
+\fBbeam()\fR\& = module() | \fBfile:filename()\fR\& | binary()
+.br
+.fi
+.RS
+.LP
+Each of the functions described below accept either the module name, the filename, or a binary containing the beam module\&.
+.RE
+.nf
+
+\fBchunkdata()\fR\& = {\fBchunkid()\fR\&, \fBdataB()\fR\&}
+.br
+            | {abstract_code, \fBabst_code()\fR\&}
+.br
+            | {attributes, [\fBattrib_entry()\fR\&]}
+.br
+            | {compile_info, [\fBcompinfo_entry()\fR\&]}
+.br
+            | {exports, [{atom(), arity()}]}
+.br
+            | {labeled_exports, [\fBlabeled_entry()\fR\&]}
+.br
+            | {imports, [mfa()]}
+.br
+            | {indexed_imports,
+.br
+               [{\fBindex()\fR\&,
+.br
+                 module(),
+.br
+                 Function :: atom(),
+.br
+                 arity()}]}
+.br
+            | {locals, [{atom(), arity()}]}
+.br
+            | {labeled_locals, [\fBlabeled_entry()\fR\&]}
+.br
+            | {atoms, [{integer(), atom()}]}
+.br
+.fi
+.RS
+.LP
+The list of attributes is sorted on \fIAttribute\fR\& (in attrib_entry()), and each attribute name occurs once in the list\&. The attribute values occur in the same order as in the file\&. The lists of functions are also sorted\&.
+.RE
+.nf
+
+\fBchunkid()\fR\& = nonempty_string()
+.br
+.fi
+.RS
+.LP
+"Abst" | "Attr" | "CInf" | "ExpT" | "ImpT" | "LocT" | "Atom"
+.RE
+.nf
+
+\fBdataB()\fR\& = binary()
+.br
+.fi
+.nf
+
+\fBabst_code()\fR\& = {AbstVersion :: atom(), \fBforms()\fR\&}
+.br
+            | no_abstract_code
+.br
+.fi
+.RS
+.LP
+It is not checked that the forms conform to the abstract format indicated by \fIAbstVersion\fR\&\&. \fIno_abstract_code\fR\& means that the \fI"Abst"\fR\& chunk is present, but empty\&.
+.RE
+.nf
+
+\fBforms()\fR\& = [\fBerl_parse:abstract_form()\fR\&]
+.br
+.fi
+.nf
+
+\fBcompinfo_entry()\fR\& = {InfoKey :: atom(), term()}
+.br
+.fi
+.nf
+
+\fBattrib_entry()\fR\& = 
+.br
+    {Attribute :: atom(), [AttributeValue :: term()]}
+.br
+.fi
+.nf
+
+\fBlabeled_entry()\fR\& = {Function :: atom(), arity(), \fBlabel()\fR\&}
+.br
+.fi
+.nf
+
+\fBindex()\fR\& = integer() >= 0
+.br
+.fi
+.nf
+
+\fBlabel()\fR\& = integer()
+.br
+.fi
+.nf
+
+\fBchunkref()\fR\& = \fBchunkname()\fR\& | \fBchunkid()\fR\&
+.br
+.fi
+.nf
+
+\fBchunkname()\fR\& = abstract_code
+.br
+            | attributes
+.br
+            | compile_info
+.br
+            | exports
+.br
+            | labeled_exports
+.br
+            | imports
+.br
+            | indexed_imports
+.br
+            | locals
+.br
+            | labeled_locals
+.br
+            | atoms
+.br
+.fi
+.nf
+
+\fBchnk_rsn()\fR\& = {unknown_chunk, \fBfile:filename()\fR\&, atom()}
+.br
+           | {key_missing_or_invalid,
+.br
+              \fBfile:filename()\fR\&,
+.br
+              abstract_code}
+.br
+           | \fBinfo_rsn()\fR\&
+.br
+.fi
+.nf
+
+\fBinfo_rsn()\fR\& = {chunk_too_big,
+.br
+              \fBfile:filename()\fR\&,
+.br
+              \fBchunkid()\fR\&,
+.br
+              ChunkSize :: integer() >= 0,
+.br
+              FileSize :: integer() >= 0}
+.br
+           | {invalid_beam_file,
+.br
+              \fBfile:filename()\fR\&,
+.br
+              Position :: integer() >= 0}
+.br
+           | {invalid_chunk, \fBfile:filename()\fR\&, \fBchunkid()\fR\&}
+.br
+           | {missing_chunk, \fBfile:filename()\fR\&, \fBchunkid()\fR\&}
+.br
+           | {not_a_beam_file, \fBfile:filename()\fR\&}
+.br
+           | {file_error, \fBfile:filename()\fR\&, \fBfile:posix()\fR\&}
+.br
+.fi
+.SH EXPORTS
+.LP
+.nf
+
+.B
+chunks(Beam, ChunkRefs) ->
+.B
+          {ok, {module(), [\fBchunkdata()\fR\&]}} |
+.B
+          {error, beam_lib, \fBchnk_rsn()\fR\&}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Beam = \fBbeam()\fR\&
+.br
+ChunkRefs = [\fBchunkref()\fR\&]
+.br
+.RE
+.RS
+.LP
+Reads chunk data for selected chunks refs\&. The order of the returned list of chunk data is determined by the order of the list of chunks references\&.
+.RE
+.LP
+.nf
+
+.B
+chunks(Beam, ChunkRefs, Options) ->
+.B
+          {ok, {module(), [ChunkResult]}} |
+.B
+          {error, beam_lib, \fBchnk_rsn()\fR\&}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Beam = \fBbeam()\fR\&
+.br
+ChunkRefs = [\fBchunkref()\fR\&]
+.br
+Options = [allow_missing_chunks]
+.br
+ChunkResult = \fBchunkdata()\fR\&
+.br
+            | {ChunkRef :: \fBchunkref()\fR\&, missing_chunk}
+.br
+.RE
+.RS
+.LP
+Reads chunk data for selected chunks refs\&. The order of the returned list of chunk data is determined by the order of the list of chunks references\&.
+.LP
+By default, if any requested chunk is missing in \fIBeam\fR\&, an \fIerror\fR\& tuple is returned\&. However, if the option \fIallow_missing_chunks\fR\& has been given, a result will be returned even if chunks are missing\&. In the result list, any missing chunks will be represented as \fI{ChunkRef,missing_chunk}\fR\&\&. Note, however, that if the \fI"Atom"\fR\& chunk if missing, that is considered a fatal error and the return value will be an \fIerror\fR\& tuple\&.
+.RE
+.LP
+.nf
+
+.B
+version(Beam) ->
+.B
+           {ok, {module(), [Version :: term()]}} |
+.B
+           {error, beam_lib, \fBchnk_rsn()\fR\&}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Beam = \fBbeam()\fR\&
+.br
+.RE
+.RS
+.LP
+Returns the module version(s)\&. A version is defined by the module attribute \fI-vsn(Vsn)\fR\&\&. If this attribute is not specified, the version defaults to the checksum of the module\&. Note that if the version \fIVsn\fR\& is not a list, it is made into one, that is \fI{ok,{Module,[Vsn]}}\fR\& is returned\&. If there are several \fI-vsn\fR\& module attributes, the result is the concatenated list of versions\&. Examples:
+.LP
+.nf
+
+1> beam_lib:version(a)\&. % -vsn(1).
+{ok,{a,[1]}}
+2> beam_lib:version(b)\&. % -vsn([1]).
+{ok,{b,[1]}}
+3> beam_lib:version(c)\&. % -vsn([1]). -vsn(2).
+{ok,{c,[1,2]}}
+4> beam_lib:version(d)\&. % no -vsn attribute
+{ok,{d,[275613208176997377698094100858909383631]}}
+.fi
+.RE
+.LP
+.nf
+
+.B
+md5(Beam) -> {ok, {module(), MD5}} | {error, beam_lib, \fBchnk_rsn()\fR\&}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Beam = \fBbeam()\fR\&
+.br
+MD5 = binary()
+.br
+.RE
+.RS
+.LP
+Calculates an MD5 redundancy check for the code of the module (compilation date and other attributes are not included)\&.
+.RE
+.LP
+.nf
+
+.B
+info(Beam) -> [InfoPair] | {error, beam_lib, \fBinfo_rsn()\fR\&}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Beam = \fBbeam()\fR\&
+.br
+InfoPair = {file, Filename :: \fBfile:filename()\fR\&}
+.br
+         | {binary, Binary :: binary()}
+.br
+         | {module, Module :: module()}
+.br
+         | {chunks,
+.br
+            [{ChunkId :: \fBchunkid()\fR\&,
+.br
+              Pos :: integer() >= 0,
+.br
+              Size :: integer() >= 0}]}
+.br
+.RE
+.RS
+.LP
+Returns a list containing some information about a BEAM file as tuples \fI{Item, Info}\fR\&:
+.RS 2
+.TP 2
+.B
+\fI{file, Filename} | {binary, Binary}\fR\&:
+The name (string) of the BEAM file, or the binary from which the information was extracted\&.
+.TP 2
+.B
+\fI{module, Module}\fR\&:
+The name (atom) of the module\&.
+.TP 2
+.B
+\fI{chunks, [{ChunkId, Pos, Size}]}\fR\&:
+For each chunk, the identifier (string) and the position and size of the chunk data, in bytes\&.
+.RE
+.RE
+.LP
+.nf
+
+.B
+cmp(Beam1, Beam2) -> ok | {error, beam_lib, \fBcmp_rsn()\fR\&}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Beam1 = Beam2 = \fBbeam()\fR\&
+.br
+.nf
+\fBcmp_rsn()\fR\& = {modules_different, module(), module()}
+.br
+          | {chunks_different, \fBchunkid()\fR\&}
+.br
+          | different_chunks
+.br
+          | \fBinfo_rsn()\fR\&
+.fi
+.br
+.RE
+.RS
+.LP
+Compares the contents of two BEAM files\&. If the module names are the same, and all chunks except for the \fI"CInf"\fR\& chunk (the chunk containing the compilation information which is returned by \fIModule:module_info(compile)\fR\&) have the same contents in both files, \fIok\fR\& is returned\&. Otherwise an error message is returned\&.
+.RE
+.LP
+.nf
+
+.B
+cmp_dirs(Dir1, Dir2) ->
+.B
+            {Only1, Only2, Different} | {error, beam_lib, Reason}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Dir1 = Dir2 = atom() | \fBfile:filename()\fR\&
+.br
+Only1 = Only2 = [\fBfile:filename()\fR\&]
+.br
+Different = 
+.br
+    [{Filename1 :: \fBfile:filename()\fR\&, Filename2 :: \fBfile:filename()\fR\&}]
+.br
+Reason = {not_a_directory, term()} | \fBinfo_rsn()\fR\&
+.br
+.RE
+.RS
+.LP
+The \fIcmp_dirs/2\fR\& function compares the BEAM files in two directories\&. Only files with extension \fI"\&.beam"\fR\& are compared\&. BEAM files that exist in directory \fIDir1\fR\& (\fIDir2\fR\&) only are returned in \fIOnly1\fR\& (\fIOnly2\fR\&)\&. BEAM files that exist on both directories but are considered different by \fIcmp/2\fR\& are returned as pairs {\fIFilename1\fR\&, \fIFilename2\fR\&} where \fIFilename1\fR\& (\fIFilename2\fR\&) exists in directory \fIDir1\fR\& (\fIDir2\fR\&)\&.
+.RE
+.LP
+.nf
+
+.B
+diff_dirs(Dir1, Dir2) -> ok | {error, beam_lib, Reason}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Dir1 = Dir2 = atom() | \fBfile:filename()\fR\&
+.br
+Reason = {not_a_directory, term()} | \fBinfo_rsn()\fR\&
+.br
+.RE
+.RS
+.LP
+The \fIdiff_dirs/2\fR\& function compares the BEAM files in two directories the way \fIcmp_dirs/2\fR\& does, but names of files that exist in only one directory or are different are presented on standard output\&.
+.RE
+.LP
+.nf
+
+.B
+strip(Beam1) ->
+.B
+         {ok, {module(), Beam2}} | {error, beam_lib, \fBinfo_rsn()\fR\&}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Beam1 = Beam2 = \fBbeam()\fR\&
+.br
+.RE
+.RS
+.LP
+The \fIstrip/1\fR\& function removes all chunks from a BEAM file except those needed by the loader\&. In particular, the debug information (\fIabstract_code\fR\& chunk) is removed\&.
+.RE
+.LP
+.nf
+
+.B
+strip_files(Files) ->
+.B
+               {ok, [{module(), Beam}]} |
+.B
+               {error, beam_lib, \fBinfo_rsn()\fR\&}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Files = [\fBbeam()\fR\&]
+.br
+Beam = \fBbeam()\fR\&
+.br
+.RE
+.RS
+.LP
+The \fIstrip_files/1\fR\& function removes all chunks except those needed by the loader from BEAM files\&. In particular, the debug information (\fIabstract_code\fR\& chunk) is removed\&. The returned list contains one element for each given file name, in the same order as in \fIFiles\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+strip_release(Dir) ->
+.B
+                 {ok, [{module(), \fBfile:filename()\fR\&}]} |
+.B
+                 {error, beam_lib, Reason}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Dir = atom() | \fBfile:filename()\fR\&
+.br
+Reason = {not_a_directory, term()} | \fBinfo_rsn()\fR\&
+.br
+.RE
+.RS
+.LP
+The \fIstrip_release/1\fR\& function removes all chunks except those needed by the loader from the BEAM files of a release\&. \fIDir\fR\& should be the installation root directory\&. For example, the current OTP release can be stripped with the call \fIbeam_lib:strip_release(code:root_dir())\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+format_error(Reason) -> \fBio_lib:chars()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Given the error returned by any function in this module, the function \fIformat_error\fR\& returns a descriptive string of the error in English\&. For file errors, the function \fIfile:format_error(Posix)\fR\& should be called\&.
+.RE
+.LP
+.nf
+
+.B
+crypto_key_fun(CryptoKeyFun) -> ok | {error, Reason}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+CryptoKeyFun = \fBcrypto_fun()\fR\&
+.br
+Reason = badfun | exists | term()
+.br
+.nf
+\fBcrypto_fun()\fR\& = fun((\fBcrypto_fun_arg()\fR\&) -> term())
+.fi
+.br
+.nf
+\fBcrypto_fun_arg()\fR\& = init
+.br
+                 | clear
+.br
+                 | {debug_info,
+.br
+                    \fBmode()\fR\&,
+.br
+                    module(),
+.br
+                    \fBfile:filename()\fR\&}
+.fi
+.br
+.nf
+\fBmode()\fR\& = des3_cbc
+.fi
+.br
+.RE
+.RS
+.LP
+The \fIcrypto_key_fun/1\fR\& function registers a unary fun that will be called if \fIbeam_lib\fR\& needs to read an \fIabstract_code\fR\& chunk that has been encrypted\&. The fun is held in a process that is started by the function\&.
+.LP
+If there already is a fun registered when attempting to register a fun, \fI{error, exists}\fR\& is returned\&.
+.LP
+The fun must handle the following arguments:
+.LP
+.nf
+
+          CryptoKeyFun(init) -> ok | {ok, NewCryptoKeyFun} | {error, Term}
+.fi
+.LP
+Called when the fun is registered, in the process that holds the fun\&. Here the crypto key fun can do any necessary initializations\&. If \fI{ok, NewCryptoKeyFun}\fR\& is returned then \fINewCryptoKeyFun\fR\& will be registered instead of \fICryptoKeyFun\fR\&\&. If \fI{error, Term}\fR\& is returned, the registration is aborted and \fIcrypto_key_fun/1\fR\& returns \fI{error, Term}\fR\& as well\&.
+.LP
+.nf
+
+          CryptoKeyFun({debug_info, Mode, Module, Filename}) -> Key
+.fi
+.LP
+Called when the key is needed for the module \fIModule\fR\& in the file named \fIFilename\fR\&\&. \fIMode\fR\& is the type of crypto algorithm; currently, the only possible value thus is \fIdes3_cbc\fR\&\&. The call should fail (raise an exception) if there is no key available\&.
+.LP
+.nf
+
+          CryptoKeyFun(clear) -> term()
+.fi
+.LP
+Called before the fun is unregistered\&. Here any cleaning up can be done\&. The return value is not important, but is passed back to the caller of \fIclear_crypto_key_fun/0\fR\& as part of its return value\&.
+.RE
+.LP
+.nf
+
+.B
+clear_crypto_key_fun() -> undefined | {ok, Result}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Result = undefined | term()
+.br
+.RE
+.RS
+.LP
+Unregisters the crypto key fun and terminates the process holding it, started by \fIcrypto_key_fun/1\fR\&\&.
+.LP
+The \fIclear_crypto_key_fun/1\fR\& either returns \fI{ok, undefined}\fR\& if there was no crypto key fun registered, or \fI{ok, Term}\fR\&, where \fITerm\fR\& is the return value from \fICryptoKeyFun(clear)\fR\&, see \fIcrypto_key_fun/1\fR\&\&.
+.RE

@@ -1,0 +1,194 @@
+.TH et_viewer 3 "et 1.4.4" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+et_viewer \- Displays a sequence chart for trace events (messages/actions)
+.SH DESCRIPTION
+.LP
+
+.SH EXPORTS
+.LP
+.B
+file(FileName) -> {ok, ViewerPid} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+FileName() = string()
+.br
+ViewerPid = pid()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Start a new event viewer and a corresponding collector and load them with trace events from a trace file\&.
+.RE
+.LP
+.B
+start() -> ok
+.br
+.RS
+.LP
+Simplified start of a sequence chart viewer with global tracing activated\&.
+.LP
+Convenient to be used from the command line (erl -s et_viewer)\&.
+.RE
+.LP
+.B
+start(Options) -> ok
+.br
+.RS
+.LP
+Start of a sequence chart viewer without linking to the parent process\&.
+.RE
+.LP
+.B
+start_link(Options) -> {ok, ViewerPid} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Options = [option() | collector_option()]
+.br
+option() = {parent_pid, extended_pid()} | {title, term()} | {detail_level, detail_level()} | {is_suspended, boolean()} | {scale, integer()} | {width, integer()} | {height, integer()} | {collector_pid, extended_pid()} | {event_order, event_order()} | {active_filter, atom()} | {max_actors, extended_integer()} | {trace_pattern, et_collector_trace_pattern()} | {trace_port, et_collector_trace_port()} | {trace_global, et_collector_trace_global()} | {trace_client, et_collector_trace_client()} | {dict_insert, {filter, filter_name()}, event_filter_fun()} | {dict_insert, et_collector_dict_key(), et_collector_dict_val()} | {dict_delete, {filter, filter_name()}} | {dict_delete, et_collector_dict_key()} | {actors, actors()} | {first_event, first_key()} | {hide_unknown, boolean()} | {hide_actions, boolean()} | {display_mode, display_mode()}
+.br
+extended_pid() = pid() | undefined
+.br
+detail_level() = min | max | integer(X) when X >=0, X =< 100
+.br
+event_order() = trace_ts | event_ts
+.br
+extended_integer() = integer() | infinity
+.br
+display_mode() = all | {search_actors, direction(), first_key(), actors()}
+.br
+direction() = forward | reverse
+.br
+first_key() = event_key()
+.br
+actors() = [term()]
+.br
+
+.br
+filter_name() = atom()
+.br
+filter_fun() = fun(Event) -> false | true | {true, NewEvent}
+.br
+Event = NewEvent = record(event)
+.br
+ViewerPid = pid()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Start a sequence chart viewer for trace events (messages/actions)
+.LP
+A filter_fun() takes an event record as sole argument and returns false | true | {true, NewEvent}\&.
+.LP
+If the \fIcollector_pid\fR\& is \fIundefined\fR\& a new \fIet_collector\fR\& will be started with the following parameter settings: \fIparent_pid\fR\&, \fIevent_order\fR\&, \fItrace_global\fR\&, \fItrace_pattern\fR\&, \fItrace_port\fR\&, \fItrace_max_queue\fR\&, \fItrace_client\fR\&, \fIdict_insert\fR\& and \fIdict_delete\fR\&\&. The new \fIet_viewer\fR\& will register itself as an \fIet_collector\fR\& subscriber\&.
+.LP
+Default values:
+.RS 2
+.TP 2
+*
+parent_pid - self()\&.
+.LP
+.TP 2
+*
+title - "et_viewer"\&.
+.LP
+.TP 2
+*
+detail_level - max\&.
+.LP
+.TP 2
+*
+is_suspended - false\&.
+.LP
+.TP 2
+*
+scale - 2\&.
+.LP
+.TP 2
+*
+width - 800\&.
+.LP
+.TP 2
+*
+height - 600\&.
+.LP
+.TP 2
+*
+collector_pid - undefined\&.
+.LP
+.TP 2
+*
+event_order - trace_ts\&.
+.LP
+.TP 2
+*
+active_filter - collector\&.
+.LP
+.TP 2
+*
+max_actors - 5\&.
+.LP
+.TP 2
+*
+actors - ["UNKNOWN"]\&.
+.LP
+.TP 2
+*
+first_event - first\&.
+.LP
+.TP 2
+*
+hide_unknown - false\&.
+.LP
+.TP 2
+*
+hide_actions - false\&.
+.LP
+.TP 2
+*
+display_mode - all\&.
+.LP
+.RE
+
+.RE
+.LP
+.B
+get_collector_pid(ViewerPid) -> CollectorPid
+.br
+.RS
+.TP 3
+Types:
+
+ViewerPid = pid()
+.br
+CollectorPid = pid()
+.br
+.RE
+.RS
+.LP
+Returns the identifier of the collector process\&.
+.RE
+.LP
+.B
+stop(ViewerPid) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+ViewerPid = pid()
+.br
+.RE
+.RS
+.LP
+Stops a viewer process\&.
+.RE

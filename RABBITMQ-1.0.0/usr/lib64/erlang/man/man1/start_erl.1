@@ -1,0 +1,55 @@
+.TH start_erl 1 "erts 5.8.5" "Ericsson AB" "User Commands"
+.SH NAME
+start_erl \- Start Erlang for embedded systems on Windows NT(R)
+.SH DESCRIPTION
+.LP
+This describes the \fIstart_erl\fR\& program specific to Windows NT\&. Although there exists programs with the same name on other platforms, their functionality is not the same\&.
+.LP
+The \fIstart_erl\fR\& program is distributed both in compiled form (under <Erlang root>\\\\erts-<version>\\\\bin) and in source form (under <Erlang root>\\\\erts-<version>\\\\src)\&. The purpose of the source code is to make it possible to easily customize the program for local needs, such as cyclic restart detection etc\&. There is also a "make"-file, written for the \fInmake\fR\& program distributed with Microsoft(R) Visual C++(R)\&. The program can however be compiled with any Win32 C compiler (possibly with slight modifications)\&.
+.LP
+The purpose of the program is to aid release handling on Windows NT(R)\&. The program should be called by the \fIerlsrv\fR\& program, read up the release data file start_erl\&.data and start Erlang\&. Certain options to start_erl are added and removed by the release handler during upgrade with emulator restart (more specifically the \fI-data\fR\& option)\&.
+.SH EXPORTS
+.LP
+.B
+start_erl [<erl options>] ++ [<start_erl options>]
+.br
+.RS
+.LP
+The \fIstart_erl\fR\& program in its original form recognizes the following options:
+.RS 2
+.TP 2
+.B
+++:
+Mandatory, delimits start_erl options from normal Erlang options\&. Everything on the command line \fIbefore\fR\& the \fI++\fR\& is interpreted as options to be sent to the \fIerl\fR\& program\&. Everything \fIafter\fR\&\fI++\fR\& is interpreted as options to \fIstart_erl\fR\& itself\&.
+.TP 2
+.B
+-reldir <release root>:
+Mandatory if the environment variable \fIRELDIR\fR\& is not specified and no \fI-rootdir\fR\& option is given\&. Tells start_erl where the root of the release tree is placed in the file-system (typically <Erlang root>\\\\releases)\&. The \fIstart_erl\&.data\fR\& file is expected to be placed in this directory (if not otherwise specified)\&. If only the \fI-rootdir\fR\& option is given, the directory is assumed to be <Erlang root>\\\\releases\&.
+.TP 2
+.B
+-rootdir <Erlang root directory>:
+Mandatory if \fI-reldir\fR\& is not given and there is no \fIRELDIR\fR\& in the environment\&. This specifies the Erlang installation root directory (under which the \fIlib\fR\&, \fIreleases\fR\& and \fIerts-<Version>\fR\& directories are placed)\&. If only \fI-reldir\fR\& (or the environment variable \fIRELDIR\fR\&) is given, the Erlang root is assumed to be the directory exactly one level above the release directory\&.
+.TP 2
+.B
+-data <data file name>:
+Optional, specifies another data file than start_erl\&.data in the <release root>\&. It is specified relative to the <release root> or absolute (including drive letter etc\&.)\&. This option is used by the release handler during upgrade and should not be used during normal operation\&. The release data file should not normally be named differently\&.
+.TP 2
+.B
+-bootflags <boot flags file name>:
+Optional, specifies a file name relative to actual release directory (that is the subdirectory of <release root> where the \fI\&.boot\fR\& file etc\&. are placed)\&. The contents of this file is appended to the command line when Erlang is started\&. This makes it easy to start the emulator with different options for different releases\&.
+.RE
+.RE
+.SH "NOTES"
+
+.LP
+As the source code is distributed, it can easily be modified to accept other options\&. The program must still accept the \fI-data\fR\& option with the semantics described above for the release handler to work correctly\&.
+.LP
+The Erlang emulator is found by examining the registry keys for the emulator version specified in the release data file\&. The new emulator needs to be properly installed before the upgrade for this to work\&.
+.LP
+Although the program is located together with files specific to emulator version, it is not expected to be specific to the emulator version\&. The release handler does \fInot\fR\& change the \fI-machine\fR\& option to \fIerlsrv\fR\& during emulator restart\&. Place the (possibly customized) \fIstart_erl\fR\& program so that it is not overwritten during upgrade\&.
+.LP
+The \fIerlsrv\fR\& program\&'s default options are not sufficient for release handling\&. The machine \fIerlsrv\fR\& starts should be specified as the \fIstart_erl\fR\& program and the arguments should contain the \fI++\fR\& followed by desired options\&.
+.SH "SEE ALSO"
+
+.LP
+erlsrv(1), release_handler(3)

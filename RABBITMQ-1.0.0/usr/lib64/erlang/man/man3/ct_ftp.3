@@ -1,0 +1,272 @@
+.TH ct_ftp 3 "common_test 1.5.5" "" "Erlang Module Definition"
+.SH NAME
+ct_ftp \- FTP client module (based on the FTP support of the INETS application).
+.SH DESCRIPTION
+.LP
+FTP client module (based on the FTP support of the INETS application)\&.
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIconnection() = handle() | target_name() (see module ct)\fR\&:
+
+.TP 2
+.B
+\fIhandle() = handle() (see module ct_gen_conn)\fR\&:
+
+.RS 2
+.LP
+Handle for a specific ftp connection\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+cd(Connection, Dir) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Connection = connection()
+.br
+Dir = string()
+.br
+.RE
+.RS
+.LP
+Change directory on remote host\&.
+.RE
+.LP
+.B
+close(Connection) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Connection = connection()
+.br
+.RE
+.RS
+.LP
+Close the FTP connection\&.
+.RE
+.LP
+.B
+delete(Connection, File) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Connection = connection()
+.br
+File = string()
+.br
+.RE
+.RS
+.LP
+Delete a file on remote host
+.RE
+.LP
+.B
+get(KeyOrName, RemoteFile, LocalFile) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+KeyOrName = Key | Name
+.br
+Key = atom()
+.br
+Name = target_name() (see module ct)
+.br
+RemoteFile = string()
+.br
+LocalFile = string()
+.br
+.RE
+.RS
+.LP
+Open a ftp connection and fetch a file from the remote host\&.
+.LP
+\fIRemoteFile\fR\& and \fILocalFile\fR\& must be absolute paths\&.
+.LP
+The config file must be as for put/3\&.
+.LP
+\fISee also:\fR\& \fBput/3\fR\&\&.
+.RE
+.LP
+.B
+ls(Connection, Dir) -> {ok, Listing} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Connection = connection()
+.br
+Dir = string()
+.br
+Listing = string()
+.br
+.RE
+.RS
+.LP
+List the directory Dir\&.
+.RE
+.LP
+.B
+open(KeyOrName) -> {ok, Handle} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+KeyOrName = Key | Name
+.br
+Key = atom()
+.br
+Name = target_name() (see module ct)
+.br
+Handle = handle()
+.br
+.RE
+.RS
+.LP
+Open an FTP connection to the specified node\&.
+.LP
+You can open one connection for a particular \fIName\fR\& and use the same name as reference for all subsequent operations\&. If you want the connection to be associated with \fIHandle\fR\& instead (in case you need to open multiple connections to a host for example), simply use \fIKey\fR\&, the configuration variable name, to specify the target\&. Note that a connection that has no associated target name can only be closed with the handle value\&.
+.RE
+.LP
+.B
+put(KeyOrName, LocalFile, RemoteFile) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+KeyOrName = Key | Name
+.br
+Key = atom()
+.br
+Name = target_name() (see module ct)
+.br
+LocalFile = string()
+.br
+RemoteFile = string()
+.br
+.RE
+.RS
+.LP
+Open a ftp connection and send a file to the remote host\&.
+.LP
+\fILocalFile\fR\& and \fIRemoteFile\fR\& must be absolute paths\&.
+.LP
+If the target host is a "special" node, the ftp address must be specified in the config file like this:
+.LP
+.nf
+
+   {node,[{ftp,IpAddr}]}.
+.fi
+.LP
+If the target host is something else, e\&.g\&. a unix host, the config file must also include the username and password (both strings):
+.LP
+.nf
+
+   {unix,[{ftp,IpAddr},
+          {username,Username},
+          {password,Password}]}.
+.fi
+.RE
+.LP
+.B
+recv(Connection, RemoteFile) -> ok | {error, Reason}
+.br
+.RS
+.LP
+Fetch a file over FTP\&.
+.LP
+The file will get the same name on the local host\&.
+.LP
+\fISee also:\fR\& \fBrecv/3\fR\&\&.
+.RE
+.LP
+.B
+recv(Connection, RemoteFile, LocalFile) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Connection = connection()
+.br
+RemoteFile = string()
+.br
+LocalFile = string()
+.br
+.RE
+.RS
+.LP
+Fetch a file over FTP\&.
+.LP
+The file will be named \fILocalFile\fR\& on the local host\&.
+.RE
+.LP
+.B
+send(Connection, LocalFile) -> ok | {error, Reason}
+.br
+.RS
+.LP
+Send a file over FTP\&.
+.LP
+The file will get the same name on the remote host\&.
+.LP
+\fISee also:\fR\& \fBsend/3\fR\&\&.
+.RE
+.LP
+.B
+send(Connection, LocalFile, RemoteFile) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Connection = connection()
+.br
+LocalFile = string()
+.br
+RemoteFile = string()
+.br
+.RE
+.RS
+.LP
+Send a file over FTP\&.
+.LP
+The file will be named \fIRemoteFile\fR\& on the remote host\&.
+.RE
+.LP
+.B
+type(Connection, Type) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Connection = connection()
+.br
+Type = ascii | binary
+.br
+.RE
+.RS
+.LP
+Change file transfer type
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

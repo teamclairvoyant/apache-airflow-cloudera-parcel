@@ -1,0 +1,547 @@
+.TH registry 3 "erl_interface 3.7.5" "Ericsson AB" "C Library Functions"
+.SH NAME
+registry \- Store and backup key-value pairs
+.SH DESCRIPTION
+.LP
+This module provides support for storing key-value pairs in a table known as a registry, backing up registries to Mnesia in an atomic manner, and later restoring the contents of a registry from Mnesia\&.
+.SH EXPORTS
+.LP
+.B
+ei_reg *ei_reg_open(size)
+.br
+.RS
+.TP 3
+Types:
+
+int size;
+.br
+.RE
+.RS
+.LP
+Open (create) a registry\&. The registry will be initially empty\&. Use \fIei_reg_close()\fR\& to close the registry later\&.
+.LP
+\fIsize\fR\& is the approximate number of objects you intend to store in the registry\&. Since the registry uses a hash table with collision chaining, there is no absolute upper limit on the number of objects that can be stored in it\&. However for reasons of efficiency, it is a good idea to choose a number that is appropriate for your needs\&. It is possible to use \fIei_reg_resize()\fR\& to change the size later\&. Note that the number you provide will be increased to the nearest larger prime number\&.
+.LP
+On success, an empty registry will be returned\&. On failure, NULL will be returned\&.
+.RE
+.LP
+.B
+intei_reg_resize(reg,newsize)
+.br
+.RS
+.TP 3
+Types:
+
+ei_reg *reg;
+.br
+int newsize;
+.br
+.RE
+.RS
+.LP
+Change the size of a registry\&.
+.LP
+\fInewsize\fR\& is the new size to make the registry\&. The number will be increased to the nearest larger prime number\&.
+.LP
+On success, the registry will be resized, all contents rehashed, and the function will return 0\&. On failure, the registry will be left unchanged and the function will return -1\&.
+.RE
+.LP
+.B
+intei_reg_close(reg)
+.br
+.RS
+.TP 3
+Types:
+
+ei_reg *reg;
+.br
+.RE
+.RS
+.LP
+A registry that has previously been created with \fIei_reg_open()\fR\& is closed, and all the objects it contains are freed\&.
+.LP
+\fIreg\fR\& is the registry to close\&.
+.LP
+The function returns 0\&.
+.RE
+.LP
+.B
+intei_reg_setival(reg,key,i)
+.br
+.RS
+.TP 3
+Types:
+
+ei_reg *reg;
+.br
+const char *key;
+.br
+int i;
+.br
+.RE
+.RS
+.LP
+Create a key-value pair with the specified \fIkey\fR\& and integer value \fIi\fR\&\&. If an object already existed with the same \fIkey\fR\&, the new value replaces the old one\&. If the previous value was a binary or string, it is freed with \fIfree()\fR\&\&.
+.LP
+\fIreg\fR\& is the registry where the object should be placed\&.
+.LP
+\fIkey\fR\& is the name of the object\&.
+.LP
+\fIi\fR\& is the integer value to assign\&.
+.LP
+The function returns 0 on success, or -1 on failure\&.
+.RE
+.LP
+.B
+intei_reg_setfval(reg,key,f)
+.br
+.RS
+.TP 3
+Types:
+
+ei_reg *reg;
+.br
+const char *key;
+.br
+double f;
+.br
+.RE
+.RS
+.LP
+Create a key-value pair with the specified \fIkey\fR\& and floating point value \fIf\fR\&\&. If an object already existed with the same \fIkey\fR\&, the new value replaces the old one\&. If the previous value was a binary or string, it is freed with \fIfree()\fR\&\&.
+.LP
+\fIreg\fR\& is the registry where the object should be placed\&.
+.LP
+\fIkey\fR\& is the name of the object\&.
+.LP
+\fIf\fR\& is the floating point value to assign\&.
+.LP
+The function returns 0 on success, or -1 on failure\&.
+.RE
+.LP
+.B
+intei_reg_setsval(reg,key,s)
+.br
+.RS
+.TP 3
+Types:
+
+ei_reg *reg;
+.br
+const char *key;
+.br
+const char *s;
+.br
+.RE
+.RS
+.LP
+Create a key-value pair with the specified \fIkey\fR\& whose "value" is the specified string \fIs\fR\&\&. If an object already existed with the same \fIkey\fR\&, the new value replaces the old one\&. If the previous value was a binary or string, it is freed with \fIfree()\fR\&\&.
+.LP
+\fIreg\fR\& is the registry where the object should be placed\&.
+.LP
+\fIkey\fR\& is the name of the object\&.
+.LP
+\fIs\fR\& is the string to assign\&. The string itself must have been created through a single call to \fImalloc()\fR\& or similar function, so that the registry can later delete it if necessary by calling \fIfree()\fR\&\&.
+.LP
+The function returns 0 on success, or -1 on failure\&.
+.RE
+.LP
+.B
+intei_reg_setpval(reg,key,p,size)
+.br
+.RS
+.TP 3
+Types:
+
+ei_reg *reg;
+.br
+const char *key;
+.br
+const void *p;
+.br
+int size;
+.br
+.RE
+.RS
+.LP
+Create a key-value pair with the specified \fIkey\fR\& whose "value" is the binary object pointed to by \fIp\fR\&\&. If an object already existed with the same \fIkey\fR\&, the new value replaces the old one\&. If the previous value was a binary or string, it is freed with \fIfree()\fR\&\&.
+.LP
+\fIreg\fR\& is the registry where the object should be placed\&.
+.LP
+\fIkey\fR\& is the name of the object\&.
+.LP
+\fIp\fR\& is a pointer to the binary object\&. The object itself must have been created through a single call to \fImalloc()\fR\& or similar function, so that the registry can later delete it if necessary by calling \fIfree()\fR\&\&.
+.LP
+\fIsize\fR\& is the length in bytes of the binary object\&.
+.LP
+The function returns 0 on success, or -1 on failure\&.
+.RE
+.LP
+.B
+intei_reg_setval(reg,key,flags,v,\&.\&.\&.)
+.br
+.RS
+.TP 3
+Types:
+
+ei_reg *reg;
+.br
+const char *key;
+.br
+int flags;
+.br
+v (see below)
+.br
+.RE
+.RS
+.LP
+Create a key-value pair with the specified \fIkey\fR\& whose value is specified by \fIv\fR\&\&. If an object already existed with the same \fIkey\fR\&, the new value replaces the old one\&. If the previous value was a binary or string, it is freed with \fIfree()\fR\&\&.
+.LP
+\fIreg\fR\& is the registry where the object should be placed\&.
+.LP
+\fIkey\fR\& is the name of the object\&.
+.LP
+\fIflags\fR\& indicates the type of the object specified by \fIv\fR\&\&. Flags must be one of EI_INT, EI_FLT, EI_STR and EI_BIN, indicating whether \fIv\fR\& is \fIint\fR\&, \fIdouble\fR\&, \fIchar*\fR\& or \fIvoid*\fR\&\&. If \fIflags\fR\& is EI_BIN, then a fifth argument \fIsize\fR\& is required, indicating the size in bytes of the object pointed to by \fIv\fR\&\&.
+.LP
+If you wish to store an arbitrary pointer in the registry, specify a \fIsize\fR\& of 0\&. In this case, the object itself will not be transferred by an \fIei_reg_dump()\fR\& operation, just the pointer value\&.
+.LP
+The function returns 0 on success, or -1 on failure\&.
+.RE
+.LP
+.B
+intei_reg_getival(reg,key)
+.br
+.RS
+.TP 3
+Types:
+
+ei_reg *reg;
+.br
+const char *key;
+.br
+.RE
+.RS
+.LP
+Get the value associated with \fIkey\fR\& in the registry\&. The value must be an integer\&.
+.LP
+\fIreg\fR\& is the registry where the object will be looked up\&.
+.LP
+\fIkey\fR\& is the name of the object to look up\&.
+.LP
+On success, the function returns the value associated with \fIkey\fR\&\&. If the object was not found or it was not an integer object, -1 is returned\&. To avoid problems with in-band error reporting (i\&.e\&. if you cannot distinguish between -1 and a valid result) use the more general function \fIei_reg_getval()\fR\& instead\&.
+.RE
+.LP
+.B
+doubleei_reg_getfval(reg,key)
+.br
+.RS
+.TP 3
+Types:
+
+ei_reg *reg;
+.br
+const char *key;
+.br
+.RE
+.RS
+.LP
+Get the value associated with \fIkey\fR\& in the registry\&. The value must be a floating point type\&.
+.LP
+\fIreg\fR\& is the registry where the object will be looked up\&.
+.LP
+\fIkey\fR\& is the name of the object to look up\&.
+.LP
+On success, the function returns the value associated with \fIkey\fR\&\&. If the object was not found or it was not a floating point object, -1\&.0 is returned\&. To avoid problems with in-band error reporting (i\&.e\&. if you cannot distinguish between -1\&.0 and a valid result) use the more general function \fIei_reg_getval()\fR\& instead\&.
+.RE
+.LP
+.B
+const char *ei_reg_getsval(reg,key)
+.br
+.RS
+.TP 3
+Types:
+
+ei_reg *reg;
+.br
+const char *key;
+.br
+.RE
+.RS
+.LP
+Get the value associated with \fIkey\fR\& in the registry\&. The value must be a string\&.
+.LP
+\fIreg\fR\& is the registry where the object will be looked up\&.
+.LP
+\fIkey\fR\& is the name of the object to look up\&.
+.LP
+On success, the function returns the value associated with \fIkey\fR\&\&. If the object was not found or it was not a string, NULL is returned\&. To avoid problems with in-band error reporting (i\&.e\&. if you cannot distinguish between NULL and a valid result) use the more general function \fIei_reg_getval()\fR\& instead\&.
+.RE
+.LP
+.B
+const void *ei_reg_getpval(reg,key,size)
+.br
+.RS
+.TP 3
+Types:
+
+ei_reg *reg;
+.br
+const char *key;
+.br
+int size;
+.br
+.RE
+.RS
+.LP
+Get the value associated with \fIkey\fR\& in the registry\&. The value must be a binary (pointer) type\&.
+.LP
+\fIreg\fR\& is the registry where the object will be looked up\&.
+.LP
+\fIkey\fR\& is the name of the object to look up\&.
+.LP
+\fIsize\fR\& will be initialized to contain the length in bytes of the object, if it is found\&.
+.LP
+On success, the function returns the value associated with \fIkey\fR\& and indicates its length in \fIsize\fR\&\&. If the object was not found or it was not a binary object, NULL is returned\&. To avoid problems with in-band error reporting (i\&.e\&. if you cannot distinguish between NULL and a valid result) use the more general function \fIei_reg_getval()\fR\& instead\&.
+.RE
+.LP
+.B
+intei_reg_getval(reg,key,flags,v,\&.\&.\&.)
+.br
+.RS
+.TP 3
+Types:
+
+ei_reg *reg;
+.br
+const char *key;
+.br
+int flags;
+.br
+void *v (see below)
+.br
+.RE
+.RS
+.LP
+This is a general function for retrieving any kind of object from the registry\&.
+.LP
+\fIreg\fR\& is the registry where the object will be looked up\&.
+.LP
+\fIkey\fR\& is the name of the object to look up\&.
+.LP
+\fIflags\fR\& indicates the type of object that you are looking for\&. If \fIflags\fR\& is 0, then any kind of object will be returned\&. If \fIflags\fR\& is one of EI_INT, EI_FLT, EI_STR or EI_BIN, then only values of that kind will be returned\&. The buffer pointed to by \fIv\fR\& must be large enough to hold the return data, i\&.e\&. it must be a pointer to one of \fIint\fR\&, \fIdouble\fR\&, \fIchar*\fR\& or \fIvoid*\fR\&, respectively\&. Also, if \fIflags\fR\& is EI_BIN, then a fifth argument \fIint *size\fR\& is required, so that the size of the object can be returned\&.
+.LP
+If the function succeeds, \fIv\fR\& (and \fIsize\fR\& if the object is binary) will be initialized with the value associated with \fIkey\fR\&, and the function will return one of EI_INT, EI_FLT, EI_STR or EI_BIN, indicating the type of object\&. On failure the function will return -1 and the arguments will not be updated\&.
+.RE
+.LP
+.B
+intei_reg_markdirty(reg,key)
+.br
+.RS
+.TP 3
+Types:
+
+ei_reg *reg;
+.br
+const char *key;
+.br
+.RE
+.RS
+.LP
+Mark a registry object as dirty\&. This will ensure that it is included in the next backup to Mnesia\&. Normally this operation will not be necessary since all of the normal registry \&'set\&' functions do this automatically\&. However if you have retrieved the value of a string or binary object from the registry and modified the contents, then the change will be invisible to the registry and the object will be assumed to be unmodified\&. This function allows you to make such modifications and then let the registry know about them\&.
+.LP
+\fIreg\fR\& is the registry containing the object\&.
+.LP
+\fIkey\fR\& is the name of the object to mark\&.
+.LP
+The function returns 0 on success, or -1 on failure\&.
+.RE
+.LP
+.B
+intei_reg_delete(reg,key)
+.br
+.RS
+.TP 3
+Types:
+
+ei_reg *reg;
+.br
+const char *key;
+.br
+.RE
+.RS
+.LP
+Delete an object from the registry\&. The object is not actually removed from the registry, it is only marked for later removal so that on subsequent backups to Mnesia, the corresponding object can be removed from the Mnesia table as well\&. If another object is later created with the same key, the object will be reused\&.
+.LP
+The object will be removed from the registry after a call to \fIei_reg_dump()\fR\& or \fIei_reg_purge()\fR\&\&.
+.LP
+\fIreg\fR\& is the registry containing \fIkey\fR\&\&.
+.LP
+\fIkey\fR\& is the object to remove\&.
+.LP
+If the object was found, the function returns 0 indicating success\&. Otherwise the function returns -1\&.
+.RE
+.LP
+.B
+intei_reg_stat(reg,key,obuf)
+.br
+.RS
+.TP 3
+Types:
+
+ei_reg *reg;
+.br
+const char *key;
+.br
+struct ei_reg_stat *obuf;
+.br
+.RE
+.RS
+.LP
+Return information about an object\&.
+.LP
+\fIreg\fR\& is the registry containing the object\&.
+.LP
+\fIkey\fR\& is the name of the object\&.
+.LP
+\fIobuf\fR\& is a pointer to an \fIei_reg_stat\fR\& structure, defined below:
+.LP
+.nf
+
+struct ei_reg_stat {
+  int attr;
+  int size;
+};
+        
+.fi
+.LP
+In \fIattr\fR\& the object\&'s attributes are stored as the logical OR of its type (one of EI_INT, EI_FLT, EI_BIN and EI_STR), whether it is marked for deletion (EI_DELET) and whether it has been modified since the last backup to Mnesia (EI_DIRTY)\&.
+.LP
+The \fIsize\fR\& field indicates the size in bytes required to store EI_STR (including the terminating 0) and EI_BIN objects, or 0 for EI_INT and EI_FLT\&.
+.LP
+The function returns 0 and initializes \fIobuf\fR\& on success, or returns -1 on failure\&.
+.RE
+.LP
+.B
+intei_reg_tabstat(reg,obuf)
+.br
+.RS
+.TP 3
+Types:
+
+ei_reg *reg;
+.br
+struct ei_reg_tabstat *obuf;
+.br
+.RE
+.RS
+.LP
+Return information about a registry\&. Using information returned by this function, you can see whether the size of the registry is suitable for the amount of data it contains\&.
+.LP
+\fIreg\fR\& is the registry to return information about\&.
+.LP
+\fIobuf\fR\& is a pointer to an \fIei_reg_tabstat\fR\& structure, defined below:
+.LP
+.nf
+
+struct ei_reg_tabstat {
+  int size;  
+  int nelem; 
+  int npos;  
+  int collisions; 
+};
+        
+.fi
+.LP
+The \fIsize\fR\& field indicates the number of hash positions in the registry\&. This is the number you provided when you created or last resized the registry, rounded up to the nearest prime\&.
+.LP
+\fInelem\fR\& indicates the number of elements stored in the registry\&. It includes objects that are deleted but not purged\&.
+.LP
+\fInpos\fR\& indicates the number of unique positions that are occupied in the registry\&.
+.LP
+\fIcollisions\fR\& indicates how many elements are sharing positions in the registry\&.
+.LP
+On success, the function returns 0 and \fIobuf\fR\& is initialized to contain table statistics\&. On failure, the function returns -1\&.
+.RE
+.LP
+.B
+intei_reg_dump(fd,reg,mntab,flags)
+.br
+.RS
+.TP 3
+Types:
+
+int fd;
+.br
+ei_reg *reg;
+.br
+const char *mntab;
+.br
+int flags;
+.br
+.RE
+.RS
+.LP
+Dump the contents of a registry to a Mnesia table in an atomic manner, i\&.e\&. either all data will be updated, or none of it will\&. If any errors are encountered while backing up the data, the entire operation is aborted\&.
+.LP
+\fIfd\fR\& is an open connection to Erlang\&. Mnesia 3\&.0 or later must be running on the Erlang node\&.
+.LP
+\fIreg\fR\& is the registry to back up\&.
+.LP
+\fImntab\fR\& is the name of the Mnesia table where the backed up data should be placed\&. If the table does not exist, it will be created automatically using configurable defaults\&. See your Mnesia documentation for information about configuring this behaviour\&.
+.LP
+If \fIflags\fR\& is 0, the backup will include only those objects which have been created, modified or deleted since the last backup or restore (i\&.e\&. an incremental backup)\&. After the backup, any objects that were marked dirty are now clean, and any objects that had been marked for deletion are deleted\&.
+.LP
+Alternatively, setting flags to EI_FORCE will cause a full backup to be done, and EI_NOPURGE will cause the deleted objects to be left in the registry afterwards\&. These can be bitwise ORed together if both behaviours are desired\&. If EI_NOPURGE was specified, you can use \fIei_reg_purge()\fR\& to explicitly remove the deleted items from the registry later\&.
+.LP
+The function returns 0 on success, or -1 on failure\&.
+.RE
+.LP
+.B
+intei_reg_restore(fd,reg,mntab)
+.br
+.RS
+.TP 3
+Types:
+
+int fd;
+.br
+ei_reg *reg;
+.br
+const char *mntab;
+.br
+.RE
+.RS
+.LP
+The contents of a Mnesia table are read into the registry\&.
+.LP
+\fIfd\fR\& is an open connection to Erlang\&. Mnesia 3\&.0 or later must be running on the Erlang node\&.
+.LP
+\fIreg\fR\& is the registry where the data should be placed\&.
+.LP
+\fImntab\fR\& is the name of the Mnesia table to read data from\&.
+.LP
+Note that only tables of a certain format can be restored, i\&.e\&. those that have been created and backed up to with \fIei_reg_dump()\fR\&\&. If the registry was not empty before the operation, then the contents of the table are added to the contents of the registry\&. If the table contains objects with the same keys as those already in the registry, the registry objects will be overwritten with the new values\&. If the registry contains objects that were not in the table, they will be unchanged by this operation\&.
+.LP
+After the restore operation, the entire contents of the registry is marked as unmodified\&. Note that this includes any objects that were modified before the restore and not overwritten by the restore\&.
+.LP
+The function returns 0 on success, or -1 on failure\&.
+.RE
+.LP
+.B
+intei_reg_purge(reg)
+.br
+.RS
+.TP 3
+Types:
+
+ei_reg *reg;
+.br
+.RE
+.RS
+.LP
+Remove all objects marked for deletion\&. When objects are deleted with \fIei_reg_delete()\fR\& they are not actually removed from the registry, only marked for later removal\&. This is so that on a subsequent backup to Mnesia, the objects can also be removed from the Mnesia table\&. If you are not backing up to Mnesia then you may wish to remove the objects manually with this function\&.
+.LP
+\fIreg\fR\& is a registry containing objects marked for deletion\&.
+.LP
+The function returns 0 on success, or -1 on failure\&.
+.RE

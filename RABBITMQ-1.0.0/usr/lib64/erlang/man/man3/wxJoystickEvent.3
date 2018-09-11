@@ -1,0 +1,169 @@
+.TH wxJoystickEvent 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxJoystickEvent \- See external documentation: wxJoystickEvent.
+.SH DESCRIPTION
+.LP
+See external documentation: wxJoystickEvent\&.
+.RS 2
+.TP 2
+.B
+Use \fBwxEvtHandler:connect/3\fR\& with EventType::
+\fIjoy_button_down\fR\&, \fIjoy_button_up\fR\&, \fIjoy_move\fR\&, \fIjoy_zmove\fR\&
+.RE
+.LP
+See also the message variant \fB#wxJoystick{\fR\&} event record type\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxEvent\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxJoystickEvent()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+buttonDown(This::wxJoystickEvent()) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBbuttonDown(This, [])\fR\&\&.
+.RE
+.LP
+.B
+buttonDown(This::wxJoystickEvent(), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {but, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+buttonIsDown(This::wxJoystickEvent()) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBbuttonIsDown(This, [])\fR\&\&.
+.RE
+.LP
+.B
+buttonIsDown(This::wxJoystickEvent(), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {but, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+buttonUp(This::wxJoystickEvent()) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBbuttonUp(This, [])\fR\&\&.
+.RE
+.LP
+.B
+buttonUp(This::wxJoystickEvent(), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {but, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getButtonChange(This::wxJoystickEvent()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getButtonState(This::wxJoystickEvent()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getJoystick(This::wxJoystickEvent()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getPosition(This::wxJoystickEvent()) -> {X::integer(), Y::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getZPosition(This::wxJoystickEvent()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isButton(This::wxJoystickEvent()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isMove(This::wxJoystickEvent()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isZMove(This::wxJoystickEvent()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

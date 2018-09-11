@@ -1,0 +1,471 @@
+.TH xmerl_sax_parser 3 "xmerl 1.2.10" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+xmerl_sax_parser \- XML SAX parser API
+.SH DESCRIPTION
+.LP
+A SAX parser for XML that sends the events through a callback interface\&. SAX is the \fISimple API for XML\fR\&, originally a Java-only API\&. SAX was the first widely adopted API for XML in Java, and is a \fIde facto\fR\& standard where there are versions for several programming language environments other than Java\&.
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIoption()\fR\&:
+Options used to customize the behaviour of the parser\&. Possible options are:
+.RS 2
+.LP
+
+.RE
+.RS 2
+.TP 2
+.B
+\fI{continuation_fun, ContinuationFun}\fR\&:
+\fBContinuationFun\fR\& is a call back function to decide what to do if the parser runs into EOF before the document is complete\&. 
+.TP 2
+.B
+\fI{continuation_state, term()}\fR\&:
+ State that is accessible in the continuation call back function\&. 
+.TP 2
+.B
+\fI{event_fun, EventFun}\fR\&:
+\fBEventFun\fR\& is the call back function for parser events\&. 
+.TP 2
+.B
+\fI{event_state, term()}\fR\&:
+ State that is accessible in the event call back function\&. 
+.TP 2
+.B
+\fI{file_type, FileType}\fR\&:
+ Flag that tells the parser if it\&'s parsing a DTD or a normal XML file (default normal)\&. 
+.RS 2
+.TP 2
+*
+\fIFileType = normal | dtd\fR\&
+.LP
+.RE
+
+.TP 2
+.B
+\fI{encoding, Encoding}\fR\&:
+ Set default character set used (default UTF-8)\&. This character set is used only if not explicitly given by the XML document\&. 
+.RS 2
+.TP 2
+*
+\fIEncoding = utf8 | {utf16,big} | {utf16,little} | latin1 | list\fR\&
+.LP
+.RE
+
+.TP 2
+.B
+\fIskip_external_dtd\fR\&:
+ Skips the external DTD during parsing\&. 
+.RE
+.TP 2
+.B
+:
+
+.TP 2
+.B
+\fIevent()\fR\&:
+The SAX events that are sent to the user via the callback\&.
+.RS 2
+.LP
+
+.RE
+.RS 2
+.TP 2
+.B
+\fIstartDocument\fR\&:
+ Receive notification of the beginning of a document\&. The SAX parser will send this event only once before any other event callbacks\&. 
+.TP 2
+.B
+\fIendDocument\fR\&:
+ Receive notification of the end of a document\&. The SAX parser will send this event only once, and it will be the last event during the parse\&. 
+.TP 2
+.B
+\fI{startPrefixMapping, Prefix, Uri}\fR\&:
+ Begin the scope of a prefix-URI Namespace mapping\&. Note that start/endPrefixMapping events are not guaranteed to be properly nested relative to each other: all startPrefixMapping events will occur immediately before the corresponding startElement event, and all endPrefixMapping events will occur immediately after the corresponding endElement event, but their order is not otherwise guaranteed\&. There will not be start/endPrefixMapping events for the "xml" prefix, since it is predeclared and immutable\&. 
+.RS 2
+.TP 2
+*
+\fIPrefix = string()\fR\&
+.LP
+.TP 2
+*
+\fIUri = string()\fR\&
+.LP
+.RE
+
+.TP 2
+.B
+\fI{endPrefixMapping, Prefix}\fR\&:
+ End the scope of a prefix-URI mapping\&. 
+.RS 2
+.TP 2
+*
+\fIPrefix = string()\fR\&
+.LP
+.RE
+
+.TP 2
+.B
+\fI{startElement, Uri, LocalName, QualifiedName, Attributes}\fR\&:
+ Receive notification of the beginning of an element\&. The Parser will send this event at the beginning of every element in the XML document; there will be a corresponding endElement event for every startElement event (even when the element is empty)\&. All of the element\&'s content will be reported, in order, before the corresponding endElement event\&. 
+.RS 2
+.TP 2
+*
+\fIUri = string()\fR\&
+.LP
+.TP 2
+*
+\fILocalName = string()\fR\&
+.LP
+.TP 2
+*
+\fIQualifiedName = {Prefix, LocalName}\fR\&
+.LP
+.TP 2
+*
+\fIPrefix = string()\fR\&
+.LP
+.TP 2
+*
+\fIAttributes = [{Uri, Prefix, AttributeName, Value}]\fR\&
+.LP
+.TP 2
+*
+\fIAttributeName = string()\fR\&
+.LP
+.TP 2
+*
+\fIValue = string()\fR\&
+.LP
+.RE
+
+.TP 2
+.B
+\fI{endElement, Uri, LocalName, QualifiedName}\fR\&:
+ Receive notification of the end of an element\&. The SAX parser will send this event at the end of every element in the XML document; there will be a corresponding startElement event for every endElement event (even when the element is empty)\&. 
+.RS 2
+.TP 2
+*
+\fIUri = string()\fR\&
+.LP
+.TP 2
+*
+\fILocalName = string()\fR\&
+.LP
+.TP 2
+*
+\fIQualifiedName = {Prefix, LocalName}\fR\&
+.LP
+.TP 2
+*
+\fIPrefix = string()\fR\&
+.LP
+.RE
+
+.TP 2
+.B
+\fI{characters, string()}\fR\&:
+ Receive notification of character data\&. 
+.TP 2
+.B
+\fI{ignorableWhitespace, string()}\fR\&:
+ Receive notification of ignorable whitespace in element content\&. 
+.TP 2
+.B
+\fI{processingInstruction, Target, Data}\fR\&:
+ Receive notification of a processing instruction\&. The Parser will send this event once for each processing instruction found: note that processing instructions may occur before or after the main document element\&. 
+.RS 2
+.TP 2
+*
+\fITarget = string()\fR\&
+.LP
+.TP 2
+*
+\fIData = string()\fR\&
+.LP
+.RE
+
+.TP 2
+.B
+\fI{comment, string()}\fR\&:
+ Report an XML comment anywhere in the document (both inside and outside of the document element)\&. 
+.TP 2
+.B
+\fIstartCDATA\fR\&:
+ Report the start of a CDATA section\&. The contents of the CDATA section will be reported through the regular characters event\&. 
+.TP 2
+.B
+\fIendCDATA\fR\&:
+ Report the end of a CDATA section\&. 
+.TP 2
+.B
+\fIstartDTD\fR\&:
+ Report the start of DTD declarations, it\&'s reporting the start of the DOCTYPE declaration\&. If the document has no DOCTYPE declaration, this event will not be sent\&. 
+.TP 2
+.B
+\fIendDTD\fR\&:
+ Report the end of DTD declarations, it\&'s reporting the end of the DOCTYPE declaration\&. 
+.TP 2
+.B
+\fI{startEntity, SysId}\fR\&:
+ Report the beginning of some internal and external XML entities\&. ??? 
+.TP 2
+.B
+\fI{endEntity, SysId}\fR\&:
+ Report the end of an entity\&. ??? 
+.TP 2
+.B
+\fI{elementDecl, Name, Model}\fR\&:
+ Report an element type declaration\&. The content model will consist of the string "EMPTY", the string "ANY", or a parenthesised group, optionally followed by an occurrence indicator\&. The model will be normalized so that all parameter entities are fully resolved and all whitespace is removed,and will include the enclosing parentheses\&. Other normalization (such as removing redundant parentheses or simplifying occurrence indicators) is at the discretion of the parser\&. 
+.RS 2
+.TP 2
+*
+\fIName = string()\fR\&
+.LP
+.TP 2
+*
+\fIModel = string()\fR\&
+.LP
+.RE
+
+.TP 2
+.B
+\fI{attributeDecl, ElementName, AttributeName, Type, Mode, Value}\fR\&:
+ Report an attribute type declaration\&. 
+.RS 2
+.TP 2
+*
+\fIElementName = string()\fR\&
+.LP
+.TP 2
+*
+\fIAttributeName = string()\fR\&
+.LP
+.TP 2
+*
+\fIType = string()\fR\&
+.LP
+.TP 2
+*
+\fIMode = string()\fR\&
+.LP
+.TP 2
+*
+\fIValue = string()\fR\&
+.LP
+.RE
+
+.TP 2
+.B
+\fI{internalEntityDecl, Name, Value}\fR\&:
+ Report an internal entity declaration\&. 
+.RS 2
+.TP 2
+*
+\fIName = string()\fR\&
+.LP
+.TP 2
+*
+\fIValue = string()\fR\&
+.LP
+.RE
+
+.TP 2
+.B
+\fI{externalEntityDecl, Name, PublicId, SystemId}\fR\&:
+ Report a parsed external entity declaration\&. 
+.RS 2
+.TP 2
+*
+\fIName = string()\fR\&
+.LP
+.TP 2
+*
+\fIPublicId = string()\fR\&
+.LP
+.TP 2
+*
+\fISystemId = string()\fR\&
+.LP
+.RE
+
+.TP 2
+.B
+\fI{unparsedEntityDecl, Name, PublicId, SystemId, Ndata}\fR\&:
+ Receive notification of an unparsed entity declaration event\&. 
+.RS 2
+.TP 2
+*
+\fIName = string()\fR\&
+.LP
+.TP 2
+*
+\fIPublicId = string()\fR\&
+.LP
+.TP 2
+*
+\fISystemId = string()\fR\&
+.LP
+.TP 2
+*
+\fINdata = string()\fR\&
+.LP
+.RE
+
+.TP 2
+.B
+\fI{notationDecl, Name, PublicId, SystemId}\fR\&:
+ Receive notification of a notation declaration event\&. 
+.RS 2
+.TP 2
+*
+\fIName = string()\fR\&
+.LP
+.TP 2
+*
+\fIPublicId = string()\fR\&
+.LP
+.TP 2
+*
+\fISystemId = string()\fR\&
+.LP
+.RE
+
+.RE
+.TP 2
+.B
+\fIunicode_char()\fR\&:
+ Integer representing valid unicode codepoint\&. 
+.TP 2
+.B
+\fIunicode_binary()\fR\&:
+ Binary with characters encoded in UTF-8 or UTF-16\&. 
+.TP 2
+.B
+\fIlatin1_binary()\fR\&:
+ Binary with characters encoded in iso-latin-1\&. 
+.RE
+.SH EXPORTS
+.LP
+.B
+file(Filename, Options) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Filename = string()
+.br
+Options = [option()]
+.br
+Result = {ok, EventState, Rest} |
+.br
+{Tag, Location, Reason, EndTags, EventState}
+.br
+Rest = unicode_binary() | latin1_binary()
+.br
+Tag = atom() (fatal_error, or user defined tag)
+.br
+Location = {CurrentLocation, EntityName, LineNo}
+.br
+CurrentLocation = string()
+.br
+EntityName = string()
+.br
+LineNo = integer()
+.br
+EventState = term()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Parse file containing an XML document\&. This functions uses a default continuation function to read the file in blocks\&.
+.RE
+.LP
+.B
+stream(Xml, Options) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Xml = unicode_binary() | latin1_binary() | [unicode_char()]
+.br
+Options = [option()]
+.br
+Result = {ok, EventState, Rest} |
+.br
+{Tag, Location, Reason, EndTags, EventState}
+.br
+Rest = unicode_binary() | latin1_binary() | [unicode_char()]
+.br
+Tag = atom() (fatal_error or user defined tag)
+.br
+Location = {CurrentLocation, EntityName, LineNo}
+.br
+CurrentLocation = string()
+.br
+EntityName = string()
+.br
+LineNo = integer()
+.br
+EventState = term()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Parse a stream containing an XML document\&.
+.RE
+.SH "CALLBACK FUNCTIONS"
+
+.LP
+The callback interface is based on that the user sends a fun with the correct signature to the parser\&.
+.SH EXPORTS
+.LP
+.B
+ContinuationFun(State) -> {NewBytes, NewState}
+.br
+.RS
+.TP 3
+Types:
+
+State = NewState = term()
+.br
+NewBytes = binary() | list() (should be same as start input in stream/2)
+.br
+.RE
+.RS
+.LP
+This function is called whenever the parser runs out of input data\&. If the function can\&'t get hold of more input an empty list or binary (depends on start input in stream/2) is returned\&. Other types of errors is handled through exceptions\&. Use throw/1 to send the following tuple {Tag = atom(), Reason = string()} if the continuation function encounters a fatal error\&. Tag is an atom that identifies the functional entity that sends the exception and Reason is a string that describes the problem\&.
+.RE
+.LP
+.B
+EventFun(Event, Location, State) -> NewState
+.br
+.RS
+.TP 3
+Types:
+
+Event = event()
+.br
+Location = {CurrentLocation, Entityname, LineNo}
+.br
+CurrentLocation = string()
+.br
+Entityname = string()
+.br
+LineNo = integer()
+.br
+State = NewState = term()
+.br
+.RE
+.RS
+.LP
+This function is called for every event sent by the parser\&. The error handling is done through exceptions\&. Use throw/1 to send the following tuple {Tag = atom(), Reason = string()} if the application encounters a fatal error\&. Tag is an atom that identifies the functional entity that sends the exception and Reason is a string that describes the problem\&.
+.RE

@@ -1,0 +1,102 @@
+.TH CosTime_TIO 3 "cosTime 1.1.11" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+CosTime_TIO \- This module implements the OMG CosTime::TIO interface.
+.SH DESCRIPTION
+.LP
+To get access to the record definitions for the structures use: 
+.br
+\fI-include_lib("cosTime/include/*\&.hrl")\&.\fR\&
+.SH EXPORTS
+.LP
+.B
+\&'_get_time_interval\&'(TIO) -> TimeInterval
+.br
+.RS
+.TP 3
+Types:
+
+TIO = #objref
+.br
+TimeInterval = #'TimeBase_IntervalT{lower_bound, upper_bound}
+.br
+lower_bound = upper_bound = ulonglong
+.br
+.RE
+.RS
+.LP
+This operation returns the interval associated with the target object\&.
+.RE
+.LP
+.B
+spans(TIO, UTO) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+TIO = UTO = OtherTIO = #objref
+.br
+Reply = {OverlapType, OtherTIO}
+.br
+OverlapType = 'OTContainer' | 'OTContained' | 'OTOverlap' | 'OTNoOverlap'
+.br
+.RE
+.RS
+.LP
+This operation returns a \fIOverlapType\fR\& depending on how the interval in the target object and the timerange represented by the UTO object overlap\&. If the OverlapType is \&'OTNoOverlap\&' the out parameter represents the gap between the two intervals\&. If OverlapType is one of the others, the out parameter represents the overlap interval\&. The definitions of the OverlapType\&'s are:
+.LP
+
+.RS 2
+.TP 2
+*
+\&'OTContainer\&' - target objects lower and upper limits are, respectively, less or equal to and greater or equal to given object\&'s\&.
+.LP
+.TP 2
+*
+\&'OTContained\&' - target objects lower and upper limits are, respectively, greater or equal to and less or equal to given object\&'s\&.
+.LP
+.TP 2
+*
+\&'OTOverlap\&' - target objects interval overlap given object\&'s\&.
+.LP
+.TP 2
+*
+\&'OTNoOverlap\&' - target objects interval do not overlap given object\&'s\&.
+.LP
+.RE
+
+.RE
+.LP
+.B
+overlaps(TIO, OtherTIO) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+TIO = OtherTIO = AnotherTIO = #objref
+.br
+Reply = {OverlapType, AnotherTIO}
+.br
+OverlapType = 'OTContainer' | 'OTContained' | 'OTOverlap' | 'OTNoOverlap'
+.br
+.RE
+.RS
+.LP
+This operation returns a \fIOverlapType\fR\& depending on how the interval in the target object and the timerange represented by the TIO object overlap\&. The OverlapType\&'s are described under spans/2\&.
+.RE
+.LP
+.B
+time(TIO) -> UTO
+.br
+.RS
+.TP 3
+Types:
+
+TIO = UTO = #objref
+.br
+.RE
+.RS
+.LP
+This operation returns a UTO in which the interval equals the time interval in the target object and time value is the midpoint of the interval\&.
+.RE

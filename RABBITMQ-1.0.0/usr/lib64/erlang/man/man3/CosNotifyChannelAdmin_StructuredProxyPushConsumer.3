@@ -1,0 +1,111 @@
+.TH CosNotifyChannelAdmin_StructuredProxyPushConsumer 3 "cosNotification 1.1.17" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+CosNotifyChannelAdmin_StructuredProxyPushConsumer \- This module implements the OMG  CosNotifyChannelAdmin::StructuredProxyPushConsumer interface.
+.SH DESCRIPTION
+.LP
+To get access to the record definitions for the structures use: 
+.br
+\fI-include_lib("cosNotification/include/*\&.hrl")\&.\fR\&
+.LP
+This module also exports the functions described in:
+.RS 2
+.TP 2
+*
+\fBCosNotifyComm_NotifyPublish\fR\&
+.LP
+.TP 2
+*
+\fBCosNotification_QoSAdmin\fR\&
+.LP
+.TP 2
+*
+\fBCosNotifyFilter_FilterAdmin\fR\&
+.LP
+.TP 2
+*
+\fBCosNotifyChannelAdmin_ProxyConsumer\fR\&
+.LP
+.RE
+
+.SH EXPORTS
+.LP
+.B
+connect_structured_push_supplier(StructuredProxyPushConsumer, PushSupplier) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+StructuredProxyPushConsumer = #objref
+.br
+PushSupplier = #objref
+.br
+Reply = ok | {'EXCEPTION', #'CosEventChannelAdmin_AlreadyConnected'{}}
+.br
+.RE
+.RS
+.LP
+This operation connects a \fIPushSupplier\fR\& to the target object\&. If a connection already exists an exception is raised\&.
+.RE
+.LP
+.B
+push_structured_event(StructuredProxyPushConsumer, StructuredEvent) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+StructuredProxyPushConsumer = #objref
+.br
+StructuredEvent = #'CosNotification_StructuredEvent'{header, filterable_data, remainder_of_body}
+.br
+header = EventHeader
+.br
+filterable_data = [#'CosNotification_Property'{name, value}]
+.br
+name = string()
+.br
+value = #any
+.br
+remainder_of_body = #any
+.br
+EventHeader = #'CosNotification_EventHeader'{fixed_header, variable_header}
+.br
+fixed_header = FixedEventHeader
+.br
+variable_header = OptionalHeaderFields
+.br
+FixedEventHeader = #'CosNotification_FixedEventHeader'{event_type, event_name}
+.br
+event_type = EventType
+.br
+event_name = string()
+.br
+EventType = #'CosNotification_EventType'{domain_name, type_name}
+.br
+domain_name = type_name = string()
+.br
+OptionalHeaderFields = [#'CosNotification_Property'{name, value}]
+.br
+Reply = ok | {'EXCEPTION', #'CosEventChannelAdmin_Disconnected'{}}
+.br
+.RE
+.RS
+.LP
+When a client want to push a new event to the target object this operation must be used\&.
+.RE
+.LP
+.B
+disconnect_structured_push_consumer(StructuredProxyPushConsumer) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+StructuredProxyPushConsumer = #objref
+.br
+.RE
+.RS
+.LP
+This operation cause the target object to close the connection and terminate\&.
+.RE

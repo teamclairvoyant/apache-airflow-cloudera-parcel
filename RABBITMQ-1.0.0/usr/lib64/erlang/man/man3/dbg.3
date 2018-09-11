@@ -1,0 +1,1084 @@
+.TH dbg 3 "runtime_tools 1.8.6" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+dbg \- The Text Based Trace Facility
+.SH DESCRIPTION
+.LP
+This module implements a text based interface to the \fItrace/3\fR\& and the \fItrace_pattern/2\fR\& BIFs\&. It makes it possible to trace functions, processes and messages on text based terminals\&. It can be used instead of, or as complement to, the \fIpman\fR\& module\&.
+.LP
+For some examples of how to use \fIdbg\fR\& from the Erlang shell, see the \fBsimple example\fR\& section\&.
+.LP
+The utilities are also suitable to use in system testing on large systems, where other tools have too much impact on the system performance\&. Some primitive support for sequential tracing is also included, see the \fBadvanced topics\fR\& section\&.
+.SH EXPORTS
+.LP
+.B
+fun2ms(LiteralFun) -> MatchSpec
+.br
+.RS
+.TP 3
+Types:
+
+LiteralFun = fun() literal
+.br
+MatchSpec = term()
+.br
+.RE
+.RS
+.LP
+Pseudo function that by means of a \fIparse_transform\fR\& translates the \fIliteral\fR\&\fIfun()\fR\& typed as parameter in the function call to a match specification as described in the \fImatch_spec\fR\& manual of \fIERTS\fR\& users guide\&. (with literal I mean that the \fIfun()\fR\& needs to textually be written as the parameter of the function, it cannot be held in a variable which in turn is passed to the function)\&.
+.LP
+The parse transform is implemented in the module \fIms_transform\fR\& and the source \fImust\fR\& include the file \fIms_transform\&.hrl\fR\& in STDLIB for this pseudo function to work\&. Failing to include the hrl file in the source will result in a runtime error, not a compile time ditto\&. The include file is easiest included by adding the line \fI-include_lib("stdlib/include/ms_transform\&.hrl")\&.\fR\& to the source file\&.
+.LP
+The \fIfun()\fR\& is very restricted, it can take only a single parameter (the parameter list to match), a sole variable or a list\&. It needs to use the \fIis_\fR\&XXX guard tests and one cannot use language constructs that have no representation in a match_spec (like \fIif\fR\&, \fIcase\fR\&, \fIreceive\fR\& etc)\&. The return value from the fun will be the return value of the resulting match_spec\&.
+.LP
+Example:
+.LP
+.nf
+
+1> dbg:fun2ms(fun([M,N]) when N > 3 -> return_trace() end)\&.
+[{['$1','$2'],[{'>','$2',3}],[{return_trace}]}]
+.fi
+.LP
+Variables from the environment can be imported, so that this works:
+.LP
+.nf
+
+2> X=3\&.
+3
+3> dbg:fun2ms(fun([M,N]) when N > X -> return_trace() end)\&.
+[{['$1','$2'],[{'>','$2',{const,3}}],[{return_trace}]}]
+.fi
+.LP
+The imported variables will be replaced by match_spec \fIconst\fR\& expressions, which is consistent with the static scoping for Erlang \fIfun()\fR\&s\&. Local or global function calls can not be in the guard or body of the fun however\&. Calls to builtin match_spec functions of course is allowed:
+.LP
+.nf
+
+4> dbg:fun2ms(fun([M,N]) when N > X, is_atomm(M) -> return_trace() end)\&.
+Error: fun containing local erlang function calls ('is_atomm' called in guard) cannot be translated into match_spec
+{error,transform_error}
+5> dbg:fun2ms(fun([M,N]) when N > X, is_atom(M) -> return_trace() end)\&.
+[{['$1','$2'],[{'>','$2',{const,3}},{is_atom,'$1'}],[{return_trace}]}]
+.fi
+.LP
+As you can see by the example, the function can be called from the shell too\&. The \fIfun()\fR\& needs to be literally in the call when used from the shell as well\&. Other means than the parse_transform are used in the shell case, but more or less the same restrictions apply (the exception being records, as they are not handled by the shell)\&.
+.LP
+
+.RS -4
+.B
+Warning:
+.RE
+If the parse_transform is not applied to a module which calls this pseudo function, the call will fail in runtime (with a \fIbadarg\fR\&)\&. The module \fIdbg\fR\& actually exports a function with this name, but it should never really be called except for when using the function in the shell\&. If the \fIparse_transform\fR\& is properly applied by including the \fIms_transform\&.hrl\fR\& header file, compiled code will never call the function, but the function call is replaced by a literal match_spec\&.
+
+.LP
+More information is provided by the \fIms_transform\fR\& manual page in STDLIB\&.
+.RE
+.LP
+.B
+h() -> ok 
+.br
+.RS
+.LP
+Gives a list of items for brief online help\&.
+.RE
+.LP
+.B
+h(Item) -> ok 
+.br
+.RS
+.TP 3
+Types:
+
+Item = atom()
+.br
+.RE
+.RS
+.LP
+Gives a brief help text for functions in the dbg module\&. The available items can be listed with \fIdbg:h/0\fR\&
+.RE
+.LP
+.B
+p(Item) -> {ok, MatchDesc} | {error, term()} 
+.br
+.RS
+.LP
+Equivalent to \fIp(Item, [m])\fR\&\&.
+.RE
+.LP
+.B
+p(Item, Flags) -> {ok, MatchDesc} | {error, term()}
+.br
+.RS
+.TP 3
+Types:
+
+MatchDesc = [MatchNum]
+.br
+MatchNum = {matched, node(), integer()} | {matched, node(), 0, RPCError}
+.br
+RPCError = term()
+.br
+.RE
+.RS
+.LP
+Traces \fIItem\fR\& in accordance to the value specified by \fIFlags\fR\&\&. The variation of \fIItem\fR\& is listed below:
+.RS 2
+.TP 2
+*
+If the \fIItem\fR\& is a \fIpid()\fR\&, the corresponding process is traced\&. The process may be a remote process (on another Erlang node)\&. The node must be in the list of traced nodes (\fBsee\fR\&\fIn/1\fR\& and \fItracer/0/2/3\fR\&)\&.
+.LP
+.TP 2
+*
+If the \fIItem\fR\& is the atom \fIall\fR\&, all processes in the system as well as all processes created hereafter are to be traced\&. This also affects all nodes added with the \fIn/1\fR\& or \fItracer/0/2/3\fR\& function\&.
+.LP
+.TP 2
+*
+If the \fIItem\fR\& is the atom \fInew\fR\&, no currently existing processes are affected, but every process created after the call is\&.This also affects all nodes added with the \fIn/1\fR\& or \fItracer/0/2/3\fR\& function\&.
+.LP
+.TP 2
+*
+If the \fIItem\fR\& is the atom \fIexisting\fR\&, all existing processes are traced, but new processes will not be affected\&.This also affects all nodes added with the \fIn/1\fR\& or \fItracer/0/2/3\fR\& function\&.
+.LP
+.TP 2
+*
+If the \fIItem\fR\& is an atom other than \fIall\fR\&, \fInew\fR\& or \fIexisting\fR\&, the process with the corresponding registered name is traced\&.The process may be a remote process (on another Erlang node)\&. The node must be added with the \fIn/1\fR\& or \fItracer/0/2/3\fR\& function\&.
+.LP
+.TP 2
+*
+If the \fIItem\fR\& is an integer, the process \fI<0\&.Item\&.0>\fR\& is traced\&.
+.LP
+.TP 2
+*
+If the \fIItem\fR\& is a tuple \fI{X, Y, Z}\fR\&, the process \fI<X\&.Y\&.Z>\fR\& is traced\&. 
+.LP
+.TP 2
+*
+If the \fIItem\fR\& is a string "<X\&.Y\&.Z>" as returned from \fIpid_to_list/1\fR\&, the process \fI<X\&.Y\&.Z>\fR\& is traced\&. 
+.LP
+.RE
+
+.LP
+\fIFlags\fR\& can be a single atom, or a list of flags\&. The available flags are:
+.RS 2
+.TP 2
+.B
+\fIs (send)\fR\&:
+Traces the messages the process sends\&.
+.TP 2
+.B
+\fIr (receive)\fR\&:
+Traces the messages the process receives\&.
+.TP 2
+.B
+\fIm (messages)\fR\&:
+Traces the messages the process receives and sends\&.
+.TP 2
+.B
+\fIc (call)\fR\&:
+Traces global function calls for the process according to the trace patterns set in the system (see tp/2)\&.
+.TP 2
+.B
+\fIp (procs)\fR\&:
+Traces process related events to the process\&.
+.TP 2
+.B
+\fIsos (set on spawn)\fR\&:
+Lets all processes created by the traced process inherit the trace flags of the traced process\&.
+.TP 2
+.B
+\fIsol (set on link)\fR\&:
+Lets another process, \fIP2\fR\&, inherit the trace flags of the traced process whenever the traced process links to \fIP2\fR\&\&.
+.TP 2
+.B
+\fIsofs (set on first spawn)\fR\&:
+This is the same as \fIsos\fR\&, but only for the first process spawned by the traced process\&.
+.TP 2
+.B
+\fIsofl (set on first link)\fR\&:
+This is the same as \fIsol\fR\&, but only for the first call to \fIlink/1\fR\& by the traced process\&.
+.TP 2
+.B
+\fIall\fR\&:
+Sets all flags\&.
+.TP 2
+.B
+\fIclear\fR\&:
+Clears all flags\&.
+.RE
+.LP
+The list can also include any of the flags allowed in \fIerlang:trace/3\fR\&
+.LP
+The function returns either an error tuple or a tuple \fI{ok, List}\fR\&\&. The \fIList\fR\& consists of specifications of how many processes that matched (in the case of a pure pid() exactly 1)\&. The specification of matched processes is \fI{matched, Node, N}\fR\&\&. If the remote processor call,\fIrpc\fR\&, to a remote node fails, the \fIrpc\fR\& error message is delivered as a fourth argument and the number of matched processes are 0\&. Note that the result {ok, List} may contain a list where \fIrpc\fR\& calls to one, several or even all nodes failed\&.
+.RE
+.LP
+.B
+c(Mod, Fun, Args)
+.br
+.RS
+.LP
+Equivalent to \fIc(Mod, Fun, Args, all)\fR\&\&.
+.RE
+.LP
+.B
+c(Mod, Fun, Args, Flags)
+.br
+.RS
+.LP
+Evaluates the expression \fIapply(Mod, Fun, Args)\fR\& with the trace flags in \fIFlags\fR\& set\&. This is a convenient way to trace processes from the Erlang shell\&.
+.RE
+.LP
+.B
+i() -> ok
+.br
+.RS
+.LP
+Displays information about all traced processes\&.
+.RE
+.LP
+.B
+tp(Module,MatchSpec)
+.br
+.RS
+.LP
+Same as tp({Module, \&'_\&', \&'_\&'}, MatchSpec)
+.RE
+.LP
+.B
+tp(Module,Function,MatchSpec)
+.br
+.RS
+.LP
+Same as tp({Module, Function, \&'_\&'}, MatchSpec)
+.RE
+.LP
+.B
+tp(Module, Function, Arity, MatchSpec)
+.br
+.RS
+.LP
+Same as tp({Module, Function, Arity}, MatchSpec)
+.RE
+.LP
+.B
+tp({Module, Function, Arity}, MatchSpec) -> {ok, MatchDesc} | {error, term()}
+.br
+.RS
+.TP 3
+Types:
+
+Module = atom() | '_'
+.br
+Function = atom() | '_'
+.br
+Arity = integer() |'_'
+.br
+MatchSpec = integer() | atom() | [] | match_spec()
+.br
+MatchDesc = [MatchInfo]
+.br
+MatchInfo = {saved, integer()} | MatchNum
+.br
+MatchNum = {matched, node(), integer()} | {matched, node(), 0, RPCError}
+.br
+.RE
+.RS
+.LP
+This function enables call trace for one or more functions\&. All exported functions matching the \fI{Module, Function, Arity}\fR\& argument will be concerned, but the \fImatch_spec()\fR\& may further narrow down the set of function calls generating trace messages\&.
+.LP
+For a description of the \fImatch_spec()\fR\& syntax, please turn to the \fIUser\&'s guide\fR\& part of the online documentation for the runtime system (\fIerts\fR\&)\&. The chapter \fIMatch Specification in Erlang\fR\& explains the general match specification "language"\&.
+.LP
+The Module, Function and/or Arity parts of the tuple may be specified as the atom \fI\&'_\&'\fR\& which is a "wild-card" matching all modules/functions/arities\&. Note, if the Module is specified as \fI\&'_\&'\fR\&, the Function and Arity parts have to be specified as \&'_\&' too\&. The same holds for the Functions relation to the Arity\&.
+.LP
+All nodes added with \fIn/1\fR\& or \fItracer/0/2/3\fR\& will be affected by this call, and if Module is not \fI\&'_\&'\fR\& the module will be loaded on all nodes\&.
+.LP
+The function returns either an error tuple or a tuple \fI{ok, List}\fR\&\&. The \fIList\fR\& consists of specifications of how many functions that matched, in the same way as the processes are presented in the return value of \fIp/2\fR\&\&.
+.LP
+There may be a tuple \fI{saved, N}\fR\& in the return value, if the MatchSpec is other than []\&. The integer \fIN\fR\& may then be used in subsequent calls to this function and will stand as an "alias" for the given expression\&. There are also built-in aliases named with atoms (see also \fIltp/0\fR\& below)\&.
+.LP
+If an error is returned, it can be due to errors in compilation of the match specification\&. Such errors are presented as a list of tuples \fI{error, string()}\fR\& where the string is a textual explanation of the compilation error\&. An example:
+.LP
+.nf
+
+(x@y)4> dbg:tp({dbg,ltp,0},[{[],[],[{message, two, arguments}, {noexist}]}])\&.
+{error,
+ [{error,"Special form 'message' called with wrong number of
+          arguments in {message,two,arguments}."},
+  {error,"Function noexist/1 does_not_exist."}]}
+.fi
+.RE
+.LP
+.B
+tpl(Module,MatchSpec)
+.br
+.RS
+.LP
+Same as tpl({Module, \&'_\&', \&'_\&'}, MatchSpec)
+.RE
+.LP
+.B
+tpl(Module,Function,MatchSpec)
+.br
+.RS
+.LP
+Same as tpl({Module, Function, \&'_\&'}, MatchSpec)
+.RE
+.LP
+.B
+tpl(Module, Function, Arity, MatchSpec)
+.br
+.RS
+.LP
+Same as tpl({Module, Function, Arity}, MatchSpec)
+.RE
+.LP
+.B
+tpl({Module, Function, Arity}, MatchSpec) -> {ok, MatchDesc} | {error, term()}
+.br
+.RS
+.LP
+This function works as \fItp/2\fR\&, but enables tracing for local calls (and local functions) as well as for global calls (and functions)\&.
+.RE
+.LP
+.B
+ctp()
+.br
+.RS
+.LP
+Same as ctp({\&'_\&', \&'_\&', \&'_\&'})
+.RE
+.LP
+.B
+ctp(Module)
+.br
+.RS
+.LP
+Same as ctp({Module, \&'_\&', \&'_\&'})
+.RE
+.LP
+.B
+ctp(Module, Function)
+.br
+.RS
+.LP
+Same as ctp({Module, Function, \&'_\&'})
+.RE
+.LP
+.B
+ctp(Module, Function, Arity)
+.br
+.RS
+.LP
+Same as ctp({Module, Function, Arity})
+.RE
+.LP
+.B
+ctp({Module, Function, Arity}) -> {ok, MatchDesc} | {error, term()}
+.br
+.RS
+.TP 3
+Types:
+
+Module = atom() | '_'
+.br
+Function = atom() | '_'
+.br
+Arity = integer() | '_'
+.br
+MatchDesc = [MatchNum]
+.br
+MatchNum = {matched, node(), integer()} | {matched, node(), 0, RPCError}
+.br
+.RE
+.RS
+.LP
+This function disables call tracing on the specified functions\&. The semantics of the parameter is the same as for the corresponding function specification in \fItp/2\fR\& or \fItpl/2\fR\&\&. Both local and global call trace is disabled\&.
+.LP
+The return value reflects how many functions that matched, and is constructed as described in \fItp/2\fR\&\&. No tuple \fI{saved, N}\fR\& is however ever returned (for obvious reasons)\&.
+.RE
+.LP
+.B
+ctpl()
+.br
+.RS
+.LP
+Same as ctpl({\&'_\&', \&'_\&', \&'_\&'})
+.RE
+.LP
+.B
+ctpl(Module)
+.br
+.RS
+.LP
+Same as ctpl({Module, \&'_\&', \&'_\&'})
+.RE
+.LP
+.B
+ctpl(Module, Function)
+.br
+.RS
+.LP
+Same as ctpl({Module, Function, \&'_\&'})
+.RE
+.LP
+.B
+ctpl(Module, Function, Arity)
+.br
+.RS
+.LP
+Same as ctpl({Module, Function, Arity})
+.RE
+.LP
+.B
+ctpl({Module, Function, Arity}) -> {ok, MatchDesc} | {error, term()}
+.br
+.RS
+.LP
+This function works as \fIctp/1\fR\&, but only disables tracing set up with \fItpl/2\fR\& (not with \fItp/2\fR\&)\&.
+.RE
+.LP
+.B
+ctpg()
+.br
+.RS
+.LP
+Same as ctpg({\&'_\&', \&'_\&', \&'_\&'})
+.RE
+.LP
+.B
+ctpg(Module)
+.br
+.RS
+.LP
+Same as ctpg({Module, \&'_\&', \&'_\&'})
+.RE
+.LP
+.B
+ctpg(Module, Function)
+.br
+.RS
+.LP
+Same as ctpg({Module, Function, \&'_\&'})
+.RE
+.LP
+.B
+ctpg(Module, Function, Arity)
+.br
+.RS
+.LP
+Same as ctpg({Module, Function, Arity})
+.RE
+.LP
+.B
+ctpg({Module, Function, Arity}) -> {ok, MatchDesc} | {error, term()}
+.br
+.RS
+.LP
+This function works as \fIctp/1\fR\&, but only disables tracing set up with \fItp/2\fR\& (not with \fItpl/2\fR\&)\&.
+.RE
+.LP
+.B
+ltp() -> ok
+.br
+.RS
+.LP
+Use this function to recall all match specifications previously used in the session (i\&. e\&. previously saved during calls to \fItp/2\fR\&, and built-in match specifications\&. This is very useful, as a complicated match_spec can be quite awkward to write\&. Note that the match specifications are lost if \fIstop/0\fR\& is called\&.
+.LP
+Match specifications used can be saved in a file (if a read-write file system is present) for use in later debugging sessions, see \fIwtp/1\fR\& and \fIrtp/1\fR\&
+.RE
+.LP
+.B
+dtp() -> ok
+.br
+.RS
+.LP
+Use this function to "forget" all match specifications saved during calls to \fItp/2\fR\&\&. This is useful when one wants to restore other match specifications from a file with \fIrtp/1\fR\&\&. Use \fIdtp/1\fR\& to delete specific saved match specifications\&.
+.RE
+.LP
+.B
+dtp(N) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+N = integer()
+.br
+.RE
+.RS
+.LP
+Use this function to "forget" a specific match specification saved during calls to \fItp/2\fR\&\&.
+.RE
+.LP
+.B
+wtp(Name) -> ok | {error, IOError}
+.br
+.RS
+.TP 3
+Types:
+
+Name = string()
+.br
+IOError = term()
+.br
+.RE
+.RS
+.LP
+This function will save all match specifications saved during the session (during calls to \fItp/2\fR\&) and built-in match specifications in a text file with the name designated by \fIName\fR\&\&. The format of the file is textual, why it can be edited with an ordinary text editor, and then restored with \fIrtp/1\fR\&\&.
+.LP
+Each match spec in the file ends with a full stop (\fI\&.\fR\&) and new (syntactically correct) match specifications can be added to the file manually\&.
+.LP
+The function returns \fIok\fR\& or an error tuple where the second element contains the I/O error that made the writing impossible\&.
+.RE
+.LP
+.B
+rtp(Name) -> ok | {error, Error}
+.br
+.RS
+.TP 3
+Types:
+
+Name = string()
+.br
+Error = term()
+.br
+.RE
+.RS
+.LP
+This function reads match specifications from a file (possibly) generated by the \fIwtp/1\fR\& function\&. It checks the syntax of all match specifications and verifies that they are correct\&. The error handling principle is "all or nothing", i\&. e\&. if some of the match specifications are wrong, none of the specifications are added to the list of saved match specifications for the running system\&.
+.LP
+The match specifications in the file are \fImerged\fR\& with the current match specifications, so that no duplicates are generated\&. Use \fIltp/0\fR\& to see what numbers were assigned to the specifications from the file\&.
+.LP
+The function will return an error, either due to I/O problems (like a non existing or non readable file) or due to file format problems\&. The errors from a bad format file are in a more or less textual format, which will give a hint to what\&'s causing the problem\&. 
+.RE
+.LP
+.B
+n(Nodename) -> {ok, Nodename} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Nodename = atom()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+The \fIdbg\fR\& server keeps a list of nodes where tracing should be performed\&. Whenever a \fItp/2\fR\& call or a \fIp/2\fR\& call is made, it is executed for all nodes in this list including the local node (except for \fIp/2\fR\& with a specific \fIpid()\fR\& as first argument, in which case the command is executed only on the node where the designated process resides)\&.
+.LP
+This function adds a remote node (\fINodename\fR\&) to the list of nodes where tracing is performed\&. It starts a tracer process on the remote node, which will send all trace messages to the tracer process on the local node (via the Erlang distribution)\&. If no tracer process is running on the local node, the error reason \fIno_local_tracer\fR\& is returned\&. The tracer process on the local node must be started with the \fItracer/0/2\fR\& function\&.
+.LP
+If \fINodename\fR\& is the local node, the error reason \fIcant_add_local_node\fR\& is returned\&.
+.LP
+If a trace port (\fBsee\fR\&\fItrace_port/2\fR\&) is running on the local node, remote nodes can not be traced with a tracer process\&. The error reason \fIcant_trace_remote_pid_to_local_port\fR\& is returned\&. A trace port can however be started on the remote node with the \fItracer/3\fR\& function\&.
+.LP
+The function will also return an error if the node \fINodename\fR\& is not reachable\&.
+.RE
+.LP
+.B
+cn(Nodename) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Nodename = atom()
+.br
+.RE
+.RS
+.LP
+Clears a node from the list of traced nodes\&. Subsequent calls to \fItp/2\fR\& and \fIp/2\fR\& will not consider that node, but tracing already activated on the node will continue to be in effect\&.
+.LP
+Returns \fIok\fR\&, cannot fail\&.
+.RE
+.LP
+.B
+ln() -> ok
+.br
+.RS
+.LP
+Shows the list of traced nodes on the console\&.
+.RE
+.LP
+.B
+tracer() -> {ok, pid()} | {error, already_started}
+.br
+.RS
+.LP
+This function starts a server on the local node that will be the recipient of all trace messages\&. All subsequent calls to \fIp/2\fR\& will result in messages sent to the newly started trace server\&.
+.LP
+A trace server started in this way will simply display the trace messages in a formatted way in the Erlang shell (i\&. e\&. use io:format)\&. See \fItracer/2\fR\& for a description of how the trace message handler can be customized\&. 
+.LP
+To start a similar tracer on a remote node, use \fIn/1\fR\&\&.
+.RE
+.LP
+.B
+tracer(Type, Data) -> {ok, pid()} | {error, Error}
+.br
+.RS
+.TP 3
+Types:
+
+Type = port | process
+.br
+Data = PortGenerator | HandlerSpec
+.br
+HandlerSpec = {HandlerFun, InitialData}
+.br
+HandlerFun = fun() (two arguments)
+.br
+InitialData = term()
+.br
+PortGenerator = fun() (no arguments)
+.br
+Error = term()
+.br
+.RE
+.RS
+.LP
+This function starts a tracer server with additional parameters on the local node\&. The first parameter, the \fIType\fR\&, indicates if trace messages should be handled by a receiving process (\fIprocess\fR\&) or by a tracer port (\fIport\fR\&)\&. For a description about tracer ports see \fItrace_port/2\fR\&\&.
+.LP
+If \fIType\fR\& is a process, a message handler function can be specified (\fIHandlerSpec\fR\&)\&. The handler function, which should be a \fIfun\fR\& taking two arguments, will be called for each trace message, with the first argument containing the message as it is and the second argument containing the return value from the last invocation of the fun\&. The initial value of the second parameter is specified in the \fIInitialData\fR\& part of the \fIHandlerSpec\fR\&\&. The \fIHandlerFun\fR\& may choose any appropriate action to take when invoked, and can save a state for the next invocation by returning it\&.
+.LP
+If \fIType\fR\& is a port, then the second parameter should be a \fIfun\fR\& which takes no arguments and returns a newly opened trace port when called\&. Such a \fIfun\fR\& is preferably generated by calling \fItrace_port/2\fR\&\&.
+.LP
+If an error is returned, it can either be due to a tracer server already running (\fI{error,already_started}\fR\&) or due to the \fIHandlerFun\fR\& throwing an exception\&.
+.LP
+To start a similar tracer on a remote node, use \fItracer/3\fR\&\&. 
+.RE
+.LP
+.B
+tracer(Nodename, Type, Data) -> {ok, Nodename} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Nodename = atom()
+.br
+.RE
+.RS
+.LP
+This function is equivalent to \fItracer/2\fR\&, but acts on the given node\&. A tracer is started on the node (\fINodename\fR\&) and the node is added to the list of traced nodes\&.
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+This function is not equivalent to \fIn/1\fR\&\&. While \fIn/1\fR\& starts a process tracer which redirects all trace information to a process tracer on the local node (i\&.e\&. the trace control node), \fItracer/3\fR\& starts a tracer of any type which is independent of the tracer on the trace control node\&.
+
+.LP
+For details, \fBsee\fR\&\fItracer/2\fR\&\&.
+.RE
+.LP
+.B
+trace_port(Type, Parameters) -> fun()
+.br
+.RS
+.TP 3
+Types:
+
+Type = ip | file
+.br
+Parameters = Filename | WrapFilesSpec | IPPortSpec
+.br
+Filename = string() | [string()] | atom()
+.br
+WrapFilesSpec = {Filename, wrap, Suffix} | {Filename, wrap, Suffix, WrapSize} | {Filename, wrap, Suffix, WrapSize, WrapCnt}
+.br
+Suffix = string()
+.br
+WrapSize = integer() >= 0 | {time, WrapTime}
+.br
+WrapTime = integer() >= 1
+.br
+WrapCnt = integer() >= 1
+.br
+IpPortSpec = PortNumber | {PortNumber, QueSize}
+.br
+PortNumber = integer()
+.br
+QueSize = integer()
+.br
+.RE
+.RS
+.LP
+This function creates a trace port generating \fIfun\fR\&\&. The \fIfun\fR\& takes no arguments and returns a newly opened trace port\&. The return value from this function is suitable as a second parameter to tracer/2, i\&.e\&. \fIdbg:tracer(port, dbg:trace_port(ip, 4711))\fR\&\&.
+.LP
+A trace port is an Erlang port to a dynamically linked in driver that handles trace messages directly, without the overhead of sending them as messages in the Erlang virtual machine\&.
+.LP
+Two trace drivers are currently implemented, the \fIfile\fR\& and the \fIip\fR\& trace drivers\&. The file driver sends all trace messages into one or several binary files, from where they later can be fetched and processed with the \fItrace_client/2\fR\& function\&. The ip driver opens a TCP/IP port where it listens for connections\&. When a client (preferably started by calling \fItrace_client/2\fR\& on another Erlang node) connects, all trace messages are sent over the IP network for further processing by the remote client\&.
+.LP
+Using a trace port significantly lowers the overhead imposed by using tracing\&.
+.LP
+The file trace driver expects a filename or a wrap files specification as parameter\&. A file is written with a high degree of buffering, why all trace messages are \fInot\fR\& guaranteed to be saved in the file in case of a system crash\&. That is the price to pay for low tracing overhead\&.
+.LP
+A wrap files specification is used to limit the disk space consumed by the trace\&. The trace is written to a limited number of files each with a limited size\&. The actual filenames are \fIFilename ++ SeqCnt ++ Suffix\fR\&, where \fISeqCnt\fR\& counts as a decimal string from \fI0\fR\& to \fIWrapCnt\fR\& and then around again from \fI0\fR\&\&. When a trace term written to the current file makes it longer than \fIWrapSize\fR\&, that file is closed, if the number of files in this wrap trace is as many as \fIWrapCnt\fR\& the oldest file is deleted then a new file is opened to become the current\&. Thus, when a wrap trace has been stopped, there are at most \fIWrapCnt\fR\& trace files saved with a size of at least \fIWrapSize\fR\& (but not much bigger), except for the last file that might even be empty\&. The default values are \fIWrapSize = 128*1024\fR\& and \fIWrapCnt = 8\fR\&\&.
+.LP
+The \fISeqCnt\fR\& values in the filenames are all in the range \fI0\fR\& through \fIWrapCnt\fR\& with a gap in the circular sequence\&. The gap is needed to find the end of the trace\&.
+.LP
+If the \fIWrapSize\fR\& is specified as \fI{time, WrapTime}\fR\&, the current file is closed when it has been open more than \fIWrapTime\fR\& milliseconds, regardless of it being empty or not\&.
+.LP
+The ip trace driver has a queue of \fIQueSize\fR\& messages waiting to be delivered\&. If the driver cannot deliver messages as fast as they are produced by the runtime system, a special message is sent, which indicates how many messages that are dropped\&. That message will arrive at the handler function specified in \fItrace_client/3\fR\& as the tuple \fI{drop, N}\fR\& where \fIN\fR\& is the number of consecutive messages dropped\&. In case of heavy tracing, drop\&'s are likely to occur, and they surely occur if no client is reading the trace messages\&.
+.RE
+.LP
+.B
+flush_trace_port()
+.br
+.RS
+.LP
+Equivalent to \fIflush_trace_port(node())\fR\&\&.
+.RE
+.LP
+.B
+flush_trace_port(Nodename) -> ok | {error, Reason}
+.br
+.RS
+.LP
+Equivalent to \fItrace_port_control(Nodename,flush)\fR\&\&.
+.RE
+.LP
+.B
+trace_port_control(Operation)
+.br
+.RS
+.LP
+Equivalent to \fItrace_port_control(node(),Operation)\fR\&\&.
+.RE
+.LP
+.B
+trace_port_control(Nodename,Operation) -> ok | {ok, Result} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Nodename = atom()
+.br
+.RE
+.RS
+.LP
+This function is used to do a control operation on the active trace port driver on the given node (\fINodename\fR\&)\&. Which operations are allowed as well as their return values depend on which trace driver is used\&.
+.LP
+Returns either \fIok\fR\& or \fI{ok, Result}\fR\& if the operation was successful, or \fI{error, Reason}\fR\& if the current tracer is a process or if it is a port not supporting the operation\&.
+.LP
+The allowed values for \fIOperation\fR\& are:
+.RS 2
+.TP 2
+.B
+\fIflush\fR\&:
+This function is used to flush the internal buffers held by a trace port driver\&. Currently only the file trace driver supports this operation\&. Returns \fIok\fR\&\&.
+.TP 2
+.B
+\fIget_listen_port\fR\&:
+Returns \fI{ok, IpPort}\fR\& where \fIIpPort\fR\&is the IP port number used by the driver listen socket\&. Only the ip trace driver supports this operation\&.
+.RE
+.RE
+.LP
+.B
+trace_client(Type, Parameters) -> pid()
+.br
+.RS
+.TP 3
+Types:
+
+Type = ip | file | follow_file
+.br
+Parameters = Filename | WrapFilesSpec | IPClientPortSpec
+.br
+Filename = string() | [string()] | atom()
+.br
+WrapFilesSpec = see trace_port/2
+.br
+Suffix = string()
+.br
+IpClientPortSpec = PortNumber | {Hostname, PortNumber}
+.br
+PortNumber = integer()
+.br
+Hostname = string()
+.br
+.RE
+.RS
+.LP
+This function starts a trace client that reads the output created by a trace port driver and handles it in mostly the same way as a tracer process created by the \fItracer/0\fR\& function\&.
+.LP
+If \fIType\fR\& is \fIfile\fR\&, the client reads all trace messages stored in the file named \fIFilename\fR\& or specified by \fIWrapFilesSpec\fR\& (must be the same as used when creating the trace, see trace_port/2) and let\&'s the default handler function format the messages on the console\&. This is one way to interpret the data stored in a file by the file trace port driver\&.
+.LP
+If \fIType\fR\& is \fIfollow_file\fR\&, the client behaves as in the \fIfile\fR\& case, but keeps trying to read (and process) more data from the file until stopped by \fIstop_trace_client/1\fR\&\&. \fIWrapFilesSpec\fR\& is not allowed as second argument for this \fIType\fR\&\&.
+.LP
+If \fIType\fR\& is \fIip\fR\&, the client connects to the TCP/IP port \fIPortNumber\fR\& on the host \fIHostname\fR\&, from where it reads trace messages until the TCP/IP connection is closed\&. If no \fIHostname\fR\& is specified, the local host is assumed\&.
+.LP
+As an example, one can let trace messages be sent over the network to another Erlang node (preferably \fInot\fR\& distributed), where the formatting occurs:
+.LP
+On the node \fIstack\fR\& there\&'s an Erlang node \fIant@stack\fR\&, in the shell, type the following:
+.LP
+.nf
+
+ant@stack> dbg:tracer(port, dbg:trace_port(ip,4711))\&.
+<0.17.0>
+ant@stack> dbg:p(self(), send)\&.
+{ok,1}
+.fi
+.LP
+All trace messages are now sent to the trace port driver, which in turn listens for connections on the TCP/IP port 4711\&. If we want to see the messages on another node, preferably on another host, we do like this:
+.LP
+.nf
+
+-> dbg:trace_client(ip, {"stack", 4711})\&.
+<0.42.0>
+.fi
+.LP
+If we now send a message from the shell on the node \fIant@stack\fR\&, where all sends from the shell are traced:
+.LP
+.nf
+
+ant@stack> self() ! hello\&.
+hello
+.fi
+.LP
+The following will appear at the console on the node that started the trace client:
+.LP
+.nf
+
+(<0.23.0>) <0.23.0> ! hello
+(<0.23.0>) <0.22.0> ! {shell_rep,<0.23.0>,{value,hello,[],[]}}
+.fi
+.LP
+The last line is generated due to internal message passing in the Erlang shell\&. The process id\&'s will vary\&.
+.RE
+.LP
+.B
+trace_client(Type, Parameters, HandlerSpec) -> pid()
+.br
+.RS
+.TP 3
+Types:
+
+Type = ip | file | follow_file
+.br
+Parameters = Filename | WrapFilesSpec | IPClientPortSpec
+.br
+Filename = string() | [string()] | atom()
+.br
+WrapFilesSpec = see trace_port/2
+.br
+Suffix = string()
+.br
+IpClientPortSpec = PortNumber | {Hostname, PortNumber}
+.br
+PortNumber = integer()
+.br
+Hostname = string()
+.br
+HandlerSpec = {HandlerFun, InitialData}
+.br
+HandlerFun = fun() (two arguments)
+.br
+InitialData = term()
+.br
+.RE
+.RS
+.LP
+This function works exactly as \fItrace_client/2\fR\&, but allows you to write your own handler function\&. The handler function works mostly as the one described in \fItracer/2\fR\&, but will also have to be prepared to handle trace messages of the form \fI{drop, N}\fR\&, where \fIN\fR\& is the number of dropped messages\&. This pseudo trace message will only occur if the ip trace driver is used\&.
+.LP
+For trace type \fIfile\fR\&, the pseudo trace message \fIend_of_trace\fR\& will appear at the end of the trace\&. The return value from the handler function is in this case ignored\&.
+.RE
+.LP
+.B
+stop_trace_client(Pid) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+.RE
+.RS
+.LP
+This function shuts down a previously started trace client\&. The \fIPid\fR\& argument is the process id returned from the \fItrace_client/2\fR\& or \fItrace_client/3\fR\& call\&.
+.RE
+.LP
+.B
+get_tracer()
+.br
+.RS
+.LP
+Equivalent to \fIget_tracer(node())\fR\&\&.
+.RE
+.LP
+.B
+get_tracer(Nodename) -> {ok, Tracer}
+.br
+.RS
+.TP 3
+Types:
+
+Nodename = atom()
+.br
+Tracer = port() | pid()
+.br
+.RE
+.RS
+.LP
+Returns the process or port to which all trace messages are sent\&.
+.RE
+.LP
+.B
+stop() -> stopped
+.br
+.RS
+.LP
+Stops the \fIdbg\fR\& server and clears all trace flags for all processes and all trace patterns for all functions\&. Also shuts down all trace clients and closes all trace ports\&.
+.LP
+Note that no trace patterns are affected by this function\&.
+.RE
+.LP
+.B
+stop_clear() -> stopped
+.br
+.RS
+.LP
+Same as stop/0, but also clears all trace patterns on local and global functions calls\&.
+.RE
+.SH "SIMPLE EXAMPLES - TRACING FROM THE SHELL"
+
+.LP
+The simplest way of tracing from the Erlang shell is to use \fIdbg:c/3\fR\& or \fIdbg:c/4\fR\&, e\&.g\&. tracing the function \fIdbg:get_tracer/0\fR\&:
+.LP
+.nf
+
+(tiger@durin)84> dbg:c(dbg,get_tracer,[])\&.
+(<0.154.0>) <0.152.0> ! {<0.154.0>,{get_tracer,tiger@durin}}
+(<0.154.0>) out {dbg,req,1}
+(<0.154.0>) << {dbg,{ok,<0.153.0>}}
+(<0.154.0>) in {dbg,req,1}
+(<0.154.0>) << timeout
+{ok,<0.153.0>}
+(tiger@durin)85>
+.fi
+.LP
+Another way of tracing from the shell is to explicitly start a \fItracer\fR\& and then set the \fItrace flags\fR\& of your choice on the processes you want to trace, e\&.g\&. trace messages and process events:
+.LP
+.nf
+
+(tiger@durin)66> Pid = spawn(fun() -> receive {From,Msg} -> From ! Msg end end)\&.
+<0.126.0>
+(tiger@durin)67> dbg:tracer()\&.
+{ok,<0.128.0>}
+(tiger@durin)68> dbg:p(Pid,[m,procs])\&.
+{ok,[{matched,tiger@durin,1}]}
+(tiger@durin)69> Pid ! {self(),hello}\&.
+(<0.126.0>) << {<0.116.0>,hello}
+{<0.116.0>,hello}
+(<0.126.0>) << timeout
+(<0.126.0>) <0.116.0> ! hello
+(<0.126.0>) exit normal
+(tiger@durin)70> flush()\&.
+Shell got hello
+ok
+(tiger@durin)71>
+.fi
+.LP
+If you set the \fIcall\fR\& trace flag, you also have to set a \fItrace pattern\fR\& for the functions you want to trace:
+.LP
+.nf
+
+(tiger@durin)77> dbg:tracer()\&.
+{ok,<0.142.0>}
+(tiger@durin)78> dbg:p(all,call)\&.
+{ok,[{matched,tiger@durin,3}]}
+(tiger@durin)79> dbg:tp(dbg,get_tracer,0,[])\&.
+{ok,[{matched,tiger@durin,1}]}
+(tiger@durin)80> dbg:get_tracer()\&.
+(<0.116.0>) call dbg:get_tracer()
+{ok,<0.143.0>}
+(tiger@durin)81> dbg:tp(dbg,get_tracer,0,[{\&'_\&',[],[{return_trace}]}])\&.
+{ok,[{matched,tiger@durin,1},{saved,1}]}
+(tiger@durin)82> dbg:get_tracer()\&.
+(<0.116.0>) call dbg:get_tracer()
+(<0.116.0>) returned from dbg:get_tracer/0 -> {ok,<0.143.0>}
+{ok,<0.143.0>}
+(tiger@durin)83>
+.fi
+.SH "ADVANCED TOPICS - COMBINING WITH SEQ_TRACE"
+
+.LP
+The \fIdbg\fR\& module is primarily targeted towards tracing through the \fIerlang:trace/3\fR\& function\&. It is sometimes desired to trace messages in a more delicate way, which can be done with the help of the \fIseq_trace\fR\& module\&.
+.LP
+\fIseq_trace\fR\& implements sequential tracing (known in the AXE10 world, and sometimes called "forlopp tracing")\&. \fIdbg\fR\& can interpret messages generated from \fIseq_trace\fR\& and the same tracer function for both types of tracing can be used\&. The \fIseq_trace\fR\& messages can even be sent to a trace port for further analysis\&.
+.LP
+As a match specification can turn on sequential tracing, the combination of \fIdbg\fR\& and \fIseq_trace\fR\& can be quite powerful\&. This brief example shows a session where sequential tracing is used:
+.LP
+.nf
+
+1> dbg:tracer()\&.
+{ok,<0.30.0>}
+2> {ok, Tracer} = dbg:get_tracer()\&.
+{ok,<0.31.0>}
+3> seq_trace:set_system_tracer(Tracer)\&.
+false
+4> dbg:tp(dbg, get_tracer, 0, [{[],[],[{set_seq_token, send, true}]}])\&.
+{ok,[{matched,nonode@nohost,1},{saved,1}]}
+5> dbg:p(all,call)\&.
+{ok,[{matched,nonode@nohost,22}]}
+6> dbg:get_tracer(), seq_trace:set_token([])\&.
+(<0.25.0>) call dbg:get_tracer()
+SeqTrace [0]: (<0.25.0>) <0.30.0> ! {<0.25.0>,get_tracer} [Serial: {2,4}]
+SeqTrace [0]: (<0.30.0>) <0.25.0> ! {dbg,{ok,<0.31.0>}} [Serial: {4,5}]
+{1,0,5,<0.30.0>,4}
+.fi
+.LP
+This session sets the system_tracer to the same process as the ordinary tracer process (i\&. e\&. <0\&.31\&.0>) and sets the trace pattern for the function \fIdbg:get_tracer\fR\& to one that has the action of setting a sequential token\&. When the function is called by a traced process (all processes are traced in this case), the process gets "contaminated" by the token and \fIseq_trace\fR\& messages are sent both for the server request and the response\&. The \fIseq_trace:set_token([])\fR\& after the call clears the \fIseq_trace\fR\& token, why no messages are sent when the answer propagates via the shell to the console port\&. The output would otherwise have been more noisy\&.
+.SH "NOTE OF CAUTION"
+
+.LP
+When tracing function calls on a group leader process (an IO process), there is risk of causing a deadlock\&. This will happen if a group leader process generates a trace message and the tracer process, by calling the trace handler function, sends an IO request to the same group leader\&. The problem can only occur if the trace handler prints to tty using an \fIio\fR\& function such as \fIformat/2\fR\&\&. Note that when \fIdbg:p(all,call)\fR\& is called, IO processes are also traced\&. Here\&'s an example:
+.LP
+.nf
+
+%% Using a default line editing shell
+1> dbg:tracer(process, {fun(Msg,_) -> io:format("~p~n", [Msg]), 0 end, 0})\&.
+{ok,<0.37.0>}
+2> dbg:p(all, [call])\&.
+{ok,[{matched,nonode@nohost,25}]}
+3> dbg:tp(mymod,[{\&'_\&',[],[]}])\&.
+{ok,[{matched,nonode@nohost,0},{saved,1}]}
+4> mymod: % TAB pressed here
+%% -- Deadlock --
+.fi
+.LP
+Here\&'s another example:
+.LP
+.nf
+
+%% Using a shell without line editing (oldshell)
+1> dbg:tracer(process)\&.
+{ok,<0.31.0>}
+2> dbg:p(all, [call])\&.
+{ok,[{matched,nonode@nohost,25}]}
+3> dbg:tp(lists,[{\&'_\&',[],[]}])\&.
+{ok,[{matched,nonode@nohost,0},{saved,1}]}
+% -- Deadlock --
+.fi
+.LP
+The reason we get a deadlock in the first example is because when TAB is pressed to expand the function name, the group leader (which handles character input) calls \fImymod:module_info()\fR\&\&. This generates a trace message which, in turn, causes the tracer process to send an IO request to the group leader (by calling \fIio:format/2\fR\&)\&. We end up in a deadlock\&.
+.LP
+In the second example we use the default trace handler function\&. This handler prints to tty by sending IO requests to the \fIuser\fR\& process\&. When Erlang is started in oldshell mode, the shell process will have \fIuser\fR\& as its group leader and so will the tracer process in this example\&. Since \fIuser\fR\& calls functions in \fIlists\fR\& we end up in a deadlock as soon as the first IO request is sent\&.
+.LP
+Here are a few suggestions for how to avoid deadlock:
+.RS 2
+.TP 2
+*
+Don\&'t trace the group leader of the tracer process\&. If tracing has been switched on for all processes, call \fIdbg:p(TracerGLPid,clear)\fR\& to stop tracing the group leader (\fITracerGLPid\fR\&)\&. \fIprocess_info(TracerPid,group_leader)\fR\& tells you which process this is (\fITracerPid\fR\& is returned from \fIdbg:get_tracer/0\fR\&)\&.
+.LP
+.TP 2
+*
+Don\&'t trace the \fIuser\fR\& process if using the default trace handler function\&.
+.LP
+.TP 2
+*
+In your own trace handler function, call \fIerlang:display/1\fR\& instead of an \fIio\fR\& function or, if \fIuser\fR\& is not used as group leader, print to \fIuser\fR\& instead of the default group leader\&. Example: \fIio:format(user,Str,Args)\fR\&\&.
+.LP
+.RE

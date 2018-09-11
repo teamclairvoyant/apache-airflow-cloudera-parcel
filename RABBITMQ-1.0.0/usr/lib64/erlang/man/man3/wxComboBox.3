@@ -1,0 +1,256 @@
+.TH wxComboBox 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxComboBox \- See external documentation: wxComboBox.
+.SH DESCRIPTION
+.LP
+See external documentation: wxComboBox\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxControlWithItems\fR\& 
+.br
+\fBwxControl\fR\& 
+.br
+\fBwxWindow\fR\& 
+.br
+\fBwxEvtHandler\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxComboBox()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+new() -> wxComboBox()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+new(Parent::wxWindow() (see module wxWindow), Id::integer()) -> wxComboBox()
+.br
+.RS
+.LP
+Equivalent to \fBnew(Parent, Id, [])\fR\&\&.
+.RE
+.LP
+.B
+new(Parent::wxWindow() (see module wxWindow), Id::integer(), Options::[Option]) -> wxComboBox()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {value, string()} | {pos, {X::integer(), Y::integer()}} | {size, {W::integer(), H::integer()}} | {choices, [[string()]]} | {style, integer()} | {validator, wx() (see module wx)}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+create(This::wxComboBox(), Parent::wxWindow() (see module wxWindow), Id::integer(), Value::string(), Pos::{X::integer(), Y::integer()}, Size::{W::integer(), H::integer()}, Choices::[[string()]]) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBcreate(This, Parent, Id, Value, Pos, Size, Choices, [])\fR\&\&.
+.RE
+.LP
+.B
+create(This::wxComboBox(), Parent::wxWindow() (see module wxWindow), Id::integer(), Value::string(), Pos::{X::integer(), Y::integer()}, Size::{W::integer(), H::integer()}, Choices::[[string()]], Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {style, integer()} | {validator, wx() (see module wx)}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+canCopy(This::wxComboBox()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+canCut(This::wxComboBox()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+canPaste(This::wxComboBox()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+canRedo(This::wxComboBox()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+canUndo(This::wxComboBox()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+copy(This::wxComboBox()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+cut(This::wxComboBox()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getInsertionPoint(This::wxComboBox()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getLastPosition(This::wxComboBox()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getValue(This::wxComboBox()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+paste(This::wxComboBox()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+redo(This::wxComboBox()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+replace(This::wxComboBox(), From::integer(), To::integer(), Value::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+remove(This::wxComboBox(), From::integer(), To::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setInsertionPoint(This::wxComboBox(), Pos::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setInsertionPointEnd(This::wxComboBox()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setSelection(This::wxComboBox(), N::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setSelection(This::wxComboBox(), From::integer(), To::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setValue(This::wxComboBox(), Value::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+undo(This::wxComboBox()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+destroy(This::wxComboBox()) -> ok
+.br
+.RS
+.LP
+Destroys this object, do not use object again
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

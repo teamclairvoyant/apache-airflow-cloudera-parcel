@@ -1,0 +1,540 @@
+.TH public_key 3 "public_key 0.13" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+public_key \-  API module for public key infrastructure.
+.SH DESCRIPTION
+.LP
+This module provides functions to handle public key infrastructure from RFC 5280 - X\&.509 certificates and some parts of the PKCS-standard\&.
+.SH "COMMON DATA TYPES "
+
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+All records used in this manual are generated from ASN\&.1 specifications and are documented in the User\&'s Guide\&. See \fBPublic key records\fR\& and \fBX\&.509 Certificate records\fR\&\&.
+
+.LP
+Use the following include directive to get access to the records and constant macros described here and in the User\&'s Guide\&.
+.LP
+.nf
+ -include_lib("public_key/include/public_key.hrl"). 
+.fi
+.LP
+\fIData Types \fR\&
+.LP
+
+.LP
+.nf
+boolean() = true | false
+.fi
+.LP
+
+.LP
+.nf
+string = [bytes()]
+.fi
+.LP
+
+.LP
+.nf
+pki_asn1_type() = 'Certificate' | 'RSAPrivateKey'| 'RSAPublicKey'
+    'DSAPrivateKey' | 'DSAPublicKey' | 'DHParameter' | 'SubjectPublicKeyInfo'
+.fi
+.LP
+
+.LP
+.nf
+pem_entry () = {pki_asn1_type(), binary(), %% DER or encrypted DER
+          not_encrypted | {"DES-CBC" | "DES-EDE3-CBC",  crypto:rand_bytes(8)}}.
+.fi
+.LP
+
+.LP
+.nf
+rsa_public_key()  = #'RSAPublicKey'{}
+.fi
+.LP
+
+.LP
+.nf
+rsa_private_key() = #'RSAPrivateKey'{} 
+.fi
+.LP
+
+.LP
+.nf
+dsa_public_key() = {integer(),  #'Dss-Parms'{}} 
+.fi
+.LP
+
+.LP
+.nf
+dsa_private_key() = #'DSAPrivateKey'{}
+.fi
+.LP
+
+.LP
+.nf
+ public_crypt_options() = [{rsa_pad, rsa_padding()}]. 
+.fi
+.LP
+
+.LP
+.nf
+ rsa_padding() =  'rsa_pkcs1_padding' | 'rsa_pkcs1_oaep_padding'
+    | 'rsa_no_padding'
+.fi
+.LP
+
+.LP
+.nf
+ rsa_digest_type()  = 'md5' | 'sha' 
+.fi
+.LP
+
+.LP
+.nf
+ dss_digest_type()  = 'none' | 'sha' 
+.fi
+.LP
+
+.LP
+.nf
+ ssh_file()  = openssh_public_key | rfc4716_public_key |
+    known_hosts | auth_keys 
+.fi
+.SH EXPORTS
+.LP
+.B
+decrypt_private(CipherText, Key [, Options]) -> binary()
+.br
+.RS
+.TP 3
+Types:
+
+CipherText = binary()
+.br
+Key = rsa_private_key()
+.br
+Options = public_crypt_options()
+.br
+.RE
+.RS
+.LP
+Public key decryption using the private key\&.
+.RE
+.LP
+.B
+decrypt_public(CipherText, Key [, Options]) - > binary()
+.br
+.RS
+.TP 3
+Types:
+
+CipherText = binary()
+.br
+Key = rsa_public_key()
+.br
+Options = public_crypt_options()
+.br
+.RE
+.RS
+.LP
+Public key decryption using the public key\&.
+.RE
+.LP
+.B
+der_decode(Asn1type, Der) -> term()
+.br
+.RS
+.TP 3
+Types:
+
+Asn1Type = atom()
+.br
+ ASN\&.1 type present in the public_key applications asn1 specifications\&.
+.br
+Der = der_encoded()
+.br
+.RE
+.RS
+.LP
+Decodes a public key ASN\&.1 der encoded entity\&.
+.RE
+.LP
+.B
+der_encode(Asn1Type, Entity) -> der_encoded()
+.br
+.RS
+.TP 3
+Types:
+
+Asn1Type = atom()
+.br
+ Asn1 type present in the public_key applications ASN\&.1 specifications\&.
+.br
+Entity = term()
+.br
+The erlang representation of \fIAsn1Type\fR\&
+.br
+.RE
+.RS
+.LP
+Encodes a public key entity with ASN\&.1 DER encoding\&.
+.RE
+.LP
+.B
+pem_decode(PemBin) -> [pem_entry()]
+.br
+.RS
+.TP 3
+Types:
+
+PemBin = binary()
+.br
+Example {ok, PemBin} = file:read_file("cert\&.pem")\&.
+.br
+.RE
+.RS
+.LP
+Decode PEM binary data and return entries as ASN\&.1 der encoded entities\&.
+.RE
+.LP
+.B
+pem_encode(PemEntries) -> binary()
+.br
+.RS
+.TP 3
+Types:
+
+PemEntries = [pem_entry()]
+.br
+.RE
+.RS
+.LP
+Creates a PEM binary
+.RE
+.LP
+.B
+pem_entry_decode(PemEntry [, Password]) -> term()
+.br
+.RS
+.TP 3
+Types:
+
+PemEntry = pem_entry()
+.br
+Password = string()
+.br
+.RE
+.RS
+.LP
+Decodes a pem entry\&. pem_decode/1 returns a list of pem entries\&. Note that if the pem entry is of type \&'SubjectPublickeyInfo\&' it will be further decoded to an rsa_public_key() or dsa_public_key()\&.
+.RE
+.LP
+.B
+pem_entry_encode(Asn1Type, Entity [,{CipherInfo, Password}]) -> pem_entry()
+.br
+.RS
+.TP 3
+Types:
+
+Asn1Type = pki_asn1_type()
+.br
+Entity = term()
+.br
+The Erlang representation of \fIAsn1Type\fR\&\&. If \fIAsn1Type\fR\& is \&'SubjectPublicKeyInfo\&' then \fIEntity\fR\& must be either an rsa_public_key() or a dsa_public_key() and this function will create the appropriate \&'SubjectPublicKeyInfo\&' entry\&. 
+.br
+CipherInfo = {"DES-CBC" | "DES-EDE3-CBC", crypto:rand_bytes(8)}
+.br
+Password = string()
+.br
+.RE
+.RS
+.LP
+Creates a pem entry that can be feed to pem_encode/1\&.
+.RE
+.LP
+.B
+encrypt_private(PlainText, Key) -> binary()
+.br
+.RS
+.TP 3
+Types:
+
+PlainText = binary()
+.br
+Key = rsa_private_key()
+.br
+.RE
+.RS
+.LP
+Public key encryption using the private key\&.
+.RE
+.LP
+.B
+encrypt_public(PlainText, Key) -> binary()
+.br
+.RS
+.TP 3
+Types:
+
+PlainText = binary()
+.br
+Key = rsa_public_key()
+.br
+.RE
+.RS
+.LP
+Public key encryption using the public key\&.
+.RE
+.LP
+.B
+pkix_decode_cert(Cert, otp|plain) -> #\&'Certificate\&'{} | #\&'OTPCertificate\&'{}
+.br
+.RS
+.TP 3
+Types:
+
+Cert = der_encoded()
+.br
+.RE
+.RS
+.LP
+Decodes an ASN\&.1 der encoded pkix certificate\&. The otp option will use the customized ASN\&.1 specification OTP-PKIX\&.asn1 for decoding and also recursively decode most of the standard parts\&.
+.RE
+.LP
+.B
+pkix_encode(Asn1Type, Entity, otp | plain) -> der_encoded()
+.br
+.RS
+.TP 3
+Types:
+
+Asn1Type = atom()
+.br
+The ASN\&.1 type can be \&'Certificate\&', \&'OTPCertificate\&' or a subtype of either \&.
+.br
+.RE
+.RS
+.LP
+Der encodes a pkix x509 certificate or part of such a certificate\&. This function must be used for encoding certificates or parts of certificates that are decoded/created in the otp format, whereas for the plain format this function will directly call der_encode/2\&.
+.RE
+.LP
+.B
+pkix_is_issuer(Cert, IssuerCert) -> boolean()
+.br
+.RS
+.TP 3
+Types:
+
+Cert = der_encode() | #'OTPCertificate'{}
+.br
+IssuerCert = der_encode() | #'OTPCertificate'{}
+.br
+.RE
+.RS
+.LP
+Checks if \fIIssuerCert\fR\& issued \fICert\fR\& 
+.RE
+.LP
+.B
+pkix_is_fixed_dh_cert(Cert) -> boolean()
+.br
+.RS
+.TP 3
+Types:
+
+Cert = der_encode() | #'OTPCertificate'{}
+.br
+.RE
+.RS
+.LP
+Checks if a Certificate is a fixed Diffie-Hellman Cert\&.
+.RE
+.LP
+.B
+pkix_is_self_signed(Cert) -> boolean()
+.br
+.RS
+.TP 3
+Types:
+
+Cert = der_encode() | #'OTPCertificate'{}
+.br
+.RE
+.RS
+.LP
+Checks if a Certificate is self signed\&.
+.RE
+.LP
+.B
+pkix_issuer_id(Cert, IssuedBy) -> {ok, IssuerID} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Cert = der_encode() | #'OTPCertificate'{}
+.br
+IssuedBy = self | other
+.br
+IssuerID = {integer(), {rdnSequence, [#'AttributeTypeAndValue'{}]}}
+.br
+The issuer id consists of the serial number and the issuers name\&.
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Returns the issuer id\&.
+.RE
+.LP
+.B
+pkix_normalize_name(Issuer) -> Normalized
+.br
+.RS
+.TP 3
+Types:
+
+Issuer = {rdnSequence,[#'AttributeTypeAndValue'{}]}
+.br
+Normalized = {rdnSequence, [#'AttributeTypeAndValue'{}]}
+.br
+.RE
+.RS
+.LP
+Normalizes a issuer name so that it can be easily compared to another issuer name\&.
+.RE
+.LP
+.B
+pkix_sign(#\&'OTPTBSCertificate\&'{}, Key) -> der_encode()
+.br
+.RS
+.TP 3
+Types:
+
+Key = rsa_public_key() | dsa_public_key()
+.br
+.RE
+.RS
+.LP
+Signs a \&'OTPTBSCertificate\&'\&. Returns the corresponding der encoded certificate\&.
+.RE
+.LP
+.B
+pkix_verify(Cert, Key) -> boolean()
+.br
+.RS
+.TP 3
+Types:
+
+Cert = der_encode()
+.br
+Key = rsa_public_key() | dsa_public_key()
+.br
+.RE
+.RS
+.LP
+Verify pkix x\&.509 certificate signature\&.
+.RE
+.LP
+.B
+sign(Msg, DigestType, Key) -> binary()
+.br
+.RS
+.TP 3
+Types:
+
+Msg = binary()
+.br
+The msg is either the binary "plain text" data to be signed or in the case that digest type is \fInone\fR\& it is the hashed value of "plain text" i\&.e\&. the digest\&.
+.br
+DigestType = rsa_digest_type() | dsa_digest_type()
+.br
+Key = rsa_private_key() | dsa_private_key()
+.br
+.RE
+.RS
+.LP
+Creates a digital signature\&.
+.RE
+.LP
+.B
+ssh_decode(SshBin, Type) -> [{public_key(), Attributes::list()}]
+.br
+.RS
+.TP 3
+Types:
+
+SshBin = binary()
+.br
+Example {ok, SshBin} = file:read_file("known_hosts")\&.
+.br
+Type = public_key | ssh_file()
+.br
+If \fIType\fR\& is \fIpublic_key\fR\& the binary may be either a rfc4716 public key or a openssh public key\&.
+.br
+.RE
+.RS
+.LP
+Decodes a ssh file-binary\&. In the case of know_hosts or auth_keys the binary may include one or more lines of the file\&. Returns a list of public keys and their attributes, possible attribute values depends on the file type represented by the binary\&.
+.RS 2
+.TP 2
+.B
+rfc4716 attributes - see RFC 4716:
+{headers, [{string(), utf8_string()}]}
+.TP 2
+.B
+auth_key attributes - see man sshd :
+{comment, string()}{options, [string()]}{bits, integer()} - In ssh version 1 files
+.TP 2
+.B
+known_host attributes - see man sshd:
+{hostnames, [string()]}{comment, string()}{bits, integer()} - In ssh version 1 files
+.RE
+.RE
+.LP
+.B
+ssh_encode([{Key, Attributes}], Type) -> binary()
+.br
+.RS
+.TP 3
+Types:
+
+Key = public_key()
+.br
+Attributes = list()
+.br
+Type = ssh_file()
+.br
+.RE
+.RS
+.LP
+Encodes a list of ssh file entries (public keys and attributes) to a binary\&. Possible attributes depends on the file type, see \fB ssh_decode/2 \fR\&
+.RE
+.LP
+.B
+verify(Msg, DigestType, Signature, Key) -> boolean()
+.br
+.RS
+.TP 3
+Types:
+
+Msg = binary()
+.br
+The msg is either the binary "plain text" data or in the case that digest type is \fInone\fR\& it is the hashed value of "plain text" i\&.e\&. the digest\&.
+.br
+DigestType = rsa_digest_type() | dsa_digest_type()
+.br
+Signature = binary()
+.br
+Key = rsa_public_key() | dsa_public_key()
+.br
+.RE
+.RS
+.LP
+Verifies a digital signature
+.RE

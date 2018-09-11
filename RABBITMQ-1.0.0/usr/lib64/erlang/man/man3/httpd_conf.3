@@ -1,0 +1,126 @@
+.TH httpd_conf 3 "inets 5.7.1" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+httpd_conf \- Configuration utility functions to be used by the Erlang
+    Web server API programmer.
+.SH DESCRIPTION
+.LP
+This module provides the Erlang Webserver API programmer with utility functions for adding run-time configuration directives\&.
+.SH EXPORTS
+.LP
+.B
+check_enum(EnumString,ValidEnumStrings) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+EnumString = string()
+.br
+ValidEnumStrings = [string()]
+.br
+Result = {ok,atom()} | {error,not_valid}
+.br
+.RE
+.RS
+.LP
+\fIcheck_enum/2\fR\& checks if \fIEnumString\fR\& is a valid enumeration of \fIValidEnumStrings\fR\& in which case it is returned as an atom\&.
+.RE
+.LP
+.B
+clean(String) -> Stripped
+.br
+.RS
+.TP 3
+Types:
+
+String = Stripped = string()
+.br
+.RE
+.RS
+.LP
+\fIclean/1\fR\& removes leading and/or trailing white spaces from \fIString\fR\&\&.
+.RE
+.LP
+.B
+custom_clean(String,Before,After) -> Stripped
+.br
+.RS
+.TP 3
+Types:
+
+Before = After = regexp()
+.br
+String = Stripped = string()
+.br
+.RE
+.RS
+.LP
+\fIcustom_clean/3\fR\& removes leading and/or trailing white spaces and custom characters from \fIString\fR\&\&. \fIBefore\fR\& and \fIAfter\fR\& are regular expressions, as defined in \fIregexp(3)\fR\&, describing the custom characters\&.
+.RE
+.LP
+.B
+is_directory(FilePath) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+FilePath = string()
+.br
+Result = {ok,Directory} | {error,Reason}
+.br
+Directory = string()
+.br
+Reason = string() | enoent | eaccess | enotdir | FileInfo
+.br
+FileInfo = File info record
+.br
+.RE
+.RS
+.LP
+\fIis_directory/1\fR\& checks if \fIFilePath\fR\& is a directory in which case it is returned\&. Please read \fIfile(3)\fR\& for a description of \fIenoent\fR\&, \fIeaccess\fR\& and \fIenotdir\fR\&\&. The definition of the file info record can be found by including \fIfile\&.hrl\fR\& from the kernel application, see file(3)\&.
+.RE
+.LP
+.B
+is_file(FilePath) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+FilePath = string()
+.br
+Result = {ok,File} | {error,Reason}
+.br
+File = string()
+.br
+Reason = string() | enoent | eaccess | enotdir | FileInfo
+.br
+FileInfo = File info record
+.br
+.RE
+.RS
+.LP
+\fIis_file/1\fR\& checks if \fIFilePath\fR\& is a regular file in which case it is returned\&. Read \fIfile(3)\fR\& for a description of \fIenoent\fR\&, \fIeaccess\fR\& and \fIenotdir\fR\&\&. The definition of the file info record can be found by including \fIfile\&.hrl\fR\& from the kernel application, see file(3)\&.
+.RE
+.LP
+.B
+make_integer(String) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+String = string()
+.br
+Result = {ok,integer()} | {error,nomatch}
+.br
+.RE
+.RS
+.LP
+\fImake_integer/1\fR\& returns an integer representation of \fIString\fR\&\&.
+.RE
+.SH "SEE ALSO"
+
+.LP
+\fBhttpd(3)\fR\&

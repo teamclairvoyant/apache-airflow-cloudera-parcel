@@ -1,0 +1,102 @@
+.TH CosNotifyFilter_FilterAdmin 3 "cosNotification 1.1.17" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+CosNotifyFilter_FilterAdmin \- This module implements the OMG CosNotifyFilter::FilterAdmin interface.
+.SH DESCRIPTION
+.LP
+To get access to the record definitions for the structures use: 
+.br
+\fI-include_lib("cosNotification/include/*\&.hrl")\&.\fR\&
+.LP
+All objects, which inherit this interface, export functions described in this module\&.
+.SH EXPORTS
+.LP
+.B
+add_filter(Object, Filter) -> FilterID
+.br
+.RS
+.TP 3
+Types:
+
+Object = #objref
+.br
+Filter = #objref
+.br
+FilterID = long()
+.br
+.RE
+.RS
+.LP
+This operation connects a new \fIFilter\fR\& to the target object\&. This \fIFilter\fR\& will, together with other associated \fIFilters\fR\&, be used to select events to forward\&. A unique Id is returned and should be used if we no longer want to consult the given \fIFilter\fR\&\&.
+.RE
+.LP
+.B
+remove_filter(Object, FilterID) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Object = #objref
+.br
+FilterID = long()
+.br
+.RE
+.RS
+.LP
+If a certain \fIFilter\fR\& no longer should be associated with the target object this operation must be used\&. Events will no longer be tested against the \fIFilter\fR\& associated with the given Id\&.
+.RE
+.LP
+.B
+get_filter(Object, FilterID) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+Object = #objref
+.br
+FilterID = long()
+.br
+Reply = Filter | {'EXCEPTION', #'CosNotifyFilter_FilterNotFound'{}}
+.br
+Filter = #objref
+.br
+.RE
+.RS
+.LP
+If the target object is associated with a \fIFilter\fR\& matching the given Id the reference will be returned\&. If no such \fIFilter\fR\& is known by the target object an exception is raised\&.
+.RE
+.LP
+.B
+get_all_filters(Object) -> FilterIDSeq
+.br
+.RS
+.TP 3
+Types:
+
+Object = #objref
+.br
+FilterIDSeq = [FilterID]
+.br
+FilterID = long()
+.br
+.RE
+.RS
+.LP
+Id\&'s for all \fIFilter\fR\& objects associated with the target object is returned by this operation\&.
+.RE
+.LP
+.B
+remove_all_filters(Object) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Object = #objref
+.br
+.RE
+.RS
+.LP
+If we want to remove all \fIFilters\fR\& associated with the target object we can use this function\&.
+.RE

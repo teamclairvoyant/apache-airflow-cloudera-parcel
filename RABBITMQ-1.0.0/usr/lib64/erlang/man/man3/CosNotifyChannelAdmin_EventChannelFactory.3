@@ -1,0 +1,74 @@
+.TH CosNotifyChannelAdmin_EventChannelFactory 3 "cosNotification 1.1.17" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+CosNotifyChannelAdmin_EventChannelFactory \- This module implements the OMG  CosNotifyChannelAdmin::EventChannelFactory interface.
+.SH DESCRIPTION
+.LP
+To get access to the record definitions for the structures use: 
+.br
+\fI-include_lib("cosNotification/include/*\&.hrl")\&.\fR\&
+.SH EXPORTS
+.LP
+.B
+create_channel(ChannelFactory, InitialQoS, InitialAdmin) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+ChannelFactory = #objref
+.br
+InitialQoS = CosNotification::QoSProperties
+.br
+InitialAdmin = CosNotification::AdminProperties
+.br
+Return = {EventChannel, ChannelID}
+.br
+EventChannel = #objref
+.br
+ChannelID = long()
+.br
+.RE
+.RS
+.LP
+This operation creates a new event channel\&. Along with the channel reference an id is returned which can be used when invoking other operations exported by this module\&. The Quality of Service argument supplied will be inherited by objects created by the channel\&. For more information about QoS settings see the \fIUser\&'s Guide\fR\&\&.
+.LP
+If no QoS- and/or Admin-properties are supplied (i\&.e\&. empty list), the \fIdefault\fR\& settings will be used\&. For more information, see the User\&'s Guide\&.
+.RE
+.LP
+.B
+get_all_channels(ChannelFactory) -> ChannelIDSeq
+.br
+.RS
+.TP 3
+Types:
+
+ChannelFactory = #objref
+.br
+ChannelIDSeq = [long()]
+.br
+.RE
+.RS
+.LP
+This operation returns a id sequence of all channel\&'s created by this ChannelFactory\&.
+.RE
+.LP
+.B
+get_event_channel(ChannelFactory, ChannelID) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+ChannelFactory = #objref
+.br
+ChannelID = long()
+.br
+Retrurn = EventChannel | {'EXCEPTION', #'CosNotifyChannelAdmin_ChannelNotFound'{}}
+.br
+EventChannel = #objref
+.br
+.RE
+.RS
+.LP
+This operation returns the EventChannel associated with the given id\&. If no channel is associated with the id, i\&.e\&., never existed or have been terminated, an exception is raised\&.
+.RE

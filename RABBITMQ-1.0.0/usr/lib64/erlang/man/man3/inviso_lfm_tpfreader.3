@@ -1,0 +1,79 @@
+.TH inviso_lfm_tpfreader 3 "inviso 0.6.2" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+inviso_lfm_tpfreader \- Inviso Standard Reader Process to Standard Logfile Merger
+.SH DESCRIPTION
+.LP
+Implements the standard reader process to the standard logfile merger \fIinviso_lfm\fR\&\&.
+.LP
+The reader process reads logfiles belonging to the same set (normally one node) in chronological order and delivers logged trace messages one by one to the output process\&. Before any trace messages are delivered, the \fIinviso_lfm_tpreader\fR\& implementation reads the entire trace information file (if in use) and builds a database over pid-to-alias associations\&.
+.LP
+The \fIinviso_lfm_tpreader\fR\& implementation is capable of considering that an alias may have been used for several processes during different times\&. An alias may also be in use for several pids at the same time, on purpose\&. If a process has generated a trace message, all associations between that pid and aliases will be presented as the list \fIPidMappings\fR\& in the message sent to the output process\&.
+.SH EXPORTS
+.LP
+.B
+handle_logfile_sort_wrapset(LogFiles) -> FileList2
+.br
+.RS
+.TP 3
+Types:
+
+LogFiles = [{trace_log, FileList}]
+.br
+FileList = FileList2 = [FileName]
+.br
+FileName = string()
+.br
+.RE
+.RS
+.LP
+Only one \fI{trace_log, FileList}\fR\& tuple is expected in \fILogFiles\fR\&, all other tuples are ignored\&. \fIFileList\fR\& must:
+.RS 2
+.TP 2
+*
+contain one single file name, or
+.LP
+.TP 2
+*
+a list of wraplog files, following the naming convention \fI<Prefix><Nr><Suffix>\fR\&\&.
+.LP
+.RE
+
+.LP
+Sorts the files in \fIFileList\fR\& in chronological order beginning with the oldest\&. Sorting is only relevant if \fIFileList\fR\& is a list of wraplogs\&. The sorting is done on finding the modulo-counter in the filename and not on filesystem timestamps\&.
+.LP
+This function is exported for convenience should an own reader process be implemented\&.
+.RE
+.SH "THE TRACE INFORMATION FILE PROTOCOL"
+
+.LP
+The format of a trace information file is dictated by the meta tracer process\&. The \fIinviso_lfm_tpfreader\fR\& implementation of a reader process understands the following trace information entries\&. Note that the \fIinviso_rt_meta\fR\& trace information file is on binary format prefixing every entry with a 4 byte length indicator\&.
+.RS 2
+.TP 2
+.B
+\fI{Pid, Alias, alias, NowStamp}\fR\&:
+\fIPid = pid()\fR\& 
+.br
+\fIAlias = term()\fR\& 
+.br
+\fINowStamp = term()\fR\&, but in current implementation as returned from \fIerlang:now/0\fR\&
+.RS 2
+.LP
+This message indicates that from now on shall \fIPid\fR\& be associated with \fIAlias\fR\&\&.
+.RE
+.TP 2
+.B
+\fI{MaybePid, Alias, unalias, NowStamp}\fR\&:
+\fIMaybePid = pid() | undefined\fR\& 
+.br
+\fIAlias = term()\fR\& 
+.br
+\fINowStamp = term()\fR\&, see above
+.RS 2
+.LP
+This message indicates that, if \fIMaybePid\fR\& is a pid, this pid shall no longer be associated with \fIAlias\fR\&\&. If it is \fIundefined\fR\&, all associations with \fIAlias\fR\& from now shall be considered invalid\&.
+.RE
+.RS 2
+.LP
+Also note that there are many situations where \fIunalias\fR\& entries will be missing\&. For instance if a process terminates without making explicit function calls removing its associations first\&. This is seldom a problem unless the pid is reused\&.
+.RE
+.RE

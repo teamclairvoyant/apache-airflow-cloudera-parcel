@@ -1,0 +1,24 @@
+.TH docb_xml_check 3 "docbuilder 0.9.8.11" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+docb_xml_check \- Validate XML documentation source code
+.SH DESCRIPTION
+.LP
+\fIdocb_xml_check\fR\& contains functions for validating XML documentation source code\&.
+.SH EXPORTS
+.LP
+.B
+validate(File) -> ok | error | {error, badfile}
+.br
+.RS
+.TP 3
+Types:
+
+File = string()
+.br
+.RE
+.RS
+.LP
+Validates the XML documentation source code in \fIFile\fR\&\&. The \fI\&.xml\fR\& extension can be omitted\&.
+.LP
+Returns \fIok\fR\& if successful, otherwise error information is printed and the function returns \fIerror\fR\&\&. If \fIFile\fR\& does not exist, \fI{error, badfile}\fR\& is returned\&.
+.RE

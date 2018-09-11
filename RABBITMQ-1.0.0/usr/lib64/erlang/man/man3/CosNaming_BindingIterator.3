@@ -1,0 +1,90 @@
+.TH CosNaming_BindingIterator 3 "orber 3.6.22" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+CosNaming_BindingIterator \- This interface supports iteration over a name binding list.
+.SH DESCRIPTION
+.LP
+This interface allows a client to iterate over the Bindinglist it has been initiated with\&.
+.LP
+The type \fINameComponent\fR\& used below is defined as:
+.LP
+.nf
+
+      -record('CosNaming_NameComponent', {id, kind=""}).
+    
+.fi
+.LP
+\fIid\fR\& and \fIkind\fR\& are strings\&.
+.LP
+The type \fIBinding\fR\& used below is defined as:
+.LP
+.nf
+
+      -record('CosNaming_Binding', {binding_name, binding_type}).
+    
+.fi
+.LP
+\fIbinding_name\fR\& is a \fIName = [NameComponent]\fR\& and \fIbinding_type\fR\& is an enum which has the values \fInobject\fR\& and \fIncontext\fR\&\&.
+.LP
+Both these records are defined in the file \fICosNaming\&.hrl\fR\& and it is included with:
+.LP
+.nf
+
+      -include_lib("orber/COSS/CosNaming/CosNaming.hrl").
+    
+.fi
+.SH EXPORTS
+.LP
+.B
+next_one(BindinIterator) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+BindingIterator = #objref
+.br
+Return = {bool(), Binding}
+.br
+.RE
+.RS
+.LP
+This operation returns the next binding and a boolean\&. The latter is set to true if the binding is valid otherwise false\&. If the boolean is false there are no more bindings to retrieve\&.
+.RE
+.LP
+.B
+next_n(BindinIterator, HowMany) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+BindingIterator = #objref
+.br
+HowMany = int()
+.br
+BindingList = [Binding]
+.br
+Return = {bool(), BindingList}
+.br
+.RE
+.RS
+.LP
+This operation returns a binding list with at most HowMany bindings\&. If there are no more bindings it returns false otherwise true\&.
+.RE
+.LP
+.B
+destroy(BindingIterator) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+BindingIterator = #objref
+.br
+Return = ok
+.br
+.RE
+.RS
+.LP
+This operation destroys the binding iterator\&.
+.RE

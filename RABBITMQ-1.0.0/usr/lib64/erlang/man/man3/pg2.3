@@ -1,0 +1,187 @@
+.TH pg2 3 "kernel 2.14.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+pg2 \- Distributed Named Process Groups
+.SH DESCRIPTION
+.LP
+This module implements process groups\&. The groups in this module differ from the groups in the module \fIpg\fR\& in several ways\&. In \fIpg\fR\&, each message is sent to all members in the group\&. In this module, each message may be sent to one, some, or all members\&.
+.LP
+A group of processes can be accessed by a common name\&. For example, if there is a group named \fIfoobar\fR\&, there can be a set of processes (which can be located on different nodes) which are all members of the group \fIfoobar\fR\&\&. There are no special functions for sending a message to the group\&. Instead, client functions should be written with the functions \fIget_members/1\fR\& and \fIget_local_members/1\fR\& to find out which processes are members of the group\&. Then the message can be sent to one or more members of the group\&.
+.LP
+If a member terminates, it is automatically removed from the group\&.
+.LP
+
+.RS -4
+.B
+Warning:
+.RE
+This module is used by the \fIdisk_log\fR\& module for managing distributed disk logs\&. The disk log names are used as group names, which means that some action may need to be taken to avoid name clashes\&.
+
+.SH DATA TYPES
+.nf
+
+\fBname()\fR\& = any()
+.br
+.fi
+.RS
+.LP
+The name of a process group\&.
+.RE
+.SH EXPORTS
+.LP
+.nf
+
+.B
+create(Name :: \fBname()\fR\&) -> ok
+.br
+.fi
+.br
+.RS
+.LP
+Creates a new, empty process group\&. The group is globally visible on all nodes\&. If the group exists, nothing happens\&.
+.RE
+.LP
+.nf
+
+.B
+delete(Name :: \fBname()\fR\&) -> ok
+.br
+.fi
+.br
+.RS
+.LP
+Deletes a process group\&.
+.RE
+.LP
+.nf
+
+.B
+get_closest_pid(Name) -> pid() | {error, Reason}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = \fBname()\fR\&
+.br
+Reason = {no_process, Name} | {no_such_group, Name}
+.br
+.RE
+.RS
+.LP
+This is a useful dispatch function which can be used from client functions\&. It returns a process on the local node, if such a process exist\&. Otherwise, it chooses one randomly\&.
+.RE
+.LP
+.nf
+
+.B
+get_members(Name) -> [pid()] | {error, {no_such_group, Name}}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = \fBname()\fR\&
+.br
+.RE
+.RS
+.LP
+Returns all processes in the group \fIName\fR\&\&. This function should be used from within a client function that accesses the group\&. It is therefore optimized for speed\&.
+.RE
+.LP
+.nf
+
+.B
+get_local_members(Name) ->
+.B
+                     [pid()] | {error, {no_such_group, Name}}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = \fBname()\fR\&
+.br
+.RE
+.RS
+.LP
+Returns all processes running on the local node in the group \fIName\fR\&\&. This function should to be used from within a client function that accesses the group\&. It is therefore optimized for speed\&.
+.RE
+.LP
+.nf
+
+.B
+join(Name, Pid :: pid()) -> ok | {error, {no_such_group, Name}}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = \fBname()\fR\&
+.br
+.RE
+.RS
+.LP
+Joins the process \fIPid\fR\& to the group \fIName\fR\&\&. A process can join a group several times; it must then leave the group the same number of times\&.
+.RE
+.LP
+.nf
+
+.B
+leave(Name, Pid :: pid()) -> ok | {error, {no_such_group, Name}}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = \fBname()\fR\&
+.br
+.RE
+.RS
+.LP
+Makes the process \fIPid\fR\& leave the group \fIName\fR\&\&. If the process is not a member of the group, \fIok\fR\& is returned\&.
+.RE
+.LP
+.nf
+
+.B
+which_groups() -> [Name :: \fBname()\fR\&]
+.br
+.fi
+.br
+.RS
+.LP
+Returns a list of all known groups\&.
+.RE
+.LP
+.nf
+
+.B
+start() -> {ok, pid()} | {error, any()}
+.br
+.fi
+.br
+.nf
+
+.B
+start_link() -> {ok, pid()} | {error, any()}
+.br
+.fi
+.br
+.RS
+.LP
+Starts the pg2 server\&. Normally, the server does not need to be started explicitly, as it is started dynamically if it is needed\&. This is useful during development, but in a target system the server should be started explicitly\&. Use configuration parameters for \fIkernel\fR\& for this\&.
+.RE
+.SH "SEE ALSO"
+
+.LP
+\fBkernel(6)\fR\&, \fBpg(3)\fR\&

@@ -1,0 +1,230 @@
+.TH os 3 "kernel 2.14.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+os \- Operating System Specific Functions
+.SH DESCRIPTION
+.LP
+The functions in this module are operating system specific\&. Careless use of these functions will result in programs that will only run on a specific platform\&. On the other hand, with careful use these functions can be of help in enabling a program to run on most platforms\&.
+.SH EXPORTS
+.LP
+.nf
+
+.B
+cmd(Command) -> string()
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Command = atom() | \fBio_lib:chars()\fR\&
+.br
+.RE
+.RS
+.LP
+Executes \fICommand\fR\& in a command shell of the target OS, captures the standard output of the command and returns this result as a string\&. This function is a replacement of the previous \fIunix:cmd/1\fR\&; on a Unix platform they are equivalent\&.
+.LP
+Examples:
+.LP
+.nf
+
+LsOut = os:cmd("ls"), % on unix platform
+DirOut = os:cmd("dir"), % on Win32 platform
+.fi
+.LP
+Note that in some cases, standard output of a command when called from another program (for example, \fIos:cmd/1\fR\&) may differ, compared to the standard output of the command when called directly from an OS command shell\&.
+.RE
+.LP
+.nf
+
+.B
+find_executable(Name) -> Filename | false
+.br
+.fi
+.br
+.nf
+
+.B
+find_executable(Name, Path) -> Filename | false
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = Path = Filename = string()
+.br
+.RE
+.RS
+.LP
+These two functions look up an executable program given its name and a search path, in the same way as the underlying operating system\&. \fIfind_executable/1\fR\& uses the current execution path (that is, the environment variable PATH on Unix and Windows)\&.
+.LP
+\fIPath\fR\&, if given, should conform to the syntax of execution paths on the operating system\&. The absolute filename of the executable program \fIName\fR\& is returned, or \fIfalse\fR\& if the program was not found\&.
+.RE
+.LP
+.B
+getenv() -> [string()]
+.br
+.RS
+.LP
+Returns a list of all environment variables\&. Each environment variable is given as a single string on the format \fI"VarName=Value"\fR\&, where \fIVarName\fR\& is the name of the variable and \fIValue\fR\& its value\&.
+.RE
+.LP
+.B
+getenv(VarName) -> Value | false
+.br
+.RS
+.TP 3
+Types:
+
+VarName = string()
+.br
+Value = string()
+.br
+.RE
+.RS
+.LP
+Returns the \fIValue\fR\& of the environment variable \fIVarName\fR\&, or \fIfalse\fR\& if the environment variable is undefined\&.
+.RE
+.LP
+.B
+getpid() -> Value 
+.br
+.RS
+.TP 3
+Types:
+
+Value = string()
+.br
+.RE
+.RS
+.LP
+Returns the process identifier of the current Erlang emulator in the format most commonly used by the operating system environment\&. \fIValue\fR\& is returned as a string containing the (usually) numerical identifier for a process\&. On Unix, this is typically the return value of the \fIgetpid()\fR\& system call\&. On VxWorks, \fIValue\fR\& contains the task id (decimal notation) of the Erlang task\&. On Windows, the process id as returned by the \fIGetCurrentProcessId()\fR\& system call is used\&.
+.RE
+.LP
+.B
+putenv(VarName, Value) -> true
+.br
+.RS
+.TP 3
+Types:
+
+VarName = string()
+.br
+Value = string()
+.br
+.RE
+.RS
+.LP
+Sets a new \fIValue\fR\& for the environment variable \fIVarName\fR\&\&.
+.RE
+.LP
+.B
+timestamp() -> Timestamp
+.br
+.RS
+.TP 3
+Types:
+
+Timestamp = {MegaSecs, Secs, MicroSecs} =
+.br
+MegaSecs = Secs = MicroSecs = integer() >= 0
+.br
+.RE
+.RS
+.LP
+Returns a tuple in the same format as \fBerlang:now/0\fR\&\&. The difference is that this function returns what the operating system thinks (a\&.k\&.a\&. the wall clock time) without any attempts at time correction\&. The result of two different calls to this function is \fInot\fR\& guaranteed to be different\&.
+.LP
+The most obvious use for this function is logging\&. The tuple can be used together with the function \fBcalendar:now_to_universal_time/1\fR\& or \fBcalendar:now_to_local_time/1\fR\& to get calendar time\&. Using the calendar time together with the \fIMicroSecs\fR\& part of the return tuple from this function allows you to log timestamps in high resolution and consistent with the time in the rest of the operating system\&.
+.LP
+Example of code formatting a string in the format "DD Mon YYYY HH:MM:SS\&.mmmmmm", where DD is the day of month, Mon is the textual month name, YYYY is the year, HH:MM:SS is the time and mmmmmm is the microseconds in six positions:
+.LP
+.nf
+
+-module(print_time).
+-export([format_utc_timestamp/0]).
+format_utc_timestamp() ->
+    TS = {_,_,Micro} = os:timestamp(),
+    {{Year,Month,Day},{Hour,Minute,Second}} = 
+	calendar:now_to_universal_time(TS),
+    Mstr = element(Month,{"Jan","Feb","Mar","Apr","May","Jun","Jul",
+			  "Aug","Sep","Oct","Nov","Dec"}),
+    io_lib:format("~2w ~s ~4w ~2w:~2..0w:~2..0w.~6..0w",
+		  [Day,Mstr,Year,Hour,Minute,Second,Micro]).
+
+.fi
+.LP
+The module above could be used in the following way:
+.LP
+.nf
+
+1> io:format("~s~n",[print_time:format_utc_timestamp()])\&.
+29 Apr 2009  9:55:30.051711
+
+.fi
+.RE
+.LP
+.nf
+
+.B
+type() -> vxworks | {Osfamily, Osname}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Osfamily = unix | win32
+.br
+Osname = atom()
+.br
+.RE
+.RS
+.LP
+Returns the \fIOsfamily\fR\& and, in some cases, \fIOsname\fR\& of the current operating system\&.
+.LP
+On Unix, \fIOsname\fR\& will have same value as \fIuname -s\fR\& returns, but in lower case\&. For example, on Solaris 1 and 2, it will be \fIsunos\fR\&\&.
+.LP
+In Windows, \fIOsname\fR\& will be either \fInt\fR\& (on Windows NT), or \fIwindows\fR\& (on Windows 95)\&.
+.LP
+On VxWorks the OS family alone is returned, that is \fIvxworks\fR\&\&.
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+Think twice before using this function\&. Use the \fIfilename\fR\& module if you want to inspect or build file names in a portable way\&. Avoid matching on the \fIOsname\fR\& atom\&.
+
+.RE
+.LP
+.nf
+
+.B
+version() -> VersionString | {Major, Minor, Release}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+VersionString = string()
+.br
+Major = Minor = Release = integer() >= 0
+.br
+.RE
+.RS
+.LP
+Returns the operating system version\&. On most systems, this function returns a tuple, but a string will be returned instead if the system has versions which cannot be expressed as three numbers\&.
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+Think twice before using this function\&. If you still need to use it, always \fIcall os:type()\fR\& first\&.
+
+.RE

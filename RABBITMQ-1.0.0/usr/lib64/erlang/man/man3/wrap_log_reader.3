@@ -1,0 +1,144 @@
+.TH wrap_log_reader 3 "kernel 2.14.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+wrap_log_reader \- A function to read internally formatted wrap disk logs
+.SH DESCRIPTION
+.LP
+\fIwrap_log_reader\fR\& is a function to read internally formatted wrap disk logs, refer to disk_log(3)\&. \fIwrap_log_reader\fR\& does not interfere with disk_log activities; there is however a known bug in this version of the \fIwrap_log_reader\fR\&, see chapter \fIbugs\fR\& below\&.
+.LP
+A wrap disk log file consists of several files, called index files\&. A log file can be opened and closed\&. It is also possible to open just one index file separately\&. If an non-existent or a non-internally formatted file is opened, an error message is returned\&. If the file is corrupt, no attempt to repair it will be done but an error message is returned\&.
+.LP
+If a log is configured to be distributed, there is a possibility that all items are not loggen on all nodes\&. \fIwrap_log_reader\fR\& does only read the log on the called node, it is entirely up to the user to be sure that all items are read\&.
+.SH DATA TYPES
+.nf
+
+\fBcontinuation()\fR\&
+.br
+.fi
+.RS
+.LP
+Continuation returned by \fIopen/1,2\fR\& or \fIchunk/1,2\fR\&\&.
+.RE
+.SH EXPORTS
+.LP
+.nf
+
+.B
+chunk(Continuation) -> \fBchunk_ret()\fR\&
+.br
+.fi
+.br
+.nf
+
+.B
+chunk(Continuation, N) -> \fBchunk_ret()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Continuation = \fBcontinuation()\fR\&
+.br
+N = infinity | integer() >= 1
+.br
+.nf
+\fBchunk_ret()\fR\& = {Continuation2, Terms :: [term()]}
+.br
+            | {Continuation2,
+.br
+               Terms :: [term()],
+.br
+               Badbytes :: integer() >= 0}
+.br
+            | {Continuation2, eof}
+.br
+            | {error, Reason :: term()}
+.fi
+.br
+.RE
+.RS
+.LP
+This function makes it possible to efficiently read the terms which have been appended to a log\&. It minimises disk I/O by reading large 8K chunks from the file\&.
+.LP
+The first time \fIchunk\fR\& is called an initial continuation returned from the \fIopen/1\fR\&, \fIopen/2\fR\& must be provided\&.
+.LP
+When \fIchunk/3\fR\& is called, \fIN\fR\& controls the maximum number of terms that are read from the log in each chunk\&. Default is \fIinfinity\fR\&, which means that all the terms contained in the 8K chunk are read\&. If less than \fIN\fR\& terms are returned, this does not necessarily mean that end of file is reached\&.
+.LP
+The \fIchunk\fR\& function returns a tuple \fI{Continuation2, Terms}\fR\&, where \fITerms\fR\& is a list of terms found in the log\&. \fIContinuation2\fR\& is yet another continuation which must be passed on into any subsequent calls to \fIchunk\fR\&\&. With a series of calls to \fIchunk\fR\& it is then possible to extract all terms from a log\&.
+.LP
+The \fIchunk\fR\& function returns a tuple \fI{Continuation2, Terms, Badbytes}\fR\& if the log is opened in read only mode and the read chunk is corrupt\&. \fIBadbytes\fR\& indicates the number of non-Erlang terms found in the chunk\&. Note also that the log is not repaired\&.
+.LP
+\fIchunk\fR\& returns \fI{Continuation2, eof}\fR\& when the end of the log is reached, and \fI{error, Reason}\fR\& if an error occurs\&.
+.LP
+The returned continuation may or may not be valid in the next call to \fIchunk\fR\&\&. This is because the log may wrap and delete the file into which the continuation points\&. To make sure this does not happen, the log can be blocked during the search\&.
+.RE
+.LP
+.nf
+
+.B
+close(Continuation) -> ok | {error, Reason}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Continuation = \fBcontinuation()\fR\&
+.br
+Reason = \fBfile:posix()\fR\&
+.br
+.RE
+.RS
+.LP
+This function closes a log file properly\&.
+.RE
+.LP
+.nf
+
+.B
+open(Filename) -> \fBopen_ret()\fR\&
+.br
+.fi
+.br
+.nf
+
+.B
+open(Filename, N) -> \fBopen_ret()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Filename = string() | atom()
+.br
+N = integer()
+.br
+.nf
+\fBopen_ret()\fR\& = {ok, Continuation :: \fBcontinuation()\fR\&}
+.br
+           | {error, Reason :: tuple()}
+.fi
+.br
+.RE
+.RS
+.LP
+\fIFilename\fR\& specifies the name of the file which is to be read\&.
+.LP
+\fIN\fR\& specifies the index of the file which is to be read\&. If \fIN\fR\& is omitted the whole wrap log file will be read; if it is specified only the specified index file will be read\&.
+.LP
+The \fIopen\fR\& function returns \fI{ok, Continuation}\fR\& if the log/index file was successfully opened\&. The \fIContinuation\fR\& is to be used when chunking or closing the file\&.
+.LP
+The function returns \fI{error, Reason}\fR\& for all errors\&.
+.RE
+.SH "BUGS"
+
+.LP
+This version of the \fIwrap_log_reader\fR\& does not detect if the \fIdisk_log\fR\& wraps to a new index file between a \fIwrap_log_reader:open\fR\& and the first \fIwrap_log_reader:chunk\fR\&\&. In this case the chuck will actually read the last logged items in the log file, because the opened index file was truncated by the \fIdisk_log\fR\&\&.
+.SH "SEE ALSO"
+
+.LP
+\fBdisk_log(3)\fR\&

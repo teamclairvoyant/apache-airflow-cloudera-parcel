@@ -1,0 +1,142 @@
+.TH erl_boot_server 3 "kernel 2.14.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+erl_boot_server \- Boot Server for Other Erlang Machines
+.SH DESCRIPTION
+.LP
+This server is used to assist diskless Erlang nodes which fetch all Erlang code from another machine\&.
+.LP
+This server is used to fetch all code, including the start script, if an Erlang runtime system is started with the \fI-loader inet\fR\& command line flag\&. All hosts specified with the \fI-hosts Host\fR\& command line flag must have one instance of this server running\&.
+.LP
+This server can be started with the \fIkernel\fR\& configuration parameter \fIstart_boot_server\fR\&\&.
+.LP
+The \fIerl_boot_server\fR\& can both read regular files as well as files in archives\&. See \fBcode(3)\fR\& and \fBerl_prim_loader(3)\fR\&\&.
+.LP
+
+.RS -4
+.B
+Warning:
+.RE
+The support for loading of code from archive files is experimental\&. The sole purpose of releasing it before it is ready is to obtain early feedback\&. The file format, semantics, interfaces etc\&. may be changed in a future release\&.
+
+.SH EXPORTS
+.LP
+.nf
+
+.B
+start(Slaves) -> {ok, Pid} | {error, What}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Slaves = [Host]
+.br
+Host = atom()
+.br
+Pid = pid()
+.br
+What = any()
+.br
+.RE
+.RS
+.LP
+Starts the boot server\&. \fISlaves\fR\& is a list of IP addresses for hosts which are allowed to use this server as a boot server\&.
+.RE
+.LP
+.nf
+
+.B
+start_link(Slaves) -> {ok, Pid} | {error, What}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Slaves = [Host]
+.br
+Host = atom()
+.br
+Pid = pid()
+.br
+What = any()
+.br
+.RE
+.RS
+.LP
+Starts the boot server and links to the caller\&. This function is used to start the server if it is included in a supervision tree\&.
+.RE
+.LP
+.nf
+
+.B
+add_slave(Slave) -> ok | {error, What}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Slave = Host
+.br
+Host = atom()
+.br
+What = any()
+.br
+.RE
+.RS
+.LP
+Adds a \fISlave\fR\& node to the list of allowed slave hosts\&.
+.RE
+.LP
+.nf
+
+.B
+delete_slave(Slave) -> ok | {error, What}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Slave = Host
+.br
+Host = atom()
+.br
+What = any()
+.br
+.RE
+.RS
+.LP
+Deletes a \fISlave\fR\& node from the list of allowed slave hosts\&.
+.RE
+.LP
+.nf
+
+.B
+which_slaves() -> Slaves
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Slaves = [Host]
+.br
+Host = atom()
+.br
+.RE
+.RS
+.LP
+Returns the current list of allowed slave hosts\&.
+.RE
+.SH "SEE ALSO"
+
+.LP
+\fBinit(3)\fR\&, \fBerl_prim_loader(3)\fR\&

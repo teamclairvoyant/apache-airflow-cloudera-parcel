@@ -1,0 +1,86 @@
+.TH snmp_framework_mib 3 "snmp 4.21.1" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+snmp_framework_mib \- Instrumentation Functions for SNMP-FRAMEWORK-MIB
+.SH DESCRIPTION
+.LP
+The module \fIsnmp_framework_mib\fR\& implements instrumentation functions for the SNMP-FRAMEWORK-MIB, and functions for initializing and configuring the database\&.
+.LP
+The configuration files are described in the SNMP User\&'s Manual\&.
+.SH EXPORTS
+.LP
+.B
+configure(ConfDir) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+ConfDir = string()
+.br
+.RE
+.RS
+.LP
+This function is called from the supervisor at system start-up\&.
+.LP
+Inserts all data in the configuration files into the database and destroys all old data\&.
+.LP
+Thus, the data in the SNMP-FRAMEWORK-MIB, after this function has been called, is from the configuration files\&.
+.LP
+All \fIsnmp\fR\& counters are set to zero\&.
+.LP
+If an error is found in the configuration file, it is reported using the function \fIconfig_err/2\fR\& of the error report module, and the function fails with reason \fIconfiguration_error\fR\&\&.
+.LP
+\fIConfDir\fR\& is a string which points to the directory where the configuration files are found\&.
+.LP
+The configuration file read is: \fIcontext\&.conf\fR\&\&.
+.RE
+.LP
+.B
+init() -> void()
+.br
+.RS
+.LP
+This function is called from the supervisor at system start-up\&.
+.LP
+Creates the necessary objects in the database if they do not exist\&. It does not destroy any old values\&. 
+.RE
+.LP
+.B
+add_context(Ctx) -> Ret
+.br
+.RS
+.TP 3
+Types:
+
+Ctx = string()
+.br
+Ret = {ok, Key} | {error, Reason}
+.br
+Key = term()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Adds a context to the agent config\&. Equivalent to one line in the \fIcontext\&.conf\fR\& file\&.
+.RE
+.LP
+.B
+delete_context(Key) -> Ret
+.br
+.RS
+.TP 3
+Types:
+
+Key = term()
+.br
+Ret = ok | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Delete a context from the agent config\&.
+.RE

@@ -1,0 +1,105 @@
+.TH wxDatePickerCtrl 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxDatePickerCtrl \- See external documentation: wxDatePickerCtrl.
+.SH DESCRIPTION
+.LP
+See external documentation: wxDatePickerCtrl\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxPickerBase\fR\& 
+.br
+\fBwxControl\fR\& 
+.br
+\fBwxWindow\fR\& 
+.br
+\fBwxEvtHandler\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxDatePickerCtrl()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+new() -> wxDatePickerCtrl()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+new(Parent::wxWindow() (see module wxWindow), Id::integer()) -> wxDatePickerCtrl()
+.br
+.RS
+.LP
+Equivalent to \fBnew(Parent, Id, [])\fR\&\&.
+.RE
+.LP
+.B
+new(Parent::wxWindow() (see module wxWindow), Id::integer(), Options::[Option]) -> wxDatePickerCtrl()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {date, datetime() (see module wx)} | {pos, {X::integer(), Y::integer()}} | {size, {W::integer(), H::integer()}} | {style, integer()} | {validator, wx() (see module wx)}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getRange(This::wxDatePickerCtrl(), Dt1::datetime() (see module wx), Dt2::datetime() (see module wx)) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getValue(This::wxDatePickerCtrl()) -> datetime() (see module wx)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setRange(This::wxDatePickerCtrl(), Dt1::datetime() (see module wx), Dt2::datetime() (see module wx)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setValue(This::wxDatePickerCtrl(), Date::datetime() (see module wx)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+destroy(This::wxDatePickerCtrl()) -> ok
+.br
+.RS
+.LP
+Destroys this object, do not use object again
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

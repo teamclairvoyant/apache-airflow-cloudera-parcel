@@ -1,0 +1,103 @@
+.TH wxAcceleratorEntry 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxAcceleratorEntry \- See external documentation: wxAcceleratorEntry.
+.SH DESCRIPTION
+.LP
+See external documentation: wxAcceleratorEntry\&.
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxAcceleratorEntry()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+new() -> wxAcceleratorEntry()
+.br
+.RS
+.LP
+Equivalent to \fBnew([])\fR\&\&.
+.RE
+.LP
+.B
+new(X::term() | wxAcceleratorEntry()) -> wxAcceleratorEntry()
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI new([Option]) -> wxAcceleratorEntry() \fR\& 
+.br
+Option = {flags, integer()} | {keyCode, integer()} | {cmd, integer()} | {item, wxMenuItem:wxMenuItem()}
+.LP
+\fI new(Entry::wxAcceleratorEntry()) -> wxAcceleratorEntry() \fR\& 
+.RE
+.LP
+.B
+getCommand(This::wxAcceleratorEntry()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getFlags(This::wxAcceleratorEntry()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getKeyCode(This::wxAcceleratorEntry()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+set(This::wxAcceleratorEntry(), Flags::integer(), KeyCode::integer(), Cmd::integer()) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBset(This, Flags, KeyCode, Cmd, [])\fR\&\&.
+.RE
+.LP
+.B
+set(This::wxAcceleratorEntry(), Flags::integer(), KeyCode::integer(), Cmd::integer(), Options::[Option]) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Option = {item, wxMenuItem() (see module wxMenuItem)}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+destroy(This::wxAcceleratorEntry()) -> ok
+.br
+.RS
+.LP
+Destroys this object, do not use object again
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

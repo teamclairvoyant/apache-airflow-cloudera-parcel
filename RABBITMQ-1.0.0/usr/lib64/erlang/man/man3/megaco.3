@@ -1,0 +1,2104 @@
+.TH megaco 3 "megaco 3.15.1.1" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+megaco \- Main API of the Megaco application
+.SH DESCRIPTION
+.LP
+Interface module for the Megaco application
+.SH "DATA TYPES"
+
+.LP
+.nf
+
+megaco_mid() = ip4Address() | ip6Address() | 
+               domainName() | deviceName() | 
+               mtpAddress() 
+ip4Address() = #'IP4Address'{}
+ip6Address() = #'IP6Address'{}
+domainName() = #'DomainName'{}
+deviceName() = pathName() 
+pathName()   = ia5String(1..64)
+mtpAddress() = octetString(2..4)
+
+action_request() = #'ActionRequest'{}
+action_reply() = #'ActionReply'{}
+error_desc() = #'ErrorDescriptor'{}
+transaction_reply() = #'TransactionReply'{}
+segment_no() = integer()
+
+resend_indication() = flag | boolean()
+
+property_parm() = #'PropertyParm'{}
+property_group() = [property_parm()]
+property_groups() = [property_group()]
+
+sdp() = sdp_c() | sdp_o() | sdp_s() | sdp_i() | sdp_u() | 
+        sdp_e() | sdp_p() | sdp_b() | sdp_z() | sdp_k() | 
+        sdp_a() | sdp_a_rtpmap() | sdp_a_ptime() | 
+        sdp_t() | sdp_r() | sdp_m()
+sdp_v() = #megaco_sdp_v{} (Protocol version)
+sdp_o() = #megaco_sdp_o{} (Owner/creator and session identifier)
+sdp_s() = #megaco_sdp_s{} (Session name)
+sdp_i() = #megaco_sdp_i{} (Session information)
+sdp_u() = #megaco_sdp_u{} (URI of description)
+sdp_e() = #megaco_sdp_e{} (Email address)
+sdp_p() = #megaco_sdp_p{} (Phone number)
+sdp_c() = #megaco_sdp_c{} (Connection information)
+sdp_b() = #megaco_sdp_b{} (Bandwidth information)
+sdp_k() = #megaco_sdp_k{} (Encryption key)
+sdp_a() = #megaco_sdp_a{} (Session attribute)
+sdp_a_rtpmap() = #megaco_sdp_a_rtpmap{}
+sdp_a_ptime() = #megaco_sdp_a_ptime{}
+sdp_a_quality() = #megaco_sdp_a_quality{}
+sdp_a_fmtp() = #megaco_sdp_a_fmtp{}
+sdp_z() = #megaco_sdp_z{} (Time zone adjustment)
+sdp_t() = #megaco_sdp_t{} (Time the session is active)
+sdp_r() = #megaco_sdp_r{} (Repeat times)
+sdp_m() = #megaco_sdp_m{} (Media name and transport address)
+sdp_property_parm() = sdp() | property_parm()
+sdp_property_group() = [sdp_property_parm()]
+sdp_property_groups() = [sdp_property_group()]
+
+megaco_timer() = infinity | integer() >= 0 | megaco_incr_timer()
+megaco_incr_timer() = #megaco_incr_timer{}
+    
+.fi
+.LP
+The record \fImegaco_incr_timer\fR\& contains the following fields:
+.RS 2
+.TP 2
+.B
+\fIwait_for = integer() >= 0\fR\&:
+The actual timer time\&.
+.TP 2
+.B
+\fIfactor = integer() >= 0\fR\&:
+The factor when calculating the new timer time (\fIwait_for\fR\&)\&.
+.TP 2
+.B
+\fIincr = integer()\fR\&:
+The increment value when calculating the new timer time (\fIwait_for\fR\&)\&. Note that this value \fIcan\fR\& be negative and that a timer restart can therefor lead to a \fIwait_for\fR\& value of zero! It is up to the user to be aware of the consequences of a \fIwait_for\fR\& value of zero\&.
+.TP 2
+.B
+\fImax_retries = infinity | infinity_restartable | integer() >= 0\fR\&:
+The maximum number of repetitions of the timer\&.
+.RS 2
+.LP
+There is a special case for this field\&. When the \fImax_retries\fR\& has the value \fIinfinity_restartable\fR\&, it means that the timer is restartable as long as some external event occurs (e\&.g\&. receipt of a pending message for instance)\&. But the timer will never be restarted "by itself", i\&.e\&. when the timer expires (whatever the timeout time), so does the timer\&. Whenever the timer is restarted, the timeout time will be calculated in the usual way! Also, as mentioned above, beware the consequences of setting the value to \fIinfinity\fR\& if \fIincr\fR\& has been set to an negative value\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+start() -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Starts the Megaco application
+.LP
+Users may either explicitly be registered with megaco:start_user/2 and/or be statically configured by setting the application environment variable \&'users\&' to a list of {UserMid, Config} tuples\&. See the function megaco:start_user/2 for details\&.
+.RE
+.LP
+.B
+stop() -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Stops the Megaco application
+.RE
+.LP
+.B
+start_user(UserMid, Config) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+UserMid = megaco_mid()
+.br
+Config = [{user_info_item(), user_info_value()}]
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Initial configuration of a user
+.LP
+Requires the megaco application to be started\&. A user is either a Media Gateway (MG) or a Media Gateway Controller (MGC)\&. One Erlang node may host many users\&.
+.LP
+A user is identified by its UserMid, which must be a legal Megaco MID\&.
+.LP
+Config is a list of {Item, Value} tuples\&. See megaco:user_info/2 about which items and values that are valid\&.
+.RE
+.LP
+.B
+stop_user(UserMid) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+UserMid = megaco_mid()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Delete the configuration of a user
+.LP
+Requires that the user does not have any active connection\&.
+.RE
+.LP
+.B
+user_info(UserMid) -> [{Item, Value}]
+.br
+.B
+user_info(UserMid, Item) -> Value | exit(Reason)
+.br
+.RS
+.TP 3
+Types:
+
+Handle = user_info_handle()
+.br
+UserMid = megaco_mid()
+.br
+Item = user_info_item()
+.br
+Value = user_info_value()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Lookup user information
+.LP
+The following Item\&'s are valid:
+.RS 2
+.TP 2
+.B
+\fIconnections\fR\&:
+Lists all active connections for this user\&. Returns a list of megaco_conn_handle records\&.
+.TP 2
+.B
+\fIreceive_handle\fR\&:
+Construct a megaco_receive_handle record from user config
+.TP 2
+.B
+\fItrans_id\fR\&:
+Current transaction id\&.
+.RS 2
+.LP
+A positive integer or the atom \fIundefined_serial\fR\& (in case no messages has been sent)\&.
+.RE
+.TP 2
+.B
+\fImin_trans_id\fR\&:
+First trans id\&.
+.RS 2
+.LP
+A positive integer, defaults to 1\&.
+.RE
+.TP 2
+.B
+\fImax_trans_id\fR\&:
+Last trans id\&.
+.RS 2
+.LP
+A positive integer or \fIinfinity\fR\&, defaults to \fIinfinity\fR\&\&.
+.RE
+.TP 2
+.B
+\fIrequest_timer\fR\&:
+Wait for reply\&.
+.RS 2
+.LP
+The timer is cancelled when a reply is received\&.
+.RE
+.RS 2
+.LP
+When a pending message is received, the timer is cancelled and the \fIlong_request_timer\fR\& is started instead (see below)\&. No resends will be performed from this point (since we now know that the other side has received the request)\&.
+.RE
+.RS 2
+.LP
+When the timer reaches an intermediate expire, the request is resent and the timer is restarted\&.
+.RE
+.RS 2
+.LP
+When the timer reaches the final expire, either the function \fImegaco:call\fR\& will return with \fI{error, timeout}\fR\& or the callback function \fIhandle_trans_reply\fR\& will be called with \fIUserReply = {error, timeout}\fR\& (if \fImegaco:cast\fR\& was used)\&.
+.RE
+.RS 2
+.LP
+A Megaco Timer (see explanation above), defaults to \fI#megaco_incr_timer{}\fR\&\&.
+.RE
+.TP 2
+.B
+\fIlong_request_timer\fR\&:
+Wait for reply after having received a pending message\&.
+.RS 2
+.LP
+When the timer reaches an intermediate expire, the timer is restarted\&.
+.RE
+.RS 2
+.LP
+When a pending message is received, and the \fIlong_request_timer\fR\& is \fInot\fR\& "on its final leg", the timer will be restarted, and, if \fIlong_request_resend = true\fR\&, the request will be re-sent\&.
+.RE
+.RS 2
+.LP
+A Megaco Timer (see explanation above), defaults to \fI60 seconds\fR\&\&.
+.RE
+.TP 2
+.B
+\fIlong_request_resend\fR\&:
+This option indicates weather the request should be resent until the reply is received, \fIeven\fR\& though a pending message has been received\&.
+.RS 2
+.LP
+Normally, after a pending message has been received, the request is not resent (since a pending message is an indication that the request has been received)\&. But since the reply (to the request) can be lost, this behaviour has its values\&.
+.RE
+.RS 2
+.LP
+It is of course pointless to set this value to \fItrue\fR\& unless the \fIlong_request_timer\fR\& (see above) is also set to an incremental timer (\fI#megaco_incr_timer{}\fR\&)\&.
+.RE
+.RS 2
+.LP
+A \fIboolean\fR\&, defaults to \fIfalse\fR\&\&.
+.RE
+.TP 2
+.B
+\fIreply_timer\fR\&:
+Wait for an ack\&.
+.RS 2
+.LP
+When a request is received, some info related to the reply is store internally (e\&.g\&. the binary of the reply)\&. This info will live until either an ack is received or this timer expires\&. For instance, if the same request is received again (e\&.g\&. a request with the same transaction id), the (stored) reply will be (re-) sent automatically by megaco\&.
+.RE
+.RS 2
+.LP
+If the timer is of type \fI#megaco_incr_timer{}\fR\&, then for each intermediate timout, the reply will be resent (this is valid until the ack is received or the timer expires)\&.
+.RE
+.RS 2
+.LP
+A Megaco Timer (see explanation above), defaults to 30000\&.
+.RE
+.TP 2
+.B
+\fIrequest_keep_alive_timeout\fR\&:
+Specifies the timeout time for the request-keep-alive timer\&.
+.RS 2
+.LP
+This timer is started when the \fIfirst\fR\& reply to an asynchroneous request (issued using the \fBmegaco:cast/3\fR\& function) arrives\&. As long as this timer is running, replies will be delivered via the \fBhandle_trans_reply/4,5\fR\& callback function, with their "arrival number" (see \fIUserReply\fR\& of the \fBhandle_trans_reply/4,5\fR\& callback function)\&.
+.RE
+.RS 2
+.LP
+Replies arriving after the timer has expired, will be delivered using the \fBhandle_unexpected_trans/3,4\fR\& callback function\&.
+.RE
+.RS 2
+.LP
+The timeout time can have the values: \fIplain | integer() >= 0\fR\&\&.
+.RE
+.RS 2
+.LP
+Defaults to \fIplain\fR\&\&.
+.RE
+.TP 2
+.B
+\fIcall_proxy_gc_timeout\fR\&:
+Timeout time for the call proxy\&.
+.RS 2
+.LP
+When a request is sent using the \fBcall/3\fR\& function, a proxy process is started to handle all replies\&. When the reply has been received and delivered to the user, the proxy process continue to exist for as long as this option specifies\&. Any received messages, is passed on to the user via the \fBhandle_unexpected_trans\fR\& callback function\&.
+.RE
+.RS 2
+.LP
+The timeout time is in milliseconds\&. A value of 0 (zero) means that the proxy process will exit directly after the reply has been delivered\&.
+.RE
+.RS 2
+.LP
+An integer >= 0, defaults to 5000 (= 5 seconds)\&.
+.RE
+.TP 2
+.B
+\fIauto_ack\fR\&:
+Automatic send transaction ack when the transaction reply has been received (see \fItrans_ack\fR\& below)\&.
+.RS 2
+.LP
+This is used for \fIthree-way-handshake\fR\&\&.
+.RE
+.RS 2
+.LP
+A \fIboolean\fR\&, defaults to \fIfalse\fR\&\&.
+.RE
+.TP 2
+.B
+\fItrans_ack\fR\&:
+Shall ack\&'s be accumulated or not\&.
+.RS 2
+.LP
+This property is only valid if \fIauto_ack\fR\& is true\&.
+.RE
+.RS 2
+.LP
+If \fIauto_ack\fR\& is true, then if \fItrans_ack\fR\& is \fIfalse\fR\&, ack\&'s will be sent immediately\&. If \fItrans_ack\fR\& is \fItrue\fR\&, then ack\&'s will instead be sent to the transaction sender process for accumulation and later sending (see \fItrans_ack_maxcount\fR\&, \fItrans_req_maxcount\fR\&, \fItrans_req_maxsize\fR\&, \fItrans_ack_maxcount\fR\& and \fItrans_timer\fR\&)\&.
+.RE
+.RS 2
+.LP
+See also \fBtransaction sender\fR\& for more info\&.
+.RE
+.RS 2
+.LP
+An \fIboolean\fR\&, defaults to \fIfalse\fR\&\&.
+.RE
+.TP 2
+.B
+\fItrans_ack_maxcount\fR\&:
+Maximum number of accumulated ack\&'s\&. At most this many ack\&'s will be accumulated by the transaction sender (if started and configured to accumulate ack\&'s)\&.
+.RS 2
+.LP
+See also \fBtransaction sender\fR\& for more info\&.
+.RE
+.RS 2
+.LP
+An \fIinteger\fR\&, defaults to 10\&.
+.RE
+.TP 2
+.B
+\fItrans_req\fR\&:
+Shall requests be accumulated or not\&.
+.RS 2
+.LP
+If \fItrans_req\fR\& is \fIfalse\fR\&, then request(s) will be sent immediately (in its own message)\&.
+.RE
+.RS 2
+.LP
+If \fItrans_req\fR\& is true, then request(s) will instead be sent to the transaction sender process for accumulation and later sending (see \fItrans_ack_maxcount\fR\&, \fItrans_req_maxcount\fR\&, \fItrans_req_maxsize\fR\&, \fItrans_ack_maxcount\fR\& and \fItrans_timer\fR\&)\&.
+.RE
+.RS 2
+.LP
+See also \fBtransaction sender\fR\& for more info\&.
+.RE
+.RS 2
+.LP
+An \fIboolean\fR\&, defaults to \fIfalse\fR\&\&.
+.RE
+.TP 2
+.B
+\fItrans_req_maxcount\fR\&:
+Maximum number of accumulated requests\&. At most this many requests will be accumulated by the transaction sender (if started and configured to accumulate requests)\&.
+.RS 2
+.LP
+See also \fBtransaction sender\fR\& for more info\&.
+.RE
+.RS 2
+.LP
+An \fIinteger\fR\&, defaults to 10\&.
+.RE
+.TP 2
+.B
+\fItrans_req_maxsize\fR\&:
+Maximum size of the accumulated requests\&. At most this much requests will be accumulated by the transaction sender (if started and configured to accumulate requests)\&.
+.RS 2
+.LP
+See also \fBtransaction sender\fR\& for more info\&.
+.RE
+.RS 2
+.LP
+An \fIinteger\fR\&, defaults to 2048\&.
+.RE
+.TP 2
+.B
+\fItrans_timer\fR\&:
+Transaction sender timeout time\&. Has two functions\&. First, if the value is 0, then transactions will not be accumulated (e\&.g\&. the transaction sender process will not be started)\&. Second, if the value is greater then 0 and \fIauto_ack\fR\& and \fItrans_ack\fR\& are both true or if \fItrans_req\fR\& is true, then transaction sender will be started and transactions (which is depending on the values of \fIauto_ack\fR\&, \fItrans_ack\fR\& and \fItrans_req\fR\&) will be accumulated, for later sending\&.
+.RS 2
+.LP
+See also \fBtransaction sender\fR\& for more info\&.
+.RE
+.RS 2
+.LP
+An \fIinteger\fR\&, defaults to 0\&.
+.RE
+.TP 2
+.B
+\fIpending_timer\fR\&:
+Automatically send pending if the timer expires before a transaction reply has been sent\&. This timer is also called provisional response timer\&.
+.RS 2
+.LP
+A Megaco Timer (see explanation above), defaults to 30000\&.
+.RE
+.TP 2
+.B
+\fIsent_pending_limit\fR\&:
+Sent pending limit (see the MGOriginatedPendingLimit and the MGCOriginatedPendingLimit of the megaco root package)\&. This parameter specifies how many pending messages that can be sent (for a given received transaction request)\&. When the limit is exceeded, the transaction is aborted (see \fBhandle_trans_request_abort\fR\&) and an error message is sent to the other side\&.
+.RS 2
+.LP
+Note that this has no effect on the actual sending of pending transactions\&. This is either implicit (e\&.g\&. when receiving a re-sent transaction request for a request which is being processed) or controlled by the pending_timer, see above\&.
+.RE
+.RS 2
+.LP
+A positive integer or \fIinfinity\fR\&, defaults to \fIinfinity\fR\&\&.
+.RE
+.TP 2
+.B
+\fIrecv_pending_limit\fR\&:
+Receive pending limit (see the MGOriginatedPendingLimit and the MGCOriginatedPendingLimit of the megaco root package)\&. This parameter specifies how many pending messages that can be received (for a sent transaction request)\&. When the limit is exceeded, the transaction is considered lost, and an error returned to the user (through the call-back function \fIhandle_trans_reply\fR\&)\&.
+.RS 2
+.LP
+A positive integer or \fIinfinity\fR\&, defaults to \fIinfinity\fR\&\&.
+.RE
+.TP 2
+.B
+\fIsend_mod\fR\&:
+Send callback module which exports send_message/2\&. The function SendMod:send_message(SendHandle, Binary) is invoked when the bytes needs to be transmitted to the remote user\&.
+.RS 2
+.LP
+An \fIatom\fR\&, defaults to \fImegaco_tcp\fR\&\&.
+.RE
+.TP 2
+.B
+\fIencoding_mod\fR\&:
+Encoding callback module which exports encode_message/2 and decode_message/2\&. The function EncodingMod:encode_message(EncodingConfig, MegacoMessage) is invoked whenever a \&'MegacoMessage\&' record needs to be translated into an Erlang binary\&. The function EncodingMod:decode_message(EncodingConfig, Binary) is invoked whenever an Erlang binary needs to be translated into a \&'MegacoMessage\&' record\&.
+.RS 2
+.LP
+An \fIatom\fR\&, defaults to \fImegaco_pretty_text_encoder\fR\&\&.
+.RE
+.TP 2
+.B
+\fIencoding_config\fR\&:
+Encoding module config\&.
+.RS 2
+.LP
+A \fIlist\fR\&, defaults to \fI[]\fR\&\&.
+.RE
+.TP 2
+.B
+\fIprotocol_version\fR\&:
+Actual protocol version\&.
+.RS 2
+.LP
+An \fIinteger\fR\&, default is 1\&.
+.RE
+.TP 2
+.B
+\fIstrict_version\fR\&:
+Strict version control, i\&.e\&. when a message is received, verify that the version is that which was negotiated\&.
+.RS 2
+.LP
+An \fIboolean\fR\&, default is true\&.
+.RE
+.TP 2
+.B
+\fIreply_data\fR\&:
+Default reply data\&.
+.RS 2
+.LP
+Any term, defaults to the atom \fIundefined\fR\&\&.
+.RE
+.TP 2
+.B
+\fIuser_mod\fR\&:
+Name of the user callback module\&. See the the reference manual for megaco_user for more info\&.
+.TP 2
+.B
+\fIuser_args\fR\&:
+List of extra arguments to the user callback functions\&. See the the reference manual for megaco_user for more info\&.
+.TP 2
+.B
+\fIthreaded\fR\&:
+If a received message contains several transaction requests, this option indicates whether the requests should be handled sequentially in the same process (\fIfalse\fR\&), or if each request should be handled by its own process (\fItrue\fR\& i\&.e\&. a separate process is spawned for each request)\&.
+.RS 2
+.LP
+An \fIboolean\fR\&, defaults to \fIfalse\fR\&\&.
+.RE
+.TP 2
+.B
+\fIresend_indication\fR\&:
+This option indicates weather the transport module should be told if a message send is a resend or not\&.
+.RS 2
+.LP
+If \fIfalse\fR\&, megaco messages are sent using the \fBsend_message\fR\& function\&.
+.RE
+.RS 2
+.LP
+If \fItrue\fR\&, megaco message \fIre-sends\fR\& are made using the \fBresend_message\fR\& function\&. The initial message send is still done using the \fBsend_message\fR\& function\&.
+.RE
+.RS 2
+.LP
+The special value \fIflag\fR\& instead indicates that the function \fBsend_message/3\fR\& shall be used\&.
+.RE
+.RS 2
+.LP
+A \fIresend_indication()\fR\&, defaults to \fIfalse\fR\&\&.
+.RE
+.TP 2
+.B
+\fIsegment_reply_ind\fR\&:
+This option specifies if the user shall be notified of received segment replies or not\&.
+.RS 2
+.LP
+See \fBhandle_segment_reply\fR\& callback function for more information\&.
+.RE
+.RS 2
+.LP
+A \fIboolean\fR\&, defaults to \fIfalse\fR\&\&.
+.RE
+.TP 2
+.B
+\fIsegment_recv_timer\fR\&:
+This timer is started when the segment indicated by the \fIsegmentation complete token\fR\& is received, but all segments has not yet been received\&.
+.RS 2
+.LP
+When the timer finally expires, a "megaco segments not received" (459) error message is sent to the other side and the user is notified with a \fIsegment timeout\fR\& \fIUserReply\fR\& in either the \fBhandle_trans_reply\fR\& callback function or the return value of the \fBcall\fR\& function\&.
+.RE
+.RS 2
+.LP
+A Megaco Timer (see explanation above), defaults to \fI10000\fR\&\&.
+.RE
+.TP 2
+.B
+\fIsegment_send\fR\&:
+Shall outgoing messages be segmented or not:
+.RS 2
+.TP 2
+.B
+\fInone\fR\&:
+Do not segment outgoing reply messages\&. This is useful when either it is known that messages are never to large or that the transport protocol can handle such things on its own (e\&.g\&. TCP or SCTP)\&.
+.TP 2
+.B
+\fIinteger() > 0\fR\&:
+Outgoing reply messages will be segmented as needed (see \fImax_pdu_size\fR\& below)\&. This value, K, indicate the outstanding window, i\&.e\&. how many segments can be outstanding (not acknowledged) at any given time\&.
+.TP 2
+.B
+\fIinfinity\fR\&:
+Outgoing reply messages will be segmented as needed (see \fImax_pdu_size\fR\& below)\&. Segment messages are sent all at once (i\&.e\&. no acknowledgement awaited before sending the next segment)\&.
+.RE
+.RS 2
+.LP
+Defaults to \fInone\fR\&\&.
+.RE
+.TP 2
+.B
+\fImax_pdu_size\fR\&:
+Max message size\&. If the encoded message (PDU) exceeds this size, the message should be segmented, and then encoded\&.
+.RS 2
+.LP
+A positive integer or \fIinfinity\fR\&, defaults to \fIinfinity\fR\&\&.
+.RE
+.RE
+.RE
+.LP
+.B
+update_user_info(UserMid, Item, Value) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+UserMid = megaco_mid()
+.br
+Item = user_info_item()
+.br
+Value = user_info_value()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Update information about a user
+.LP
+Requires that the user is started\&. See megaco:user_info/2 about which items and values that are valid\&.
+.RE
+.LP
+.B
+conn_info(ConnHandle) -> [{Item, Value}]
+.br
+.B
+conn_info(ConnHandle, Item) -> Value | exit(Reason)
+.br
+.RS
+.TP 3
+Types:
+
+ConnHandle = #megaco_conn_handle{}
+.br
+Item = conn_info_item()
+.br
+Value = conn_info_value()
+.br
+Reason = {no_such_connection, ConnHandle} | term()
+.br
+.RE
+.RS
+.LP
+Lookup information about an active connection
+.LP
+Requires that the connection is active\&.
+.RS 2
+.TP 2
+.B
+\fIcontrol_pid\fR\&:
+The process identifier of the controlling process for a connection\&.
+.TP 2
+.B
+\fIsend_handle\fR\&:
+Opaque send handle whose contents is internal for the send module\&. May be any term\&.
+.TP 2
+.B
+\fIlocal_mid\fR\&:
+The local mid (of the connection, i\&.e\&. the own mid)\&. \fImegaco_mid()\fR\&\&.
+.TP 2
+.B
+\fIremote_mid\fR\&:
+The remote mid (of the connection)\&. \fImegaco_mid()\fR\&\&.
+.TP 2
+.B
+\fIreceive_handle\fR\&:
+Construct a megaco_receive_handle record\&.
+.TP 2
+.B
+\fItrans_id\fR\&:
+Next transaction id\&. A positive integer or the atom \fIundefined_serial\fR\& (only in case of error)\&.
+.RS 2
+.LP
+Note that transaction id\&'s are (currently) maintained on a per user basis so there is no way to be sure that the value returned will actually be used for a transaction sent on this connection (in case a user has several connections, which is not at all unlikely)\&.
+.RE
+.TP 2
+.B
+\fImax_trans_id\fR\&:
+Last trans id\&.
+.RS 2
+.LP
+A positive integer or \fIinfinity\fR\&, defaults to \fIinfinity\fR\&\&.
+.RE
+.TP 2
+.B
+\fIrequest_timer\fR\&:
+Wait for reply\&.
+.RS 2
+.LP
+The timer is cancelled when a reply is received\&.
+.RE
+.RS 2
+.LP
+When a pending message is received, the timer is cancelled and the \fIlong_request_timer\fR\& is started instead (see below)\&. No resends will be performed from this point (since we now know that the other side has received the request)\&.
+.RE
+.RS 2
+.LP
+When the timer reaches an intermediate expire, the request is resent and the timer is restarted\&.
+.RE
+.RS 2
+.LP
+When the timer reaches the final expire, either the function \fImegaco:call\fR\& will return with \fI{error, timeout}\fR\& or the callback function \fIhandle_trans_reply\fR\& will be called with \fIUserReply = {error, timeout}\fR\& (if \fImegaco:cast\fR\& was used)\&.
+.RE
+.RS 2
+.LP
+A Megaco Timer (see explanation above), defaults to #megaco_incr_timer{}\&.
+.RE
+.TP 2
+.B
+\fIlong_request_timer\fR\&:
+Wait for reply after having received a pending message\&.
+.RS 2
+.LP
+When the timer reaches an intermediate expire, the timer restarted\&.
+.RE
+.RS 2
+.LP
+When a pending message is received, and the \fIlong_request_timer\fR\& is \fInot\fR\& "on its final leg", the timer will be restarted, and, if \fIlong_request_resend = true\fR\&, the request will be re-sent\&.
+.RE
+.RS 2
+.LP
+A Megaco Timer (see explanation above), defaults to \fI60 seconds\fR\&\&.
+.RE
+.TP 2
+.B
+\fIrequest_keep_alive_timeout\fR\&:
+Specifies the timeout time for the request-keep-alive timer\&.
+.RS 2
+.LP
+This timer is started when the \fIfirst\fR\& reply to an asynchroneous request (issued using the \fBmegaco:cast/3\fR\& function) arrives\&. As long as this timer is running, replies will be delivered via the \fBhandle_trans_reply/4,5\fR\& callback function, with their "arrival number" (see \fIUserReply\fR\& of the \fBhandle_trans_reply/4,5\fR\& callback function)\&.
+.RE
+.RS 2
+.LP
+Replies arriving after the timer has expired, will be delivered using the \fBhandle_unexpected_trans/3,4\fR\& callback function\&.
+.RE
+.RS 2
+.LP
+The timeout time can have the values: \fIplain | integer() >= 0\fR\&\&.
+.RE
+.RS 2
+.LP
+Defaults to \fIplain\fR\&\&.
+.RE
+.TP 2
+.B
+\fIlong_request_resend\fR\&:
+This option indicates weather the request should be resent until the reply is received, \fIeven\fR\& though a pending message has been received\&.
+.RS 2
+.LP
+Normally, after a pending message has been received, the request is not resent (since a pending message is an indication that the request has been received)\&. But since the reply (to the request) can be lost, this behaviour has its values\&.
+.RE
+.RS 2
+.LP
+It is of course pointless to set this value to \fItrue\fR\& unless the \fIlong_request_timer\fR\& (see above) is also set to an incremental timer (\fI#megaco_incr_timer{}\fR\&)\&.
+.RE
+.RS 2
+.LP
+A \fIboolean\fR\&, defaults to \fIfalse\fR\&\&.
+.RE
+.TP 2
+.B
+\fIreply_timer\fR\&:
+Wait for an ack\&.
+.RS 2
+.LP
+When a request is received, some info related to the reply is store internally (e\&.g\&. the binary of the reply)\&. This info will live until either an ack is received or this timer expires\&. For instance, if the same request is received again (e\&.g\&. a request with the same transaction id), the (stored) reply will be (re-) sent automatically by megaco\&.
+.RE
+.RS 2
+.LP
+If the timer is of type \fI#megaco_incr_timer{}\fR\&, then for each intermediate timout, the reply will be resent (this is valid until the ack is received or the timer expires)\&.
+.RE
+.RS 2
+.LP
+A Megaco Timer (see explanation above), defaults to 30000\&.
+.RE
+.TP 2
+.B
+\fIcall_proxy_gc_timeout\fR\&:
+Timeout time for the call proxy\&.
+.RS 2
+.LP
+When a request is sent using the \fBcall/3\fR\& function, a proxy process is started to handle all replies\&. When the reply has been received and delivered to the user, the proxy process continue to exist for as long as this option specifies\&. Any received messages, is passed on to the user via the \fBhandle_unexpected_trans\fR\& callback function\&.
+.RE
+.RS 2
+.LP
+The timeout time is in milliseconds\&. A value of 0 (zero) means that the proxy process will exit directly after the reply has been delivered\&.
+.RE
+.RS 2
+.LP
+An integer >= 0, defaults to 5000 (= 5 seconds)\&.
+.RE
+.TP 2
+.B
+\fIauto_ack\fR\&:
+Automatic send transaction ack when the transaction reply has been received (see \fItrans_ack\fR\& below)\&.
+.RS 2
+.LP
+This is used for \fIthree-way-handshake\fR\&\&.
+.RE
+.RS 2
+.LP
+A \fIboolean\fR\&, defaults to \fIfalse\fR\&\&.
+.RE
+.TP 2
+.B
+\fItrans_ack\fR\&:
+Shall ack\&'s be accumulated or not\&.
+.RS 2
+.LP
+This property is only valid if \fIauto_ack\fR\& is true\&.
+.RE
+.RS 2
+.LP
+If \fIauto_ack\fR\& is true, then if \fItrans_ack\fR\& is \fIfalse\fR\&, ack\&'s will be sent immediately\&. If \fItrans_ack\fR\& is \fItrue\fR\&, then ack\&'s will instead be sent to the transaction sender process for accumulation and later sending (see \fItrans_ack_maxcount\fR\&, \fItrans_req_maxcount\fR\&, \fItrans_req_maxsize\fR\&, \fItrans_ack_maxcount\fR\& and \fItrans_timer\fR\&)\&.
+.RE
+.RS 2
+.LP
+See also \fBtransaction sender\fR\& for more info\&.
+.RE
+.RS 2
+.LP
+An \fIboolean\fR\&, defaults to \fIfalse\fR\&\&.
+.RE
+.TP 2
+.B
+\fItrans_ack_maxcount\fR\&:
+Maximum number of accumulated ack\&'s\&. At most this many ack\&'s will be accumulated by the transaction sender (if started and configured to accumulate ack\&'s)\&.
+.RS 2
+.LP
+See also \fBtransaction sender\fR\& for more info\&.
+.RE
+.RS 2
+.LP
+An integer, defaults to 10\&.
+.RE
+.TP 2
+.B
+\fItrans_req\fR\&:
+Shall requests be accumulated or not\&.
+.RS 2
+.LP
+If \fItrans_req\fR\& is \fIfalse\fR\&, then request(s) will be sent immediately (in its own message)\&.
+.RE
+.RS 2
+.LP
+If \fItrans_req\fR\& is true, then request(s) will instead be sent to the transaction sender process for accumulation and later sending (see \fItrans_ack_maxcount\fR\&, \fItrans_req_maxcount\fR\&, \fItrans_req_maxsize\fR\&, \fItrans_ack_maxcount\fR\& and \fItrans_timer\fR\&)\&.
+.RE
+.RS 2
+.LP
+See also \fBtransaction sender\fR\& for more info\&.
+.RE
+.RS 2
+.LP
+An \fIboolean\fR\&, defaults to \fIfalse\fR\&\&.
+.RE
+.TP 2
+.B
+\fItrans_req_maxcount\fR\&:
+Maximum number of accumulated requests\&. At most this many requests will be accumulated by the transaction sender (if started and configured to accumulate requests)\&.
+.RS 2
+.LP
+See also \fBtransaction sender\fR\& for more info\&.
+.RE
+.RS 2
+.LP
+An \fIinteger\fR\&, defaults to 10\&.
+.RE
+.TP 2
+.B
+\fItrans_req_maxsize\fR\&:
+Maximum size of the accumulated requests\&. At most this much requests will be accumulated by the transaction sender (if started and configured to accumulate requests)\&.
+.RS 2
+.LP
+See also \fBtransaction sender\fR\& for more info\&.
+.RE
+.RS 2
+.LP
+An \fIinteger\fR\&, defaults to 2048\&.
+.RE
+.TP 2
+.B
+\fItrans_timer\fR\&:
+Transaction sender timeout time\&. Has two functions\&. First, if the value is 0, then transactions will not be accumulated (e\&.g\&. the transaction sender process will not be started)\&. Second, if the value is greater then 0 and \fIauto_ack\fR\& and \fItrans_ack\fR\& is true or if \fItrans_req\fR\& is true, then transaction sender will be started and transactions (which is depending on the values of \fIauto_ack\fR\&, \fItrans_ack\fR\& and \fItrans_req\fR\&) will be accumulated, for later sending\&.
+.RS 2
+.LP
+See also \fBtransaction sender\fR\& for more info\&.
+.RE
+.RS 2
+.LP
+An \fIinteger\fR\&, defaults to 0\&.
+.RE
+.TP 2
+.B
+\fIpending_timer\fR\&:
+Automatic send transaction pending if the timer expires before a transaction reply has been sent\&. This timer is also called provisional response timer\&.
+.RS 2
+.LP
+A Megaco Timer (see explanation above), defaults to 30000\&.
+.RE
+.TP 2
+.B
+\fIsent_pending_limit\fR\&:
+Sent pending limit (see the MGOriginatedPendingLimit and the MGCOriginatedPendingLimit of the megaco root package)\&. This parameter specifies how many pending messages that can be sent (for a given received transaction request)\&. When the limit is exceeded, the transaction is aborted (see \fBhandle_trans_request_abort\fR\&) and an error message is sent to the other side\&.
+.RS 2
+.LP
+Note that this has no effect on the actual sending of pending transactions\&. This is either implicit (e\&.g\&. when receiving a re-sent transaction request for a request which is being processed) or controlled by the pending_timer, see above\&.
+.RE
+.RS 2
+.LP
+A positive integer or \fIinfinity\fR\&, defaults to \fIinfinity\fR\&\&.
+.RE
+.TP 2
+.B
+\fIrecv_pending_limit\fR\&:
+Receive pending limit (see the MGOriginatedPendingLimit and the MGCOriginatedPendingLimit of the megaco root package)\&. This parameter specifies how many pending messages that can be received (for a sent transaction request)\&. When the limit is exceeded, the transaction is considered lost, and an error returned to the user (through the call-back function \fIhandle_trans_reply\fR\&)\&.
+.RS 2
+.LP
+A positive integer or \fIinfinity\fR\&, defaults to \fIinfinity\fR\&\&.
+.RE
+.TP 2
+.B
+\fIsend_mod\fR\&:
+Send callback module which exports send_message/2\&. The function SendMod:send_message(SendHandle, Binary) is invoked when the bytes needs to be transmitted to the remote user\&.
+.RS 2
+.LP
+An \fIatom\fR\&, defaults to \fImegaco_tcp\fR\&\&.
+.RE
+.TP 2
+.B
+\fIencoding_mod\fR\&:
+Encoding callback module which exports encode_message/2 and decode_message/2\&. The function EncodingMod:encode_message(EncodingConfig, MegacoMessage) is invoked whenever a \&'MegacoMessage\&' record needs to be translated into an Erlang binary\&. The function EncodingMod:decode_message(EncodingConfig, Binary) is invoked whenever an Erlang binary needs to be translated into a \&'MegacoMessage\&' record\&.
+.RS 2
+.LP
+An \fIatom\fR\&, defaults to \fImegaco_pretty_text_encoder\fR\&\&.
+.RE
+.TP 2
+.B
+\fIencoding_config\fR\&:
+Encoding module config\&.
+.RS 2
+.LP
+A \fIlist\fR\&, defaults to []\&.
+.RE
+.TP 2
+.B
+\fIprotocol_version\fR\&:
+Actual protocol version\&.
+.RS 2
+.LP
+An positive integer, Current default is 1\&.
+.RE
+.TP 2
+.B
+\fIstrict_version\fR\&:
+Strict version control, i\&.e\&. when a message is received, verify that the version is that which was negotiated\&.
+.RS 2
+.LP
+An \fIboolean\fR\&, default is true\&.
+.RE
+.TP 2
+.B
+\fIreply_data\fR\&:
+Default reply data\&.
+.RS 2
+.LP
+Any term, defaults to the atom \fIundefined\fR\&\&.
+.RE
+.TP 2
+.B
+\fIthreaded\fR\&:
+If a received message contains several transaction requests, this option indicates whether the requests should be handled sequentially in the same process (\fIfalse\fR\&), or if each request should be handled by its own process (\fItrue\fR\& i\&.e\&. a separate process is spawned for each request)\&.
+.RS 2
+.LP
+An \fIboolean\fR\&, defaults to \fIfalse\fR\&\&.
+.RE
+.TP 2
+.B
+\fIresend_indication\fR\&:
+This option indicates weather the transport module should be told if a message send is a resend or not\&.
+.RS 2
+.LP
+If \fIfalse\fR\&, megaco messages are sent using the \fBsend_message/2\fR\& function\&.
+.RE
+.RS 2
+.LP
+If \fItrue\fR\&, megaco message \fIre-sends\fR\& are made using the \fBresend_message\fR\& function\&. The initial message send is still done using the \fBsend_message\fR\& function\&.
+.RE
+.RS 2
+.LP
+The special value \fIflag\fR\& instead indicates that the function \fBsend_message/3\fR\& shall be used\&.
+.RE
+.RS 2
+.LP
+A \fIresend_indication()\fR\&, defaults to \fIfalse\fR\&\&.
+.RE
+.TP 2
+.B
+\fIsegment_reply_ind\fR\&:
+This option specifies if the user shall be notified of received segment replies or not\&.
+.RS 2
+.LP
+See \fBhandle_segment_reply\fR\& callback function for more information\&.
+.RE
+.RS 2
+.LP
+A \fIboolean\fR\&, defaults to \fIfalse\fR\&\&.
+.RE
+.TP 2
+.B
+\fIsegment_recv_timer\fR\&:
+This timer is started when the segment indicated by the \fIsegmentation complete token\fR\& (e\&.g\&. the last of the segment which makes up the reply) is received, but all segments has not yet been received\&.
+.RS 2
+.LP
+When the timer finally expires, a "megaco segments not received" (459) error message is sent to the other side and the user is notified with a \fIsegment timeout\fR\& \fIUserReply\fR\& in either the \fBhandle_trans_reply\fR\& callback function or the return value of the \fBcall\fR\& function\&.
+.RE
+.RS 2
+.LP
+A Megaco Timer (see explanation above), defaults to \fI10000\fR\&\&.
+.RE
+.TP 2
+.B
+\fIsegment_send\fR\&:
+Shall outgoing messages be segmented or not:
+.RS 2
+.TP 2
+.B
+\fInone\fR\&:
+Do not segment outgoing reply messages\&. This is useful when either it is known that messages are never to large or that the transport protocol can handle such things on its own (e\&.g\&. TCP or SCTP)\&.
+.TP 2
+.B
+\fIinteger() > 0\fR\&:
+Outgoing reply messages will be segmented as needed (see \fImax_pdu_size\fR\& below)\&. This value, K, indicate the outstanding window, i\&.e\&. how many segments can be outstanding (not acknowledged) at any given time\&.
+.TP 2
+.B
+\fIinfinity\fR\&:
+Outgoing reply messages will be segmented as needed (see \fImax_pdu_size\fR\& below)\&. Segment messages are sent all at once (i\&.e\&. no acknowledgement awaited before sending the next segment)\&.
+.RE
+.RS 2
+.LP
+Defaults to \fInone\fR\&\&.
+.RE
+.TP 2
+.B
+\fImax_pdu_size\fR\&:
+Max message size\&. If the encoded message (PDU) exceeds this size, the message should be segmented, and then encoded\&.
+.RS 2
+.LP
+A positive integer or \fIinfinity\fR\&, defaults to \fIinfinity\fR\&\&.
+.RE
+.RE
+.RE
+.LP
+.B
+update_conn_info(ConnHandle, Item, Value) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ConnHandle = #megaco_conn_handle{}
+.br
+Item = conn_info_item()
+.br
+Value = conn_info_value()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Update information about an active connection
+.LP
+Requires that the connection is activated\&. See megaco:conn_info/2 about which items and values that are valid\&.
+.RE
+.LP
+.B
+system_info() -> [{Item, Value}] | exit(Reason)
+.br
+.B
+system_info(Item) -> Value | exit(Reason)
+.br
+.RS
+.TP 3
+Types:
+
+Item = system_info_item()
+.br
+.RE
+.RS
+.LP
+Lookup system information
+.LP
+The following items are valid:
+.RS 2
+.TP 2
+.B
+\fItext_config\fR\&:
+The text encoding config\&.
+.TP 2
+.B
+\fIconnections\fR\&:
+Lists all active connections\&. Returns a list of megaco_conn_handle records\&.
+.TP 2
+.B
+\fIusers\fR\&:
+Lists all active users\&. Returns a list of megaco_mid()\&'s\&.
+.TP 2
+.B
+\fIn_active_requests\fR\&:
+Returns an integer representing the number of requests that has originated from this Erlang node and still are active (and therefore consumes system resources)\&.
+.TP 2
+.B
+\fIn_active_replies\fR\&:
+Returns an integer representing the number of replies that has originated from this Erlang node and still are active (and therefore consumes system resources)\&.
+.TP 2
+.B
+\fIn_active_connections\fR\&:
+Returns an integer representing the number of active connections\&.
+.RE
+.RE
+.LP
+.B
+info() -> Info
+.br
+.RS
+.TP 3
+Types:
+
+Info = [{Key, Value}]
+.br
+.RE
+.RS
+.LP
+This function produces a list of information about the megaco application\&. Such as users and their config, connections and their config, statistics and so on\&.
+.LP
+This information can be produced by the functions \fBuser_info\fR\&, \fBconn_info\fR\&, \fBsystem_info\fR\& and \fBget_stats\fR\& but this is a simple way to get it all at once\&.
+.RE
+.LP
+.B
+connect(ReceiveHandle, RemoteMid, SendHandle, ControlPid) -> {ok, ConnHandle} | {error, Reason}
+.br
+.B
+connect(ReceiveHandle, RemoteMid, SendHandle, ControlPid, Extra) -> {ok, ConnHandle} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ReceiveHandle = #megaco_receive_handle{}
+.br
+RemoteMid = preliminary_mid | megaco_mid()
+.br
+SendHandle = term()
+.br
+ControlPid = pid()
+.br
+ConnHandle = #megaco_conn_handle{}
+.br
+Reason = connect_reason() | handle_connect_reason() | term()
+.br
+connect_reason() = {no_such_user, LocalMid} | {already_connected, ConnHandle} | term()
+.br
+handle_connect_error() = {connection_refused, ConnData, ErrorInfo} | term()
+.br
+LocalMid = megaco_mid()
+.br
+ConnData = term()
+.br
+ErrorInfo = term()
+.br
+Extra = term()
+.br
+.RE
+.RS
+.LP
+Establish a "virtual" connection
+.LP
+Activates a connection to a remote user\&. When this is done the connection can be used to send messages (with SendMod:send_message/2)\&. The ControlPid is the identifier of a process that controls the connection\&. That process will be supervised and if it dies, this will be detected and the UserMod:handle_disconnect/2 callback function will be invoked\&. See the megaco_user module for more info about the callback arguments\&. The connection may also explicitly be deactivated by invoking megaco:disconnect/2\&.
+.LP
+The ControlPid may be the identity of a process residing on another Erlang node\&. This is useful when you want to distribute a user over several Erlang nodes\&. In such a case one of the nodes has the physical connection\&. When a user residing on one of the other nodes needs to send a request (with megaco:call/3 or megaco:cast/3), the message will encoded on the originating Erlang node, and then be forwarded to the node with the physical connection\&. When the reply arrives, it will be forwarded back to the originator\&. The distributed connection may explicitly be deactivated by a local call to megaco:disconnect/2 or implicitly when the physical connection is deactivated (with megaco:disconnect/2, killing the controlling process, halting the other node, \&.\&.\&.)\&.
+.LP
+The call of this function will trigger the callback function UserMod:handle_connect/2 to be invoked\&. See the megaco_user module for more info about the callback arguments\&.
+.LP
+A connection may be established in several ways:
+.RS 2
+.TP 2
+.B
+\fIprovisioned MID\fR\&:
+The MG may explicitly invoke megaco:connect/4 and use a provisioned MID of the MGC as the RemoteMid\&.
+.TP 2
+.B
+\fIupgrade preliminary MID\fR\&:
+The MG may explicitly invoke megaco:connect/4 with the atom \&'preliminary_mid\&' as a temporary MID of the MGC, send an intial message, the Service Change Request, to the MGC and then wait for an initial message, the Service Change Reply\&. When the reply arrives, the Megaco application will pick the MID of the MGC from the message header and automatically upgrade the connection to be a "normal" connection\&. By using this method of establishing the connection, the callback function UserMod:handle_connect/2 to be invoked twice\&. First with a ConnHandle with the remote_mid-field set to preliminary_mid, and then when the connection upgrade is done with the remote_mid-field set to the actual MID of the MGC\&.
+.TP 2
+.B
+\fIautomatic\fR\&:
+When the MGC receives its first message, the Service Change Request, the Megaco application will automatically establish the connection by using the MG MID found in the message header as remote mid\&.
+.TP 2
+.B
+\fIdistributed\fR\&:
+When a user (MG/MGC) is distributed over several nodes, it is required that the node hosting the connection already has activated the connection and that it is in the "normal" state\&. The RemoteMid must be a real Megaco MID and not a preliminary_mid\&.
+.RE
+.LP
+An initial megaco_receive_handle record may be obtained with megaco:user_info(UserMid, receive_handle)
+.LP
+The send handle is provided by the preferred transport module, e\&.g\&. megaco_tcp, megaco_udp\&. Read the documentation about each transport module about the details\&.
+.LP
+The connect is done in two steps: first an internal \fIconnection setup\fR\& and then by calling the user \fBhandle_connect\fR\& callback function\&. The first step could result in an error with \fIReason = connect_reason()\fR\& and the second an error with \fIReason = handle_connect_reason()\fR\&:
+.RS 2
+.TP 2
+.B
+\fIconnect_reason()\fR\&:
+An error with this reason is generated by the megaco application itself\&.
+.TP 2
+.B
+\fIhandle_connect_reason()\fR\&:
+An error with this reason is caused by the user \fBhandle_connect\fR\& callback function either returning an error or an invalid value\&.
+.RE
+.LP
+\fIExtra\fR\& can be any \fIterm()\fR\& except the atom \fIignore_extra\fR\&\&. It is passed (back) to the user via the callback function \fBhandle_connect/3\fR\&\&.
+.RE
+.LP
+.B
+disconnect(ConnHandle, DiscoReason) -> ok | {error, ErrReason}
+.br
+.RS
+.TP 3
+Types:
+
+ConnHandle = conn_handle()
+.br
+DiscoReason = term()
+.br
+ErrReason = term()
+.br
+.RE
+.RS
+.LP
+Tear down a "virtual" connection
+.LP
+Causes the UserMod:handle_disconnect/2 callback function to be invoked\&. See the megaco_user module for more info about the callback arguments\&.
+.RE
+.LP
+.B
+call(ConnHandle, Actions, Options) -> {ProtocolVersion, UserReply}
+.br
+.RS
+.TP 3
+Types:
+
+ConnHandle = conn_handle()
+.br
+Actions = action_reqs() | [action_reqs()]
+.br
+action_reqs() = binary() | [action_request()]
+.br
+Options = [send_option()]
+.br
+send_option() = {request_timer, megaco_timer()} | {long_request_timer, megaco_timer()} | {send_handle, term()} | {protocol_version, integer()} | {call_proxy_gc_timeout, call_proxy_gc_timeout()}
+.br
+ProtocolVersion = integer()
+.br
+UserReply = user_reply() | [user_reply()]
+.br
+user_reply() = success() | failure()
+.br
+success() = {ok, result()} | {ok, result(), extra()}
+.br
+result() = message_result() | segment_result()
+.br
+message_result() = action_reps()
+.br
+segment_result() = segments_ok()
+.br
+failure() = {error, reason()} | {error, reason(), extra()}
+.br
+reason() = message_reason() | segment_reason() | user_cancel_reason() | send_reason() | other_reason()
+.br
+message_reason() = error_desc()
+.br
+segment_reason() = {segment, segments_ok(), segments_err()} | {segment_timeout, missing_segments(), segments_ok(), segments_err()}
+.br
+segments_ok() = [segment_ok()]
+.br
+segment_ok() = {segment_no(), action_reps()}
+.br
+segments_err() = [segment_err()]
+.br
+segment_err() = {segment_no(), error_desc()}
+.br
+missing_segments() = [segment_no()]
+.br
+user_cancel_reason() = {user_cancel, reason_for_user_cancel()}
+.br
+reason_for_user_cancel() = term()
+.br
+send_reason() = send_cancelled_reason() | send_failed_reason()
+.br
+send_cancelled_reason() = {send_message_cancelled, reason_for_send_cancel()}
+.br
+reason_for_send_cancel() = term()
+.br
+send_failed_reason() = {send_message_failed, reason_for_send_failure()}
+.br
+reason_for_send_failure() = term()
+.br
+other_reason() = {wrong_mid, WrongMid, RightMid, TR} | term()
+.br
+WrongMid = mid()
+.br
+RightMid = mid()
+.br
+TR = transaction_reply()
+.br
+action_reps() = [action_reply()]
+.br
+call_proxy_gc_timeout() = integer() >= 0
+.br
+extra() = term()
+.br
+.RE
+.RS
+.LP
+Sends one or more transaction request(s) and waits for the reply\&.
+.LP
+When sending one transaction in a message, \fIActions\fR\& should be \fIaction_reqs()\fR\& (\fIUserReply\fR\& will then be \fIuser_reply()\fR\&)\&. When sending several transactions in a message, \fIActions\fR\& should be \fI[action_reqs()]\fR\& (\fIUserReply\fR\& will then be \fI[user_reply()]\fR\&)\&. Each element of the list is part of one transaction\&.
+.LP
+For some of \fIour\fR\& codecs (not binary), it is also possible to pre-encode the actions, in which case \fIActions\fR\& will be either a \fIbinary()\fR\& or \fI[binary()]\fR\&\&.
+.LP
+The function returns when the reply arrives, when the request timer eventually times out or when the outstanding requests are explicitly cancelled\&.
+.LP
+The default values of the send options are obtained by \fImegaco:conn_info(ConnHandle, Item)\fR\&\&. But the send options above, may explicitly be overridden\&.
+.LP
+The \fIProtocolVersion\fR\& version is the version actually encoded in the reply message\&.
+.LP
+At \fIsuccess()\fR\&, the \fIUserReply\fR\& contains a list of \&'ActionReply\&' records possibly containing error indications\&.
+.LP
+A \fImessage_error()\fR\&, indicates that the remote user has replied with an explicit transactionError\&.
+.LP
+A \fIuser_cancel_error()\fR\&, indicates that the request has been canceled by the user\&. \fIreason_for_user_cancel()\fR\& is the reason given in the call to the \fBcancel\fR\& function\&.
+.LP
+A \fIsend_error()\fR\&, indicates that the send function of the megaco transport callback module failed to send the request\&. There are two separate cases: \fIsend_cancelled_reason()\fR\& and \fIsend_failed_reason()\fR\&\&. The first is the result of the send function returning \fI{cancel, Reason}\fR\& and the second is some other kind of erroneous return value\&. See the \fBsend_message\fR\& function for more info\&.
+.LP
+An \fIother_error()\fR\&, indicates some other error such as timeout\&.
+.LP
+For more info about the \fIextra()\fR\& part of the result, see the \fBnote\fR\& in the user callback module documentation\&.
+.RE
+.LP
+.B
+cast(ConnHandle, Actions, Options) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ConnHandle = conn_handle()
+.br
+Actions = action_reqs() | [action_reqs()]
+.br
+action_reqs() = binary() | [action_request()]
+.br
+Options = [send_option()]
+.br
+send_option() = {request_keep_alive_timeout, request_keep_alive_timeout()} | {request_timer, megaco_timer()} | {long_request_timer, megaco_timer()} | {send_handle, term()} | {reply_data, reply_data()} | {protocol_version, integer()}
+.br
+request_keep_alive_timeout() = plain | integer() >= 0
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Sends one or more transaction request(s) but does NOT wait for a reply
+.LP
+When sending one transaction in a message, \fIActions\fR\& should be \fIaction_reqs()\fR\&\&. When sending several transactions in a message, \fIActions\fR\& should be \fI[action_reqs()]\fR\&\&. Each element of the list is part of one transaction\&.
+.LP
+For some of \fIour\fR\& codecs (not binary), it is also possible to pre-encode the actions, in which case \fIActions\fR\& will be either a \fIbinary()\fR\& or \fI[binary()]\fR\&\&.
+.LP
+The default values of the send options are obtained by megaco:conn_info(ConnHandle, Item)\&. But the send options above, may explicitly be overridden\&.
+.LP
+The ProtocolVersion version is the version actually encoded in the reply message\&.
+.LP
+The callback function UserMod:handle_trans_reply/4 is invoked when the reply arrives, when the request timer eventually times out or when the outstanding requests are explicitly cancelled\&. See the megaco_user module for more info about the callback arguments\&.
+.LP
+Given as UserData argument to UserMod:handle_trans_reply/4\&.
+.RE
+.LP
+.B
+encode_actions(ConnHandle, Actions, Options) -> {ok, BinOrBins} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ConnHandle = conn_handle()
+.br
+Actions = action_reqs() | [action_reqs()]
+.br
+action_reqs() = [#'ActionRequest'{}]
+.br
+Options = [send_option()]
+.br
+send_option() = {request_timer, megaco_timer()} | {long_request_timer, megaco_timer()} | {send_handle, term()} | {protocol_version, integer()}
+.br
+BinOrBins = binary() | [binary()]
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Encodes lists of action requests for one or more transaction request(s)\&.
+.LP
+When encoding action requests for one transaction, \fIActions\fR\& should be \fIaction_reqs()\fR\&\&. When encoding action requests for several transactions, \fIActions\fR\& should be \fI[action_reqs()]\fR\&\&. Each element of the list is part of one transaction\&.
+.RE
+.LP
+.B
+token_tag2string(Tag) -> Result
+.br
+.B
+token_tag2string(Tag, EncoderMod) -> Result
+.br
+.B
+token_tag2string(Tag, EncoderMod, Version) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Tag = atom()
+.br
+EncoderMod = pretty | compact | encoder_module()
+.br
+encoder_module() = megaco_pretty_text_encoder | megaco_compact_text_encoder | atom()
+.br
+Version = int_version() | atom_version()
+.br
+int_version() = 1 | 2 | 3
+.br
+atom_version() = v1 | v2 | v3 | prev3c | prev3b
+.br
+Result = string() | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Convert a token tag to a string
+.LP
+If no encoder module is given, the default is used (which is pretty)\&.
+.LP
+If no or an unknown version is given, the \fIbest\fR\& version is used (which is v3)\&.
+.LP
+If no match is found for \fITag\fR\&, \fIResult\fR\& will be the empty string (\fI[]\fR\&)\&.
+.RE
+.LP
+.B
+cancel(ConnHandle, CancelReason) -> ok | {error, ErrReason}
+.br
+.RS
+.TP 3
+Types:
+
+ConnHandle = conn_handle()
+.br
+CancelReason = term()
+.br
+ErrReason = term()
+.br
+.RE
+.RS
+.LP
+Cancel all outstanding messages for this connection
+.LP
+This causes outstanding megaco:call/3 requests to return\&. The callback functions UserMod:handle_reply/4 and UserMod:handle_trans_ack/4 are also invoked where it applies\&. See the megaco_user module for more info about the callback arguments\&.
+.RE
+.LP
+.B
+process_received_message(ReceiveHandle, ControlPid, SendHandle, BinMsg) -> ok
+.br
+.B
+process_received_message(ReceiveHandle, ControlPid, SendHandle, BinMsg, Extra) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+ReceiveHandle = #megaco_receive_handle{}
+.br
+ControlPid = pid()
+.br
+SendHandle = term()
+.br
+BinMsg = binary()
+.br
+Extra = term()
+.br
+.RE
+.RS
+.LP
+Process a received message
+.LP
+This function is intended to be invoked by some transport modules when get an incoming message\&. Which transport that actually is used is up to the user to choose\&.
+.LP
+The message is delivered as an Erlang binary and is decoded by the encoding module stated in the receive handle together with its encoding config (also in the receive handle)\&. Depending of the outcome of the decoding various callback functions will be invoked\&. See megaco_user for more info about the callback arguments\&.
+.LP
+The argument \fIExtra\fR\& is just an opaque data structure passed to the user via the callback functions in the \fBuser callback module\fR\&\&. Note however that if \fIExtra\fR\& has the value \fIextra_undefined\fR\& the argument will be ignored (same as if \fIprocess_received_message/4\fR\& had been called)\&. See the documentation for the behaviour of the callback module, \fBmegaco_user\fR\&, for more info\&.
+.LP
+Note that all processing is done in the context of the calling process\&. A transport module could call this function via one of the \fIspawn\fR\& functions (e\&.g\&. \fIspawn_opt\fR\&)\&. See also \fIreceive_message/4,5\fR\&\&.
+.LP
+If the message cannot be decoded the following callback function will be invoked:
+.RS 2
+.TP 2
+*
+UserMod:handle_syntax_error/3
+.LP
+.RE
+
+.LP
+If the decoded message instead of transactions contains a message error, the following callback function will be invoked:
+.RS 2
+.TP 2
+*
+UserMod:handle_message_error/3
+.LP
+.RE
+
+.LP
+If the decoded message happens to be received before the connection is established, a new "virtual" connection is established\&. This is typically the case for the Media Gateway Controller (MGC) upon the first Service Change\&. When this occurs the following callback function will be invoked:
+.RS 2
+.TP 2
+*
+UserMod:handle_connect/2
+.LP
+.RE
+
+.LP
+For each transaction request in the decoded message the following callback function will be invoked:
+.RS 2
+.TP 2
+*
+UserMod:handle_trans_request/3
+.LP
+.RE
+
+.LP
+For each transaction reply in the decoded message the reply is returned to the user\&. Either the originating function megaco:call/3 will return\&. Or in case the originating function was megaco:case/3 the following callback function will be invoked:
+.RS 2
+.TP 2
+*
+UserMod:handle_trans_reply/4
+.LP
+.RE
+
+.LP
+When a transaction acknowledgement is received it is possible that user has decided not to bother about the acknowledgement\&. But in case the return value from UserMod:handle_trans_request/3 indicates that the acknowledgement is important the following callback function will be invoked:
+.RS 2
+.TP 2
+*
+UserMod:handle_trans_ack/4
+.LP
+.RE
+
+.LP
+See the megaco_user module for more info about the callback arguments\&.
+.RE
+.LP
+.B
+receive_message(ReceiveHandle, ControlPid, SendHandle, BinMsg) -> ok
+.br
+.B
+receive_message(ReceiveHandle, ControlPid, SendHandle, BinMsg, Extra) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+ReceiveHandle = #megaco_receive_handle{}
+.br
+ControlPid = pid()
+.br
+SendHandle = term()
+.br
+BinMsg = binary()
+.br
+Extra = term()
+.br
+.RE
+.RS
+.LP
+Process a received message
+.LP
+This is a callback function intended to be invoked by some transport modules when get an incoming message\&. Which transport that actually is used is up to the user to choose\&.
+.LP
+In principle, this function calls the \fIprocess_received_message/4\fR\& function via a \fIspawn\fR\& to perform the actual processing\&.
+.LP
+For further information see the \fBprocess_received_message/4\fR\& function\&.
+.RE
+.LP
+.B
+parse_digit_map(DigitMapBody) -> {ok, ParsedDigitMap} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+DigitMapBody = string()
+.br
+ParsedDigitMap = parsed_digit_map()
+.br
+parsed_digit_map() = term()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Parses a digit map body
+.LP
+Parses a digit map body, represented as a list of characters, into a list of state transitions suited to be evaluated by megaco:eval_digit_map/1,2\&.
+.RE
+.LP
+.B
+eval_digit_map(DigitMap) -> {ok, MatchResult} | {error, Reason}
+.br
+.B
+eval_digit_map(DigitMap, Timers) -> {ok, MatchResult} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+DigitMap = #'DigitMapValue'{} | parsed_digit_map()
+.br
+parsed_digit_map() = term()
+.br
+ParsedDigitMap = term()
+.br
+Timers = ignore() | reject()
+.br
+ignore() = ignore | {ignore, digit_map_value()}
+.br
+reject() = reject | {reject, digit_map_value()} | digit_map_value()
+.br
+MatchResult = {Kind, Letters} | {Kind, Letters, Extra}
+.br
+Kind = kind()
+.br
+kind() = full | unambiguous
+.br
+Letters = [letter()]
+.br
+letter() = $0..$9 | $a .. $k
+.br
+Extra = letter()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Collect digit map letters according to the digit map\&.
+.LP
+When evaluating a digit map, a state machine waits for timeouts and letters reported by megaco:report_digit_event/2\&. The length of the various timeouts are defined in the digit_map_value() record\&.
+.LP
+When a complete sequence of valid events has been received, the result is returned as a list of letters\&.
+.LP
+There are two options for handling syntax errors (that is when an unexpected event is received when the digit map evaluator is expecting some other event)\&. The unexpected events may either be ignored or rejected\&. The latter means that the evaluation is aborted and an error is returned\&.
+.RE
+.LP
+.B
+report_digit_event(DigitMapEvalPid, Events) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+DigitMapEvalPid = pid()
+.br
+Events = Event | [Event]
+.br
+Event = letter() | pause() | cancel()
+.br
+letter() = $0..$9 | $a .. $k | $A .. $K
+.br
+pause() = one_second() | ten_seconds()
+.br
+one_second() = $s | $S
+.br
+ten_seconds() = $l | $L
+.br
+cancel() = $z | $Z | cancel
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Send one or more events to the event collector process\&.
+.LP
+Send one or more events to a process that is evaluating a digit map, that is a process that is executing megaco:eval_digit_map/1,2\&.
+.LP
+Note that the events \fI$s | $S\fR\&, \fIl | $L\fR\& and \fI$z | $Z\fR\& has nothing to do with the timers using the same characters\&.
+.RE
+.LP
+.B
+test_digit_event(DigitMap, Events) -> {ok, Kind, Letters} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+DigitMap = #'DigitMapValue'{} | parsed_digit_map()
+.br
+parsed_digit_map() = term()
+.br
+ParsedDigitMap = term()
+.br
+Timers = ignore() | reject()
+.br
+ignore() = ignore | {ignore, digit_map_value()}
+.br
+reject() = reject | {reject, digit_map_value()} | digit_map_value()
+.br
+DigitMapEvalPid = pid()
+.br
+Events = Event | [Event]
+.br
+Event = letter() | pause() | cancel()
+.br
+Kind = kind()
+.br
+kind() = full | unambiguous
+.br
+Letters = [letter()]
+.br
+letter() = $0..$9 | $a .. $k | $A .. $K
+.br
+pause() = one_second() | ten_seconds()
+.br
+one_second() = $s | $S
+.br
+ten_seconds() = $l | $L
+.br
+cancel () = $z | $Z | cancel
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Feed digit map collector with events and return the result
+.LP
+This function starts the evaluation of a digit map with megaco:eval_digit_map/1 and sends a sequence of events to it megaco:report_digit_event/2 in order to simplify testing of digit maps\&.
+.RE
+.LP
+.B
+encode_sdp(SDP) -> {ok, PP} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+SDP = sdp_property_parm() | sdp_property_group() | sdp_property_groups() | asn1_NOVALUE
+.br
+PP = property_parm() | property_group() | property_groups() | asn1_NOVALUE
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Encode (generate) an SDP construct\&.
+.LP
+If a \fIproperty_parm()\fR\& is found as part of the input (\fISDP\fR\&) then it is left unchanged\&.
+.LP
+This function performs the following transformation:
+.RS 2
+.TP 2
+*
+sdp() -> property_parm()
+.LP
+.TP 2
+*
+sdp_property_group() -> property_group()
+.LP
+.TP 2
+*
+sdp_property_groups() -> property_groups()
+.LP
+.RE
+
+.RE
+.LP
+.B
+decode_sdp(PP) -> {ok, SDP} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+PP = property_parm() | property_group() | property_groups() | asn1_NOVALUE
+.br
+SDP = sdp() | decode_sdp_property_group() | decode_sdp_property_groups() | asn1_NOVALUE
+.br
+decode_sdp() = sdp() | {property_parm(), DecodeError}
+.br
+decode_sdp_property_group() = [decode_sdp()]
+.br
+decode_sdp_property_groups() = [decode_sdp_property_group()]
+.br
+DecodeError = term()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Decode (parse) a property parameter construct\&.
+.LP
+When decoding \fIproperty_group()\fR\& or \fIproperty_groups()\fR\&, those property parameter constructs that cannot be decoded (either because of decode error or because they are unknown), will be returned as a two-tuple\&. The first element of which will be the (undecoded) property parameter and the other the actual reason\&. This means that the caller of this function has to expect not only sdp-records, but also this two-tuple construct\&.
+.LP
+This function performs the following transformation:
+.RS 2
+.TP 2
+*
+property_parm() -> sdp()
+.LP
+.TP 2
+*
+property_group() -> sdp_property_group()
+.LP
+.TP 2
+*
+property_groups() -> sdp_property_groups()
+.LP
+.RE
+
+.RE
+.LP
+.B
+get_sdp_record_from_PropertGroup(Type, PG) -> [sdp()]
+.br
+.RS
+.TP 3
+Types:
+
+Type = v | c | m | o | a | b | t | r | z | k | s | i | u | e | p
+.br
+PG = sdp_property_group()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Retreive all the sdp records of type \fIType\fR\& from the property group \fIPG\fR\&\&.
+.RE
+.LP
+.B
+versions1() -> {ok, VersionInfo} | {error, Reason}
+.br
+.B
+versions2() -> {ok, Info} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+VersionInfo = [version_info()]
+.br
+version_info() = term()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Utility functions used to retrieve some system and application info\&.
+.LP
+The difference between the two functions is in how they get the modules to check\&. \fIversions1\fR\& uses the app-file and \fIversions2\fR\& uses the function \fIapplication:get_key\fR\&\&.
+.RE
+.LP
+.B
+print_version_info() -> void()
+.br
+.B
+print_version_info(VersionInfo) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+VersionInfo = [version_info()]
+.br
+version_info() = term()
+.br
+.RE
+.RS
+.LP
+Utility function to produce a formated printout of the versions info generated by the \fIversions1\fR\& and \fIversions2\fR\& functions\&.
+.LP
+The function print_version_info/0 uses the result of function version1/0 as \fIVersionInfo\fR\&\&.
+.LP
+Example:
+.LP
+.nf
+
+           {ok, V} = megaco:versions1(), megaco:format_versions(V). 
+        
+.fi
+.RE
+.LP
+.B
+enable_trace(Level, Destination) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+Level = max | min | 0 <= integer() <= 100
+.br
+Destination = File | Port | HandlerSpec | io
+.br
+File = string()
+.br
+Port = integer()
+.br
+HandleSpec = {HandlerFun, Data}
+.br
+HandleFun = fun() (two arguments)
+.br
+Data = term()
+.br
+.RE
+.RS
+.LP
+This function is used to start megaco tracing at a given \fILevel\fR\& and direct result to the given \fIDestination\fR\&\&.
+.LP
+It starts a tracer server and then sets the proper match spec (according to \fILevel\fR\&)\&.
+.LP
+In the case when \fIDestination\fR\& is \fIFile\fR\&, the printable megaco trace events will be printed to the file \fIFile\fR\& using plain \fIio:format/2\fR\&\&.
+.LP
+In the case when \fIDestination\fR\& is \fIio\fR\&, the printable megaco trace events will be printed on stdout using plain \fIio:format/2\fR\&\&.
+.LP
+See \fIdbg\fR\& for further information\&.
+.RE
+.LP
+.B
+disable_trace() -> void()
+.br
+.RS
+.LP
+This function is used to stop megaco tracing\&.
+.RE
+.LP
+.B
+set_trace(Level) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+Level = max | min | 0 <= integer() <= 100
+.br
+.RE
+.RS
+.LP
+This function is used to change the megaco trace level\&.
+.LP
+It is assumed that tracing has already been enabled (see \fIenable_trace\fR\& above)\&.
+.RE
+.LP
+.B
+get_stats() -> {ok, TotalStats} | {error, Reason}
+.br
+.B
+get_stats(GlobalCounter) -> {ok, CounterStats} | {error, Reason}
+.br
+.B
+get_stats(ConnHandle) -> {ok, ConnHandleStats} | {error, Reason}
+.br
+.B
+get_stats(ConnHandle, Counter) -> {ok, integer()} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+TotalStats = [total_stats()]
+.br
+total_stats() = {conn_handle(), [stats()]} | {global_counter(), integer()}
+.br
+GlobalCounter = global_counter()
+.br
+GlobalCounterStats = integer()
+.br
+ConnHandle = conn_handle()
+.br
+ConnHandleStats = [stats()]
+.br
+stats() = {counter(), integer()}
+.br
+Counter = counter()
+.br
+counter() = medGwyGatewayNumTimerRecovery | medGwyGatewayNumErrors
+.br
+global_counter() = medGwyGatewayNumErrors
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Retreive the (SNMP) statistic counters maintained by the megaco application\&. The global counters handle events that cannot be attributed to a single connection (e\&.g\&. protocol errors that occur before the connection has been properly setup)\&.
+.RE
+.LP
+.B
+reset_stats() -> void()
+.br
+.B
+reset_stats(ConnHandle) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+ConnHandle = conn_handle()
+.br
+.RE
+.RS
+.LP
+Reset all related (SNMP) statistics counters\&.
+.RE
+.LP
+.B
+test_request(ConnHandle, Version, EncodingMod, EncodingConfig, Actions) -> {MegaMsg, EncodeRes}
+.br
+.RS
+.TP 3
+Types:
+
+ConnHandle = conn_handle()
+.br
+Version = integer()
+.br
+EncodingMod = atom()
+.br
+EncodingConfig = Encoding configuration
+.br
+Actions = A list
+.br
+MegaMsg = #'MegacoMessage'{}
+.br
+EncodeRes = {ok, Bin} | {error, Reason}
+.br
+Bin = binary()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Tests if the Actions argument is correctly composed\&.
+.LP
+This function is only intended for testing purposes\&. It\&'s supposed to have a same kind of interface as the \fBcall\fR\& or \fBcast\fR\& functions (with the additions of the \fIEncodingMod\fR\& and \fIEncodingConfig\fR\& arguments)\&. It composes a complete megaco message end attempts to encode it\&. The return value, will be a tuple of the composed megaco message and the encode result\&.
+.RE
+.LP
+.B
+test_reply(ConnHandle, Version, EncodingMod, EncodingConfig, Reply) -> {MegaMsg, EncodeRes}
+.br
+.RS
+.TP 3
+Types:
+
+ConnHandle = conn_handle()
+.br
+Version = integer()
+.br
+EncodingMod = atom()
+.br
+EncodingConfig = A list
+.br
+Reply = actual_reply()
+.br
+MegaMsg = #'MegacoMessage'{}
+.br
+EncodeRes = {ok, Bin} | {error, Reason}
+.br
+Bin = binary()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Tests if the Reply argument is correctly composed\&.
+.LP
+This function is only intended for testing purposes\&. It\&'s supposed to test the \fIactual_reply()\fR\& return value of the callback functions \fBhandle_trans_request\fR\& and \fBhandle_trans_long_request\fR\& functions (with the additions of the \fIEncodingMod\fR\& and \fIEncodingConfig\fR\& arguments)\&. It composes a complete megaco message end attempts to encode it\&. The return value, will be a tuple of the composed megaco message and the encode result\&.
+.RE

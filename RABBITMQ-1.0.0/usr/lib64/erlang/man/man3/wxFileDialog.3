@@ -1,0 +1,177 @@
+.TH wxFileDialog 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxFileDialog \- See external documentation: wxFileDialog.
+.SH DESCRIPTION
+.LP
+See external documentation: wxFileDialog\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxDialog\fR\& 
+.br
+\fBwxTopLevelWindow\fR\& 
+.br
+\fBwxWindow\fR\& 
+.br
+\fBwxEvtHandler\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxFileDialog()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+new(Parent::wxWindow() (see module wxWindow)) -> wxFileDialog()
+.br
+.RS
+.LP
+Equivalent to \fBnew(Parent, [])\fR\&\&.
+.RE
+.LP
+.B
+new(Parent::wxWindow() (see module wxWindow), Options::[Option]) -> wxFileDialog()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {message, string()} | {defaultDir, string()} | {defaultFile, string()} | {wildCard, string()} | {style, integer()} | {pos, {X::integer(), Y::integer()}} | {sz, {W::integer(), H::integer()}}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getDirectory(This::wxFileDialog()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getFilename(This::wxFileDialog()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getFilenames(This::wxFileDialog()) -> [[string()]]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getFilterIndex(This::wxFileDialog()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getMessage(This::wxFileDialog()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getPath(This::wxFileDialog()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getPaths(This::wxFileDialog()) -> [[string()]]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getWildcard(This::wxFileDialog()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setDirectory(This::wxFileDialog(), Dir::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setFilename(This::wxFileDialog(), Name::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setFilterIndex(This::wxFileDialog(), FilterIndex::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setMessage(This::wxFileDialog(), Message::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setPath(This::wxFileDialog(), Path::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setWildcard(This::wxFileDialog(), WildCard::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+destroy(This::wxFileDialog()) -> ok
+.br
+.RS
+.LP
+Destroys this object, do not use object again
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

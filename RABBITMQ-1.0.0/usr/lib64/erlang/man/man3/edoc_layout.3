@@ -1,0 +1,70 @@
+.TH edoc_layout 3 "edoc 0.7.9" "" "Erlang Module Definition"
+.SH NAME
+edoc_layout \- The standard HTML layout module for EDoc.
+.SH DESCRIPTION
+.LP
+The standard HTML layout module for EDoc\&. See the \fBedoc\fR\& module for details on usage\&.
+.SH EXPORTS
+.LP
+.B
+module(Element, Options) -> term() 
+.br
+.RS
+.LP
+The layout function\&.
+.LP
+Options to the standard layout:
+.RS 2
+.TP 2
+.B
+\fI{index_columns, integer()}\fR\&:
+Specifies the number of column pairs used for the function index tables\&. The default value is 1\&.
+.TP 2
+.B
+\fI{pretty_printer, atom()}\fR\&:
+Specifies how types and specifications are pretty printed\&. If the value \fIerl_pp\fR\& is specified the Erlang pretty printer (the module \fIerl_pp\fR\&) will be used\&. The default is to do no pretty printing which implies that lines can be very long\&.
+.TP 2
+.B
+\fI{stylesheet, string()}\fR\&:
+Specifies the URI used for referencing the stylesheet\&. The default value is \fI"stylesheet\&.css"\fR\&\&. If an empty string is specified, no stylesheet reference will be generated\&.
+.TP 2
+.B
+\fI{sort_functions, boolean()}\fR\&:
+If \fItrue\fR\&, the detailed function descriptions are listed by name, otherwise they are listed in the order of occurrence in the source file\&. The default value is \fItrue\fR\&\&.
+.TP 2
+.B
+\fI{xml_export, Module::atom()}\fR\&:
+Specifies an \fBxmerl\fR\& callback module to be used for exporting the documentation\&. See \fBxmerl:export_simple/3\fR\& for details\&.
+.RE
+.LP
+
+.LP
+\fISee also:\fR\& \fBedoc:layout/2\fR\&\&.
+.RE
+.LP
+.B
+overview(E, Options) -> term() 
+.br
+.RS
+.RE
+.LP
+.B
+package(E, Options) -> term() 
+.br
+.RS
+.RE
+.LP
+.B
+type(E) -> term() 
+.br
+.RS
+.RE
+.SH "SEE ALSO"
+
+.LP
+\fBedoc\fR\&
+.SH AUTHORS
+.LP
+Richard Carlsson
+.I
+<carlsson\&.richard@gmail\&.com>

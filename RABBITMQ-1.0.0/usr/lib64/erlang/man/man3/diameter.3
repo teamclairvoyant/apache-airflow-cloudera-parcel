@@ -1,0 +1,685 @@
+.TH diameter 3 "diameter 0.10" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+diameter \- Main API of the diameter application.
+.SH DESCRIPTION
+.LP
+This module provides the interface with which a user creates a service that sends and receives messages using the Diameter protocol as defined in RFC 3588\&.
+.LP
+Basic usage consists of creating a representation of a locally implemented Diameter peer and its capabilities with \fBstart_service/2\fR\&, adding transport capability using \fBadd_transport/2\fR\& and sending Diameter requests and receiving Diameter answers with \fBcall/4\fR\&\&. Incoming Diameter requests are communicated as callbacks to a \fBdiameter_app(3)\fR\& callback modules as specified in the service configuration\&.
+.LP
+Beware the difference between \fIdiameter application\fR\& and \fIDiameter application\fR\&\&. The former refers to the Erlang application named diameter whose main api is defined here, the latter to an application of the Diameter protocol in the sense of RFC 3588\&. More generally, capitalized Diameter refers to the RFC and diameter to this implementation\&.
+.LP
+The diameter application must be started before calling functions in this module\&.
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIAddress()\fR\&:
+
+.TP 2
+.B
+\fIDiameterIdentity()\fR\&:
+
+.TP 2
+.B
+\fITime()\fR\&:
+
+.TP 2
+.B
+\fIUnsigned32()\fR\&:
+
+.TP 2
+.B
+\fIUTF8String()\fR\&:
+Types corresponding to RFC 3588 AVP Data Formats\&. Defined in \fBdiameter_dict(4)\fR\&\&.
+.TP 2
+.B
+\fIapplication_alias() = term()\fR\&:
+A name identifying a Diameter application in service configuration passed to \fBstart_service/2\fR\& and passed to \fBcall/4\fR\& when sending requests belonging to the application\&.
+.TP 2
+.B
+\fIapplication_module() = Mod | [Mod | ExtraArgs]\fR\&:
+
+.LP
+.nf
+
+Mod = atom()
+ExtraArgs = list()
+
+.fi
+.RS 2
+.LP
+A module implementing the callback interface defined in \fBdiameter_app(3)\fR\&, along with any extra arguments to be appended to those documented for the interface\&. Any extra arguments are appended to the documented list of arguments for each function\&. Note that additional arguments specific to an outgoing request be specified to \fBcall/4\fR\&, in which case the call-specific arguments are appended to any specified with the callback module\&.
+.RE
+.TP 2
+.B
+\fIapplication_opt()\fR\&:
+Options defining a Diameter application as configured in an \fIapplication\fR\& option passed to \fBstart_service/2\fR\&\&.
+.RS 2
+.TP 2
+.B
+\fI{alias, application_alias()}\fR\&:
+An unique identifier for the application in the scope of the service\&. Optional, defaults to the value of the \fIdictionary\fR\& option\&.
+.TP 2
+.B
+\fI{dictionary, atom()}\fR\&:
+The name of an encode/decode module for the Diameter messages defined by the application\&. These modules are generated from a specification file whose format is documented in \fBdiameter_dict(4)\fR\&\&.
+.TP 2
+.B
+\fI{module, application_module()}\fR\&:
+A callback module with which messages of the Diameter application are handled\&. See \fBdiameter_app(3)\fR\& for information on the required interface and semantics\&.
+.TP 2
+.B
+\fI{state, term()}\fR\&:
+The initial callback state\&. Defaults to the value of the \fIalias\fR\& option if unspecified\&. The prevailing state is passed to certain \fBdiameter_app(3)\fR\& callbacks, which can then return a new state\&.
+.TP 2
+.B
+\fI{call_mutates_state, true|false}\fR\&:
+Specifies whether or not the \fBpick_peer/4\fR\& application callback (following from a call to \fBcall/4\fR\&) can modifiy state, Defaults to \fIfalse\fR\& if unspecified\&.
+.RS 2
+.LP
+Note that \fBpick_peer\fR\& callbacks are serialized when these are allowed to modify state, which is a potential performance bottleneck\&. A simple Diameter client may suffer no ill effects from using mutable state but a server or agent that responds to incoming request but sending its own requests should probably avoid it\&.
+.RE
+.TP 2
+.B
+\fI{answer_errors, callback|report|discard}\fR\&:
+Determines the manner in which incoming answer messages containing decode errors are handled\&. If \fIcallback\fR\& then errors result in a \fBhandle_answer/4\fR\& callback in the same fashion as for \fBhandle_request/3\fR\&, in the \fIerrors\fR\& field of the \fIdiameter_packet\fR\& record passed into the callback\&. If \fIreport\fR\& then an answer containing errors is discarded without a callback and a warning report is written to the log\&. If \fIdiscard\fR\& then an answer containing errors is silently discarded without a callback\&. In both the \fIreport\fR\& and \fIdiscard\fR\& cases the return value for the \fBcall/4\fR\& invocation in question is as if a callback had taken place and returned \fI{error, failure}\fR\&\&.
+.RS 2
+.LP
+Defaults to \fIreport\fR\& if unspecified\&.
+.RE
+.RE
+.TP 2
+.B
+\fIcall_opt()\fR\&:
+Options available to \fBcall/4\fR\& when sending an outgoing Diameter request\&.
+.RS 2
+.TP 2
+.B
+\fI{extra, list()}\fR\&:
+Extra arguments to append to callbacks to the callback module in question\&. These are appended to any extra arguments configured with the callback itself\&. Multiple options append to the argument list\&.
+.TP 2
+.B
+\fI{filter, peer_filter()}\fR\&:
+A filter to apply to the list of available peers before passing them to the \fBpick_peer/4\fR\& callback for the application in question\&. Multiple options are equivalent a single \fIall\fR\& filter on the corresponding list of filters\&. Defaults to \fInone\fR\&\&.
+.TP 2
+.B
+\fI{timeout, Unsigned32()}\fR\&:
+The number of milliseconds after which the request should timeout\&. Defaults to 5000\&.
+.TP 2
+.B
+\fIdetach\fR\&:
+Causes \fBcall/4\fR\& to return \fIok\fR\& as soon as the request in question has been encoded instead of waiting for and returning the result from a subsequent \fBhandle_answer/4\fR\& or \fBhandle_error/4\fR\& callback\&.
+.RE
+.RS 2
+.LP
+An invalid option will cause \fBcall/4\fR\& to fail\&.
+.RE
+.TP 2
+.B
+\fIcapability()\fR\&:
+AVP values used in outgoing CER/CEA messages during capabilities exchange\&. Can be configured both on a service and a transport, the latter taking precedence over the former\&.
+.RS 2
+.TP 2
+.B
+\fI{\&'Origin-Host\&', DiameterIdentity()}\fR\&:
+Value of the Origin-Host AVP in outgoing messages\&.
+.TP 2
+.B
+\fI{\&'Origin-Realm\&', DiameterIdentity()}\fR\&:
+Value of the Origin-Realm AVP in outgoing messages\&.
+.TP 2
+.B
+\fI{\&'Host-IP-Address\&', [Address()]}\fR\&:
+Values of Host-IP-Address AVPs\&. Optional\&.
+.RS 2
+.LP
+The list of addresses is available to the start function of a transport module, which either uses them as is or returns a new list (typically as configured as \fItransport_config()\fR\& on the transport module in question) in order for the correct list of addresses to be sent in capabilities exchange messages\&.
+.RE
+.TP 2
+.B
+\fI{\&'Vendor-Id\&', Unsigned32()}\fR\&:
+Value of the Vendor-Id AVP sent in an outgoing capabilities exchange message\&.
+.TP 2
+.B
+\fI{\&'Product-Name\&', UTF8String()}\fR\&:
+Value of the Product-Name AVP sent in an outgoing capabilities exchange message\&.
+.TP 2
+.B
+\fI{\&'Origin-State-Id\&', Unsigned32()}\fR\&:
+Value of Origin-State-Id to be included in outgoing messages sent by diameter itself\&. In particular, the AVP will be included in CER/CEA and DWR/DWA messages\&. Optional\&.
+.RS 2
+.LP
+Setting a value of \fI0\fR\& (zero) is equivalent to not setting a value as documented in RFC 3588\&. The function \fBorigin_state_id/0\fR\& can be used as to retrieve a value that is set when the diameter application is started\&.
+.RE
+.TP 2
+.B
+\fI{\&'Supported-Vendor-Id\&', [Unsigned32()]}\fR\&:
+Values of Supported-Vendor-Id AVPs sent in an outgoing capabilities exchange message\&. Optional, defaults to the empty list\&.
+.TP 2
+.B
+\fI{\&'Auth-Application-Id\&', [Unsigned32()]}\fR\&:
+Values of Auth-Application-Id AVPs sent in an outgoing capabilities exchange message\&. Optional, defaults to the empty list\&.
+.TP 2
+.B
+\fI{\&'Acct-Application-Id\&', [Unsigned32()]}\fR\&:
+Values of Acct-Application-Id AVPs sent in an outgoing capabilities exchange message\&. Optional, defaults to the empty list\&.
+.TP 2
+.B
+\fI{\&'Vendor-Specific-Application-Id\&', [Grouped()]}\fR\&:
+Values of Vendor-Specific-Application-Id AVPs sent in an outgoing capabilities exchange message\&. Optional, defaults to the empty list\&.
+.TP 2
+.B
+\fI{\&'Firmware-Revision\&', Unsigned32()}\fR\&:
+Value of the Firmware-Revision AVP sent in an outgoing capabilities exchange message\&. Optional\&.
+.RE
+.RS 2
+.LP
+Note that each tuple communicates one or more AVP values\&. It is an error to specify duplicate tuples\&.
+.RE
+.TP 2
+.B
+\fIevaluable() = {M,F,A} | fun() | [evaluable() | A]\fR\&:
+An expression that can be evaluated as a function in the following sense\&.
+.LP
+.nf
+
+eval([{M,F,A} | T]) ->
+    apply(M, F, T ++ A);
+eval([[F|A] | T]) ->
+    eval([F | T ++ A]);
+eval([F|A]) ->
+    apply(F, A);
+eval(F) ->
+    eval([F]).
+
+.fi
+.RS 2
+.LP
+Evaluating an evaluable() \fIE\fR\& on an argument list \fIA\fR\& is meant in the sense of \fIeval([E|A])\fR\&\&.
+.RE
+.RS 2
+.LP
+Beware of using local funs (that is, fun expressions not of the form \fIfun Module:Name/Arity\fR\&) in situations in which the fun is not short-lived and code is to be upgraded at runtime since any processes retaining such a fun will have a reference to old code\&.
+.RE
+.TP 2
+.B
+\fIpeer_filter() = term()\fR\&:
+A filter passed to \fBcall/4\fR\& in order to select candidate peers for a \fBpick_peer/4\fR\& callback\&. Has one of the following types\&.
+.RS 2
+.TP 2
+.B
+\fInone\fR\&:
+Matches any peer\&. This is a convenience that provides a filter equivalent to no filter at all\&.
+.TP 2
+.B
+\fIhost\fR\&:
+Matches only those peers whose \fIOrigin-Host\fR\& has the same value as \fIDestination-Host\fR\& in the outgoing request in question, or any peer if the request does not contain a \fIDestination-Host\fR\& AVP\&.
+.TP 2
+.B
+\fIrealm\fR\&:
+Matches only those peers whose \fIOrigin-Realm\fR\& has the same value as \fIDestination-Realm\fR\& in the outgoing request in question, or any peer if the request does not contain a \fIDestination-Realm\fR\& AVP\&.
+.TP 2
+.B
+\fI{host, any|DiameterIdentity()}\fR\&:
+Matches only those peers whose \fIOrigin-Host\fR\& has the specified value, or all peers if the atom \fIany\fR\&\&.
+.TP 2
+.B
+\fI{realm, any|DiameterIdentity()\fR\&:
+Matches only those peers whose \fIOrigin-Realm\fR\& has the value, or all peers if the atom \fIany\fR\&\&.
+.TP 2
+.B
+\fI{eval, evaluable()}\fR\&:
+Matches only those peers for which the specified evaluable() returns \fItrue\fR\& on the connection\&'s \fIdiameter_caps\fR\& record\&. Any other return value or exception is equivalent to \fIfalse\fR\&\&.
+.TP 2
+.B
+\fI{neg, peer_filter()}\fR\&:
+Matches only those peers not matched by the specified filter\&.
+.TP 2
+.B
+\fI{all, [peer_filter()]}\fR\&:
+Matches only those peers matched by each filter of the specified list\&.
+.TP 2
+.B
+\fI{any, [peer_filter()]}\fR\&:
+Matches only those peers matched by at least one filter of the specified list\&.
+.RE
+.RS 2
+.LP
+Note that the \fIhost\fR\& and \fIrealm\fR\& filters examine the outgoing request as passed to \fBcall/4\fR\&, assuming that this is a record- or list-valued message() as documented in \fBdiameter_app(3)\fR\&, and that the message contains at most one of each AVP\&. If this is not the case then the \fI{host|realm, DiameterIdentity()}\fR\& filters must be used to achieve the desired result\&. Note also that an empty host/realm (which should not be typical) is equivalent to an unspecified one for the purposes of filtering\&.
+.RE
+.RS 2
+.LP
+An invalid filter is equivalent to \fI{any, []}\fR\&, a filter that matches no peer\&.
+.RE
+.TP 2
+.B
+\fIservice_event() = #diameter_event{}\fR\&:
+Event message sent to processes that have subscribed using \fBsubscribe/1\fR\&\&.
+.RS 2
+.LP
+The \fIinfo\fR\& field of the event record can be one of the following\&.
+.RE
+.RS 2
+.TP 2
+.B
+\fI{up, Ref, Peer, Config, Pkt}\fR\&:
+
+.TP 2
+.B
+\fI{up, Ref, Peer, Config}\fR\&:
+
+.TP 2
+.B
+\fI{down, Ref, Peer, Config}\fR\&:
+
+.LP
+.nf
+
+Ref    = transport_ref()
+Peer   = diameter_app:peer()
+Config = {connect|listen, [transport_opt()]}
+Pkt    = #diameter_packet{}
+
+.fi
+.RS 2
+.LP
+Reports that the RFC 3539 watchdog state machine has transitioned into (\fIup\fR\&) or out of (\fIdown\fR\&) the open state\&. If a \fIdiameter_packet\fR\& record is present in an \fIup\fR\& tuple then there has been an exchange of capabilities exchange messages and the record contains the received CER or CEA, otherwise the connection has reestablished without the loss or transport connectivity\&.
+.RE
+.RS 2
+.LP
+Note that a single up/down event for a given peer corresponds to as many peer_up/down callbacks as there are Diameter applications shared by the peer, as determined during capablilities exchange\&. That is, the event communicates connectivity with the peer as a whole while the callbacks communicate connectivity with respect to individual Diameter applications\&.
+.RE
+.TP 2
+.B
+\fI{reconnect, Ref, Opts}\fR\&:
+
+.LP
+.nf
+
+Ref  = transport_ref()
+Opts = [transport_opt()]
+
+.fi
+.RS 2
+.LP
+A connecting transport is attempting to establish/reestablish a transport connection with a peer following \fIreconnect_timer\fR\& or \fIwatchdog_timer\fR\& expiry\&.
+.RE
+.RE
+.RS 2
+.LP
+For forward compatibility, a subscriber should be prepared to receive \fIdiameter_event\&.info\fR\& of forms other than those documented above\&.
+.RE
+.TP 2
+.B
+\fIservice_name() = term()\fR\&:
+The name of a service as passed to \fBstart_service/2\fR\& and with which the service is identified\&. There can be at most one service with a given name on a given node\&. Note that \fIerlang:make_ref/0\fR\& can be used to generate a service name that is somewhat unique\&.
+.TP 2
+.B
+\fIservice_opt()\fR\&:
+Options accepted by \fBstart_service/2\fR\&\&. Can be any \fIcapability()\fR\& tuple as well as the following\&.
+.RS 2
+.TP 2
+.B
+\fI{application, [application_opt()]}\fR\&:
+Defines a Diameter application supported by the service\&.
+.RS 2
+.LP
+A service must define one application for each Diameter application it intends to support\&. For an outgoing Diameter request, the application is specified by passing the desired application\&'s \fIapplication_alias()\fR\& to \fBcall/4\fR\&, while for an incoming request the application identifier in the message header determines the application (and callback module), the application identifier being specified in the \fBdictionary\fR\& file defining the application\&.
+.RE
+.RE
+.TP 2
+.B
+\fItransport_opt()\fR\&:
+Options accepted by \fBadd_transport/2\fR\&\&.
+.RS 2
+.TP 2
+.B
+\fI{transport_module, atom()}\fR\&:
+A module implementing a transport process as defined in \fBdiameter_transport(3)\fR\&\&. Defaults to \fIdiameter_tcp\fR\& if unspecified\&.
+.RS 2
+.LP
+The interface required of a transport module is documented in \fBdiameter_transport(3)\fR\&\&.
+.RE
+.TP 2
+.B
+\fI{transport_config, term()}\fR\&:
+A term passed as the third argument to the \fBstart/3\fR\& function of the relevant \fItransport_module\fR\& in order to start a transport process\&. Defaults to the empty list if unspecified\&.
+.TP 2
+.B
+\fI{applications, [application_alias()]}\fR\&:
+The list of Diameter applications to which usage of the transport should be restricted\&. Defaults to all applications configured on the service in question\&.
+.TP 2
+.B
+\fI{capabilities, [capability()]}\fR\&:
+AVP\&'s used to construct outgoing CER/CEA messages\&. Any AVP specified takes precedence over a corresponding value specified for the service in question\&.
+.TP 2
+.B
+\fI{watchdog_timer, TwInit}\fR\&:
+
+.LP
+.nf
+
+TwInit = Unsigned32()
+       | {M,F,A}
+
+.fi
+.RS 2
+.LP
+The RFC 3539 watchdog timer\&. An integer value is interpreted as the RFC\&'s TwInit in milliseconds, a jitter of +/- 2 seconds being added at each rearming of the timer to compute the RFC\&'s Tw\&. An MFA is expected to return the RFC\&'s Tw directly, with jitter applied, allowing the jitter calculation to be performed by the callback\&.
+.RE
+.RS 2
+.LP
+An integer value must be at least 6000 as required by RFC 3539\&. Defaults to 30000 if unspecified\&.
+.RE
+.TP 2
+.B
+\fI{reconnect_timer, Tc}\fR\&:
+
+.LP
+.nf
+
+Tc = Unsigned32()
+
+.fi
+.RS 2
+.LP
+For a connecting transport, the RFC 3588 Tc timer, in milliseconds\&. Note that this timer determines the frequency with which the transport will attempt to establish a connection with its peer only \fIbefore\fR\& an initial connection is established: once there is an initial connection it\&'s watchdog_timer that determines the frequency of reconnection attempts, as required by RFC 3539\&.
+.RE
+.RS 2
+.LP
+For a listening transport, the timer specifies the time after which a previously connected peer will be forgotten: a connection after this time is regarded as an initial connection rather than a reestablishment, causing the RFC 3539 state machine to pass to state OPEN rather than REOPEN\&. Note that these semantics are not goverened by the RFC and that a listening transport\&'s reconnect_timer should be greater than its peers\&'s Tc plus jitter\&.
+.RE
+.RS 2
+.LP
+Defaults to 30000 for a connecting transport and 60000 for a listening transport\&.
+.RE
+.RE
+.RS 2
+.LP
+Unrecognized options are silently ignored but are returned unmodified by \fBservice_info/2\fR\& and can be referred to in predicate functions passed to \fBremove_transport/2\fR\&\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+add_transport(SvcName, {connect|listen, Options}) -> {ok, Ref} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+SvcName = service_name()
+.br
+Options = [transport_opt()]
+.br
+Ref = ref()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Add transport capability to a service\&.
+.LP
+The service will start a transport process(es) in order to establish a connection with the peer, either by connecting to the peer (\fIconnect\fR\&) or by accepting incoming connection requests (\fIlisten\fR\&)\&. A connecting transport establishes transport connections with at most one peer, an listening transport potentially with many\&.
+.LP
+The diameter application takes responsibility for exchanging CER/CEA with the peer\&. Upon successful completion of capabilities exchange the service calls each relevant application module\&'s \fBpeer_up/3\fR\& callback after which the caller can exchange Diameter messages with the peer over the transport\&. In addition to CER/CEA, the service takes responsibility for the handling of DWR/DWA and required by RFC 3539 as well as for DPR/DPA\&.
+.LP
+The returned reference uniquely identifies the transport within the scope of the service\&. Note that the function returns before a transport connection has been established\&. It is not an error to add a transport to a service that has not yet been configured: a service can be started after configuring transports\&.
+.RE
+.LP
+.B
+call(SvcName, App, Request, Options) -> ok | Answer | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+SvcName = service_name()
+.br
+App = application_alias()
+.br
+Request = diameter_app:message() | term()
+.br
+Answer = term()
+.br
+Options = [call_opt()]
+.br
+.RE
+.RS
+.LP
+Send a Diameter request message and possibly return the answer or error\&.
+.LP
+\fIApp\fR\& identifies the Diameter application in which the request is defined and callbacks to the corresponding callback module will follow as described below and in \fBdiameter_app(3)\fR\&\&. Unless the \fIdetach\fR\& option has been specified to cause an earlier return, the call returns either when an answer message is received from the peer or an error occurs\&. In the case of an answer, the return value is as returned by a \fBhandle_answer/4\fR\& callback\&. In the case of an error, whether or not the error is returned directly by diameter or from a \fBhandle_error/4\fR\& callback depends on whether or not the outgoing request is successfully encoded for transmission from the peer, the cases being documented below\&.
+.LP
+If there are no suitable peers, or if \fBpick_peer/4\fR\& rejects them by returning \&'false\&', then \fI{error, no_connection}\fR\& is returned\&. Otherwise \fBpick_peer/4\fR\& is followed by a \fBprepare_request/3\fR\& callback, the message is encoded and sent\&.
+.LP
+There are several error cases which may prevent an answer from being received and passed to a \fBhandle_answer/4\fR\& callback:
+.RS 2
+.TP 2
+*
+If the initial encode of the outgoing request fails, then the request process fails and \fI{error, encode}\fR\& is returned\&.
+.LP
+.TP 2
+*
+If the request is successfully encoded and sent but the answer times out then a \fBhandle_error/4\fR\& callback takes place with \fIReason = timeout\fR\&\&.
+.LP
+.TP 2
+*
+If the request is successfully encoded and sent but the service in question is stopped before an answer is received then a \fBhandle_error/4\fR\& callback takes place \fIReason = cancel\fR\&\&.
+.LP
+.TP 2
+*
+If the transport connection with the peer goes down after the request has been sent but before an answer has been received then an attempt is made to resend the request to an alternate peer\&. If no such peer is available, or if the subsequent \fBpick_peer/4\fR\& callback rejects the candidates, then a \fBhandle_error/4\fR\& callback takes place with \fIReason = failover\fR\&\&. If a peer is selected then a \fBprepare_retransmit/3\fR\& callback takes place, after which the semantics are the same as following an initial \fB prepare_request/3\fR\& callback\&.
+.LP
+.TP 2
+*
+If an encode error takes place during retransmission then the request process fails and \fI{error, failure}\fR\& is returned\&.
+.LP
+.TP 2
+*
+If an application callback made in processing the request fails (pick_peer, prepare_request, prepare_retransmit, handle_answer or handle_error) then either \fI{error, encode}\fR\& or \fI{error, failure}\fR\& is returned depending on whether or not there has been an attempt to send the request over the transport\&.
+.LP
+.RE
+
+.LP
+Note that \fI{error, encode}\fR\& is the only return value which guarantees that the request has \fInot\fR\& been sent over the transport\&.
+.RE
+.LP
+.B
+origin_state_id() -> Unsigned32()
+.br
+.RS
+.LP
+Return a reasonable value for use as Origin-State-Id in outgoing messages\&.
+.LP
+The value returned is the number of seconds since 19680120T031408Z, the first value that can be encoded as a Diameter Time(), at the time the diameter application was started\&.
+.RE
+.LP
+.B
+remove_transport(SvcName, Pred) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+SvcName = service_name()
+.br
+Pred = Fun | MFA | ref() | list() | true | false
+.br
+
+.br
+Fun = fun((reference(), connect|listen, list()) -> boolean())
+.br
+| fun((reference(), list()) -> boolean())
+.br
+| fun((list()) -> boolean())
+.br
+MFA = {atom(), atom(), list()}
+.br
+.RE
+.RS
+.LP
+Remove previously added transports\&.
+.LP
+\fIPred\fR\& determines which transports to remove\&. An arity-3-valued \fIPred\fR\& removes all transports for which \fIPred(Ref, Type, Opts)\fR\& returns \fItrue\fR\&, where \fIType\fR\& and \fIOpts\fR\& are as passed to \fBadd_transport/2\fR\& and \fIRef\fR\& is as returned by the corresponding call\&. The remaining forms are equivalent to an arity-3 fun as follows\&.
+.LP
+.nf
+
+Pred = fun(reference(), list()):  fun(Ref, _, Opts) -> Pred(Ref, Opts) end
+Pred = fun(list()):               fun(_, _, Opts) -> Pred(Opts) end
+Pred = reference():               fun(Ref, _, _)  -> Pred == Ref end
+Pred = list():                    fun(_, _, Opts) -> [] == Pred -- Opts end
+Pred = true:                      fun(_, _, _) -> true end
+Pred = false:                     fun(_, _, _) -> false end
+Pred = {M,F,A}:  fun(Ref, Type, Opts) -> apply(M, F, [Ref, Type, Opts | A]) end
+
+.fi
+.LP
+Removing a transport causes all associated transport connections to be broken\&. A base application DPR message with Disconnect-Cause \fIDO_NOT_WANT_TO_TALK_TO_YOU\fR\& will be sent to each connected peer before disassociating the transport configuration from the service and terminating the transport upon reception of DPA or timeout\&.
+.RE
+.LP
+.B
+service_info(SvcName, Item) -> Value
+.br
+.RS
+.TP 3
+Types:
+
+SvcName = service_name()
+.br
+Value = term()
+.br
+.RE
+.RS
+.LP
+Return information about a started service\&.
+.RE
+.LP
+.B
+services() -> [SvcName]
+.br
+.RS
+.TP 3
+Types:
+
+SvcName = service_name()
+.br
+.RE
+.RS
+.LP
+Return the list of started services\&.
+.RE
+.LP
+.B
+session_id(Ident) -> OctetString()
+.br
+.RS
+.TP 3
+Types:
+
+Ident = DiameterIdentity()
+.br
+.RE
+.RS
+.LP
+Return a value for a Session-Id AVP\&.
+.LP
+The value has the form required by section 8\&.8 of RFC 3588\&. Ident should be the Origin-Host of the peer from which the message containing the returned value will be sent\&.
+.RE
+.LP
+.B
+start() -> ok | {error, Reason}
+.br
+.RS
+.LP
+Start the diameter application\&.
+.LP
+The diameter application must be started before starting a service\&. In a production system this will typically be accomplished by a boot file, not by calling \fIstart/0\fR\& explicitly\&.
+.RE
+.LP
+.B
+start_service(SvcName, Options) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+SvcName = service_name()
+.br
+Options = [service_opt()]
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Start a diameter service\&.
+.LP
+A service defines a locally-implemented Diameter peer, specifying the capabilities of the peer to be used during capabilities exchange and the Diameter applications that it supports\&. Transports are added to a service using \fBadd_transport/2\fR\&\&.
+.RE
+.LP
+.B
+stop() -> ok | {error, Reason}
+.br
+.RS
+.LP
+Stop the diameter application\&.
+.LP
+
+.RE
+.LP
+.B
+stop_service(SvcName) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+SvcName = service_name()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Stop a diameter service\&.
+.RE
+.LP
+.B
+subscribe(SvcName) -> true
+.br
+.RS
+.TP 3
+Types:
+
+SvcName = service_name()
+.br
+.RE
+.RS
+.LP
+Subscribe to \fIservice_event()\fR\& messages from a service\&.
+.LP
+It is not an error to subscribe to events from a service that does not yet exist\&.
+.RE
+.LP
+.B
+unsubscribe(SvcName) -> true
+.br
+.RS
+.TP 3
+Types:
+
+SvcName = service_name()
+.br
+.RE
+.RS
+.LP
+Unsubscribe to event messages from a service\&.
+.RE
+.SH "SEE ALSO"
+
+.LP
+\fBdiameter_app(3)\fR\&, \fBdiameter_transport(3)\fR\&, \fBdiameter_dict(4)\fR\&

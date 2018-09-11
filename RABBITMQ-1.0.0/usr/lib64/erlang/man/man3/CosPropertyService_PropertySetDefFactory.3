@@ -1,0 +1,84 @@
+.TH CosPropertyService_PropertySetDefFactory 3 "cosProperty 1.1.14" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+CosPropertyService_PropertySetDefFactory \- This module implements the OMG CosPropertyService::PropertySetDefFactory interface.
+.SH DESCRIPTION
+.LP
+To get access to the record definitions for the structures use: 
+.br
+\fI-include_lib("cosProperty/include/CosPropertyService\&.hrl")\&.\fR\&
+.SH EXPORTS
+.LP
+.B
+create_propertysetdef(Factory) -> 
+.br
+.RS
+.TP 3
+Types:
+
+Factory = PropertySetDef = #objref
+.br
+.RE
+.RS
+.LP
+This operation creates a new \fIPropertySetDef\fR\& with no predefined settings\&.
+.RE
+.LP
+.B
+create_constrained_propertysetdef(Factory, PropertyTypes, PropertyDefs) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+Factory = PropertySetDef = #objref
+.br
+PropertyTypes = [CORBA::TypeCode]
+.br
+PropertyDefs = [#'CosPropertyService_PropertyDef'{property_name = Name, property_value = Value, property_mode = Mode}]
+.br
+Name = string()
+.br
+Value = #any
+.br
+Mode = normal | read_only | fixed_normal | fixed_readonly | undefined
+.br
+Reply = {'EXCEPTION', #CosPropertyService_ConstraintNotSupported{}} | PropertySetDef
+.br
+PropertySetDef = #objref
+.br
+.RE
+.RS
+.LP
+This operation creates a new \fIPropertySetDef\fR\& with specific constraints\&. PropertyTypes states allowed TypeCode\&'s and PropertyDefs valid \fICosPropertyService::PropertyDef\fR\& data\&.
+.RE
+.LP
+.B
+create_initial_propertysetdef(Factory, PropertyDefs) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+Factory = PropertySetDef = #objref
+.br
+PropertyDefs = [#'CosPropertyService_PropertyDef'{property_name = Name, property_value = Value, property_mode = Mode}]
+.br
+Name = string()
+.br
+Value = #any
+.br
+Mode = normal | read_only | fixed_normal | fixed_readonly | undefined
+.br
+Reply = {'EXCEPTION', #CosPropertyService_MultipleExceptions{exceptions = Excs}} | PropertySetDef
+.br
+Excs = [#'CosPropertyService_PropertyException{reason = Reason, failing_property_name = Name}]
+.br
+Reason = invalid_property_name | conflicting_property | property_not_found | unsupported_type_code | unsupported_property | unsupported_mode | fixed_property | read_only_property
+.br
+PropertySetDef = #objref
+.br
+.RE
+.RS
+.LP
+This operation creates a new \fIPropertySetDef\fR\& with specific initial properties\&.
+.RE

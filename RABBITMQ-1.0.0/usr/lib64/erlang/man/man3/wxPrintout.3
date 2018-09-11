@@ -1,0 +1,253 @@
+.TH wxPrintout 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxPrintout \- See external documentation: wxPrintout.
+.SH DESCRIPTION
+.LP
+See external documentation: wxPrintout\&.
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxPrintout()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+new(Title::string(), OnPrintPage::function()) -> wxPrintout() (see module wxPrintout)
+.br
+.RS
+.LP
+@equiv new(Title, OnPrintPage, [])
+.RE
+.LP
+.B
+new(Title::string(), OnPrintPage::function(), Opts::[Option]) -> wxPrintout() (see module wxPrintout)
+.br
+.RS
+.TP 3
+Types:
+
+Option = {onPreparePrinting, OnPreparePrinting::function()} | {onBeginPrinting, OnBeginPrinting::function()} | {onEndPrinting, OnEndPrinting::function()} | {onBeginDocument, OnBeginDocument::function()} | {onEndDocument, OnEndDocument::function()} | {hasPage, HasPage::function()} | {getPageInfo, GetPageInfo::function()}
+.br
+.RE
+.RS
+.LP
+Creates a wxPrintout object with a callback fun and optionally other callback funs\&.
+.br
+
+.LP
+.nf
+OnPrintPage(This,Page) -> boolean() 
+.fi
+.LP
+.nf
+OnPreparePrinting(This) -> term()   
+.fi
+.LP
+.nf
+OnBeginPrinting(This) -> term()   
+.fi
+.LP
+.nf
+OnEndPrinting(This) -> term()   
+.fi
+.LP
+.nf
+OnBeginDocument(This,StartPage,EndPage) -> boolean()  
+.fi
+.LP
+.nf
+OnEndDocument(This) -> term()  
+.fi
+.LP
+.nf
+HasPage(This,Page)} -> boolean()   
+.fi
+.LP
+.nf
+GetPageInfo(This) -> {MinPage:.integer(), MaxPage::integer(), PageFrom::integer(), PageTo::integer()}  
+.fi
+.LP
+The \fIThis\fR\& argument is the wxPrintout object reference to this object 
+.br
+NOTE: The callbacks may not call other processes\&.
+.RE
+.LP
+.B
+getDC(This::wxPrintout()) -> wxDC() (see module wxDC)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getPageSizeMM(This::wxPrintout()) -> {W::integer(), H::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getPageSizePixels(This::wxPrintout()) -> {W::integer(), H::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getPaperRectPixels(This::wxPrintout()) -> {X::integer(), Y::integer(), W::integer(), H::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getPPIPrinter(This::wxPrintout()) -> {X::integer(), Y::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getPPIScreen(This::wxPrintout()) -> {X::integer(), Y::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getTitle(This::wxPrintout()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isPreview(This::wxPrintout()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+fitThisSizeToPaper(This::wxPrintout(), ImageSize::{W::integer(), H::integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+fitThisSizeToPage(This::wxPrintout(), ImageSize::{W::integer(), H::integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+fitThisSizeToPageMargins(This::wxPrintout(), ImageSize::{W::integer(), H::integer()}, PageSetupData::wxPageSetupDialogData() (see module wxPageSetupDialogData)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+mapScreenSizeToPaper(This::wxPrintout()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+mapScreenSizeToPage(This::wxPrintout()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+mapScreenSizeToPageMargins(This::wxPrintout(), PageSetupData::wxPageSetupDialogData() (see module wxPageSetupDialogData)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+mapScreenSizeToDevice(This::wxPrintout()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getLogicalPaperRect(This::wxPrintout()) -> {X::integer(), Y::integer(), W::integer(), H::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getLogicalPageRect(This::wxPrintout()) -> {X::integer(), Y::integer(), W::integer(), H::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getLogicalPageMarginsRect(This::wxPrintout(), PageSetupData::wxPageSetupDialogData() (see module wxPageSetupDialogData)) -> {X::integer(), Y::integer(), W::integer(), H::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setLogicalOrigin(This::wxPrintout(), X::integer(), Y::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+offsetLogicalOrigin(This::wxPrintout(), Xoff::integer(), Yoff::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+destroy(This::wxPrintout()) -> ok
+.br
+.RS
+.LP
+Destroys this object, do not use object again
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

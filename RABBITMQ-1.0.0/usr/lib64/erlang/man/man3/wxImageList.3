@@ -1,0 +1,195 @@
+.TH wxImageList 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxImageList \- See external documentation: wxImageList.
+.SH DESCRIPTION
+.LP
+See external documentation: wxImageList\&.
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxImageList()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+new() -> wxImageList()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+new(Width::integer(), Height::integer()) -> wxImageList()
+.br
+.RS
+.LP
+Equivalent to \fBnew(Width, Height, [])\fR\&\&.
+.RE
+.LP
+.B
+new(Width::integer(), Height::integer(), Options::[Option]) -> wxImageList()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {mask, bool()} | {initialCount, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+add(This::wxImageList(), Bitmap::wxBitmap() (see module wxBitmap)) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+add(This::wxImageList(), Bitmap::wxBitmap() (see module wxBitmap), X::term()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI add(This::wxImageList(), Bitmap::wxBitmap:wxBitmap(), Mask::wxBitmap:wxBitmap()) -> integer() \fR\& 
+.LP
+\fI add(This::wxImageList(), Bitmap::wxBitmap:wxBitmap(), MaskColour::wx:colour()) -> integer() \fR\& 
+.RE
+.LP
+.B
+create(This::wxImageList(), Width::integer(), Height::integer()) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBcreate(This, Width, Height, [])\fR\&\&.
+.RE
+.LP
+.B
+create(This::wxImageList(), Width::integer(), Height::integer(), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {mask, bool()} | {initialCount, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+draw(This::wxImageList(), Index::integer(), Dc::wxDC() (see module wxDC), X::integer(), Y::integer()) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBdraw(This, Index, Dc, X, Y, [])\fR\&\&.
+.RE
+.LP
+.B
+draw(This::wxImageList(), Index::integer(), Dc::wxDC() (see module wxDC), X::integer(), Y::integer(), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {flags, integer()} | {solidBackground, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getBitmap(This::wxImageList(), Index::integer()) -> wxBitmap() (see module wxBitmap)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getIcon(This::wxImageList(), Index::integer()) -> wxIcon() (see module wxIcon)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getImageCount(This::wxImageList()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getSize(This::wxImageList(), Index::integer()) -> {bool(), Width::integer(), Height::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+remove(This::wxImageList(), Index::integer()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+removeAll(This::wxImageList()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+replace(This::wxImageList(), Index::integer(), Bitmap::wxBitmap() (see module wxBitmap)) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+replace(This::wxImageList(), Index::integer(), Bitmap::wxBitmap() (see module wxBitmap), Mask::wxBitmap() (see module wxBitmap)) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+destroy(This::wxImageList()) -> ok
+.br
+.RS
+.LP
+Destroys this object, do not use object again
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

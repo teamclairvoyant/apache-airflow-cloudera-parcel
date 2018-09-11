@@ -1,0 +1,486 @@
+.TH proplists 3 "stdlib 1.17.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+proplists \- Support functions for property lists
+.SH DESCRIPTION
+.LP
+Property lists are ordinary lists containing entries in the form of either tuples, whose first elements are keys used for lookup and insertion, or atoms, which work as shorthand for tuples \fI{Atom, true}\fR\&\&. (Other terms are allowed in the lists, but are ignored by this module\&.) If there is more than one entry in a list for a certain key, the first occurrence normally overrides any later (irrespective of the arity of the tuples)\&.
+.LP
+Property lists are useful for representing inherited properties, such as options passed to a function where a user may specify options overriding the default settings, object properties, annotations, etc\&.
+.LP
+Two keys are considered equal if they match (\fI=:=\fR\&)\&. In other words, numbers are compared literally rather than by value, so that, for instance, \fI1\fR\& and \fI1\&.0\fR\& are different keys\&.
+.SH DATA TYPES
+.nf
+
+\fBproperty()\fR\& = atom() | tuple()
+.br
+.fi
+.SH EXPORTS
+.LP
+.nf
+
+.B
+append_values(Key, List) -> List
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Key = term()
+.br
+List = [term()]
+.br
+.RE
+.RS
+.LP
+Similar to \fIget_all_values/2\fR\&, but each value is wrapped in a list unless it is already itself a list, and the resulting list of lists is concatenated\&. This is often useful for "incremental" options; e\&.g\&., \fIappend_values(a, [{a, [1,2]}, {b, 0}, {a, 3}, {c, -1}, {a, [4]}])\fR\& will return the list \fI[1,2,3,4]\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+compact(List) -> List
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+List = [\fBproperty()\fR\&]
+.br
+.RE
+.RS
+.LP
+Minimizes the representation of all entries in the list\&. This is equivalent to \fI[property(P) || P <- List]\fR\&\&.
+.LP
+See also: \fIproperty/1\fR\&, \fIunfold/1\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+delete(Key, List) -> List
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Key = term()
+.br
+List = [term()]
+.br
+.RE
+.RS
+.LP
+Deletes all entries associated with \fIKey\fR\& from \fIList\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+expand(Expansions, List) -> List
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Expansions = [{Property :: \fBproperty()\fR\&, Expansion :: [term()]}]
+.br
+List = [term()]
+.br
+.RE
+.RS
+.LP
+Expands particular properties to corresponding sets of properties (or other terms)\&. For each pair \fI{Property, Expansion}\fR\& in \fIExpansions\fR\&, if \fIE\fR\& is the first entry in \fIList\fR\& with the same key as \fIProperty\fR\&, and \fIE\fR\& and \fIProperty\fR\& have equivalent normal forms, then \fIE\fR\& is replaced with the terms in \fIExpansion\fR\&, and any following entries with the same key are deleted from \fIList\fR\&\&.
+.LP
+For example, the following expressions all return \fI[fie, bar, baz, fum]\fR\&:
+.LP
+.nf
+
+          expand([{foo, [bar, baz]}],
+          [fie, foo, fum])
+          expand([{{foo, true}, [bar, baz]}],
+          [fie, foo, fum])
+          expand([{{foo, false}, [bar, baz]}],
+          [fie, {foo, false}, fum])
+.fi
+.LP
+However, no expansion is done in the following call:
+.LP
+.nf
+
+          expand([{{foo, true}, [bar, baz]}],
+          [{foo, false}, fie, foo, fum])
+.fi
+.LP
+because \fI{foo, false}\fR\& shadows \fIfoo\fR\&\&.
+.LP
+Note that if the original property term is to be preserved in the result when expanded, it must be included in the expansion list\&. The inserted terms are not expanded recursively\&. If \fIExpansions\fR\& contains more than one property with the same key, only the first occurrence is used\&.
+.LP
+See also: \fInormalize/2\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+get_all_values(Key, List) -> [term()]
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Key = term()
+.br
+List = [term()]
+.br
+.RE
+.RS
+.LP
+Similar to \fIget_value/2\fR\&, but returns the list of values for \fIall\fR\& entries \fI{Key, Value}\fR\& in \fIList\fR\&\&. If no such entry exists, the result is the empty list\&.
+.LP
+See also: \fIget_value/2\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+get_bool(Key, List) -> boolean()
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Key = term()
+.br
+List = [term()]
+.br
+.RE
+.RS
+.LP
+Returns the value of a boolean key/value option\&. If \fIlookup(Key, List)\fR\& would yield \fI{Key, true}\fR\&, this function returns \fItrue\fR\&; otherwise \fIfalse\fR\& is returned\&.
+.LP
+See also: \fIget_value/2\fR\&, \fIlookup/2\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+get_keys(List) -> [term()]
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+List = [term()]
+.br
+.RE
+.RS
+.LP
+Returns an unordered list of the keys used in \fIList\fR\&, not containing duplicates\&.
+.RE
+.LP
+.nf
+
+.B
+get_value(Key, List) -> term()
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Key = term()
+.br
+List = [term()]
+.br
+.RE
+.RS
+.LP
+Equivalent to \fIget_value(Key, List, undefined)\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+get_value(Key, List, Default) -> term()
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Key = term()
+.br
+List = [term()]
+.br
+Default = term()
+.br
+.RE
+.RS
+.LP
+Returns the value of a simple key/value property in \fIList\fR\&\&. If \fIlookup(Key, List)\fR\& would yield \fI{Key, Value}\fR\&, this function returns the corresponding \fIValue\fR\&, otherwise \fIDefault\fR\& is returned\&.
+.LP
+See also: \fIget_all_values/2\fR\&, \fIget_bool/2\fR\&, \fIget_value/2\fR\&, \fIlookup/2\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+is_defined(Key, List) -> boolean()
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Key = term()
+.br
+List = [term()]
+.br
+.RE
+.RS
+.LP
+Returns \fItrue\fR\& if \fIList\fR\& contains at least one entry associated with \fIKey\fR\&, otherwise \fIfalse\fR\& is returned\&.
+.RE
+.LP
+.nf
+
+.B
+lookup(Key, List) -> none | tuple()
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Key = term()
+.br
+List = [term()]
+.br
+.RE
+.RS
+.LP
+Returns the first entry associated with \fIKey\fR\& in \fIList\fR\&, if one exists, otherwise returns \fInone\fR\&\&. For an atom \fIA\fR\& in the list, the tuple \fI{A, true}\fR\& is the entry associated with \fIA\fR\&\&.
+.LP
+See also: \fIget_bool/2\fR\&, \fIget_value/2\fR\&, \fIlookup_all/2\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+lookup_all(Key, List) -> [tuple()]
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Key = term()
+.br
+List = [term()]
+.br
+.RE
+.RS
+.LP
+Returns the list of all entries associated with \fIKey\fR\& in \fIList\fR\&\&. If no such entry exists, the result is the empty list\&.
+.LP
+See also: \fIlookup/2\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+normalize(List, Stages) -> List
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+List = [term()]
+.br
+Stages = [Operation]
+.br
+Operation = {aliases, Aliases}
+.br
+          | {negations, Negations}
+.br
+          | {expand, Expansions}
+.br
+Aliases = Negations = [{Key, Key}]
+.br
+Expansions = [{Property :: \fBproperty()\fR\&, Expansion :: [term()]}]
+.br
+.RE
+.RS
+.LP
+Passes \fIList\fR\& through a sequence of substitution/expansion stages\&. For an \fIaliases\fR\& operation, the function \fIsubstitute_aliases/2\fR\& is applied using the given list of aliases; for a \fInegations\fR\& operation, \fIsubstitute_negations/2\fR\& is applied using the given negation list; for an \fIexpand\fR\& operation, the function \fIexpand/2\fR\& is applied using the given list of expansions\&. The final result is automatically compacted (cf\&. \fIcompact/1\fR\&)\&.
+.LP
+Typically you want to substitute negations first, then aliases, then perform one or more expansions (sometimes you want to pre-expand particular entries before doing the main expansion)\&. You might want to substitute negations and/or aliases repeatedly, to allow such forms in the right-hand side of aliases and expansion lists\&.
+.LP
+See also: \fIcompact/1\fR\&, \fIexpand/2\fR\&, \fIsubstitute_aliases/2\fR\&, \fIsubstitute_negations/2\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+property(Property) -> Property
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Property = \fBproperty()\fR\&
+.br
+.RE
+.RS
+.LP
+Creates a normal form (minimal) representation of a property\&. If \fIProperty\fR\& is \fI{Key, true}\fR\& where \fIKey\fR\& is an atom, this returns \fIKey\fR\&, otherwise the whole term \fIProperty\fR\& is returned\&.
+.LP
+See also: \fIproperty/2\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+property(Key, Value) -> Property
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Key = Value = term()
+.br
+Property = atom() | {term(), term()}
+.br
+.RE
+.RS
+.LP
+Creates a normal form (minimal) representation of a simple key/value property\&. Returns \fIKey\fR\& if \fIValue\fR\& is \fItrue\fR\& and \fIKey\fR\& is an atom, otherwise a tuple \fI{Key, Value}\fR\& is returned\&.
+.LP
+See also: \fIproperty/1\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+split(List, Keys) -> {Lists, Rest}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+List = Keys = [term()]
+.br
+Lists = [[term()]]
+.br
+Rest = [term()]
+.br
+.RE
+.RS
+.LP
+Partitions \fIList\fR\& into a list of sublists and a remainder\&. \fILists\fR\& contains one sublist for each key in \fIKeys\fR\&, in the corresponding order\&. The relative order of the elements in each sublist is preserved from the original \fIList\fR\&\&. \fIRest\fR\& contains the elements in \fIList\fR\& that are not associated with any of the given keys, also with their original relative order preserved\&.
+.LP
+Example: split([{c, 2}, {e, 1}, a, {c, 3, 4}, d, {b, 5}, b], [a, b, c])
+.LP
+returns
+.LP
+{[[a], [{b, 5}, b],[{c, 2}, {c, 3, 4}]], [{e, 1}, d]}
+.RE
+.LP
+.nf
+
+.B
+substitute_aliases(Aliases, List) -> List
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Aliases = [{Key, Key}]
+.br
+Key = term()
+.br
+List = [term()]
+.br
+.RE
+.RS
+.LP
+Substitutes keys of properties\&. For each entry in \fIList\fR\&, if it is associated with some key \fIK1\fR\& such that \fI{K1, K2}\fR\& occurs in \fIAliases\fR\&, the key of the entry is changed to \fIK2\fR\&\&. If the same \fIK1\fR\& occurs more than once in \fIAliases\fR\&, only the first occurrence is used\&.
+.LP
+Example: \fIsubstitute_aliases([{color, colour}], L)\fR\& will replace all tuples \fI{color, \&.\&.\&.}\fR\& in \fIL\fR\& with \fI{colour, \&.\&.\&.}\fR\&, and all atoms \fIcolor\fR\& with \fIcolour\fR\&\&.
+.LP
+See also: \fInormalize/2\fR\&, \fIsubstitute_negations/2\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+substitute_negations(Negations, List) -> List
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Negations = [{Key, Key}]
+.br
+Key = term()
+.br
+List = [term()]
+.br
+.RE
+.RS
+.LP
+Substitutes keys of boolean-valued properties and simultaneously negates their values\&. For each entry in \fIList\fR\&, if it is associated with some key \fIK1\fR\& such that \fI{K1, K2}\fR\& occurs in \fINegations\fR\&, then if the entry was \fI{K1, true}\fR\& it will be replaced with \fI{K2, false}\fR\&, otherwise it will be replaced with \fI{K2, true}\fR\&, thus changing the name of the option and simultaneously negating the value given by \fIget_bool(List)\fR\&\&. If the same \fIK1\fR\& occurs more than once in \fINegations\fR\&, only the first occurrence is used\&.
+.LP
+Example: \fIsubstitute_negations([{no_foo, foo}], L)\fR\& will replace any atom \fIno_foo\fR\& or tuple \fI{no_foo, true}\fR\& in \fIL\fR\& with \fI{foo, false}\fR\&, and any other tuple \fI{no_foo, \&.\&.\&.}\fR\& with \fI{foo, true}\fR\&\&.
+.LP
+See also: \fIget_bool/2\fR\&, \fInormalize/2\fR\&, \fIsubstitute_aliases/2\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+unfold(List) -> List
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+List = [term()]
+.br
+.RE
+.RS
+.LP
+Unfolds all occurrences of atoms in \fIList\fR\& to tuples \fI{Atom, true}\fR\&\&.
+.RE

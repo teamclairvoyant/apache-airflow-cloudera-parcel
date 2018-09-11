@@ -1,0 +1,225 @@
+.TH CosNotification 3 "cosNotification 1.1.17" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+CosNotification \- This module export functions which return QoS and Admin Properties constants.
+.SH DESCRIPTION
+.LP
+To get access to all definitions include necessary \fIhrl\fR\& files by using: 
+.br
+\fI-include_lib("cosNotification/include/*\&.hrl")\&.\fR\&
+.SH EXPORTS
+.LP
+.B
+\&'EventReliability\&'() -> string()
+.br
+.RS
+.LP
+This function returns the EventReliability QoS identifier
+.RE
+.LP
+.B
+\&'BestEffort\&'() -> short()
+.br
+.RS
+.LP
+This function returns the BestEffort QoS value\&.
+.RE
+.LP
+.B
+\&'Persistent\&'() -> short()
+.br
+.RS
+.LP
+This function returns the Persistent QoS value\&.
+.RE
+.LP
+.B
+\&'ConnectionReliability\&'() -> string()
+.br
+.RS
+.LP
+This function returns the ConnectionReliability QoS identifier\&.
+.RE
+.LP
+.B
+\&'Priority\&'() -> string()
+.br
+.RS
+.LP
+This function returns the Priority QoS identifier\&.
+.RE
+.LP
+.B
+\&'LowestPriority\&'() -> short()
+.br
+.RS
+.LP
+This function returns the LowestPriority QoS value\&.
+.RE
+.LP
+.B
+\&'HighestPriority\&'() -> short()
+.br
+.RS
+.LP
+This function returns the HighestPriority QoS value\&.
+.RE
+.LP
+.B
+\&'DefaultPriority\&'() -> short()
+.br
+.RS
+.LP
+This function returns the DefaultPriority QoS value\&.
+.RE
+.LP
+.B
+\&'StartTime\&'() -> string()
+.br
+.RS
+.LP
+This function returns the StartTime QoS identifier\&.
+.RE
+.LP
+.B
+\&'StopTime\&'() -> string()
+.br
+.RS
+.LP
+This function returns the StopTime QoS identifier\&.
+.RE
+.LP
+.B
+\&'Timeout\&'() -> string()
+.br
+.RS
+.LP
+This function returns the Timeout QoS identifier\&.
+.RE
+.LP
+.B
+\&'OrderPolicy\&'() -> string()
+.br
+.RS
+.LP
+This function returns the OrderPolicy QoS identifier\&.
+.RE
+.LP
+.B
+\&'AnyOrder\&'() -> short()
+.br
+.RS
+.LP
+This function returns the AnyOrder QoS value\&.
+.RE
+.LP
+.B
+\&'FifoOrder\&'() -> short()
+.br
+.RS
+.LP
+This function returns the FifoOrder QoS value\&.
+.RE
+.LP
+.B
+\&'PriorityOrder\&'() -> short()
+.br
+.RS
+.LP
+This function returns the PriorityOrder QoS value\&.
+.RE
+.LP
+.B
+\&'DeadlineOrder\&'() -> short()
+.br
+.RS
+.LP
+This function returns the DeadlineOrder QoS value\&.
+.RE
+.LP
+.B
+\&'DiscardPolicy\&'() -> string()
+.br
+.RS
+.LP
+This function returns the DiscardPolicy QoS identifier\&.
+.RE
+.LP
+.B
+\&'LifoOrder\&'() -> short()
+.br
+.RS
+.LP
+This function returns the LifoOrder QoS value\&.
+.RE
+.LP
+.B
+\&'RejectNewEvents\&'() -> short()
+.br
+.RS
+.LP
+This function returns the RejectNewEvents QoS value\&.
+.RE
+.LP
+.B
+\&'MaximumBatchSize\&'() -> string()
+.br
+.RS
+.LP
+This function returns the MaximumBatchSize QoS identifier\&.
+.RE
+.LP
+.B
+\&'PacingInterval\&'() -> string()
+.br
+.RS
+.LP
+This function returns the PacingInterval QoS identifier\&.
+.RE
+.LP
+.B
+\&'StartTimeSupported\&'() -> string()
+.br
+.RS
+.LP
+This function returns the StartTimeSupported QoS identifier\&.
+.RE
+.LP
+.B
+\&'StopTimeSupported\&'() -> string()
+.br
+.RS
+.LP
+This function returns the StopTimeSupported QoS identifier\&.
+.RE
+.LP
+.B
+\&'MaxEventsPerConsumer\&'() -> string()
+.br
+.RS
+.LP
+This function returns the MaxEventsPerConsumer QoS identifier\&.
+.RE
+.LP
+.B
+\&'MaxQueueLength\&'() -> string()
+.br
+.RS
+.LP
+This function returns the MaxQueueLength Admin identifier\&.
+.RE
+.LP
+.B
+\&'MaxConsumers\&'() -> string()
+.br
+.RS
+.LP
+This function returns the MaxConsumers Admin identifier\&.
+.RE
+.LP
+.B
+\&'MaxSuppliers\&'() -> string()
+.br
+.RS
+.LP
+This function returns the MaxSuppliers Admin identifier\&.
+.RE

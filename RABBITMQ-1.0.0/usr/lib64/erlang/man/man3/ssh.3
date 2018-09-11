@@ -1,0 +1,343 @@
+.TH ssh 3 "ssh 2.0.8" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+ssh \- Main API of the SSH application
+.SH DESCRIPTION
+.LP
+Interface module for the SSH application
+.SH "COMMON DATA TYPES "
+
+.LP
+Type definitions that are used more than once in this module:
+.LP
+\fIboolean() = true | false \fR\&
+.LP
+\fIstring() = list of ASCII characters\fR\&
+.LP
+\fIssh_daemon_ref() - opaque to the user returned by ssh:daemon/[1,2,3]\fR\&
+.LP
+\fIssh_connection_ref() - opaque to the user returned by ssh:connect/3\fR\&
+.LP
+\fIip_address() - {N1,N2,N3,N4} % IPv4 | {K1,K2,K3,K4,K5,K6,K7,K8} % IPv6\fR\&
+.LP
+\fIsubsystem_spec() = {subsystem_name(), {channel_callback(), channel_init_args()}} \fR\&
+.LP
+\fIsubsystem_name() = string() \fR\&
+.LP
+\fIchannel_callback() = atom() - Name of the erlang module implementing the subsystem using the ssh_channel behavior see\fR\& \fBssh_channel(3)\fR\&
+.LP
+\fIchannel_init_args() = list()\fR\&
+.SH EXPORTS
+.LP
+.B
+close(ConnectionRef) -> ok 
+.br
+.RS
+.TP 3
+Types:
+
+ConnectionRef = ssh_connection_ref()
+.br
+.RE
+.RS
+.LP
+Closes a ssh connection\&.
+.RE
+.LP
+.B
+connect(Host, Port, Options) -> 
+.br
+.B
+connect(Host, Port, Options, Timeout) -> {ok, ssh_connection_ref()} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Host = string()
+.br
+Port = integer()
+.br
+The default is \fI22\fR\&, the registered port for SSH\&.
+.br
+Options = [{Option, Value}]
+.br
+Timeout = infinity | integer(milliseconds)
+.br
+.RE
+.RS
+.LP
+Connects to an SSH server\&. No channel is started this is done by calling ssh_connect:session_channel/2\&.
+.LP
+Options are:
+.RS 2
+.TP 2
+.B
+\fI{user_dir, String}\fR\&:
+Sets the user directory e\&.i\&. the directory containing ssh configuration files for the user such as \fIknown_hosts\fR\&, \fIid_rsa, id_dsa\fR\& and \fIauthorized_key\fR\&\&. Defaults to the directory normally referred to as \fI~/\&.ssh\fR\& 
+.TP 2
+.B
+\fI{silently_accept_hosts, boolean()}\fR\&:
+When true hosts are added to the file \fIknown_hosts\fR\& without asking the user\&. Defaults to false\&.
+.TP 2
+.B
+\fI{user_interaction, boolean()}\fR\&:
+If false disables the client to connect to the server if any user interaction is needed such as accepting that the server will be added to the \fIknown_hosts\fR\& file or supplying a password\&. Defaults to true\&. Even if user interaction is allowed it can be suppressed by other options such as silently_accept_hosts and password\&. Do note that it may not always be desirable to use those options from a security point of view\&.
+.TP 2
+.B
+\fI{public_key_alg, ssh_rsa | ssh_dsa}\fR\&:
+Sets the preferred public key algorithm to use for user authentication\&. If the the preferred algorithm fails of some reason, the other algorithm is tried\&. The default is to try \fIssh_rsa\fR\& first\&.
+.TP 2
+.B
+\fI{connect_timeout, timeout()}\fR\&:
+Sets a timeout on the transport layer connection\&. Defaults to infinity\&.
+.TP 2
+.B
+\fI{user, String}\fR\&:
+Provide a user name\&. If this option is not given, ssh reads from the environment (\fILOGNAME\fR\& or \fIUSER\fR\& on unix, \fIUSERNAME\fR\& on Windows)\&.
+.TP 2
+.B
+\fI{password, string()}\fR\&:
+Provide a password for password authentication\&. If this option is not given, the user will be asked for a password if the password authentication method is attempted\&.
+.TP 2
+.B
+\fI{user_auth, Fun/3}\fR\&:
+Provide a fun for password authentication\&. The fun will be called as \fIfun(User, Password, Opts)\fR\& and should return \fItrue\fR\& or \fIfalse\fR\&\&.
+.TP 2
+.B
+\fI{key_cb, atom() = KeyCallbackModule}\fR\&:
+Provide a special call-back module for key handling\&. The call-back module should be modeled after the \fIssh_file\fR\& module\&. The functions that must be exported are: \fIprivate_host_rsa_key/2\fR\&, \fIprivate_host_dsa_key/2\fR\&, \fIlookup_host_key/3\fR\& and \fIadd_host_key/3\fR\&\&. This is considered somewhat experimental and will be better documented later on\&.
+.TP 2
+.B
+\fI{fd, file_descriptor()}\fR\&:
+Allow an existing file-descriptor to be used (simply passed on to the transport protocol)\&.
+.TP 2
+.B
+\fI{ip_v6_disabled, boolean()}\fR\&:
+Determines if SSH shall use IPv6 or not\&.
+.RE
+.RE
+.LP
+.B
+connection_info(ConnectionRef, [Option]) ->[{Option, Value}] 
+.br
+.RS
+.TP 3
+Types:
+
+Option = client_version | server_version | peer
+.br
+Value = term()
+.br
+.RE
+.RS
+.LP
+Retrieves information about a connection\&.
+.RE
+.LP
+.B
+daemon(Port) -> 
+.br
+.B
+daemon(Port, Options) -> 
+.br
+.B
+daemon(HostAddress, Port, Options) -> ssh_daemon_ref()
+.br
+.RS
+.TP 3
+Types:
+
+Port = integer()
+.br
+HostAddress = ip_address() | any
+.br
+Options = [{Option, Value}]
+.br
+Option = atom()
+.br
+Value = term()
+.br
+.RE
+.RS
+.LP
+Starts a server listening for SSH connections on the given port\&.
+.LP
+Options are:
+.RS 2
+.TP 2
+.B
+\fI{subsystems, [subsystem_spec()]\fR\&:
+ Provides specifications for handling of subsystems\&. The "sftp" subsystem-spec can be retrieved by calling ssh_sftpd:subsystem_spec/1\&. If the subsystems option in not present the value of \fI[ssh_sftpd:subsystem_spec([])]\fR\& will be used\&. It is of course possible to set the option to the empty list if you do not want the daemon to run any subsystems at all\&. 
+.TP 2
+.B
+\fI{shell, {Module, Function, Args} | fun(string() = User) - > pid() | fun(string() = User, ip_address() = PeerAddr) -> pid()}\fR\&:
+ Defines the read-eval-print loop used when a shell is requested by the client\&. Example use the erlang shell: \fI{shell, start, []}\fR\& which is the default behavior\&. 
+.TP 2
+.B
+\fI{ssh_cli,{channel_callback(), channel_init_args()}}\fR\&:
+ Provide your own cli implementation, e\&.i\&. a channel callback module that implements a shell and command execution\&. Note that you may customize the shell read-eval-print loop using the option \fIshell\fR\& which is much less work than implementing your own cli channel\&. 
+.TP 2
+.B
+\fI{system_dir, string()}\fR\&:
+Sets the system directory, containing the host files that identifies the host for ssh\&. The default is \fI/etc/ssh\fR\&, note that SSH normally requires the host files there to be readable only by root\&.
+.TP 2
+.B
+\fI{user_passwords, [{string() = User, string() = Password}]}\fR\&:
+Provide passwords for password authentication\&.They will be used when someone tries to connect to the server and public key user authentication fails\&. The option provides a list of valid user names and the corresponding password\&.
+.TP 2
+.B
+\fI{password, string()}\fR\&:
+Provide a global password that will authenticate any user\&. From a security perspective this option makes the server very vulnerable\&.
+.TP 2
+.B
+\fI{pwdfun, fun/2}\fR\&:
+Provide a function for password validation\&. This is called with user and password as strings, and should return \fItrue\fR\& if the password is valid and \fIfalse\fR\& otherwise\&.
+.TP 2
+.B
+\fI{fd, file_descriptor()}\fR\&:
+Allow an existing file-descriptor to be used (simply passed on to the transport protocol)\&.
+.TP 2
+.B
+\fI{ip_v6_disabled, boolean()}\fR\&:
+Determines if SSH shall use IPv6 or not (only used when HostAddress is set to any)\&.
+.RE
+.RE
+.LP
+.B
+shell(Host) -> 
+.br
+.B
+shell(Host, Option) -> 
+.br
+.B
+shell(Host, Port, Option) -> _
+.br
+.RS
+.TP 3
+Types:
+
+Host = string()
+.br
+Port = integer()
+.br
+Options - see ssh:connect/3
+.br
+.RE
+.RS
+.LP
+Starts an interactive shell to an SSH server on the given \fIHost\fR\&\&. The function waits for user input, and will not return until the remote shell is ended (e\&.g\&. on exit from the shell)\&.
+.RE
+.LP
+.B
+sign_data(Data, Algorithm) -> Signature | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Data = binary()
+.br
+Algorithm = "ssh-rsa"
+.br
+Signature = binary()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Signs the supplied binary using the SSH key\&.
+.RE
+.LP
+.B
+start() -> 
+.br
+.B
+start(Type) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Type = permanent | transient | temporary
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Starts the Ssh application\&. Default type is temporary\&. See also \fBapplication(3)\fR\& Requires that the crypto application has been started\&.
+.RE
+.LP
+.B
+stop() -> ok 
+.br
+.RS
+.LP
+Stops the Ssh application\&. See also \fBapplication(3)\fR\&
+.RE
+.LP
+.B
+stop_daemon(DaemonRef) -> 
+.br
+.B
+stop_daemon(Address, Port) -> ok 
+.br
+.RS
+.TP 3
+Types:
+
+DaemonRef = ssh_daemon_ref()
+.br
+Address = ip_address()
+.br
+Port = integer()
+.br
+.RE
+.RS
+.LP
+Stops the listener and all connections started by the listener\&.
+.RE
+.LP
+.B
+stop_listener(DaemonRef) -> 
+.br
+.B
+stop_listener(Address, Port) -> ok 
+.br
+.RS
+.TP 3
+Types:
+
+DaemonRef = ssh_daemon_ref()
+.br
+Address = ip_address()
+.br
+Port = integer()
+.br
+.RE
+.RS
+.LP
+Stops the listener, but leaves existing connections started by the listener up and running\&.
+.RE
+.LP
+.B
+verify_data(Data, Signature, Algorithm) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Data = binary()
+.br
+Algorithm = "ssh-rsa"
+.br
+Signature = binary()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Verifies the supplied binary against the binary signature\&.
+.RE

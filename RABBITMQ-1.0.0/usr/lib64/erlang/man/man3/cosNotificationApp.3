@@ -1,0 +1,349 @@
+.TH cosNotificationApp 3 "cosNotification 1.1.17" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+cosNotificationApp \- The main module of the cosNotification application.
+.SH DESCRIPTION
+.LP
+To get access to the record definitions for the structures use: 
+.br
+\fI-include_lib("cosNotification/include/*\&.hrl")\&.\fR\&
+.LP
+This module contains the functions for starting and stopping the application\&.
+.SH EXPORTS
+.LP
+.B
+install() -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {'EXCEPTION', E}
+.br
+.RE
+.RS
+.LP
+This operation installs the cosNotification application\&.
+.RE
+.LP
+.B
+install(Seconds) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {'EXCEPTION', E}
+.br
+.RE
+.RS
+.LP
+This operation installs the cosNotification application using \fISeconds\fR\& delay between each block, currently 6, of IFR-registrations\&. This approach spreads the IFR database access over a period of time to allow other applications to run smother\&.
+.RE
+.LP
+.B
+install_event() -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {'EXCEPTION', E}
+.br
+.RE
+.RS
+.LP
+This operation, which may \fIonly\fR\& be used if it is impossible to upgrade to \fIcosEvent-2\&.0\fR\& or later, installs the necessary cosEvent interfaces\&. If cosEvent-2\&.0 is available, use \fIcosEventApp:install()\fR\& instead\&.
+.RE
+.LP
+.B
+install_event(Seconds) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {'EXCEPTION', E}
+.br
+.RE
+.RS
+.LP
+This operation, which may \fIonly\fR\& be used if it is impossible to upgrade to \fIcosEvent-2\&.0\fR\& or later, installs the necessary cosEvent interfaces using \fISeconds\fR\& delay between each block of IFR-registrations\&. If cosEvent-2\&.0 is available, use \fIcosEventApp:install()\fR\& instead\&.
+.RE
+.LP
+.B
+uninstall() -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {'EXCEPTION', E}
+.br
+.RE
+.RS
+.LP
+This operation uninstalls the cosNotification application\&.
+.RE
+.LP
+.B
+uninstall(Seconds) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {'EXCEPTION', E}
+.br
+.RE
+.RS
+.LP
+This operation uninstalls the cosNotification application using \fISeconds\fR\& delay between each block, currently 6, of IFR-unregistrations\&. This approach spreads the IFR database access over a period of time to allow other applications to run smother\&.
+.RE
+.LP
+.B
+uninstall_event() -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {'EXCEPTION', E}
+.br
+.RE
+.RS
+.LP
+This operation uninstalls the inherited cosEvent interfaces\&. If cosEvent is in use this function may not be used\&. This function may only be used if \fIcosNotificationApp:install_event/1/2\fR\& was used\&. If not, use \fIcosEventApp:uninstall()\fR\& instead\&.
+.RE
+.LP
+.B
+uninstall_event(Seconds) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {'EXCEPTION', E}
+.br
+.RE
+.RS
+.LP
+This operation uninstalls the inherited cosEvent interfaces, using \fISeconds\fR\& delay between each block of IFR-unregistrations\&. If cosEvent is in use this function may not be used\&. This function may only be used if \fIcosNotificationApp:install_event/1/2\fR\& was used\&. If not, use \fIcosEventApp:uninstall()\fR\& instead\&.
+.RE
+.LP
+.B
+start() -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {error, Reason}
+.br
+.RE
+.RS
+.LP
+This operation starts the cosNotification application\&.
+.RE
+.LP
+.B
+stop() -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {error, Reason}
+.br
+.RE
+.RS
+.LP
+This operation stops the cosNotification application\&.
+.RE
+.LP
+.B
+start_global_factory() -> ChannelFactory
+.br
+.RS
+.TP 3
+Types:
+
+ChannelFactory = #objref
+.br
+.RE
+.RS
+.LP
+This operation creates a \fBEvent Channel Factory\fR\& should be used for a multi-node Orber\&. The Factory is used to create a new \fBchannel\fR\&\&.
+.RE
+.LP
+.B
+start_global_factory(Options) -> ChannelFactory
+.br
+.RS
+.TP 3
+Types:
+
+Options = [Option]
+.br
+Option = {pullInterval, Seconds} | {filterOp, Op} | {gcTime, Seconds} | {gcLimit, Anount} | {timeService, #objref}
+.br
+ChannelFactory = #objref
+.br
+.RE
+.RS
+.LP
+This operation creates a \fBEvent Channel Factory\fR\& and should be used for a multi-node Orber\&. The Factory is used to create a new \fBchannel\fR\&\&.
+.LP
+
+.RS 2
+.TP 2
+*
+\fI{pullInterval, Seconds}\fR\& - determine how often Proxy Pull Consumers will check for new events with the client application\&. The default value is 20 seconds\&.
+.LP
+.TP 2
+*
+\fI{filterOp, OperationType}\fR\& - determine which type of Administrator objects should be started, i\&.e\&., \fI\&'OR_OP\&'\fR\& or \fI\&'AND_OP\&'\fR\&\&. The default value is \fI\&'OR_OP\&'\fR\&\&.
+.LP
+.TP 2
+*
+\fI{timeService, TimeServiceObj | \&'undefined\&'}\fR\& - to be able to use Start and/or Stop QoS this option must be used\&. See the function \fIstart_time_service/2\fR\& in the \fIcosTime\fR\& application\&. The default value is \fI\&'undefined\&'\fR\&\&.
+.LP
+.TP 2
+*
+\fI{filterOp, OperationType}\fR\& - determine which type of Administrator objects should be started, i\&.e\&., \fI\&'OR_OP\&'\fR\& or \fI\&'AND_OP\&'\fR\&\&. The default value is \fI\&'OR_OP\&'\fR\&\&.
+.LP
+.TP 2
+*
+\fI{gcTime, Seconds}\fR\& - this option determines how often, for example, proxies will garbage collect expired events\&. The default value is 60\&.
+.LP
+.TP 2
+*
+\fI{gcLimit, Amount}\fR\& - determines how many events will be stored before, for example, proxies will garbage collect expired events\&. The default value is 50\&. This option is tightly coupled with the QoS property \fIMaxEventsPerConsumer\fR\&, i\&.e\&., the \fIgcLimit\fR\& should be less than \fIMaxEventsPerConsumer\fR\& and greater than 0\&.
+.LP
+.RE
+
+.RE
+.LP
+.B
+start_factory() -> ChannelFactory
+.br
+.RS
+.TP 3
+Types:
+
+ChannelFactory = #objref
+.br
+.RE
+.RS
+.LP
+This operation creates a \fBEvent Channel Factory\fR\&\&. The Factory is used to create a new \fBchannel\fR\&\&.
+.RE
+.LP
+.B
+start_factory(Options) -> ChannelFactory
+.br
+.RS
+.TP 3
+Types:
+
+Options = [Option]
+.br
+Option = {pullInterval, Seconds} | {filterOp, Op} | {gcTime, Seconds} | {gcLimit, Amount} | {timeService, #objref}
+.br
+ChannelFactory = #objref
+.br
+.RE
+.RS
+.LP
+This operation creates a \fBEvent Channel Factory\fR\&\&. The Factory is used to create a new \fBchannel\fR\&\&.
+.RE
+.LP
+.B
+stop_factory(ChannelFactory) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+ChannelFactory = #objref
+.br
+Reply = ok | {'EXCEPTION', E}
+.br
+.RE
+.RS
+.LP
+This operation stop the target channel factory\&.
+.RE
+.LP
+.B
+start_filter_factory() -> FilterFactory
+.br
+.RS
+.TP 3
+Types:
+
+FilterFactory = #objref
+.br
+.RE
+.RS
+.LP
+This operation creates a \fBFilter Factory\fR\&\&. The Factory is used to create a new \fBFilter\&'s\fR\& and \fBMappingFilter\&'s\fR\&\&.
+.RE
+.LP
+.B
+stop_filter_factory(FilterFactory) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+FilterFactory = #objref
+.br
+Reply = ok | {'EXCEPTION', E}
+.br
+.RE
+.RS
+.LP
+This operation stop the target filter factory\&.
+.RE
+.LP
+.B
+create_structured_event(Domain, Type, Event, VariableHeader, FilterableBody, BodyRemainder) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+Domain = string()
+.br
+Type = string()
+.br
+Event = string()
+.br
+VariableHeader = [CosNotification::Property]
+.br
+FilterableBody = [CosNotification::Property]
+.br
+BodyRemainder = #any data-type
+.br
+Reply = CosNotification::StructuredEvent | {'EXCEPTION', E}
+.br
+.RE
+.RS
+.LP
+An easy way to create a structured event is to use this function\&. Simple typechecks are performed and if one of the arguments is not correct a \&'BAD_PARAM\&' exception is thrown\&.
+.RE
+.LP
+.B
+type_check() -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+Reply = true | false
+.br
+.RE
+.RS
+.LP
+This operation returns the value of the configuration parameter \fItype_check\fR\&\&.
+.RE

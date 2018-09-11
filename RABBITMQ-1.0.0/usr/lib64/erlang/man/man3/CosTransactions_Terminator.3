@@ -1,0 +1,47 @@
+.TH CosTransactions_Terminator 3 "cosTransactions 1.2.11" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+CosTransactions_Terminator \- This module implements the OMG CosTransactions::Terminator interface.
+.SH DESCRIPTION
+.LP
+To get access to the record definitions for the structures use: 
+.br
+\fI-include_lib("cosTransactions/include/CosTransactions\&.hrl")\&.\fR\&
+.SH EXPORTS
+.LP
+.B
+commit(Terminator, ReportHeuristics) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Terminator = #objref
+.br
+ReportHeuristics = boolean()
+.br
+Return = ok | {'EXCEPTION', E}
+.br
+E = #'CosTransactions_HeuristicMixed'{} | #'CosTransactions_HeuristicHazrd'{} | #'CosTransactions_TransactionRolledBack'{}
+.br
+.RE
+.RS
+.LP
+This operation initiates the two-phase commit protocol\&. If the transaction has not been marked \fI\&'rollback only\&'\fR\& and all the participants agree to commit, the operation terminates normally\&. Otherwise, the TransactionRolledBack is raised\&. If the parameter \fIReportHeuristics\fR\& is true and inconsistent outcomes by raising an Heuristic Exception\&.
+.RE
+.LP
+.B
+rollback(Terminator) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Terminator = #objref
+.br
+Return = ok
+.br
+.RE
+.RS
+.LP
+This operation roles back the transaction\&.
+.RE

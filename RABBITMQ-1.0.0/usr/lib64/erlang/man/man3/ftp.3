@@ -1,0 +1,996 @@
+.TH ftp 3 "inets 5.7.1" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+ftp \- A File Transfer Protocol client
+.SH DESCRIPTION
+.LP
+The \fIftp\fR\& module implements a client for file transfer according to a subset of the File Transfer Protocol (see 959)\&.
+.LP
+Starting from inets version 4\&.4\&.1 the ftp client will always try to use passive ftp mode and only resort to active ftp mode if this fails\&. There is a start option \fBmode\fR\& where this default behavior may be changed\&.
+.LP
+There are two ways to start an ftp client\&. One is using the \fBInets service framework\fR\& and the other is to start it directy as a standalone process using the \fBopen\fR\& function\&.
+.LP
+For a simple example of an ftp session see \fBInets User\&'s Guide\&.\fR\&
+.LP
+In addition to the ordinary functions for receiving and sending files (see \fIrecv/2\fR\&, \fIrecv/3\fR\&, \fIsend/2\fR\& and \fIsend/3\fR\&) there are functions for receiving remote files as binaries (see \fIrecv_bin/2\fR\&) and for sending binaries to to be stored as remote files (see \fIsend_bin/3\fR\&)\&.
+.LP
+There is also a set of functions for sending and receiving contiguous parts of a file to be stored in a remote file (for send see \fIsend_chunk_start/2\fR\&, \fIsend_chunk/2\fR\& and \fIsend_chunk_end/1\fR\& and for receive see \fIrecv_chunk_start/2\fR\& and \fIrecv_chunk/\fR\&)\&.
+.LP
+The particular return values of the functions below depend very much on the implementation of the FTP server at the remote host\&. In particular the results from \fIls\fR\& and \fInlist\fR\& varies\&. Often real errors are not reported as errors by \fIls\fR\&, even if for instance a file or directory does not exist\&. \fInlist\fR\& is usually more strict, but some implementations have the peculiar behaviour of responding with an error, if the request is a listing of the contents of directory which exists but is empty\&.
+.SH "FTP CLIENT SERVICE START/STOP "
+
+.LP
+The FTP client can be started and stopped dynamically in runtime by calling the Inets application API \fIinets:start(ftpc, ServiceConfig)\fR\&, or \fIinets:start(ftpc, ServiceConfig, How)\fR\&, and \fIinets:stop(ftpc, Pid)\fR\&\&. See \fBinets(3)\fR\& for more info\&.
+.LP
+Below follows a description of the available configuration options\&.
+.RS 2
+.TP 2
+.B
+{host, Host}:
+
+.RS 2
+.LP
+Host = \fIstring() | ip_address()\fR\& 
+.RE
+.TP 2
+.B
+{port, Port}:
+
+.RS 2
+.LP
+Port = \fIinteger() > 0\fR\& 
+.RE
+.RS 2
+.LP
+Default is 21\&.
+.RE
+.TP 2
+.B
+{mode, Mode}:
+
+.RS 2
+.LP
+Mode = \fIactive | passive\fR\& 
+.RE
+.RS 2
+.LP
+Default is \fIpassive\fR\&\&.
+.RE
+.TP 2
+.B
+{verbose, Verbose}:
+
+.RS 2
+.LP
+Verbose = \fIboolean()\fR\& 
+.RE
+.RS 2
+.LP
+This determines if the FTP communication should be verbose or not\&.
+.RE
+.RS 2
+.LP
+Default is \fIfalse\fR\&\&.
+.RE
+.TP 2
+.B
+{debug, Debug}:
+
+.RS 2
+.LP
+Debug = \fItrace | debug | disable\fR\& 
+.RE
+.RS 2
+.LP
+Debugging using the dbg toolkit\&.
+.RE
+.RS 2
+.LP
+Default is \fIdisable\fR\&\&.
+.RE
+.TP 2
+.B
+{ipfamily, IpFamily}:
+
+.RS 2
+.LP
+IpFamily = \fIinet | inet6 | inet6fb4\fR\& 
+.RE
+.RS 2
+.LP
+With \fIinet6fb4\fR\& the client behaves as before (it tries to use IPv6 and only if that does not work, it uses IPv4)\&.
+.RE
+.RS 2
+.LP
+Default is \fIinet\fR\& (IPv4)\&.
+.RE
+.TP 2
+.B
+{timeout, Timeout}:
+
+.RS 2
+.LP
+Timeout = \fIinteger() >= 0\fR\& 
+.RE
+.RS 2
+.LP
+Connection timeout\&.
+.RE
+.RS 2
+.LP
+Default is 60000 (milliseconds)\&.
+.RE
+.TP 2
+.B
+{progress, Progress}:
+
+.RS 2
+.LP
+Progress = \fIignore | {CBModule, CBFunction, InitProgress}\fR\&
+.RE
+.RS 2
+.LP
+CBModule = \fIatom()\fR\&, CBFunction = \fIatom()\fR\& 
+.RE
+.RS 2
+.LP
+InitProgress = \fIterm()\fR\& 
+.RE
+.RS 2
+.LP
+Default is \fIignore\fR\&\&.
+.RE
+.RE
+.LP
+The progress option is intended to be used by applications that want to create some type of progress report such as a progress bar in a GUI\&. The default value for the progress option is ignore e\&.i\&. the option is not used\&. When the progress option is specified the following will happen when ftp:send/[3,4] or ftp:recv/[3,4] are called\&.
+.RS 2
+.TP 2
+*
+Before a file is transfered the following call will be made to indicate the start of the file transfer and how big the file is\&. The return value of the callback function should be a new value for the UserProgressTerm that will bu used as input next time the callback function is called\&.
+.br
+
+.RS 2
+.LP
+\fI CBModule:CBFunction(InitProgress, File, {file_size, FileSize}) \fR\&
+.RE
+.br
+
+.LP
+.TP 2
+*
+Every time a chunk of bytes is transfered the following call will be made:
+.br
+
+.RS 2
+.LP
+\fI CBModule:CBFunction(UserProgressTerm, File, {transfer_size, TransferSize}) \fR\&
+.RE
+.br
+
+.LP
+.TP 2
+*
+At the end of the file the following call will be made to indicate the end of the transfer\&.
+.br
+
+.RS 2
+.LP
+\fI CBModule:CBFunction(UserProgressTerm, File, {transfer_size, 0}) \fR\&
+.RE
+.br
+
+.LP
+.RE
+
+.LP
+The callback function should be defined as
+.LP
+\fI CBModule:CBFunction(UserProgressTerm, File, Size) -> UserProgressTerm \fR\&
+.LP
+\fI CBModule = CBFunction = atom() \fR\&
+.LP
+\fI UserProgressTerm = term() \fR\&
+.LP
+\fI File = string() \fR\&
+.LP
+\fI Size = {transfer_size, integer()} | {file_size, integer()} | {file_size, unknown} \fR\&
+.LP
+Alas for remote files it is not possible for ftp to determine the file size in a platform independent way\&. In this case the size will be \fIunknown\fR\& and it is left to the application to find out the size\&.
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+The callback is made by a middleman process, hence the file transfer will not be affected by the code in the progress callback function\&. If the callback should crash this will be detected by the ftp connection process that will print an info-report and then go one as if the progress option was set to ignore\&.
+
+.LP
+The file transfer type is set to the default of the FTP server when the session is opened\&. This is usually ASCCI-mode\&.
+.LP
+The current local working directory (cf\&. \fIlpwd/1\fR\&) is set to the value reported by \fIfile:get_cwd/1\fR\&\&. the wanted local directory\&.
+.LP
+The return value \fIPid\fR\& is used as a reference to the newly created ftp client in all other functions, and they should be called by the process that created the connection\&. The ftp client process monitors the process that created it and will terminate if that process terminates\&.
+.SH "COMMON DATA TYPES "
+
+.LP
+Here follows type definitions that are used by more than one function in the FTP client API\&.
+.LP
+\fI pid() - identifier of an ftp connection\&.\fR\&
+.LP
+\fI string() = list of ASCII characters\&.\fR\&
+.LP
+\fI shortage_reason() = etnospc | epnospc\fR\&
+.LP
+\fI restriction_reason() = epath | efnamena | elogin | enotbinary - note not all restrictions may always relevant to all functions \fR\&
+.LP
+\fIcommon_reason() = econn | eclosed | term() - some kind of explanation of what went wrong\&.\fR\&
+.SH EXPORTS
+.LP
+.B
+account(Pid, Account) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+Account = string()
+.br
+Reason = eacct | common_reason()
+.br
+.RE
+.RS
+.LP
+If an account is needed for an operation set the account with this operation\&.
+.RE
+.LP
+.B
+append(Pid, LocalFile) -> 
+.br
+.B
+append(Pid, LocalFile, RemoteFile) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+LocalFile = RemoteFile = string()
+.br
+Reason = epath | elogin | etnospc | epnospc | efnamena | common_reason
+.br
+.RE
+.RS
+.LP
+Transfers the file \fILocalFile\fR\& to the remote server\&. If \fIRemoteFile\fR\& is specified, the name of the remote file that the file will be appended to is set to \fIRemoteFile\fR\&; otherwise the name is set to \fILocalFile\fR\& If the file does not exists the file will be created\&.
+.RE
+.LP
+.B
+append_bin(Pid, Bin, RemoteFile) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+Bin = binary()()
+.br
+RemoteFile = string()
+.br
+Reason = restriction_reason()| shortage_reason() | common_reason()
+.br
+.RE
+.RS
+.LP
+Transfers the binary \fIBin\fR\& to the remote server and append it to the file \fIRemoteFile\fR\&\&. If the file does not exists it will be created\&.
+.RE
+.LP
+.B
+append_chunk(Pid, Bin) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+Bin = binary()
+.br
+Reason = echunk | restriction_reason() | common_reason()
+.br
+.RE
+.RS
+.LP
+Transfer the chunk \fIBin\fR\& to the remote server, which append it into the file specified in the call to \fIappend_chunk_start/2\fR\&\&.
+.LP
+Note that for some errors, e\&.g\&. file system full, it is necessary to to call \fIappend_chunk_end\fR\& to get the proper reason\&.
+.RE
+.LP
+.B
+append_chunk_start(Pid, File) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+File = string()
+.br
+Reason = restriction_reason() | common_reason()
+.br
+.RE
+.RS
+.LP
+Start the transfer of chunks for appending to the file \fIFile\fR\& at the remote server\&. If the file does not exists it will be created\&.
+.RE
+.LP
+.B
+append_chunk_end(Pid) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+Reason = echunk | restriction_reason() | shortage_reason()
+.br
+.RE
+.RS
+.LP
+Stops transfer of chunks for appending to the remote server\&. The file at the remote server, specified in the call to \fIappend_chunk_start/2\fR\& is closed by the server\&.
+.RE
+.LP
+.B
+cd(Pid, Dir) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+Dir = string()
+.br
+Reason = restriction_reason() | common_reason()
+.br
+.RE
+.RS
+.LP
+Changes the working directory at the remote server to \fIDir\fR\&\&.
+.RE
+.LP
+.B
+close(Pid) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+.RE
+.RS
+.LP
+Ends an ftp session, created using the \fBopen\fR\& function\&.
+.RE
+.LP
+.B
+delete(Pid, File) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+File = string()
+.br
+Reason = restriction_reason() | common_reason()
+.br
+.RE
+.RS
+.LP
+Deletes the file \fIFile\fR\& at the remote server\&.
+.RE
+.LP
+.B
+formaterror(Tag) -> string()
+.br
+.RS
+.TP 3
+Types:
+
+Tag = {error, atom()} | atom()
+.br
+.RE
+.RS
+.LP
+Given an error return value \fI{error, AtomReason}\fR\&, this function returns a readable string describing the error\&.
+.RE
+.LP
+.B
+lcd(Pid, Dir) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+Dir = string()
+.br
+Reason = restriction_reason()
+.br
+.RE
+.RS
+.LP
+Changes the working directory to \fIDir\fR\& for the local client\&.
+.RE
+.LP
+.B
+lpwd(Pid) -> {ok, Dir}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+.RE
+.RS
+.LP
+Returns the current working directory at the local client\&.
+.RE
+.LP
+.B
+ls(Pid) -> 
+.br
+.B
+ls(Pid, Pathname) -> {ok, Listing} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+Pathname = string()
+.br
+Listing = string()
+.br
+Reason = restriction_reason() | common_reason()
+.br
+.RE
+.RS
+.LP
+Returns a list of files in long format\&.
+.LP
+\fIPathname\fR\& can be a directory, a group of files or even a file\&. The \fIPathname\fR\& string can contain wildcard(s)\&.
+.LP
+\fIls/1\fR\& implies the user\&'s current remote directory\&.
+.LP
+The format of \fIListing\fR\& is operating system dependent (on UNIX it is typically produced from the output of the \fIls -l\fR\& shell command)\&.
+.RE
+.LP
+.B
+mkdir(Pid, Dir) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+Dir = string()
+.br
+Reason = restriction_reason() | common_reason()
+.br
+.RE
+.RS
+.LP
+Creates the directory \fIDir\fR\& at the remote server\&.
+.RE
+.LP
+.B
+nlist(Pid) -> 
+.br
+.B
+nlist(Pid, Pathname) -> {ok, Listing} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+Pathname = string()
+.br
+Listing = string()
+.br
+Reason = restriction_reason() | common_reason()
+.br
+.RE
+.RS
+.LP
+Returns a list of files in short format\&.
+.LP
+\fIPathname\fR\& can be a directory, a group of files or even a file\&. The \fIPathname\fR\& string can contain wildcard(s)\&.
+.LP
+\fInlist/1\fR\& implies the user\&'s current remote directory\&.
+.LP
+The format of \fIListing\fR\& is a stream of file names, where each name is separated by <CRLF> or <NL>\&. Contrary to the \fIls\fR\& function, the purpose of \fInlist\fR\& is to make it possible for a program to automatically process file name information\&.
+.RE
+.LP
+.B
+open(Host) -> {ok, Pid} | {error, Reason}
+.br
+.B
+open(Host, Opts) -> {ok, Pid} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Host = string() | ip_address()
+.br
+Opts = options()
+.br
+options() = [option()]
+.br
+option() = start_option() | open_option()
+.br
+start_option() = {verbose, verbose()} | {debug, debug()}
+.br
+verbose() = boolean() (defaults to false)
+.br
+debug() = disable | debug | trace (defaults to disable)
+.br
+open_option() = {ipfamily, ipfamily()} | {port, port()} | {mode, mode()} | {timeout, timeout()} | {progress, progress()}
+.br
+ipfamily() = inet | inet6 | inet6fb4 (defaults to inet)
+.br
+port() = integer() > 0 (defaults to 21)
+.br
+mode() = active | passive (defaults to passive)
+.br
+timeout() = integer() >= 0 (defaults to 60000 milliseconds)
+.br
+pogress() = ignore | {module(), function(), initial_data()} (defaults to ignore)
+.br
+module() = atom()
+.br
+function() = atom()
+.br
+initial_data() = term()
+.br
+Reason = ehost | term()
+.br
+.RE
+.RS
+.LP
+This function is used to start a standalone ftp client process (without the inets service framework) and open a session with the FTP server at \fIHost\fR\&\&.
+.LP
+A session opened in this way, is closed using the \fBclose\fR\& function\&.
+.RE
+.LP
+.B
+pwd(Pid) -> {ok, Dir} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+Reason = restriction_reason() | common_reason()
+.br
+.RE
+.RS
+.LP
+Returns the current working directory at the remote server\&.
+.RE
+.LP
+.B
+pwd(Pid) -> {ok, Dir} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+Reason = restriction_reason() | common_reason()
+.br
+.RE
+.RS
+.LP
+Returns the current working directory at the remote server\&.
+.RE
+.LP
+.B
+recv(Pid, RemoteFile) -> 
+.br
+.B
+recv(Pid, RemoteFile, LocalFile) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+RemoteFile = LocalFile = string()
+.br
+Reason = restriction_reason() | common_reason() | file_write_error_reason()
+.br
+file_write_error_reason() = see file:write/2
+.br
+.RE
+.RS
+.LP
+Transfer the file \fIRemoteFile\fR\& from the remote server to the the file system of the local client\&. If \fILocalFile\fR\& is specified, the local file will be \fILocalFile\fR\&; otherwise it will be \fIRemoteFile\fR\&\&.
+.LP
+If the file write fails (e\&.g\&. enospc), then the command is aborted and \fI{error, file_write_error_reason()}\fR\& is returned\&. The file is however \fInot\fR\& removed\&.
+.RE
+.LP
+.B
+recv_bin(Pid, RemoteFile) -> {ok, Bin} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+Bin = binary()
+.br
+RemoteFile = string()
+.br
+Reason = restriction_reason() | common_reason()
+.br
+.RE
+.RS
+.LP
+Transfers the file \fIRemoteFile\fR\& from the remote server and receives it as a binary\&.
+.RE
+.LP
+.B
+recv_chunk_start(Pid, RemoteFile) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+RemoteFile = string()
+.br
+Reason = restriction_reason() | common_reason()
+.br
+.RE
+.RS
+.LP
+Start transfer of the file \fIRemoteFile\fR\& from the remote server\&.
+.RE
+.LP
+.B
+recv_chunk(Pid) -> ok | {ok, Bin} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+Bin = binary()
+.br
+Reason = restriction_reason() | common_reason()
+.br
+.RE
+.RS
+.LP
+Receive a chunk of the remote file (\fIRemoteFile\fR\& of \fIrecv_chunk_start\fR\&)\&. The return values has the following meaning:
+.RS 2
+.TP 2
+*
+\fIok\fR\& the transfer is complete\&.
+.LP
+.TP 2
+*
+\fI{ok, Bin}\fR\& just another chunk of the file\&.
+.LP
+.TP 2
+*
+\fI{error, Reason}\fR\& transfer failed\&.
+.LP
+.RE
+
+.RE
+.LP
+.B
+rename(Pid, Old, New) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+CurrFile = NewFile = string()
+.br
+Reason = restriction_reason() | common_reason()
+.br
+.RE
+.RS
+.LP
+Renames \fIOld\fR\& to \fINew\fR\& at the remote server\&.
+.RE
+.LP
+.B
+rmdir(Pid, Dir) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+Dir = string()
+.br
+Reason = restriction_reason() | common_reason()
+.br
+.RE
+.RS
+.LP
+Removes directory \fIDir\fR\& at the remote server\&.
+.RE
+.LP
+.B
+send(Pid, LocalFile) ->
+.br
+.B
+send(Pid, LocalFile, RemoteFile) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+LocalFile = RemoteFile = string()
+.br
+Reason = restriction_reason() | common_reason() | shortage_reason()
+.br
+.RE
+.RS
+.LP
+Transfers the file \fILocalFile\fR\& to the remote server\&. If \fIRemoteFile\fR\& is specified, the name of the remote file is set to \fIRemoteFile\fR\&; otherwise the name is set to \fILocalFile\fR\&\&.
+.RE
+.LP
+.B
+send_bin(Pid, Bin, RemoteFile) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+Bin = binary()()
+.br
+RemoteFile = string()
+.br
+Reason = restriction_reason() | common_reason() | shortage_reason()
+.br
+.RE
+.RS
+.LP
+Transfers the binary \fIBin\fR\& into the file \fIRemoteFile\fR\& at the remote server\&.
+.RE
+.LP
+.B
+send_chunk(Pid, Bin) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+Bin = binary()
+.br
+Reason = echunk | restriction_reason() | common_reason()
+.br
+.RE
+.RS
+.LP
+Transfer the chunk \fIBin\fR\& to the remote server, which writes it into the file specified in the call to \fIsend_chunk_start/2\fR\&\&.
+.LP
+Note that for some errors, e\&.g\&. file system full, it is necessary to to call \fIsend_chunk_end\fR\& to get the proper reason\&.
+.RE
+.LP
+.B
+send_chunk_start(Pid, File) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+File = string()
+.br
+Reason = restriction_reason() | common_reason()
+.br
+.RE
+.RS
+.LP
+Start transfer of chunks into the file \fIFile\fR\& at the remote server\&.
+.RE
+.LP
+.B
+send_chunk_end(Pid) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+Reason = restriction_reason() | common_reason() | shortage_reason()
+.br
+.RE
+.RS
+.LP
+Stops transfer of chunks to the remote server\&. The file at the remote server, specified in the call to \fIsend_chunk_start/2\fR\& is closed by the server\&.
+.RE
+.LP
+.B
+type(Pid, Type) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+Type = ascii | binary
+.br
+Reason = etype | restriction_reason() | common_reason()
+.br
+.RE
+.RS
+.LP
+Sets the file transfer type to \fIascii\fR\& or \fIbinary\fR\&\&. When an ftp session is opened, the default transfer type of the server is used, most often \fIascii\fR\&, which is the default according to RFC 959\&.
+.RE
+.LP
+.B
+user(Pid, User, Password) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+User = Password = string()
+.br
+Reason = euser | common_reason()
+.br
+.RE
+.RS
+.LP
+Performs login of \fIUser\fR\& with \fIPassword\fR\&\&.
+.RE
+.LP
+.B
+user(Pid, User, Password, Account) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+User = Password = string()
+.br
+Reason = euser | common_reason()
+.br
+.RE
+.RS
+.LP
+Performs login of \fIUser\fR\& with \fIPassword\fR\& to the account specified by \fIAccount\fR\&\&.
+.RE
+.LP
+.B
+quote(Pid, Command) -> [FTPLine]
+.br
+.RS
+.TP 3
+Types:
+
+Pid = pid()
+.br
+Command = string()
+.br
+FTPLine = string() - Note the telnet end of line characters, from the ftp protocol definition, CRLF e.g. "\\r\\n" has been removed.
+.br
+.RE
+.RS
+.LP
+Sends an arbitrary FTP command and returns verbatimly a list of the lines sent back by the FTP server\&. This functions is intended to give an application accesses to FTP commands that are server specific or that may not be provided by this FTP client\&.
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+FTP commands that require a data connection can not be successfully issued with this function\&.
+
+.RE
+.SH "ERRORS"
+
+.LP
+The possible error reasons and the corresponding diagnostic strings returned by \fIformaterror/1\fR\& are as follows:
+.RS 2
+.TP 2
+.B
+\fIechunk\fR\&:
+Synchronisation error during chunk sending\&.
+.RS 2
+.LP
+A call has been made to \fIsend_chunk/2\fR\& or \fIsend_chunk_end/1\fR\&, before a call to \fIsend_chunk_start/2\fR\&; or a call has been made to another transfer function during chunk sending, i\&.e\&. before a call to \fIsend_chunk_end/1\fR\&\&.
+.RE
+.TP 2
+.B
+\fIeclosed\fR\&:
+The session has been closed\&.
+.TP 2
+.B
+\fIeconn\fR\&:
+Connection to remote server prematurely closed\&.
+.TP 2
+.B
+\fIehost\fR\&:
+Host not found, FTP server not found, or connection rejected by FTP server\&.
+.TP 2
+.B
+\fIelogin\fR\&:
+User not logged in\&.
+.TP 2
+.B
+\fIenotbinary\fR\&:
+Term is not a binary\&.
+.TP 2
+.B
+\fIepath\fR\&:
+No such file or directory, or directory already exists, or permission denied\&.
+.TP 2
+.B
+\fIetype\fR\&:
+No such type\&.
+.TP 2
+.B
+\fIeuser\fR\&:
+User name or password not valid\&.
+.TP 2
+.B
+\fIetnospc\fR\&:
+Insufficient storage space in system [452]\&.
+.TP 2
+.B
+\fIepnospc\fR\&:
+Exceeded storage allocation (for current directory or dataset) [552]\&.
+.TP 2
+.B
+\fIefnamena\fR\&:
+File name not allowed [553]\&.
+.RE
+.SH "SEE ALSO"
+
+.LP
+file, filename, J\&. Postel and J\&. Reynolds: File Transfer Protocol (RFC 959)\&.

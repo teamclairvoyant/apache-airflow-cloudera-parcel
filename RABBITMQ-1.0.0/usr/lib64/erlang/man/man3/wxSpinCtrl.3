@@ -1,0 +1,148 @@
+.TH wxSpinCtrl 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxSpinCtrl \- See external documentation: wxSpinCtrl.
+.SH DESCRIPTION
+.LP
+See external documentation: wxSpinCtrl\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxControl\fR\& 
+.br
+\fBwxWindow\fR\& 
+.br
+\fBwxEvtHandler\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxSpinCtrl()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+new() -> wxSpinCtrl()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+new(Parent::wxWindow() (see module wxWindow)) -> wxSpinCtrl()
+.br
+.RS
+.LP
+Equivalent to \fBnew(Parent, [])\fR\&\&.
+.RE
+.LP
+.B
+new(Parent::wxWindow() (see module wxWindow), Options::[Option]) -> wxSpinCtrl()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {id, integer()} | {value, string()} | {pos, {X::integer(), Y::integer()}} | {size, {W::integer(), H::integer()}} | {style, integer()} | {min, integer()} | {max, integer()} | {initial, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+create(This::wxSpinCtrl(), Parent::wxWindow() (see module wxWindow)) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBcreate(This, Parent, [])\fR\&\&.
+.RE
+.LP
+.B
+create(This::wxSpinCtrl(), Parent::wxWindow() (see module wxWindow), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {id, integer()} | {value, string()} | {pos, {X::integer(), Y::integer()}} | {size, {W::integer(), H::integer()}} | {style, integer()} | {min, integer()} | {max, integer()} | {initial, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setValue(This::wxSpinCtrl(), X::integer() | string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI setValue(This::wxSpinCtrl(), Value::integer()) -> ok \fR\& 
+.LP
+\fI setValue(This::wxSpinCtrl(), Text::string()) -> ok \fR\& 
+.RE
+.LP
+.B
+getValue(This::wxSpinCtrl()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setRange(This::wxSpinCtrl(), MinVal::integer(), MaxVal::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setSelection(This::wxSpinCtrl(), From::integer(), To::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getMin(This::wxSpinCtrl()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getMax(This::wxSpinCtrl()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+destroy(This::wxSpinCtrl()) -> ok
+.br
+.RS
+.LP
+Destroys this object, do not use object again
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

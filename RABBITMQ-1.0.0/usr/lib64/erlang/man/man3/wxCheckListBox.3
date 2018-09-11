@@ -1,0 +1,106 @@
+.TH wxCheckListBox 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxCheckListBox \- See external documentation: wxCheckListBox.
+.SH DESCRIPTION
+.LP
+See external documentation: wxCheckListBox\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxListBox\fR\& 
+.br
+\fBwxControlWithItems\fR\& 
+.br
+\fBwxControl\fR\& 
+.br
+\fBwxWindow\fR\& 
+.br
+\fBwxEvtHandler\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxCheckListBox()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+new() -> wxCheckListBox()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+new(Parent::wxWindow() (see module wxWindow), Id::integer()) -> wxCheckListBox()
+.br
+.RS
+.LP
+Equivalent to \fBnew(Parent, Id, [])\fR\&\&.
+.RE
+.LP
+.B
+new(Parent::wxWindow() (see module wxWindow), Id::integer(), Options::[Option]) -> wxCheckListBox()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {pos, {X::integer(), Y::integer()}} | {size, {W::integer(), H::integer()}} | {choices, [[string()]]} | {style, integer()} | {validator, wx() (see module wx)}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+check(This::wxCheckListBox(), Index::integer()) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBcheck(This, Index, [])\fR\&\&.
+.RE
+.LP
+.B
+check(This::wxCheckListBox(), Index::integer(), Options::[Option]) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Option = {check, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isChecked(This::wxCheckListBox(), Index::integer()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+destroy(This::wxCheckListBox()) -> ok
+.br
+.RS
+.LP
+Destroys this object, do not use object again
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

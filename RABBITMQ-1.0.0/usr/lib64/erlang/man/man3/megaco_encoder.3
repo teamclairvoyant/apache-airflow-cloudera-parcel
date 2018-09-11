@@ -1,0 +1,198 @@
+.TH megaco_encoder 3 "megaco 3.15.1.1" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+megaco_encoder \- Megaco encoder behaviour.
+.SH DESCRIPTION
+.LP
+The following functions should be exported from a \fImegaco_encoder\fR\& callback module:
+.SH "DATA TYPES"
+
+.LP
+.nf
+
+megaco_message() = #'MegacoMessage{}'
+transaction() = {transactionRequest,     transaction_request()}      |
+                {transactionPending,     transaction_reply()}        |
+                {transactionReply,       transaction_pending()}      |
+                {transactionResponseAck, transaction_response_ack()} |
+                {segmentReply,           segment_reply()}
+transaction_request() = #'TransactionRequest'{}
+transaction_pending() = #'TransactionPending'{}
+transaction_reply() = #'TransactionReply'{}
+transaction_response_ack() = [transaction_ack()]
+transaction_ack() = #'TransactionAck'{}
+segment_reply() = #'SegmentReply'{}
+action_request() = #'ActionRequest'{}
+action_reply() = #'ActionReply'{}
+    
+.fi
+.SH EXPORTS
+.LP
+.B
+Module:encode_message(EncodingConfig, Version, Message) -> {ok, Bin} | Error
+.br
+.RS
+.TP 3
+Types:
+
+EncodingConfig = list()
+.br
+Version = integer()
+.br
+Message = megaco_message()
+.br
+Bin = binary()
+.br
+Error = term()
+.br
+.RE
+.RS
+.LP
+Encode a megaco message\&.
+.RE
+.LP
+.B
+Module:decode_message(EncodingConfig, Version, Bin) -> {ok, Message} | Error
+.br
+.RS
+.TP 3
+Types:
+
+EncodingConfig = list()
+.br
+Version = integer() | dynamic
+.br
+Message = megaco_message()
+.br
+Bin = binary()
+.br
+Error = term()
+.br
+.RE
+.RS
+.LP
+Decode a megaco message\&.
+.LP
+Note that if the Version argument is \fIdynamic\fR\&, the decoder should try to figure out the actual version from the message itself and then use the proper decoder, e\&.g\&. version 1\&. 
+.br
+If on the other hand the Version argument is an integer, it means that this is the expected version of the message and the decoder for that version should be used\&.
+.RE
+.LP
+.B
+Module:decode_mini_message(EncodingConfig, Version, Bin) -> {ok, Message} | Error
+.br
+.RS
+.TP 3
+Types:
+
+EncodingConfig = list()
+.br
+Version = integer() | dynamic
+.br
+Message = megaco_message()
+.br
+Bin = binary()
+.br
+Error = term()
+.br
+.RE
+.RS
+.LP
+Perform a minimal decode of a megaco message\&.
+.LP
+The purpose of this function is to do a minimal decode of Megaco message\&. A successfull result is a \fI\&'MegacoMessage\&'\fR\& in which only version and mid has been initiated\&. This function is used by the megaco_messenger module when the \fIdecode_message/3\fR\& function fails to figure out the mid (the actual sender) of the message\&.
+.LP
+Note again that a successfull decode only returns a partially initiated message\&.
+.RE
+.LP
+.B
+Module:encode_transaction(EncodingConfig, Version, Transaction) -> OK | Error
+.br
+.RS
+.TP 3
+Types:
+
+EncodingConfig = list()
+.br
+Version = integer()
+.br
+Transaction = transaction()
+.br
+OK = {ok, Bin}
+.br
+Bin = binary()
+.br
+Error = {error, Reason}
+.br
+Reason = not_implemented | OtherReason
+.br
+OtherReason = term()
+.br
+.RE
+.RS
+.LP
+Encode a megaco transaction\&. If this, for whatever reason, is not supported, the function should return the error reason \fInot_implemented\fR\&\&.
+.LP
+This functionality is used both when the transaction sender is used and for segmentation\&. So, for either of those to work, this function \fImust\fR\& be fully supported!
+.RE
+.LP
+.B
+Module:encode_action_requests(EncodingConfig, Version, ARs) -> OK | Error
+.br
+.RS
+.TP 3
+Types:
+
+EncodingConfig = list()
+.br
+Version = integer()
+.br
+ARs = action_requests()
+.br
+action_requests() = [action_request()]
+.br
+OK = {ok, Bin}
+.br
+Bin = binary()
+.br
+Error = {error, Reason}
+.br
+Reason = not_implemented | OtherReason
+.br
+OtherReason = term()
+.br
+.RE
+.RS
+.LP
+Encode megaco action requests\&. This function is called when the user calls the function \fBencode_actions/3\fR\&\&. If that function is never used or if the codec cannot support this (the encoding of individual actions), then return with error reason \fInot_implemented\fR\&\&.
+.RE
+.LP
+.B
+Module:encode_action_reply(EncodingConfig, Version, AR) -> OK | Error
+.br
+.RS
+.TP 3
+Types:
+
+EncodingConfig = list()
+.br
+Version = integer()
+.br
+AR = action_reply()
+.br
+OK = {ok, Bin}
+.br
+Bin = binary()
+.br
+Error = {error, Reason}
+.br
+Reason = not_implemented | OtherReason
+.br
+OtherReason = term()
+.br
+.RE
+.RS
+.LP
+Encode a megaco action reply\&. If this, for whatever reason, is not supported, the function should return the error reason \fInot_implemented\fR\&\&.
+.LP
+This function is used when segmentation has been configured\&. So, for this to work, this function \fImust\fR\& be fully supported!
+.RE

@@ -1,0 +1,85 @@
+.TH heart 3 "kernel 2.14.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+heart \- Heartbeat Monitoring of an Erlang Runtime System
+.SH DESCRIPTION
+.LP
+This modules contains the interface to the \fIheart\fR\& process\&. \fIheart\fR\& sends periodic heartbeats to an external port program, which is also named \fIheart\fR\&\&. The purpose of the heart port program is to check that the Erlang runtime system it is supervising is still running\&. If the port program has not received any heartbeats within \fIHEART_BEAT_TIMEOUT\fR\& seconds (default is 60 seconds), the system can be rebooted\&. Also, if the system is equipped with a hardware watchdog timer and is running Solaris, the watchdog can be used to supervise the entire system\&.
+.LP
+An Erlang runtime system to be monitored by a heart program, should be started with the command line flag \fI-heart\fR\& (see also \fBerl(1)\fR\&\&. The \fIheart\fR\& process is then started automatically:
+.LP
+.nf
+
+% erl -heart \&.\&.\&.
+.fi
+.LP
+If the system should be rebooted because of missing heart-beats, or a terminated Erlang runtime system, the environment variable \fIHEART_COMMAND\fR\& has to be set before the system is started\&. If this variable is not set, a warning text will be printed but the system will not reboot\&. However, if the hardware watchdog is used, it will trigger a reboot \fIHEART_BEAT_BOOT_DELAY\fR\& seconds later nevertheless (default is 60)\&.
+.LP
+To reboot on the WINDOWS platform \fIHEART_COMMAND\fR\& can be set to \fIheart -shutdown\fR\& (included in the Erlang delivery) or of course to any other suitable program which can activate a reboot\&.
+.LP
+The hardware watchdog will not be started under Solaris if the environment variable \fIHW_WD_DISABLE\fR\& is set\&.
+.LP
+The \fIHEART_BEAT_TIMEOUT\fR\& and \fIHEART_BEAT_BOOT_DELAY\fR\& environment variables can be used to configure the heart timeouts, they can be set in the operating system shell before Erlang is started or be specified at the command line:
+.LP
+.nf
+
+% erl -heart -env HEART_BEAT_TIMEOUT 30 \&.\&.\&.
+.fi
+.LP
+The value (in seconds) must be in the range 10 < X <= 65535\&.
+.LP
+It should be noted that if the system clock is adjusted with more than \fIHEART_BEAT_TIMEOUT\fR\& seconds, \fIheart\fR\& will timeout and try to reboot the system\&. This can happen, for example, if the system clock is adjusted automatically by use of NTP (Network Time Protocol)\&.
+.LP
+In the following descriptions, all function fails with reason \fIbadarg\fR\& if \fIheart\fR\& is not started\&.
+.SH EXPORTS
+.LP
+.nf
+
+.B
+set_cmd(Cmd) -> ok | {error, {bad_cmd, Cmd}}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Cmd = string()
+.br
+.RE
+.RS
+.LP
+Sets a temporary reboot command\&. This command is used if a \fIHEART_COMMAND\fR\& other than the one specified with the environment variable should be used in order to reboot the system\&. The new Erlang runtime system will (if it misbehaves) use the environment variable \fIHEART_COMMAND\fR\& to reboot\&.
+.LP
+Limitations: The length of the \fICmd\fR\& command string must be less than 2047 characters\&.
+.RE
+.LP
+.nf
+
+.B
+clear_cmd() -> ok
+.br
+.fi
+.br
+.RS
+.LP
+Clears the temporary boot command\&. If the system terminates, the normal \fIHEART_COMMAND\fR\& is used to reboot\&.
+.RE
+.LP
+.nf
+
+.B
+get_cmd() -> {ok, Cmd}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Cmd = string()
+.br
+.RE
+.RS
+.LP
+Get the temporary reboot command\&. If the command is cleared, the empty string will be returned\&.
+.RE

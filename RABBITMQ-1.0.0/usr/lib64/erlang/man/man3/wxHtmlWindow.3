@@ -1,0 +1,264 @@
+.TH wxHtmlWindow 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxHtmlWindow \- See external documentation: wxHtmlWindow.
+.SH DESCRIPTION
+.LP
+See external documentation: wxHtmlWindow\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxScrolledWindow\fR\& 
+.br
+\fBwxPanel\fR\& 
+.br
+\fBwxWindow\fR\& 
+.br
+\fBwxEvtHandler\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxHtmlWindow()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+new() -> wxHtmlWindow()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+new(Parent::wxWindow() (see module wxWindow)) -> wxHtmlWindow()
+.br
+.RS
+.LP
+Equivalent to \fBnew(Parent, [])\fR\&\&.
+.RE
+.LP
+.B
+new(Parent::wxWindow() (see module wxWindow), Options::[Option]) -> wxHtmlWindow()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {id, integer()} | {pos, {X::integer(), Y::integer()}} | {size, {W::integer(), H::integer()}} | {style, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+appendToPage(This::wxHtmlWindow(), Source::string()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getOpenedAnchor(This::wxHtmlWindow()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getOpenedPage(This::wxHtmlWindow()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getOpenedPageTitle(This::wxHtmlWindow()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getRelatedFrame(This::wxHtmlWindow()) -> wxFrame() (see module wxFrame)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+historyBack(This::wxHtmlWindow()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+historyCanBack(This::wxHtmlWindow()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+historyCanForward(This::wxHtmlWindow()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+historyClear(This::wxHtmlWindow()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+historyForward(This::wxHtmlWindow()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+loadFile(This::wxHtmlWindow(), Filename::string()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+loadPage(This::wxHtmlWindow(), Location::string()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+selectAll(This::wxHtmlWindow()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+selectionToText(This::wxHtmlWindow()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+selectLine(This::wxHtmlWindow(), Pos::{X::integer(), Y::integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+selectWord(This::wxHtmlWindow(), Pos::{X::integer(), Y::integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setBorders(This::wxHtmlWindow(), B::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setFonts(This::wxHtmlWindow(), Normal_face::string(), Fixed_face::string()) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBsetFonts(This, Normal_face, Fixed_face, [])\fR\&\&.
+.RE
+.LP
+.B
+setFonts(This::wxHtmlWindow(), Normal_face::string(), Fixed_face::string(), Options::[Option]) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Option = {sizes, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setPage(This::wxHtmlWindow(), Source::string()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setRelatedFrame(This::wxHtmlWindow(), Frame::wxFrame() (see module wxFrame), Format::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setRelatedStatusBar(This::wxHtmlWindow(), Bar::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+toText(This::wxHtmlWindow()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+destroy(This::wxHtmlWindow()) -> ok
+.br
+.RS
+.LP
+Destroys this object, do not use object again
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

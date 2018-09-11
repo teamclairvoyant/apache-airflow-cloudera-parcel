@@ -1,0 +1,124 @@
+.TH wxBufferedDC 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxBufferedDC \- See external documentation: wxBufferedDC.
+.SH DESCRIPTION
+.LP
+See external documentation: wxBufferedDC\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxMemoryDC\fR\& 
+.br
+\fBwxDC\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxBufferedDC()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+new() -> wxBufferedDC()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+new(Dc::wxDC() (see module wxDC)) -> wxBufferedDC()
+.br
+.RS
+.LP
+Equivalent to \fBnew(Dc, [])\fR\&\&.
+.RE
+.LP
+.B
+new(Dc::wxDC() (see module wxDC), X::term()) -> wxBufferedDC()
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI new(Dc::wxDC:wxDC(), Area::{W::integer(),H::integer()}) -> new(Dc,Area, []) \fR\&
+.LP
+\fI new(Dc::wxDC:wxDC(), [Option]) -> wxBufferedDC() \fR\& 
+.br
+Option = {buffer, wxBitmap:wxBitmap()} | {style, integer()}
+.RE
+.LP
+.B
+new(Dc::wxDC() (see module wxDC), Area::{W::integer(), H::integer()}, Options::[Option]) -> wxBufferedDC()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {style, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+init(This::wxBufferedDC(), Dc::wxDC() (see module wxDC)) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBinit(This, Dc, [])\fR\&\&.
+.RE
+.LP
+.B
+init(This::wxBufferedDC(), Dc::wxDC() (see module wxDC), X::term()) -> ok
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI init(This::wxBufferedDC(), Dc::wxDC:wxDC(), Area::{W::integer(),H::integer()}) -> init(This,Dc,Area, []) \fR\&
+.LP
+\fI init(This::wxBufferedDC(), Dc::wxDC:wxDC(), [Option]) -> ok \fR\& 
+.br
+Option = {buffer, wxBitmap:wxBitmap()} | {style, integer()}
+.RE
+.LP
+.B
+init(This::wxBufferedDC(), Dc::wxDC() (see module wxDC), Area::{W::integer(), H::integer()}, Options::[Option]) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Option = {style, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+destroy(This::wxBufferedDC()) -> ok
+.br
+.RS
+.LP
+Destroys this object, do not use object again
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

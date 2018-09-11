@@ -1,0 +1,68 @@
+.TH CosEventChannelAdmin_ProxyPushConsumer 3 "cosEvent 2.1.11" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+CosEventChannelAdmin_ProxyPushConsumer \- This module implements a ProxyPushConsumer interface which acts as a middleman between push supplier and the event channel.
+.SH DESCRIPTION
+.LP
+The ProxyPushConsumer interface defines the second step for connecting push suppliers to the event channel\&. A proxy consumer is similar to a normal consumer, but includes an additional method for connecting a supplier to the proxy consumer\&.
+.LP
+To get access to all definitions, e\&.g\&., exceptions, include necessary \fIhrl\fR\& files by using:
+.br
+\fI-include_lib("cosEvent/include/*\&.hrl")\&.\fR\&
+.LP
+Any object that possesses an object reference that supports the ProxyPushConsumer interface can perform the following operations:
+.SH EXPORTS
+.LP
+.B
+connect_push_supplier(Object, PushSupplier) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Object = #objref
+.br
+PushSupplier = #objref of PushSupplier type
+.br
+Return = ok | {'EXCEPTION', #'CosEventChannelAdmin_AlreadyConnected'{}}
+.br
+.RE
+.RS
+.LP
+This operation connects PushSupplier object to the ProxyPushConsumer object\&. A nil object reference can be passed to this operation\&. If so a channel cannot invoke the disconnect_push_supplier operation on the supplier; the supplier may be disconnected from the channel without being informed\&. If the ProxyPushConsumer is already connected to a PushSupplier, then the \fICosEventChannelAdmin_AlreadyConnected\fR\& exception is raised\&.
+.RE
+.LP
+.B
+disconnect_push_consumer(Object) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Object = #objref
+.br
+Return = ok
+.br
+.RE
+.RS
+.LP
+This operation disconnects proxy push consumer from the event channel\&. Sends a notification about the loss of the connection to the push supplier attached to it, unless nil object reference was passed at the connection time\&.
+.RE
+.LP
+.B
+push(Object, Data) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Object = #objref
+.br
+Data = any
+.br
+Return = ok | {'EXCEPTION', #'CosEventComm_Disconnected'{}}
+.br
+.RE
+.RS
+.LP
+This operation sends event data to all connected consumers via the event channel\&. If the event communication has already been disconnected, the \fICosEventComm_Disconnected\fR\& is raised\&.
+.RE

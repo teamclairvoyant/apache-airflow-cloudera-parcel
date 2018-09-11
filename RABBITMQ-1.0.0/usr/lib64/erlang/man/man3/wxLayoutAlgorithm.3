@@ -1,0 +1,109 @@
+.TH wxLayoutAlgorithm 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxLayoutAlgorithm \- See external documentation: wxLayoutAlgorithm.
+.SH DESCRIPTION
+.LP
+See external documentation: wxLayoutAlgorithm\&.
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxLayoutAlgorithm()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+new() -> wxLayoutAlgorithm()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+layoutFrame(This::wxLayoutAlgorithm(), Frame::wxFrame() (see module wxFrame)) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBlayoutFrame(This, Frame, [])\fR\&\&.
+.RE
+.LP
+.B
+layoutFrame(This::wxLayoutAlgorithm(), Frame::wxFrame() (see module wxFrame), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {mainWindow, wxWindow() (see module wxWindow)}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+layoutMDIFrame(This::wxLayoutAlgorithm(), Frame::wxMDIParentFrame() (see module wxMDIParentFrame)) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBlayoutMDIFrame(This, Frame, [])\fR\&\&.
+.RE
+.LP
+.B
+layoutMDIFrame(This::wxLayoutAlgorithm(), Frame::wxMDIParentFrame() (see module wxMDIParentFrame), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {rect, {X::integer(), Y::integer(), W::integer(), H::integer()}}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+layoutWindow(This::wxLayoutAlgorithm(), Frame::wxWindow() (see module wxWindow)) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBlayoutWindow(This, Frame, [])\fR\&\&.
+.RE
+.LP
+.B
+layoutWindow(This::wxLayoutAlgorithm(), Frame::wxWindow() (see module wxWindow), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {mainWindow, wxWindow() (see module wxWindow)}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+destroy(This::wxLayoutAlgorithm()) -> ok
+.br
+.RS
+.LP
+Destroys this object, do not use object again
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

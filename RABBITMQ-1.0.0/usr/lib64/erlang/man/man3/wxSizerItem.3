@@ -1,0 +1,342 @@
+.TH wxSizerItem 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxSizerItem \- See external documentation: wxSizerItem.
+.SH DESCRIPTION
+.LP
+See external documentation: wxSizerItem\&.
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxSizerItem()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+new() -> wxSizerItem()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+new(Window::wxWindow() (see module wxWindow) | wxSizer() (see module wxSizer), Flags::wxSizerFlags() (see module wxSizerFlags)) -> wxSizerItem()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+new(Width::integer(), Height::integer(), Flags::wxSizerFlags() (see module wxSizerFlags)) -> wxSizerItem()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+new(Window::wxWindow() (see module wxWindow) | wxSizer() (see module wxSizer), Proportion::integer(), Flag::integer(), Border::integer(), UserData::wx() (see module wx)) -> wxSizerItem()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+new(Width::integer(), Height::integer(), Proportion::integer(), Flag::integer(), Border::integer(), UserData::wx() (see module wx)) -> wxSizerItem()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+calcMin(This::wxSizerItem()) -> {W::integer(), H::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+deleteWindows(This::wxSizerItem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+detachSizer(This::wxSizerItem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getBorder(This::wxSizerItem()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getFlag(This::wxSizerItem()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getMinSize(This::wxSizerItem()) -> {W::integer(), H::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getPosition(This::wxSizerItem()) -> {X::integer(), Y::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getProportion(This::wxSizerItem()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getRatio(This::wxSizerItem()) -> float()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getRect(This::wxSizerItem()) -> {X::integer(), Y::integer(), W::integer(), H::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getSize(This::wxSizerItem()) -> {W::integer(), H::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getSizer(This::wxSizerItem()) -> wxSizer() (see module wxSizer)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getSpacer(This::wxSizerItem()) -> {W::integer(), H::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getUserData(This::wxSizerItem()) -> wx() (see module wx)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getWindow(This::wxSizerItem()) -> wxWindow() (see module wxWindow)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isSizer(This::wxSizerItem()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isShown(This::wxSizerItem()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isSpacer(This::wxSizerItem()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isWindow(This::wxSizerItem()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setBorder(This::wxSizerItem(), Border::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setDimension(This::wxSizerItem(), Pos::{X::integer(), Y::integer()}, Size::{W::integer(), H::integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setFlag(This::wxSizerItem(), Flag::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setInitSize(This::wxSizerItem(), X::integer(), Y::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setMinSize(This::wxSizerItem(), Size::{W::integer(), H::integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setMinSize(This::wxSizerItem(), X::integer(), Y::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setProportion(This::wxSizerItem(), Proportion::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setRatio(This::wxSizerItem(), X::float() | term()) -> ok
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI setRatio(This::wxSizerItem(), Ratio::float()) -> ok \fR\& 
+.LP
+\fI setRatio(This::wxSizerItem(), Size::{W::integer(),H::integer()}) -> ok \fR\& 
+.RE
+.LP
+.B
+setRatio(This::wxSizerItem(), Width::integer(), Height::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setSizer(This::wxSizerItem(), Sizer::wxSizer() (see module wxSizer)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setSpacer(This::wxSizerItem(), Size::{W::integer(), H::integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setSpacer(This::wxSizerItem(), Width::integer(), Height::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setWindow(This::wxSizerItem(), Window::wxWindow() (see module wxWindow)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+show(This::wxSizerItem(), Show::bool()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+destroy(This::wxSizerItem()) -> ok
+.br
+.RS
+.LP
+Destroys this object, do not use object again
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

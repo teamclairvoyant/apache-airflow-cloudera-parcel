@@ -1,0 +1,118 @@
+.TH wxButton 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxButton \- See external documentation: wxButton.
+.SH DESCRIPTION
+.LP
+See external documentation: wxButton\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxControl\fR\& 
+.br
+\fBwxWindow\fR\& 
+.br
+\fBwxEvtHandler\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxButton()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+new() -> wxButton()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+new(Parent::wxWindow() (see module wxWindow), Id::integer()) -> wxButton()
+.br
+.RS
+.LP
+Equivalent to \fBnew(Parent, Id, [])\fR\&\&.
+.RE
+.LP
+.B
+new(Parent::wxWindow() (see module wxWindow), Id::integer(), Options::[Option]) -> wxButton()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {label, string()} | {pos, {X::integer(), Y::integer()}} | {size, {W::integer(), H::integer()}} | {style, integer()} | {validator, wx() (see module wx)}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+create(This::wxButton(), Parent::wxWindow() (see module wxWindow), Id::integer()) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBcreate(This, Parent, Id, [])\fR\&\&.
+.RE
+.LP
+.B
+create(This::wxButton(), Parent::wxWindow() (see module wxWindow), Id::integer(), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {label, string()} | {pos, {X::integer(), Y::integer()}} | {size, {W::integer(), H::integer()}} | {style, integer()} | {validator, wx() (see module wx)}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getDefaultSize() -> {W::integer(), H::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setDefault(This::wxButton()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setLabel(This::wxButton(), Label::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+destroy(This::wxButton()) -> ok
+.br
+.RS
+.LP
+Destroys this object, do not use object again
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

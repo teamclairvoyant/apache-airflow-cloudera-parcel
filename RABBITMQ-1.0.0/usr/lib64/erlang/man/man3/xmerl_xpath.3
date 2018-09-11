@@ -1,0 +1,106 @@
+.TH xmerl_xpath 3 "xmerl 1.2.10" "" "Erlang Module Definition"
+.SH NAME
+xmerl_xpath \- The xmerl_xpath module handles the entire XPath 1.0 spec.
+.SH DESCRIPTION
+.LP
+The xmerl_xpath module handles the entire XPath 1\&.0 spec\&. XPath expressions typically occur in XML attributes and are used to address parts of an XML document\&. The grammar is defined in \fIxmerl_xpath_parse\&.yrl\fR\&\&. The core functions are defined in \fIxmerl_xpath_pred\&.erl\fR\&\&.
+.LP
+Some useful shell commands for debugging the XPath parser
+.LP
+.nf
+
+ c(xmerl_xpath_scan).
+ yecc:yecc("xmerl_xpath_parse.yrl", "xmerl_xpath_parse", true, []).
+ c(xmerl_xpath_parse).
+
+ xmerl_xpath_parse:parse(xmerl_xpath_scan:tokens("position() > -1")).
+ xmerl_xpath_parse:parse(xmerl_xpath_scan:tokens("5 * 6 div 2")).
+ xmerl_xpath_parse:parse(xmerl_xpath_scan:tokens("5 + 6 mod 2")).
+ xmerl_xpath_parse:parse(xmerl_xpath_scan:tokens("5 * 6")).
+ xmerl_xpath_parse:parse(xmerl_xpath_scan:tokens("-----6")).
+ xmerl_xpath_parse:parse(xmerl_xpath_scan:tokens("parent::node()")).
+ xmerl_xpath_parse:parse(xmerl_xpath_scan:tokens("descendant-or-self::node()")).
+ xmerl_xpath_parse:parse(xmerl_xpath_scan:tokens("parent::processing-instruction('foo')")).
+  
+.fi
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIdocEntity() = xmlElement() | xmlAttribute() | xmlText() | xmlPI() | xmlComment()\fR\&:
+
+.TP 2
+.B
+\fInodeEntity() = xmlElement() | xmlAttribute() | xmlText() | xmlPI() | xmlNamespace() | xmlDocument()\fR\&:
+
+.TP 2
+.B
+\fIoption_list()\fR\&:
+
+.RS 2
+.LP
+Options allows to customize the behaviour of the XPath scanner\&.
+.RE
+.RS 2
+.LP
+Possible options are:
+.RE
+.RS 2
+.TP 2
+.B
+\fI{namespace, #xmlNamespace}\fR\&:
+Set namespace nodes, from XmlNamspace, in xmlContext
+.TP 2
+.B
+\fI{namespace, Nodes}\fR\&:
+Set namespace nodes in xmlContext\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+string(Str, Doc) -> [docEntity()] | Scalar
+.br
+.RS
+.LP
+Equivalent to \fBstring(Str, Doc, [])\fR\&\&.
+.RE
+.LP
+.B
+string(Str, Doc, Options) -> [docEntity()] | Scalar
+.br
+.RS
+.LP
+Equivalent to \fBstring(Str, Doc, [], Doc, Options)\fR\&\&.
+.RE
+.LP
+.B
+string(Str, Node, Parents, Doc, Options) -> [docEntity()] | Scalar
+.br
+.RS
+.TP 3
+Types:
+
+Str = xPathString()
+.br
+Node = nodeEntity()
+.br
+Parents = parentList()
+.br
+Doc = nodeEntity()
+.br
+Options = option_list()
+.br
+Scalar = xmlObj
+.br
+.RE
+.RS
+.LP
+Extracts the nodes from the parsed XML tree according to XPath\&. xmlObj is a record with fields type and value, where type is boolean | number | string
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

@@ -1,0 +1,194 @@
+.TH ct_master 3 "common_test 1.5.5" "" "Erlang Module Definition"
+.SH NAME
+ct_master \- Distributed test execution control for Common Test.
+.SH DESCRIPTION
+.LP
+Distributed test execution control for Common Test\&.
+.LP
+This module exports functions for running Common Test nodes on multiple hosts in parallel\&.
+.SH EXPORTS
+.LP
+.B
+abort() -> ok
+.br
+.RS
+.LP
+Stops all running tests\&.
+.RE
+.LP
+.B
+abort(Nodes) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Nodes = atom() | [atom()]
+.br
+.RE
+.RS
+.LP
+Stops tests on specified nodes\&.
+.RE
+.LP
+.B
+progress() -> [{Node, Status}]
+.br
+.RS
+.TP 3
+Types:
+
+Node = atom()
+.br
+Status = finished_ok | ongoing | aborted | {error, Reason}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Returns test progress\&. If \fIStatus\fR\& is \fIongoing\fR\&, tests are running on the node and have not yet finished\&.
+.RE
+.LP
+.B
+run(TestSpecs) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+TestSpecs = string() | [SeparateOrMerged]
+.br
+.RE
+.RS
+.LP
+Equivalent to \fBrun(TestSpecs, false, [], [])\fR\&\&.
+.RE
+.LP
+.B
+run(TestSpecs, InclNodes, ExclNodes) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+TestSpecs = string() | [SeparateOrMerged]
+.br
+SeparateOrMerged = string() | [string()]
+.br
+InclNodes = [atom()]
+.br
+ExclNodes = [atom()]
+.br
+.RE
+.RS
+.LP
+Equivalent to \fBrun(TestSpecs, false, InclNodes, ExclNodes)\fR\&\&.
+.RE
+.LP
+.B
+run(TestSpecs, AllowUserTerms, InclNodes, ExclNodes) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+TestSpecs = string() | [SeparateOrMerged]
+.br
+SeparateOrMerged = string() | [string()]
+.br
+AllowUserTerms = bool()
+.br
+InclNodes = [atom()]
+.br
+ExclNodes = [atom()]
+.br
+.RE
+.RS
+.LP
+Tests are spawned on the nodes as specified in \fITestSpecs\fR\&\&. Each specification in TestSpec will be handled separately\&. It is however possible to also specify a list of specifications that should be merged into one before the tests are executed\&. Any test without a particular node specification will also be executed on the nodes in \fIInclNodes\fR\&\&. Nodes in the \fIExclNodes\fR\& list will be excluded from the test\&.
+.RE
+.LP
+.B
+run_on_node(TestSpecs, Node) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+TestSpecs = string() | [SeparateOrMerged]
+.br
+SeparateOrMerged = string() | [string()]
+.br
+Node = atom()
+.br
+.RE
+.RS
+.LP
+Equivalent to \fBrun_on_node(TestSpecs, false, Node)\fR\&\&.
+.RE
+.LP
+.B
+run_on_node(TestSpecs, AllowUserTerms, Node) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+TestSpecs = string() | [SeparateOrMerged]
+.br
+SeparateOrMerged = string() | [string()]
+.br
+AllowUserTerms = bool()
+.br
+Node = atom()
+.br
+.RE
+.RS
+.LP
+Tests are spawned on \fINode\fR\& according to \fITestSpecs\fR\&\&.
+.RE
+.LP
+.B
+run_test(Node, Opts) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Node = atom()
+.br
+Opts = [OptTuples]
+.br
+OptTuples = {config, CfgFiles} | {dir, TestDirs} | {suite, Suites} | {testcase, Cases} | {spec, TestSpecs} | {allow_user_terms, Bool} | {logdir, LogDir} | {event_handler, EventHandlers} | {silent_connections, Conns} | {cover, CoverSpecFile} | {userconfig, UserCfgFiles}
+.br
+CfgFiles = string() | [string()]
+.br
+TestDirs = string() | [string()]
+.br
+Suites = atom() | [atom()]
+.br
+Cases = atom() | [atom()]
+.br
+TestSpecs = string() | [string()]
+.br
+LogDir = string()
+.br
+EventHandlers = EH | [EH]
+.br
+EH = atom() | {atom(), InitArgs} | {[atom()], InitArgs}
+.br
+InitArgs = [term()]
+.br
+Conns = all | [atom()]
+.br
+.RE
+.RS
+.LP
+Tests are spawned on \fINode\fR\& using \fIct:run_test/1\fR\&\&.
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

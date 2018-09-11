@@ -1,0 +1,910 @@
+.TH code 3 "kernel 2.14.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+code \- Erlang Code Server
+.SH DESCRIPTION
+.LP
+This module contains the interface to the Erlang \fIcode server\fR\&, which deals with the loading of compiled code into a running Erlang runtime system\&.
+.LP
+The runtime system can be started in either \fIembedded\fR\& or \fIinteractive\fR\& mode\&. Which one is decided by the command line flag \fI-mode\fR\&\&.
+.LP
+.nf
+
+% erl -mode interactive
+.fi
+.LP
+Default mode is \fIinteractive\fR\&\&.
+.RS 2
+.TP 2
+*
+In embedded mode, all code is loaded during system start-up according to the boot script\&. (Code can also be loaded later by explicitly ordering the code server to do so)\&.
+.LP
+.TP 2
+*
+In interactive mode, only some code is loaded during system startup-up, basically the modules needed by the runtime system itself\&. Other code is dynamically loaded when first referenced\&. When a call to a function in a certain module is made, and the module is not loaded, the code server searches for and tries to load the module\&.
+.LP
+.RE
+
+.LP
+To prevent accidentally reloading modules affecting the Erlang runtime system itself, the \fIkernel\fR\&, \fIstdlib\fR\& and \fIcompiler\fR\& directories are considered \fIsticky\fR\&\&. This means that the system issues a warning and rejects the request if a user tries to reload a module residing in any of them\&. The feature can be disabled by using the command line flag \fI-nostick\fR\&\&.
+.SH "CODE PATH"
+
+.LP
+In interactive mode, the code server maintains a search path -- usually called the \fIcode path\fR\& -- consisting of a list of directories, which it searches sequentially when trying to load a module\&.
+.LP
+Initially, the code path consists of the current working directory and all Erlang object code directories under the library directory \fI$OTPROOT/lib\fR\&, where \fI$OTPROOT\fR\& is the installation directory of Erlang/OTP, \fIcode:root_dir()\fR\&\&. Directories can be named \fIName[-Vsn]\fR\& and the code server, by default, chooses the directory with the highest version number among those which have the same \fIName\fR\&\&. The \fI-Vsn\fR\& suffix is optional\&. If an \fIebin\fR\& directory exists under \fIName[-Vsn]\fR\&, it is this directory which is added to the code path\&.
+.LP
+The environment variable \fIERL_LIBS\fR\& (defined in the operating system) can be used to define additional library directories that will be handled in the same way as the standard OTP library directory described above, except that directories that do not have an \fIebin\fR\& directory will be ignored\&.
+.LP
+All application directories found in the additional directories will appear before the standard OTP applications, except for the Kernel and STDLIB applications, which will be placed before any additional applications\&. In other words, modules found in any of the additional library directories will override modules with the same name in OTP, except for modules in Kernel and STDLIB\&.
+.LP
+The environment variable \fIERL_LIBS\fR\& (if defined) shold contain a colon-separated (for Unix-like systems) or semicolon-separated (for Windows) list of additional libraries\&.
+.LP
+Example: On an Unix-like system, \fIERL_LIBS\fR\& could be set to \fI/usr/local/jungerl:/home/some_user/my_erlang_lib\fR\&\&. (On Windows, use semi-colon as separator\&.)
+.SH "CODE PATH CACHE"
+
+.LP
+The code server incorporates a code path cache\&. The cache functionality is disabled by default\&. To activate it, start the emulator with the command line flag \fI-code_path_cache\fR\& or call \fIcode:rehash()\fR\&\&. When the cache is created (or updated), the code server searches for modules in the code path directories\&. This may take some time if the the code path is long\&. After the cache creation, the time for loading modules in a large system (one with a large directory structure) is significantly reduced compared to having the cache disabled\&. The code server is able to look up the location of a module from the cache in constant time instead of having to search through the code path directories\&.
+.LP
+Application resource files (\fI\&.app\fR\& files) are also stored in the code path cache\&. This feature is used by the application controller (see \fBapplication(3)\fR\&) to load applications efficiently in large systems\&.
+.LP
+Note that when the code path cache is created (or updated), any relative directory names in the code path are converted to absolute\&.
+.SH "LOADING OF CODE FROM ARCHIVE FILES"
+
+.LP
+
+.RS -4
+.B
+Warning:
+.RE
+The support for loading of code from archive files is experimental\&. The sole purpose of releasing it before it is ready is to obtain early feedback\&. The file format, semantics, interfaces etc\&. may be changed in a future release\&. The function \fIlib_dir/2\fR\& and the flag \fI-code_path_choice\fR\& are also experimental\&.
+
+.LP
+In the current implementation, Erlang archives are \fIZIP\fR\& files with \fI\&.ez\fR\& extension\&. Erlang archives may also be enclosed in \fIescript\fR\& files whose file extension is arbitrary\&.
+.LP
+Erlang archive files may contain entire Erlang applications or parts of applications\&. The structure in an archive file is the same as the directory structure for an application\&. If you for example would create an archive of \fImnesia-4\&.4\&.7\fR\&, the archive file must be named \fImnesia-4\&.4\&.7\&.ez\fR\& and it must contain a top directory with the name \fImnesia-4\&.4\&.7\fR\&\&. If the version part of the name is omitted, it must also be omitted in the archive\&. That is, a \fImnesia\&.ez\fR\& archive must contain a \fImnesia\fR\& top directory\&.
+.LP
+An archive file for an application may for example be created like this:
+.LP
+.nf
+
+   zip:create("mnesia-4.4.7.ez", 
+              ["mnesia-4.4.7"], 
+              [{cwd, code:lib_dir()},
+               {compress, all},
+               {uncompress,[".beam",".app"]}]).
+.fi
+.LP
+Any file in the archive may be compressed, but in order to speed up the access of frequently read files, it may be a good idea to store \fIbeam\fR\& and \fIapp\fR\& files uncompressed in the archive\&.
+.LP
+Normally the top directory of an application is located either in the library directory \fI$OTPROOT/lib\fR\& or in a directory referred to by the environment variable \fIERL_LIBS\fR\&\&. At startup when the initial code path is computed, the code server will also look for archive files in these directories and possibly add \fIebin\fR\& directories in archives to the code path\&. The code path will then contain paths to directories that looks like \fI$OTPROOT/lib/mnesia\&.ez/mnesia/ebin\fR\& or \fI$OTPROOT/lib/mnesia-4\&.4\&.7\&.ez/mnesia-4\&.4\&.7/ebin\fR\&\&.
+.LP
+The code server uses the module \fIerl_prim_loader\fR\& (possibly via the \fIerl_boot_server\fR\&) to read code files from archives\&. But the functions in \fIerl_prim_loader\fR\& may also be used by other applications to read files from archives\&. For example, the call \fIerl_prim_loader:list_dir( "/otp/root/lib/mnesia-4\&.4\&.7\&.ez/mnesia-4\&.4\&.7/examples/bench)"\fR\& would list the contents of a directory inside an archive\&. See \fBerl_prim_loader(3)\fR\&\&. 
+.LP
+An application archive file and a regular application directory may coexist\&. This may be useful when there is a need of having parts of the application as regular files\&. A typical case is the \fIpriv\fR\& directory which must reside as a regular directory in order to be able to dynamically link in drivers and start port programs\&. For other applications that do not have this need, the \fIpriv\fR\& directory may reside in the archive and the files under the \fIpriv\fR\& directory may be read via the \fIerl_prim_loader\fR\&\&.
+.LP
+At the time point when a directory is added to the code path as well as when the entire code path is (re)set, the code server will decide which subdirectories in an application that shall be read from the archive and which that shall be read as regular files\&. If directories are added or removed afterwards, the file access may fail if the code path is not updated (possibly to the same path as before in order to trigger the directory resolution update)\&. For each directory on the second level (ebin, priv, src etc\&.) in the application archive, the code server will firstly choose the regular directory if it exists and secondly from the archive\&. The function \fIcode:lib_dir/2\fR\& returns the path to the subdirectory\&. For example \fIcode:lib_dir(megaco,ebin)\fR\& may return \fI/otp/root/lib/megaco-3\&.9\&.1\&.1\&.ez/megaco-3\&.9\&.1\&.1/ebin\fR\& while \fIcode:lib_dir(megaco,priv)\fR\& may return \fI/otp/root/lib/megaco-3\&.9\&.1\&.1/priv\fR\&\&.
+.LP
+When an \fIescript\fR\& file contains an archive, there are neither restrictions on the name of the \fIescript\fR\& nor on how many applications that may be stored in the embedded archive\&. Single \fIbeam\fR\& files may also reside on the top level in the archive\&. At startup, both the top directory in the embedded archive as well as all (second level) \fIebin\fR\& directories in the embedded archive are added to the code path\&. See \fBescript(1)\fR\&
+.LP
+When the choice of directories in the code path is \fIstrict\fR\&, the directory that ends up in the code path will be exactly the stated one\&. This means that if for example the directory \fI$OTPROOT/lib/mnesia-4\&.4\&.7/ebin\fR\& is explicitly added to the code path, the code server will not load files from \fI$OTPROOT/lib/mnesia-4\&.4\&.7\&.ez/mnesia-4\&.4\&.7/ebin\fR\& and vice versa\&.
+.LP
+This behavior can be controlled via the command line flag \fI-code_path_choice Choice\fR\&\&. If the flag is set to \fIrelaxed\fR\&, the code server will instead choose a suitable directory depending on the actual file structure\&. If there exists a regular application ebin directory,situation it will be choosen\&. But if it does not exist, the ebin directory in the archive is choosen if it exists\&. If neither of them exists the original directory will be choosen\&.
+.LP
+The command line flag \fI-code_path_choice Choice\fR\& does also affect how \fIinit\fR\& interprets the \fIboot script\fR\&\&. The interpretation of the explicit code paths in the \fIboot script\fR\& may be \fIstrict\fR\& or \fIrelaxed\fR\&\&. It is particular useful to set the flag to \fIrelaxed\fR\& when you want to elaborate with code loading from archives without editing the \fIboot script\fR\&\&. The default is \fIrelaxed\fR\&\&. See \fBinit(3)\fR\&
+.SH "CURRENT AND OLD CODE"
+
+.LP
+The code of a module can exists in two variants in a system: \fIcurrent code\fR\& and \fIold code\fR\&\&. When a module is loaded into the system for the first time, the code of the module becomes \&'current\&' and the global \fIexport table\fR\& is updated with references to all functions exported from the module\&.
+.LP
+If then a new instance of the module is loaded (perhaps because of the correction of an error), then the code of the previous instance becomes \&'old\&', and all export entries referring to the previous instance are removed\&. After that the new instance is loaded as if it was loaded for the first time, as described above, and becomes \&'current\&'\&.
+.LP
+Both old and current code for a module are valid, and may even be evaluated concurrently\&. The difference is that exported functions in old code are unavailable\&. Hence there is no way to make a global call to an exported function in old code, but old code may still be evaluated because of processes lingering in it\&.
+.LP
+If a third instance of the module is loaded, the code server will remove (purge) the old code and any processes lingering in it will be terminated\&. Then the third instance becomes \&'current\&' and the previously current code becomes \&'old\&'\&.
+.LP
+For more information about old and current code, and how to make a process switch from old to current code, refer to \fBErlang Reference Manual\fR\&\&.
+.SH "ARGUMENT TYPES AND INVALID ARGUMENTS"
+
+.LP
+Generally, module and application names are atoms, while file and directory names are strings\&. For backward compatibility reasons, some functions accept both strings and atoms, but a future release will probably only allow the arguments that are documented\&.
+.LP
+From the R12B release, functions in this module will generally fail with an exception if they are passed an incorrect type (for instance, an integer or a tuple where an atom was expected)\&. An error tuple will be returned if type of argument was correct, but there was some other error (for instance, a non-existing directory given to \fIset_path/1\fR\&\&.
+.SH DATA TYPES
+.nf
+
+\fBload_ret()\fR\& = {error, What :: \fBload_error_rsn()\fR\&}
+.br
+           | {module, Module :: module()}
+.br
+.fi
+.nf
+
+\fBload_error_rsn()\fR\& = badfile
+.br
+                 | native_code
+.br
+                 | nofile
+.br
+                 | not_purged
+.br
+                 | on_load
+.br
+                 | sticky_directory
+.br
+.fi
+.SH EXPORTS
+.LP
+.nf
+
+.B
+set_path(Path) -> true | {error, What}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Path = [Dir :: \fBfile:filename()\fR\&]
+.br
+What = bad_directory | bad_path
+.br
+.RE
+.RS
+.LP
+Sets the code path to the list of directories \fIPath\fR\&\&.
+.LP
+Returns \fItrue\fR\& if successful, or \fI{error, bad_directory}\fR\& if any \fIDir\fR\& is not the name of a directory, or \fI{error, bad_path}\fR\& if the argument is invalid\&.
+.RE
+.LP
+.nf
+
+.B
+get_path() -> Path
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Path = [Dir :: \fBfile:filename()\fR\&]
+.br
+.RE
+.RS
+.LP
+Returns the code path
+.RE
+.LP
+.nf
+
+.B
+add_path(Dir) -> \fBadd_path_ret()\fR\&
+.br
+.fi
+.br
+.nf
+
+.B
+add_pathz(Dir) -> \fBadd_path_ret()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Dir = \fBfile:filename()\fR\&
+.br
+.nf
+\fBadd_path_ret()\fR\& = true | {error, bad_directory}
+.fi
+.br
+.RE
+.RS
+.LP
+Adds \fIDir\fR\& to the code path\&. The directory is added as the last directory in the new path\&. If \fIDir\fR\& already exists in the path, it is not added\&.
+.LP
+Returns \fItrue\fR\& if successful, or \fI{error, bad_directory}\fR\& if \fIDir\fR\& is not the name of a directory\&.
+.RE
+.LP
+.nf
+
+.B
+add_patha(Dir) -> \fBadd_path_ret()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Dir = \fBfile:filename()\fR\&
+.br
+.nf
+\fBadd_path_ret()\fR\& = true | {error, bad_directory}
+.fi
+.br
+.RE
+.RS
+.LP
+Adds \fIDir\fR\& to the beginning of the code path\&. If \fIDir\fR\& already exists, it is removed from the old position in the code path\&.
+.LP
+Returns \fItrue\fR\& if successful, or \fI{error, bad_directory}\fR\& if \fIDir\fR\& is not the name of a directory\&.
+.RE
+.LP
+.nf
+
+.B
+add_paths(Dirs) -> ok
+.br
+.fi
+.br
+.nf
+
+.B
+add_pathsz(Dirs) -> ok
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Dirs = [Dir :: \fBfile:filename()\fR\&]
+.br
+.RE
+.RS
+.LP
+Adds the directories in \fIDirs\fR\& to the end of the code path\&. If a \fIDir\fR\& already exists, it is not added\&. This function always returns \fIok\fR\&, regardless of the validity of each individual \fIDir\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+add_pathsa(Dirs) -> ok
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Dirs = [Dir :: \fBfile:filename()\fR\&]
+.br
+.RE
+.RS
+.LP
+Adds the directories in \fIDirs\fR\& to the beginning of the code path\&. If a \fIDir\fR\& already exists, it is removed from the old position in the code path\&. This function always returns \fIok\fR\&, regardless of the validity of each individual \fIDir\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+del_path(NameOrDir) -> boolean() | {error, What}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+NameOrDir = Name | Dir
+.br
+Name = atom()
+.br
+Dir = \fBfile:filename()\fR\&
+.br
+What = bad_name
+.br
+.RE
+.RS
+.LP
+Deletes a directory from the code path\&. The argument can be an atom \fIName\fR\&, in which case the directory with the name \fI\&.\&.\&./Name[-Vsn][/ebin]\fR\& is deleted from the code path\&. It is also possible to give the complete directory name \fIDir\fR\& as argument\&.
+.LP
+Returns \fItrue\fR\& if successful, or \fIfalse\fR\& if the directory is not found, or \fI{error, bad_name}\fR\& if the argument is invalid\&.
+.RE
+.LP
+.nf
+
+.B
+replace_path(Name, Dir) -> true | {error, What}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = atom()
+.br
+Dir = \fBfile:filename()\fR\&
+.br
+What = bad_directory | bad_name | {badarg, term()}
+.br
+.RE
+.RS
+.LP
+This function replaces an old occurrence of a directory named \fI\&.\&.\&./Name[-Vsn][/ebin]\fR\&, in the code path, with \fIDir\fR\&\&. If \fIName\fR\& does not exist, it adds the new directory \fIDir\fR\& last in the code path\&. The new directory must also be named \fI\&.\&.\&./Name[-Vsn][/ebin]\fR\&\&. This function should be used if a new version of the directory (library) is added to a running system\&.
+.LP
+Returns \fItrue\fR\& if successful, or \fI{error, bad_name}\fR\& if \fIName\fR\& is not found, or \fI{error, bad_directory}\fR\& if \fIDir\fR\& does not exist, or \fI{error, {badarg, [Name, Dir]}}\fR\& if \fIName\fR\& or \fIDir\fR\& is invalid\&.
+.RE
+.LP
+.nf
+
+.B
+load_file(Module) -> \fBload_ret()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Module = module()
+.br
+.nf
+\fBload_ret()\fR\& = {error, What :: \fBload_error_rsn()\fR\&}
+.br
+           | {module, Module :: module()}
+.fi
+.br
+.RE
+.RS
+.LP
+Tries to load the Erlang module \fIModule\fR\&, using the code path\&. It looks for the object code file with an extension that corresponds to the Erlang machine used, for example \fIModule\&.beam\fR\&\&. The loading fails if the module name found in the object code differs from the name \fIModule\fR\&\&. \fBload_binary/3\fR\& must be used to load object code with a module name that is different from the file name\&.
+.LP
+Returns \fI{module, Module}\fR\& if successful, or \fI{error, nofile}\fR\& if no object code is found, or \fI{error, sticky_directory}\fR\& if the object code resides in a sticky directory\&. Also if the loading fails, an error tuple is returned\&. See \fBerlang:load_module/2\fR\& for possible values of \fIWhat\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+load_abs(Filename) -> \fBload_ret()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Filename = \fBfile:filename()\fR\&
+.br
+.nf
+\fBload_ret()\fR\& = {error, What :: \fBload_error_rsn()\fR\&}
+.br
+           | {module, Module :: module()}
+.fi
+.br
+.nf
+\fBloaded_filename()\fR\& = (Filename :: \fBfile:filename()\fR\&)
+.br
+                  | \fBloaded_ret_atoms()\fR\&
+.fi
+.br
+.nf
+\fBloaded_ret_atoms()\fR\& = cover_compiled | preloaded
+.fi
+.br
+.RE
+.RS
+.LP
+Does the same as \fIload_file(Module)\fR\&, but \fIFilename\fR\& is either an absolute file name, or a relative file name\&. The code path is not searched\&. It returns a value in the same way as \fBload_file/1\fR\&\&. Note that \fIFilename\fR\& should not contain the extension (for example \fI"\&.beam"\fR\&); \fIload_abs/1\fR\& adds the correct extension itself\&.
+.RE
+.LP
+.nf
+
+.B
+ensure_loaded(Module) -> {module, Module} | {error, What}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Module = module()
+.br
+What = embedded | badfile | native_code | nofile | on_load
+.br
+.RE
+.RS
+.LP
+Tries to to load a module in the same way as \fBload_file/1\fR\&, unless the module is already loaded\&. In embedded mode, however, it does not load a module which is not already loaded, but returns \fI{error, embedded}\fR\& instead\&.
+.RE
+.LP
+.nf
+
+.B
+load_binary(Module, Filename, Binary) ->
+.B
+               {module, Module} | {error, What}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Module = module()
+.br
+Filename = \fBloaded_filename()\fR\&
+.br
+Binary = binary()
+.br
+What = badarg | \fBload_error_rsn()\fR\&
+.br
+.nf
+\fBloaded_filename()\fR\& = (Filename :: \fBfile:filename()\fR\&)
+.br
+                  | \fBloaded_ret_atoms()\fR\&
+.fi
+.br
+.nf
+\fBloaded_ret_atoms()\fR\& = cover_compiled | preloaded
+.fi
+.br
+.RE
+.RS
+.LP
+This function can be used to load object code on remote Erlang nodes\&. The argument \fIBinary\fR\& must contain object code for \fIModule\fR\&\&. \fIFilename\fR\& is only used by the code server to keep a record of from which file the object code for \fIModule\fR\& comes\&. Accordingly, \fIFilename\fR\& is not opened and read by the code server\&.
+.LP
+Returns \fI{module, Module}\fR\& if successful, or \fI{error, sticky_directory}\fR\& if the object code resides in a sticky directory, or \fI{error, badarg}\fR\& if any argument is invalid\&. Also if the loading fails, an error tuple is returned\&. See \fBerlang:load_module/2\fR\& for possible values of \fIWhat\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+delete(Module) -> boolean()
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Module = module()
+.br
+.RE
+.RS
+.LP
+Removes the current code for \fIModule\fR\&, that is, the current code for \fIModule\fR\& is made old\&. This means that processes can continue to execute the code in the module, but that no external function calls can be made to it\&.
+.LP
+Returns \fItrue\fR\& if successful, or \fIfalse\fR\& if there is old code for \fIModule\fR\& which must be purged first, or if \fIModule\fR\& is not a (loaded) module\&.
+.RE
+.LP
+.nf
+
+.B
+purge(Module) -> boolean()
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Module = module()
+.br
+.RE
+.RS
+.LP
+Purges the code for \fIModule\fR\&, that is, removes code marked as old\&. If some processes still linger in the old code, these processes are killed before the code is removed\&.
+.LP
+Returns \fItrue\fR\& if successful and any process needed to be killed, otherwise \fIfalse\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+soft_purge(Module) -> boolean()
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Module = module()
+.br
+.RE
+.RS
+.LP
+Purges the code for \fIModule\fR\&, that is, removes code marked as old, but only if no processes linger in it\&.
+.LP
+Returns \fIfalse\fR\& if the module could not be purged due to processes lingering in old code, otherwise \fItrue\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+is_loaded(Module) -> {file, Loaded} | false
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Module = module()
+.br
+Loaded = \fBloaded_filename()\fR\&
+.br
+.nf
+\fBloaded_filename()\fR\& = (Filename :: \fBfile:filename()\fR\&)
+.br
+                  | \fBloaded_ret_atoms()\fR\&
+.fi
+.br
+\fIFilename\fR\& is an absolute filename
+.br
+.nf
+\fBloaded_ret_atoms()\fR\& = cover_compiled | preloaded
+.fi
+.br
+.RE
+.RS
+.LP
+Checks if \fIModule\fR\& is loaded\&. If it is, \fI{file, Loaded}\fR\& is returned, otherwise \fIfalse\fR\&\&.
+.LP
+Normally, \fILoaded\fR\& is the absolute file name \fIFilename\fR\& from which the code was obtained\&. If the module is preloaded (see \fBscript(4)\fR\&), \fILoaded==preloaded\fR\&\&. If the module is Cover compiled (see \fBcover(3)\fR\&), \fILoaded==cover_compiled\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+all_loaded() -> [{Module, Loaded}]
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Module = module()
+.br
+Loaded = \fBloaded_filename()\fR\&
+.br
+.nf
+\fBloaded_filename()\fR\& = (Filename :: \fBfile:filename()\fR\&)
+.br
+                  | \fBloaded_ret_atoms()\fR\&
+.fi
+.br
+\fIFilename\fR\& is an absolute filename
+.br
+.nf
+\fBloaded_ret_atoms()\fR\& = cover_compiled | preloaded
+.fi
+.br
+.RE
+.RS
+.LP
+Returns a list of tuples \fI{Module, Loaded}\fR\& for all loaded modules\&. \fILoaded\fR\& is normally the absolute file name, as described for \fBis_loaded/1\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+which(Module) -> Which
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Module = module()
+.br
+Which = \fBfile:filename()\fR\& | \fBloaded_ret_atoms()\fR\& | non_existing
+.br
+.nf
+\fBloaded_ret_atoms()\fR\& = cover_compiled | preloaded
+.fi
+.br
+.RE
+.RS
+.LP
+If the module is not loaded, this function searches the code path for the first file which contains object code for \fIModule\fR\& and returns the absolute file name\&. If the module is loaded, it returns the name of the file which contained the loaded object code\&. If the module is pre-loaded, \fIpreloaded\fR\& is returned\&. If the module is Cover compiled, \fIcover_compiled\fR\& is returned\&. \fInon_existing\fR\& is returned if the module cannot be found\&.
+.RE
+.LP
+.nf
+
+.B
+get_object_code(Module) -> {Module, Binary, Filename} | error
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Module = module()
+.br
+Binary = binary()
+.br
+Filename = \fBfile:filename()\fR\&
+.br
+.RE
+.RS
+.LP
+Searches the code path for the object code of the module \fIModule\fR\&\&. It returns \fI{Module, Binary, Filename}\fR\& if successful, and \fIerror\fR\& if not\&. \fIBinary\fR\& is a binary data object which contains the object code for the module\&. This can be useful if code is to be loaded on a remote node in a distributed system\&. For example, loading module \fIModule\fR\& on a node \fINode\fR\& is done as follows:
+.LP
+.nf
+
+...
+{_Module, Binary, Filename} = code:get_object_code(Module),
+rpc:call(Node, code, load_binary, [Module, Filename, Binary]),
+...
+.fi
+.RE
+.LP
+.nf
+
+.B
+root_dir() -> \fBfile:filename()\fR\&
+.br
+.fi
+.br
+.RS
+.LP
+Returns the root directory of Erlang/OTP, which is the directory where it is installed\&.
+.LP
+.nf
+
+> code:root_dir()\&.
+"/usr/local/otp"
+.fi
+.RE
+.LP
+.nf
+
+.B
+lib_dir() -> \fBfile:filename()\fR\&
+.br
+.fi
+.br
+.RS
+.LP
+Returns the library directory, \fI$OTPROOT/lib\fR\&, where \fI$OTPROOT\fR\& is the root directory of Erlang/OTP\&.
+.LP
+.nf
+
+> code:lib_dir()\&.
+"/usr/local/otp/lib"
+.fi
+.RE
+.LP
+.nf
+
+.B
+lib_dir(Name) -> \fBfile:filename()\fR\& | {error, bad_name}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = atom()
+.br
+.RE
+.RS
+.LP
+This function is mainly intended for finding out the path for the "library directory", the top directory, for an application \fIName\fR\& located under \fI$OTPROOT/lib\fR\& or on a directory referred to via the \fIERL_LIBS\fR\& environment variable\&.
+.LP
+If there is a regular directory called \fIName\fR\& or \fIName-Vsn\fR\& in the code path with an \fIebin\fR\& subdirectory, the path to this directory is returned (not the \fIebin\fR\& directory)\&. If the directory refers to a directory in an archive, the archive name is stripped away before the path is returned\&. For example, if the directory \fI/usr/local/otp/lib/mnesia-4\&.2\&.2\&.ez/mnesia-4\&.2\&.2/ebin\fR\& is in the path, \fI/usr/local/otp/lib/mnesia-4\&.2\&.2/ebin\fR\& will be returned\&. This means that the library directory for an application is the same, regardless of whether the application resides in an archive or not\&.
+.LP
+.nf
+
+> code:lib_dir(mnesia)\&.
+"/usr/local/otp/lib/mnesia-4.2.2"
+.fi
+.LP
+Returns \fI{error, bad_name}\fR\& if \fIName\fR\& is not the name of an application under \fI$OTPROOT/lib\fR\& or on a directory referred to via the \fIERL_LIBS\fR\& environment variable\&. Fails with an exception if \fIName\fR\& has the wrong type\&.
+.LP
+
+.RS -4
+.B
+Warning:
+.RE
+For backward compatibility, \fIName\fR\& is also allowed to be a string\&. That will probably change in a future release\&.
+
+.RE
+.LP
+.nf
+
+.B
+lib_dir(Name, SubDir) -> \fBfile:filename()\fR\& | {error, bad_name}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = SubDir = atom()
+.br
+.RE
+.RS
+.LP
+Returns the path to a subdirectory directly under the top directory of an application\&. Normally the subdirectories resides under the top directory for the application, but when applications at least partly resides in an archive the situation is different\&. Some of the subdirectories may reside as regular directories while other resides in an archive file\&. It is not checked if this directory really exists\&.
+.LP
+.nf
+
+> code:lib_dir(megaco, priv)\&.
+"/usr/local/otp/lib/megaco-3.9.1.1/priv"
+.fi
+.LP
+Fails with an exception if \fIName\fR\& or \fISubDir\fR\& has the wrong type\&.
+.RE
+.LP
+.nf
+
+.B
+compiler_dir() -> \fBfile:filename()\fR\&
+.br
+.fi
+.br
+.RS
+.LP
+Returns the compiler library directory\&. Equivalent to \fIcode:lib_dir(compiler)\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+priv_dir(Name) -> \fBfile:filename()\fR\& | {error, bad_name}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = atom()
+.br
+.RE
+.RS
+.LP
+Returns the path to the \fIpriv\fR\& directory in an application\&. Equivalent to \fIcode:lib_dir(Name, priv)\&.\fR\&\&.
+.LP
+
+.RS -4
+.B
+Warning:
+.RE
+For backward compatibility, \fIName\fR\& is also allowed to be a string\&. That will probably change in a future release\&.
+
+.RE
+.LP
+.nf
+
+.B
+objfile_extension() -> nonempty_string()
+.br
+.fi
+.br
+.RS
+.LP
+Returns the object code file extension that corresponds to the Erlang machine used, namely \fI"\&.beam"\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+stick_dir(Dir) -> ok | error
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Dir = \fBfile:filename()\fR\&
+.br
+.RE
+.RS
+.LP
+This function marks \fIDir\fR\& as sticky\&.
+.LP
+Returns \fIok\fR\& if successful or \fIerror\fR\& if not\&.
+.RE
+.LP
+.nf
+
+.B
+unstick_dir(Dir) -> ok | error
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Dir = \fBfile:filename()\fR\&
+.br
+.RE
+.RS
+.LP
+This function unsticks a directory which has been marked as sticky\&.
+.LP
+Returns \fIok\fR\& if successful or \fIerror\fR\& if not\&.
+.RE
+.LP
+.nf
+
+.B
+is_sticky(Module) -> boolean()
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Module = module()
+.br
+.RE
+.RS
+.LP
+This function returns \fItrue\fR\& if \fIModule\fR\& is the name of a module that has been loaded from a sticky directory (or in other words: an attempt to reload the module will fail), or \fIfalse\fR\& if \fIModule\fR\& is not a loaded module or is not sticky\&.
+.RE
+.LP
+.nf
+
+.B
+rehash() -> ok
+.br
+.fi
+.br
+.RS
+.LP
+This function creates or rehashes the code path cache\&.
+.RE
+.LP
+.nf
+
+.B
+where_is_file(Filename) -> non_existing | Absname
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Filename = Absname = \fBfile:filename()\fR\&
+.br
+.RE
+.RS
+.LP
+Searches the code path for \fIFilename\fR\&, a file of arbitrary type\&. If found, the full name is returned\&. \fInon_existing\fR\& is returned if the file cannot be found\&. The function can be useful, for example, to locate application resource files\&. If the code path cache is used, the code server will efficiently read the full name from the cache, provided that \fIFilename\fR\& is an object code file or an \fI\&.app\fR\& file\&.
+.RE
+.LP
+.nf
+
+.B
+clash() -> ok
+.br
+.fi
+.br
+.RS
+.LP
+Searches the entire code space for module names with identical names and writes a report to \fIstdout\fR\&\&.
+.RE
+.LP
+.B
+is_module_native(Module) -> boolean() | undefined
+.br
+.RS
+.TP 3
+Types:
+
+Module = module()
+.br
+.RE
+.RS
+.LP
+This function returns \fItrue\fR\& if \fIModule\fR\& is name of a loaded module that has native code loaded, and \fIfalse\fR\& if \fIModule\fR\& is loaded but does not have native\&. If \fIModule\fR\& is not loaded, this function returns \fIundefined\fR\&\&.
+.RE

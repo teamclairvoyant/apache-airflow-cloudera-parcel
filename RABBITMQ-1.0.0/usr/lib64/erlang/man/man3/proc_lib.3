@@ -1,0 +1,454 @@
+.TH proc_lib 3 "stdlib 1.17.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+proc_lib \- Functions for asynchronous and synchronous start of processes adhering to the OTP design principles.
+.SH DESCRIPTION
+.LP
+This module is used to start processes adhering to the \fBOTP Design Principles\fR\&\&. Specifically, the functions in this module are used by the OTP standard behaviors (\fIgen_server\fR\&, \fIgen_fsm\fR\&, \&.\&.\&.) when starting new processes\&. The functions can also be used to start \fIspecial processes\fR\&, user defined processes which comply to the OTP design principles\&. See \fBSys and Proc_Lib\fR\& in OTP Design Principles for an example\&.
+.LP
+Some useful information is initialized when a process starts\&. The registered names, or the process identifiers, of the parent process, and the parent ancestors, are stored together with information about the function initially called in the process\&.
+.LP
+While in "plain Erlang" a process is said to terminate normally only for the exit reason \fInormal\fR\&, a process started using \fIproc_lib\fR\& is also said to terminate normally if it exits with reason \fIshutdown\fR\& or \fI{shutdown,Term}\fR\&\&. \fIshutdown\fR\& is the reason used when an application (supervision tree) is stopped\&.
+.LP
+When a process started using \fIproc_lib\fR\& terminates abnormally -- that is, with another exit reason than \fInormal\fR\&, \fIshutdown\fR\&, or \fI{shutdown,Term}\fR\& -- a \fIcrash report\fR\& is generated, which is written to terminal by the default SASL event handler\&. That is, the crash report is normally only visible if the SASL application is started\&. See \fBsasl(6)\fR\& and \fBSASL User\&'s Guide\fR\&\&.
+.LP
+The crash report contains the previously stored information such as ancestors and initial function, the termination reason, and information regarding other processes which terminate as a result of this process terminating\&.
+.SH DATA TYPES
+.nf
+
+\fBspawn_option()\fR\& = link
+.br
+               | monitor
+.br
+               | {priority, \fBpriority_level()\fR\&}
+.br
+               | {min_heap_size, integer() >= 0}
+.br
+               | {min_bin_vheap_size, integer() >= 0}
+.br
+               | {fullsweep_after, integer() >= 0}
+.br
+.fi
+.RS
+.LP
+See \fB erlang:spawn_opt/2,3,4,5\fR\&\&.
+.RE
+.nf
+
+\fBpriority_level()\fR\& = high | low | max | normal
+.br
+.fi
+.nf
+
+\fBdict_or_pid()\fR\& = pid()
+.br
+              | (ProcInfo :: [term()])
+.br
+              | {X :: integer(),
+.br
+                 Y :: integer(),
+.br
+                 Z :: integer()}
+.br
+.fi
+.SH EXPORTS
+.LP
+.nf
+
+.B
+spawn(Fun) -> pid()
+.br
+.fi
+.br
+.nf
+
+.B
+spawn(Node, Fun) -> pid()
+.br
+.fi
+.br
+.nf
+
+.B
+spawn(Module, Function, Args) -> pid()
+.br
+.fi
+.br
+.nf
+
+.B
+spawn(Node, Module, Function, Args) -> pid()
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Node = node()
+.br
+Fun = function()
+.br
+Module = module()
+.br
+Function = atom()
+.br
+Args = [term()]
+.br
+.RE
+.RS
+.LP
+Spawns a new process and initializes it as described above\&. The process is spawned using the \fBspawn\fR\& BIFs\&.
+.RE
+.LP
+.nf
+
+.B
+spawn_link(Fun) -> pid()
+.br
+.fi
+.br
+.nf
+
+.B
+spawn_link(Node, Fun) -> pid()
+.br
+.fi
+.br
+.nf
+
+.B
+spawn_link(Module, Function, Args) -> pid()
+.br
+.fi
+.br
+.nf
+
+.B
+spawn_link(Node, Module, Function, Args) -> pid()
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Node = node()
+.br
+Fun = function()
+.br
+Module = module()
+.br
+Function = atom()
+.br
+Args = [term()]
+.br
+.RE
+.RS
+.LP
+Spawns a new process and initializes it as described above\&. The process is spawned using the \fBspawn_link\fR\& BIFs\&.
+.RE
+.LP
+.nf
+
+.B
+spawn_opt(Fun, SpawnOpts) -> pid()
+.br
+.fi
+.br
+.nf
+
+.B
+spawn_opt(Node, Function, SpawnOpts) -> pid()
+.br
+.fi
+.br
+.nf
+
+.B
+spawn_opt(Module, Function, Args, SpawnOpts) -> pid()
+.br
+.fi
+.br
+.nf
+
+.B
+spawn_opt(Node, Module, Function, Args, SpawnOpts) -> pid()
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Node = node()
+.br
+Fun = function()
+.br
+Module = module()
+.br
+Function = atom()
+.br
+Args = [term()]
+.br
+SpawnOpts = [\fBspawn_option()\fR\&]
+.br
+.RE
+.RS
+.LP
+Spawns a new process and initializes it as described above\&. The process is spawned using the \fBspawn_opt\fR\& BIFs\&.
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+Using the spawn option \fImonitor\fR\& is currently not allowed, but will cause the function to fail with reason \fIbadarg\fR\&\&.
+
+.RE
+.LP
+.nf
+
+.B
+start(Module, Function, Args) -> Ret
+.br
+.fi
+.br
+.nf
+
+.B
+start(Module, Function, Args, Time) -> Ret
+.br
+.fi
+.br
+.nf
+
+.B
+start(Module, Function, Args, Time, SpawnOpts) -> Ret
+.br
+.fi
+.br
+.nf
+
+.B
+start_link(Module, Function, Args) -> Ret
+.br
+.fi
+.br
+.nf
+
+.B
+start_link(Module, Function, Args, Time) -> Ret
+.br
+.fi
+.br
+.nf
+
+.B
+start_link(Module, Function, Args, Time, SpawnOpts) -> Ret
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Module = module()
+.br
+Function = atom()
+.br
+Args = [term()]
+.br
+Time = timeout()
+.br
+SpawnOpts = [\fBspawn_option()\fR\&]
+.br
+Ret = term() | {error, Reason :: term()}
+.br
+.RE
+.RS
+.LP
+Starts a new process synchronously\&. Spawns the process and waits for it to start\&. When the process has started, it \fImust\fR\& call \fBinit_ack(Parent,Ret)\fR\& or \fBinit_ack(Ret)\fR\&, where \fIParent\fR\& is the process that evaluates this function\&. At this time, \fIRet\fR\& is returned\&.
+.LP
+If the \fIstart_link/3,4,5\fR\& function is used and the process crashes before it has called \fIinit_ack/1,2\fR\&, \fI{error, Reason}\fR\& is returned if the calling process traps exits\&.
+.LP
+If \fITime\fR\& is specified as an integer, this function waits for \fITime\fR\& milliseconds for the new process to call \fIinit_ack\fR\&, or \fI{error, timeout}\fR\& is returned, and the process is killed\&.
+.LP
+The \fISpawnOpts\fR\& argument, if given, will be passed as the last argument to the \fIspawn_opt/2,3,4,5\fR\& BIF\&.
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+Using the spawn option \fImonitor\fR\& is currently not allowed, but will cause the function to fail with reason \fIbadarg\fR\&\&.
+
+.RE
+.LP
+.nf
+
+.B
+init_ack(Ret) -> ok
+.br
+.fi
+.br
+.nf
+
+.B
+init_ack(Parent, Ret) -> ok
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Parent = pid()
+.br
+Ret = term()
+.br
+.RE
+.RS
+.LP
+This function must used by a process that has been started by a \fBstart[_link]/3,4,5\fR\& function\&. It tells \fIParent\fR\& that the process has initialized itself, has started, or has failed to initialize itself\&.
+.LP
+The \fIinit_ack/1\fR\& function uses the parent value previously stored by the start function used\&.
+.LP
+If this function is not called, the start function will return an error tuple (if a link and/or a timeout is used) or hang otherwise\&.
+.LP
+The following example illustrates how this function and \fIproc_lib:start_link/3\fR\& are used\&.
+.LP
+.nf
+
+-module(my_proc).
+-export([start_link/0]).
+-export([init/1]).
+
+start_link() ->
+    proc_lib:start_link(my_proc, init, [self()]).
+
+init(Parent) ->
+    case do_initialization() of
+        ok ->
+            proc_lib:init_ack(Parent, {ok, self()});
+        {error, Reason} ->
+            exit(Reason)
+    end,
+    loop().
+
+...
+.fi
+.RE
+.LP
+.nf
+
+.B
+format(CrashReport) -> string()
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+CrashReport = [term()]
+.br
+.RE
+.RS
+.LP
+This function can be used by a user defined event handler to format a crash report\&. The crash report is sent using \fIerror_logger:error_report(crash_report, CrashReport)\fR\&\&. That is, the event to be handled is of the format \fI{error_report, GL, {Pid, crash_report, CrashReport}}\fR\& where \fIGL\fR\& is the group leader pid of the process \fIPid\fR\& which sent the crash report\&.
+.RE
+.LP
+.nf
+
+.B
+initial_call(Process) -> {Module, Function, Args} | false
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Process = \fBdict_or_pid()\fR\&
+.br
+Module = module()
+.br
+Function = atom()
+.br
+Args = [atom()]
+.br
+.RE
+.RS
+.LP
+Extracts the initial call of a process that was started using one of the spawn or start functions described above\&. \fIProcess\fR\& can either be a pid, an integer tuple (from which a pid can be created), or the process information of a process \fIPid\fR\& fetched through an \fIerlang:process_info(Pid)\fR\& function call\&.
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+The list \fIArgs\fR\& no longer contains the actual arguments, but the same number of atoms as the number of arguments; the first atom is always \fI\&'Argument__1\&'\fR\&, the second \fI\&'Argument__2\&'\fR\&, and so on\&. The reason is that the argument list could waste a significant amount of memory, and if the argument list contained funs, it could be impossible to upgrade the code for the module\&.
+.LP
+If the process was spawned using a fun, \fIinitial_call/1\fR\& no longer returns the actual fun, but the module, function for the local function implementing the fun, and the arity, for instance \fI{some_module,-work/3-fun-0-,0}\fR\& (meaning that the fun was created in the function \fIsome_module:work/3\fR\&)\&. The reason is that keeping the fun would prevent code upgrade for the module, and that a significant amount of memory could be wasted\&.
+
+.RE
+.LP
+.nf
+
+.B
+translate_initial_call(Process) -> {Module, Function, Arity}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Process = \fBdict_or_pid()\fR\&
+.br
+Module = module()
+.br
+Function = atom()
+.br
+Arity = byte()
+.br
+.RE
+.RS
+.LP
+This function is used by the \fIc:i/0\fR\& and \fIc:regs/0\fR\& functions in order to present process information\&.
+.LP
+Extracts the initial call of a process that was started using one of the spawn or start functions described above, and translates it to more useful information\&. \fIProcess\fR\& can either be a pid, an integer tuple (from which a pid can be created), or the process information of a process \fIPid\fR\& fetched through an \fIerlang:process_info(Pid)\fR\& function call\&.
+.LP
+If the initial call is to one of the system defined behaviors such as \fIgen_server\fR\& or \fIgen_event\fR\&, it is translated to more useful information\&. If a \fIgen_server\fR\& is spawned, the returned \fIModule\fR\& is the name of the callback module and \fIFunction\fR\& is \fIinit\fR\& (the function that initiates the new server)\&.
+.LP
+A \fIsupervisor\fR\& and a \fIsupervisor_bridge\fR\& are also \fIgen_server\fR\& processes\&. In order to return information that this process is a supervisor and the name of the call-back module, \fIModule\fR\& is \fIsupervisor\fR\& and \fIFunction\fR\& is the name of the supervisor callback module\&. \fIArity\fR\& is \fI1\fR\& since the \fIinit/1\fR\& function is called initially in the callback module\&.
+.LP
+By default, \fI{proc_lib,init_p,5}\fR\& is returned if no information about the initial call can be found\&. It is assumed that the caller knows that the process has been spawned with the \fIproc_lib\fR\& module\&.
+.RE
+.LP
+.nf
+
+.B
+hibernate(Module, Function, Args) -> no_return()
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Module = module()
+.br
+Function = atom()
+.br
+Args = [term()]
+.br
+.RE
+.RS
+.LP
+This function does the same as (and does call) the BIF \fBhibernate/3\fR\&, but ensures that exception handling and logging continues to work as expected when the process wakes up\&. Always use this function instead of the BIF for processes started using \fIproc_lib\fR\& functions\&.
+.RE
+.SH "SEE ALSO"
+
+.LP
+\fBerror_logger(3)\fR\&

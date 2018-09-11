@@ -1,0 +1,154 @@
+.TH cosFileTransferApp 3 "cosFileTransfer 1.1.12" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+cosFileTransferApp \- The main module of the cosFileTransfer application.
+.SH DESCRIPTION
+.LP
+To get access to the record definitions for the structures use: 
+.br
+\fI-include_lib("cosFileTransfer/include/*\&.hrl")\&.\fR\&
+.LP
+This module contains the functions for starting and stopping the application\&.
+.SH EXPORTS
+.LP
+.B
+install() -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {'EXIT', Reason}
+.br
+.RE
+.RS
+.LP
+This operation installs the cosFileTransfer application\&. Note, the \fIcosProperty\fR\& application must be installed prior to invoking this operation\&.
+.RE
+.LP
+.B
+uninstall() -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {'EXIT', Reason}
+.br
+.RE
+.RS
+.LP
+This operation uninstalls the cosFileTransfer application\&.
+.RE
+.LP
+.B
+start() -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {error, Reason}
+.br
+.RE
+.RS
+.LP
+This operation starts the cosFileTransfer application\&.
+.RE
+.LP
+.B
+stop() -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {error, Reason}
+.br
+.RE
+.RS
+.LP
+This operation stops the cosFileTransfer application\&.
+.RE
+.LP
+.B
+create_VFS(Type, Content, Host, Port [,Options]) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Type = 'FTP' | {'NATIVE', 'cosFileTransferNATIVE_file'} | {'NATIVE', MyModule}
+.br
+Content = []
+.br
+Host = string(), e.g. "myHost@myServer" or "012.345.678.910"
+.br
+Port = integer()
+.br
+Options = [Option]
+.br
+Option = {protocol, Protocol} | {connect_timeout, Seconds}
+.br
+Protocol = tcp | ssl
+.br
+Return = VFS | {'EXCEPTION, E}
+.br
+VFS = #objref
+.br
+.RE
+.RS
+.LP
+This operation creates a new instance of a Virtual File System\&. The \fIType\fR\& parameter determines which type we want the VFS to represent\&. \&'FTP\&' maps to the \fIINETS\fR\& ftp implementation, while {\&'NATIVE\&', \&'cosFileTransferNATIVE_file\&'} uses the \fIfile\fR\& module\&. It is also possible to implement own mappings which are activated by supplying {\&'NATIVE\&', MyModule}\&. The MyModule module must export the same functions and behave in the same way as the INETS ftp module, and an operation named \fIopen(Host, Port)\fR\&, which shall return \fI{ok, Pid}\fR\& or \fI{error, Reason}\fR\&\&.
+.LP
+If no \fIOptions\fR\& are supplied the default setting will be used, i\&.e\&., tcp and 60 seconds\&.
+.LP
+The \fIContent\fR\& parameter is currently ignored by must be supplied as an empty list\&.
+.RE
+.LP
+.B
+ssl_server_certfile() -> string()
+.br
+.RS
+.LP
+This function returns a path to a file containing a chain of PEM encoded certificates for the cosFileTransfer as target\&. This is configured by setting the application variable \fIssl_server_certfile\fR\&\&.
+.RE
+.LP
+.B
+ssl_client_certfile() -> string()
+.br
+.RS
+.LP
+This function returns a path to a file containing a chain of PEM encoded certificates used in outgoing calls\&. The default value is configured by setting the application variable \fIssl_client_certfile\fR\&\&.
+.RE
+.LP
+.B
+ssl_server_verify() -> 0 | 1 | 2
+.br
+.RS
+.LP
+This function returns the type of verification used by SSL during authentication of the other peer for incoming calls\&. It is configured by setting the application variable \fIssl_server_verify\fR\&\&.
+.RE
+.LP
+.B
+ssl_client_verify() -> 0 | 1 | 2
+.br
+.RS
+.LP
+This function returns the type of verification used by SSL during authentication of the other peer for outgoing calls\&. The default value is configured by setting the application variable \fIssl_client_verify\fR\&\&.
+.RE
+.LP
+.B
+ssl_server_depth() -> int()
+.br
+.RS
+.LP
+This function returns the SSL verification depth for incoming calls\&. It is configured by setting the application variable \fIssl_server_depth\fR\&\&.
+.RE
+.LP
+.B
+ssl_client_depth() -> int()
+.br
+.RS
+.LP
+This function returns the SSL verification depth for outgoing calls\&. The default value is configured by setting the application variable \fIssl_client_depth\fR\&\&.
+.RE

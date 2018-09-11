@@ -1,0 +1,804 @@
+.TH wxTreeCtrl 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxTreeCtrl \- See external documentation: wxTreeCtrl.
+.SH DESCRIPTION
+.LP
+See external documentation: wxTreeCtrl\&.
+.LP
+Note: The representation of treeItemId() have changed from the original class implementation to be an semi-opaque type,Equality between TreeItemId\&'s can be tested and zero means that the TreeItem is invalid\&.
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxTreeCtrl()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+new() -> wxTreeCtrl()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+new(Parent::wxWindow() (see module wxWindow)) -> wxTreeCtrl()
+.br
+.RS
+.LP
+Equivalent to \fBnew(Parent, [])\fR\&\&.
+.RE
+.LP
+.B
+new(Parent::wxWindow() (see module wxWindow), Options::[Option]) -> wxTreeCtrl()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {id, integer()} | {pos, {X::integer(), Y::integer()}} | {size, {W::integer(), H::integer()}} | {style, integer()} | {validator, wx() (see module wx)}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+addRoot(This::wxTreeCtrl(), Text::string()) -> integer()
+.br
+.RS
+.LP
+Equivalent to \fBaddRoot(This, Text, [])\fR\&\&.
+.RE
+.LP
+.B
+addRoot(This::wxTreeCtrl(), Text::string(), Options::[Option]) -> integer()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {image, integer()} | {selectedImage, integer()} | {data, term()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+appendItem(This::wxTreeCtrl(), Parent::integer(), Text::string()) -> integer()
+.br
+.RS
+.LP
+Equivalent to \fBappendItem(This, Parent, Text, [])\fR\&\&.
+.RE
+.LP
+.B
+appendItem(This::wxTreeCtrl(), Parent::integer(), Text::string(), Options::[Option]) -> integer()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {image, integer()} | {selectedImage, integer()} | {data, term()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+assignImageList(This::wxTreeCtrl(), ImageList::wxImageList() (see module wxImageList)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+assignStateImageList(This::wxTreeCtrl(), ImageList::wxImageList() (see module wxImageList)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+collapse(This::wxTreeCtrl(), Item::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+collapseAndReset(This::wxTreeCtrl(), Item::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+create(This::wxTreeCtrl(), Parent::wxWindow() (see module wxWindow)) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBcreate(This, Parent, [])\fR\&\&.
+.RE
+.LP
+.B
+create(This::wxTreeCtrl(), Parent::wxWindow() (see module wxWindow), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {id, integer()} | {pos, {X::integer(), Y::integer()}} | {size, {W::integer(), H::integer()}} | {style, integer()} | {validator, wx() (see module wx)}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+delete(This::wxTreeCtrl(), Item::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+deleteAllItems(This::wxTreeCtrl()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+deleteChildren(This::wxTreeCtrl(), Item::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+editLabel(This::wxTreeCtrl(), Item::integer()) -> wxTextCtrl() (see module wxTextCtrl)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+ensureVisible(This::wxTreeCtrl(), Item::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+expand(This::wxTreeCtrl(), Item::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getBoundingRect(This::wxTreeCtrl(), Item::integer(), Rect::{X::integer(), Y::integer(), W::integer(), H::integer()}) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBgetBoundingRect(This, Item, Rect, [])\fR\&\&.
+.RE
+.LP
+.B
+getBoundingRect(This::wxTreeCtrl(), Item::integer(), Rect::{X::integer(), Y::integer(), W::integer(), H::integer()}, Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {textOnly, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getChildrenCount(This::wxTreeCtrl(), Item::integer()) -> integer()
+.br
+.RS
+.LP
+Equivalent to \fBgetChildrenCount(This, Item, [])\fR\&\&.
+.RE
+.LP
+.B
+getChildrenCount(This::wxTreeCtrl(), Item::integer(), Options::[Option]) -> integer()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {recursively, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getCount(This::wxTreeCtrl()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getEditControl(This::wxTreeCtrl()) -> wxTextCtrl() (see module wxTextCtrl)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getFirstChild(This::wxTreeCtrl(), Item::integer()) -> {integer(), Cookie::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getNextChild(This::wxTreeCtrl(), Item::integer(), Cookie::integer()) -> {integer(), Cookie::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getFirstVisibleItem(This::wxTreeCtrl()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getImageList(This::wxTreeCtrl()) -> wxImageList() (see module wxImageList)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getIndent(This::wxTreeCtrl()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getItemBackgroundColour(This::wxTreeCtrl(), Item::integer()) -> colour() (see module wx)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getItemData(This::wxTreeCtrl(), Item::integer()) -> term()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getItemFont(This::wxTreeCtrl(), Item::integer()) -> wxFont() (see module wxFont)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getItemImage(This::wxTreeCtrl(), Item::integer()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getItemImage(This::wxTreeCtrl(), Item::integer(), Options::[Option]) -> integer()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {which, WxTreeItemIcon}
+.br
+WxTreeItemIcon = integer()
+.br
+.RE
+.RS
+.LP
+See external documentation\&. 
+.br
+WxTreeItemIcon is one of ?wxTreeItemIcon_Normal | ?wxTreeItemIcon_Selected | ?wxTreeItemIcon_Expanded | ?wxTreeItemIcon_SelectedExpanded | ?wxTreeItemIcon_Max
+.RE
+.LP
+.B
+getItemText(This::wxTreeCtrl(), Item::integer()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getItemTextColour(This::wxTreeCtrl(), Item::integer()) -> colour() (see module wx)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getLastChild(This::wxTreeCtrl(), Item::integer()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getNextSibling(This::wxTreeCtrl(), Item::integer()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getNextVisible(This::wxTreeCtrl(), Item::integer()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getItemParent(This::wxTreeCtrl(), Item::integer()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getPrevSibling(This::wxTreeCtrl(), Item::integer()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getPrevVisible(This::wxTreeCtrl(), Item::integer()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getRootItem(This::wxTreeCtrl()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getSelection(This::wxTreeCtrl()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getSelections(This::wxTreeCtrl()) -> {integer(), Val::[integer()]}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getStateImageList(This::wxTreeCtrl()) -> wxImageList() (see module wxImageList)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+hitTest(This::wxTreeCtrl(), Point::{X::integer(), Y::integer()}) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+insertItem(This::wxTreeCtrl(), Parent::integer(), Pos::integer(), Text::string()) -> integer()
+.br
+.RS
+.LP
+Equivalent to \fBinsertItem(This, Parent, Pos, Text, [])\fR\&\&.
+.RE
+.LP
+.B
+insertItem(This::wxTreeCtrl(), Parent::integer(), Pos::integer(), Text::string(), Options::[Option]) -> integer()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {image, integer()} | {selImage, integer()} | {data, term()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isBold(This::wxTreeCtrl(), Item::integer()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isExpanded(This::wxTreeCtrl(), Item::integer()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isSelected(This::wxTreeCtrl(), Item::integer()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isVisible(This::wxTreeCtrl(), Item::integer()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+itemHasChildren(This::wxTreeCtrl(), Item::integer()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+prependItem(This::wxTreeCtrl(), Parent::integer(), Text::string()) -> integer()
+.br
+.RS
+.LP
+Equivalent to \fBprependItem(This, Parent, Text, [])\fR\&\&.
+.RE
+.LP
+.B
+prependItem(This::wxTreeCtrl(), Parent::integer(), Text::string(), Options::[Option]) -> integer()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {image, integer()} | {selectedImage, integer()} | {data, term()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+scrollTo(This::wxTreeCtrl(), Item::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+selectItem(This::wxTreeCtrl(), Item::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+selectItem(This::wxTreeCtrl(), Item::integer(), Options::[Option]) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Option = {select, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setIndent(This::wxTreeCtrl(), Indent::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setImageList(This::wxTreeCtrl(), ImageList::wxImageList() (see module wxImageList)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setItemBackgroundColour(This::wxTreeCtrl(), Item::integer(), Col::colour() (see module wx)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setItemBold(This::wxTreeCtrl(), Item::integer()) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBsetItemBold(This, Item, [])\fR\&\&.
+.RE
+.LP
+.B
+setItemBold(This::wxTreeCtrl(), Item::integer(), Options::[Option]) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Option = {bold, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setItemData(This::wxTreeCtrl(), Item::integer(), Data::term()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setItemDropHighlight(This::wxTreeCtrl(), Item::integer()) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBsetItemDropHighlight(This, Item, [])\fR\&\&.
+.RE
+.LP
+.B
+setItemDropHighlight(This::wxTreeCtrl(), Item::integer(), Options::[Option]) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Option = {highlight, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setItemFont(This::wxTreeCtrl(), Item::integer(), Font::wxFont() (see module wxFont)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setItemHasChildren(This::wxTreeCtrl(), Item::integer()) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBsetItemHasChildren(This, Item, [])\fR\&\&.
+.RE
+.LP
+.B
+setItemHasChildren(This::wxTreeCtrl(), Item::integer(), Options::[Option]) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Option = {has, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setItemImage(This::wxTreeCtrl(), Item::integer(), Image::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setItemImage(This::wxTreeCtrl(), Item::integer(), Image::integer(), Options::[Option]) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Option = {which, WxTreeItemIcon}
+.br
+WxTreeItemIcon = integer()
+.br
+.RE
+.RS
+.LP
+See external documentation\&. 
+.br
+WxTreeItemIcon is one of ?wxTreeItemIcon_Normal | ?wxTreeItemIcon_Selected | ?wxTreeItemIcon_Expanded | ?wxTreeItemIcon_SelectedExpanded | ?wxTreeItemIcon_Max
+.RE
+.LP
+.B
+setItemText(This::wxTreeCtrl(), Item::integer(), Text::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setItemTextColour(This::wxTreeCtrl(), Item::integer(), Col::colour() (see module wx)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setStateImageList(This::wxTreeCtrl(), ImageList::wxImageList() (see module wxImageList)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setWindowStyle(This::wxTreeCtrl(), Styles::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+sortChildren(This::wxTreeCtrl(), Item::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+toggle(This::wxTreeCtrl(), Item::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+toggleItemSelection(This::wxTreeCtrl(), Item::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+unselect(This::wxTreeCtrl()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+unselectAll(This::wxTreeCtrl()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+unselectItem(This::wxTreeCtrl(), Item::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+destroy(This::wxTreeCtrl()) -> ok
+.br
+.RS
+.LP
+Destroys this object, do not use object again
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

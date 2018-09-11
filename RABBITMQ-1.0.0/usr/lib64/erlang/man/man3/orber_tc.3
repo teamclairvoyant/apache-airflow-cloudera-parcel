@@ -1,0 +1,366 @@
+.TH orber_tc 3 "orber 3.6.22" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+orber_tc \- Help functions for IDL typecodes
+.SH DESCRIPTION
+.LP
+This module contains some functions that gives support in creating IDL typecodes that can be used in for example the any types typecode field\&. For the simple types it is meaningless to use this API but the functions exist to get the interface complete\&.
+.LP
+The type \fITC\fR\& used below describes an IDL type and is a tuple according to the to the Erlang language mapping\&.
+.SH EXPORTS
+.LP
+.B
+null() -> TC
+.br
+.B
+void() -> TC
+.br
+.B
+short() -> TC
+.br
+.B
+unsigned_short() -> TC
+.br
+.B
+long() -> TC
+.br
+.B
+unsigned_long() -> TC
+.br
+.B
+long_long() -> TC
+.br
+.B
+unsigned_long_long() -> TC
+.br
+.B
+wchar() -> TC
+.br
+.B
+float() -> TC
+.br
+.B
+double() -> TC
+.br
+.B
+boolean() -> TC
+.br
+.B
+char() -> TC
+.br
+.B
+octet() -> TC
+.br
+.B
+any() -> TC
+.br
+.B
+typecode() -> TC
+.br
+.B
+principal() -> TC
+.br
+.RS
+.LP
+These functions return the IDL typecodes for simple types\&.
+.RE
+.LP
+.B
+object_reference(Id, Name) -> TC
+.br
+.RS
+.TP 3
+Types:
+
+Id = string()
+.br
+the repository ID
+.br
+Name = string()
+.br
+the type name of the object
+.br
+.RE
+.RS
+.LP
+Function returns the IDL typecode for object_reference\&.
+.RE
+.LP
+.B
+struct(Id, Name, ElementList) -> TC
+.br
+.RS
+.TP 3
+Types:
+
+Id = string()
+.br
+the repository ID
+.br
+Name = string()
+.br
+the type name of the struct
+.br
+ElementList = [{MemberName, TC}]
+.br
+a list of the struct elements
+.br
+MemberName = string()
+.br
+the element name
+.br
+.RE
+.RS
+.LP
+Function returns the IDL typecode for struct\&.
+.RE
+.LP
+.B
+union(Id, Name, DiscrTC, Default, ElementList) -> TC
+.br
+.RS
+.TP 3
+Types:
+
+Id = string()
+.br
+the repository ID
+.br
+Name = string()
+.br
+the type name of the union
+.br
+DiscrTC = TC
+.br
+the typecode for the unions discriminant
+.br
+Default = integer()
+.br
+a value that indicates which tuple in the element list that is default (value < 0 means no default)
+.br
+ElementList = [{Label, MemberName, TC}]
+.br
+a list of the union elements
+.br
+Label = term()
+.br
+the label value should be of the \fIDiscrTC\fR\&type
+.br
+MemberName = string()
+.br
+the element name
+.br
+.RE
+.RS
+.LP
+Function returns the IDL typecode for union\&.
+.RE
+.LP
+.B
+enum(Id, Name, ElementList) -> TC
+.br
+.RS
+.TP 3
+Types:
+
+Id = string()
+.br
+the repository ID
+.br
+Name = string()
+.br
+the type name of the enum
+.br
+ElementList = [MemberName]
+.br
+a list of the enums elements
+.br
+MemberName = string()
+.br
+the element name
+.br
+.RE
+.RS
+.LP
+Function returns the IDL typecode for enum\&.
+.RE
+.LP
+.B
+string(Length) -> TC
+.br
+.RS
+.TP 3
+Types:
+
+Length = integer()
+.br
+the length of the string (0 means unbounded)
+.br
+.RE
+.RS
+.LP
+Function returns the IDL typecode for string\&.
+.RE
+.LP
+.B
+wstring(Length) -> TC
+.br
+.RS
+.TP 3
+Types:
+
+Length = integer()
+.br
+the length of the wstring (0 means unbounded)
+.br
+.RE
+.RS
+.LP
+Function returns the IDL typecode for wstring\&.
+.RE
+.LP
+.B
+fixed(Digits, Scale) -> TC
+.br
+.RS
+.TP 3
+Types:
+
+Digits = Scale = integer()
+.br
+the digits and scale parameters of a Fixed type
+.br
+.RE
+.RS
+.LP
+Function returns the IDL typecode for fixed\&.
+.RE
+.LP
+.B
+sequence(ElemTC, Length) -> TC
+.br
+.RS
+.TP 3
+Types:
+
+ElemTC = TC
+.br
+the typecode for the sequence elements
+.br
+Length = integer()
+.br
+the length of the sequence (0 means unbounded)
+.br
+.RE
+.RS
+.LP
+Function returns the IDL typecode for sequence\&.
+.RE
+.LP
+.B
+array(ElemTC, Length) -> TC
+.br
+.RS
+.TP 3
+Types:
+
+ElemTC = TC
+.br
+the typecode for the array elements
+.br
+Length = integer()
+.br
+the length of the array
+.br
+.RE
+.RS
+.LP
+Function returns the IDL typecode for array\&.
+.RE
+.LP
+.B
+alias(Id, Name, AliasTC) -> TC
+.br
+.RS
+.TP 3
+Types:
+
+Id = string()
+.br
+the repository ID
+.br
+Name = string()
+.br
+the type name of the alias
+.br
+AliasTC = TC
+.br
+the typecode for the type which the alias refer to
+.br
+.RE
+.RS
+.LP
+Function returns the IDL typecode for alias\&.
+.RE
+.LP
+.B
+exception(Id, Name, ElementList) -> TC
+.br
+.RS
+.TP 3
+Types:
+
+Id = string()
+.br
+the repository ID
+.br
+Name = string()
+.br
+the type name of the exception
+.br
+ElementList = [{MemberName, TC}]
+.br
+a list of the exception elements
+.br
+MemberName = string()
+.br
+the element name
+.br
+.RE
+.RS
+.LP
+Function returns the IDL typecode for exception\&.
+.RE
+.LP
+.B
+get_tc(Object) -> TC
+.br
+.B
+get_tc(Id) -> TC
+.br
+.RS
+.TP 3
+Types:
+
+Object = record()
+.br
+an IDL specified struct, union or exception
+.br
+Id = string()
+.br
+the repository ID
+.br
+.RE
+.RS
+.LP
+If the get_tc/1 gets a record that is and IDL specified struct, union or exception as a parameter it returns the typecode\&.
+.LP
+If the parameter is a repository ID it uses the Interface Repository to get the typecode\&.
+.RE
+.LP
+.B
+check_tc(TC) -> boolean()
+.br
+.RS
+.LP
+Function checks the syntax of an IDL typecode\&.
+.RE

@@ -1,0 +1,203 @@
+.TH CosPropertyService_PropertySetDef 3 "cosProperty 1.1.14" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+CosPropertyService_PropertySetDef \- This module implements the OMG CosPropertyService::PropertySetDef interface.
+.SH DESCRIPTION
+.LP
+To get access to the record definitions for the structures use: 
+.br
+\fI-include_lib("cosProperty/include/CosPropertyService\&.hrl")\&.\fR\&
+.LP
+This module also exports the functions described in
+.LP
+\fBCosPropertyService_PropertySet\fR\&
+.SH EXPORTS
+.LP
+.B
+get_allowed_property_types(PropertySetDef) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+PropertySetDef = #objref
+.br
+Reply = {ok, PropertyTypes}
+.br
+PropertyTypes = [CORBA::TypeCode]
+.br
+.RE
+.RS
+.LP
+This operation return the TypeCodes which we are allowed to use when adding new properties\&.
+.RE
+.LP
+.B
+get_allowed_properties(PropertySetDef) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+PropertySetDef = #objref
+.br
+Reply = {ok, PropertyDefs}
+.br
+PropertyDefs = [#'CosPropertyService_PropertyDef'{property_name = Name, property_value = Value, property_mode = Mode}]
+.br
+Name = string()
+.br
+Value = #any
+.br
+Mode = normal | read_only | fixed_normal | fixed_readonly | undefined
+.br
+.RE
+.RS
+.LP
+This operation a sequence of the allowed properties we may alter; depends on which mode associated with a certain property\&.
+.RE
+.LP
+.B
+define_property_with_mode(PropertySetDef, Name, Value, Mode) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+PropertySetDef = #objref
+.br
+Name = non-empty string()
+.br
+Value = #any
+.br
+Mode = normal | read_only | fixed_normal | fixed_readonly | undefined
+.br
+Reply = ok | {'EXCEPTION', #CosPropertyService_InvalidPropertyName{}} | {'EXCEPTION', #CosPropertyService_ConflictingProperty{}} | {'EXCEPTION', #CosPropertyService_UnsupportedTypeCode{}} | {'EXCEPTION', #CosPropertyService_UnsupportedProperty{}} | {'EXCEPTION', #CosPropertyService_UnsupportedMode{}} | {'EXCEPTION', #CosPropertyService_ReadOnlyProperty{}}
+.br
+.RE
+.RS
+.LP
+This operation attempts to associate a new property with the target object\&. If we fail to do so the appropriate exception is raised\&.
+.RE
+.LP
+.B
+define_properties_with_modes(PropertySetDef, PropertyDefs) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+PropertySetDef = #objref
+.br
+PropertyDefs = [#'CosPropertyService_PropertyDef'{property_name = Name, property_value = Value, property_mode = Mode}]
+.br
+Name = string()
+.br
+Value = #any
+.br
+Mode = normal | read_only | fixed_normal | fixed_readonly | undefined
+.br
+Reply = ok | {'EXCEPTION', #CosPropertyService_MultipleExceptions{exceptions = Excs}}
+.br
+Excs = [#'CosPropertyService_PropertyException{reason = Reason, failing_property_name = Name}]
+.br
+Reason = invalid_property_name | conflicting_property | property_not_found | unsupported_type_code | unsupported_property | unsupported_mode | fixed_property | read_only_property
+.br
+.RE
+.RS
+.LP
+This operation attempts to associate the given Property Definitions with the target object\&. If one or more attempts fail an exception is raised describing which properties we where not able to create\&.
+.RE
+.LP
+.B
+get_property_mode(PropertySetDef, Name) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+PropertySetDef = #objref
+.br
+Name = string()
+.br
+Reply = Mode | {'EXCEPTION', #CosPropertyService_InvalidPropertyName{}} | {'EXCEPTION', #CosPropertyService_PropertyNotFound{}}
+.br
+Mode = normal | read_only | fixed_normal | fixed_readonly | undefined
+.br
+.RE
+.RS
+.LP
+This operation returns the type of the given property\&.
+.RE
+.LP
+.B
+get_property_modes(PropertySetDef, Names) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+PropertySetDef = #objref
+.br
+Names = [string()]
+.br
+Reply = {boolean(), PropertyModes}
+.br
+PropertyModes = [#'CosPropertyService_PropertyMode'{property_name = Name, property_mode = Mode}]
+.br
+Name = string()
+.br
+Mode = normal | read_only | fixed_normal | fixed_readonly | undefined
+.br
+.RE
+.RS
+.LP
+This operation returns the modes of the listed properties\&. If the boolean flag is false, all properties with mode \fIundefined\fR\& this operation failed to comply\&.
+.RE
+.LP
+.B
+set_property_mode(PropertySetDef, Name, Mode) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+PropertySetDef = #objref
+.br
+Name = string()
+.br
+Mode = normal | read_only | fixed_normal | fixed_readonly | undefined
+.br
+Reply = ok | {'EXCEPTION', #CosPropertyService_InvalidPropertyName{}} | {'EXCEPTION', #CosPropertyService_UnsupportedMode{}} | {'EXCEPTION', #CosPropertyService_PropertyNotFound{}}
+.br
+.RE
+.RS
+.LP
+This operation changes the given property\&'s mode\&. Return the appropriate exception if not able to fulfill the request\&.
+.RE
+.LP
+.B
+set_property_modes(PropertySetDef, PropertyModes) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+PropertySetDef = #objref
+.br
+PropertyModes = [#'CosPropertyService_PropertyMode'{property_name = Name, property_mode = Mode}]
+.br
+Name = string()
+.br
+Mode = normal | read_only | fixed_normal | fixed_readonly | undefined
+.br
+Reply = ok | {'EXCEPTION', #CosPropertyService_MultipleExceptions{exceptions = Excs}}
+.br
+Excs = [#'CosPropertyService_PropertyException{reason = Reason, failing_property_name = Name}]
+.br
+Reason = invalid_property_name | conflicting_property | property_not_found | unsupported_type_code | unsupported_property | unsupported_mode | fixed_property | read_only_property
+.br
+.RE
+.RS
+.LP
+This operation attempts to update the listed properties mode\&'s\&. Raises an exception which describe which and why an operation failed\&.
+.RE

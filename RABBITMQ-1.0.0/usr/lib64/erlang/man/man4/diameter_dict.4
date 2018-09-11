@@ -1,0 +1,391 @@
+.TH diameter_dict 5 "diameter 0.10" "Ericsson AB" "Files"
+.SH NAME
+diameter_dict \- Dictionary inteface of the diameter application.
+.SH DESCRIPTION
+.LP
+A diameter service as configured with \fBdiameter:start_service/2\fR\& specifies one or more supported Diameter applications\&. Each Diameter application specifies a dictionary module that knows how to encode and decode its messages and AVP\&'s\&. The dictionary module is in turn generated from a file that defines these messages and AVP\&'s\&. The format of such a file is defined in \fBFILE FORMAT\fR\& below\&. Users add support for their specific applications by creating dictionary files, compiling them to Erlang modules using \fBdiameterc\fR\& and configuring the resulting dictionaries modules on a service\&.
+.LP
+The codec generation also results in a hrl file that defines records for the messages and grouped AVP\&'s defined for the application, these records being what a user of the diameter application sends and receives\&. (Modulo other available formats as discussed in \fBdiameter_app(3)\fR\&\&.) These records and the underlying Erlang data types corresponding to Diameter data formats are discussed in \fBMESSAGE RECORDS\fR\& and \fBDATA TYPES\fR\& respectively\&. The generated hrl also contains defines for the possible values of AVPs of type Enumerated\&.
+.LP
+The diameter application includes three dictionary modules corresponding to applications defined in section 2\&.4 of RFC 3588: \fIdiameter_gen_base_rfc3588\fR\& for the Diameter Common Messages application with application identifier 0, \fIdiameter_gen_accounting\fR\& for the Diameter Base Accounting application with application identifier 3 and \fIdiameter_gen_relay\fR\&the Relay application with application identifier 0xFFFFFFFF\&. The Common Message and Relay applications are the only applications that diameter itself has any specific knowledge of\&. The Common Message application is used for messages that diameter itself handles: CER/CEA, DWR/DWA and DPR/DPA\&. The Relay application is given special treatment with regard to encode/decode since the messages and AVP\&'s it handles are not specifically defined\&.
+.SH "FILE FORMAT"
+
+.LP
+A dictionary file consists of distinct sections\&. Each section starts with a line consisting of a tag followed by zero or more arguments\&. Each section ends at the the start of the next section or end of file\&. Tags consist of an ampersand character followed by a keyword and are separated from their arguments by whitespace\&. Whitespace within a section separates individual tokens but its quantity is insignificant\&.
+.LP
+The tags, their arguments and the contents of each corresponding section are as follows\&. Each section can occur at most once unless otherwise specified\&. The order in which sections are specified is unimportant\&.
+.RS 2
+.TP 2
+.B
+\fI@id Number\fR\&:
+Defines the integer Number as the Diameter Application Id of the application in question\&. Required if the dictionary defines \fI@messages\fR\&\&. The section has empty content\&.
+.RS 2
+.LP
+The Application Id is set in the Diameter Header of outgoing messages of the application, and the value in the header of an incoming message is used to identify the relevant dictionary module\&.
+.RE
+.RS 2
+.LP
+Example:
+.RE
+.LP
+.nf
+
+@id 16777231
+
+.fi
+.TP 2
+.B
+\fI@name Mod\fR\&:
+Defines the name of the generated dictionary module\&. The section has empty content\&. Mod must match the regular expression \&'^[a-zA-Z0-9][-_a-zA-Z0-9]*$\&'; that is, contains only alphanumerics, hyphens and underscores begin with an alphanumeric\&.
+.RS 2
+.LP
+A name is optional and defaults to the name of the dictionary file minus any extension\&. Note that a generated module must have a unique name an not colide with another module in the system\&.
+.RE
+.RS 2
+.LP
+Example:
+.RE
+.LP
+.nf
+
+@name etsi_e2
+
+.fi
+.TP 2
+.B
+\fI@prefix Name\fR\&:
+Defines Name as the prefix to be added to record and constant names in the generated dictionary module and hrl\&. The section has empty content\&. Name must be of the same form as a @name\&.
+.RS 2
+.LP
+A prefix is optional but can be used to disambiguate record and constant names resulting from similarly named messages and AVP\&'s in different Diameter applications\&.
+.RE
+.RS 2
+.LP
+Example:
+.RE
+.LP
+.nf
+
+@prefix etsi_e2_
+
+.fi
+.TP 2
+.B
+\fI@vendor Number Name\fR\&:
+Defines the integer Number as the the default Vendor-ID of AVP\&'s for which the V flag is set\&. Name documents the owner of the application but is otherwise unused\&. The section has empty content\&.
+.RS 2
+.LP
+Example:
+.RE
+.LP
+.nf
+
+@vendor 13019 ETSI
+
+.fi
+.TP 2
+.B
+\fI@avp_vendor_id Number\fR\&:
+Defines the integer Number as the Vendor-ID of the AVP\&'s listed in the section content, overriding the \fI@vendor\fR\& default\&. The section content consists of AVP names\&. Can occur zero or more times (with different values of Number)\&.
+.RS 2
+.LP
+Example:
+.RE
+.LP
+.nf
+
+@avp_vendor_id 2937
+
+WWW-Auth
+Domain-Index
+Region-Set
+
+.fi
+.TP 2
+.B
+\fI@inherits Mod\fR\&:
+Defines the name of a generated dictionary module containing AVP definitions referenced by the dictionary but not defined by it\&. The section content is empty\&.
+.RS 2
+.LP
+Can occur 0 or more times (with different values of Mod) but all dictionaries should typically inherit RFC3588 AVPs from \fIdiameter_gen_base_rfc3588\fR\&\&.
+.RE
+.RS 2
+.LP
+Example:
+.RE
+.LP
+.nf
+
+@inherits diameter_gen_base_rfc3588
+
+.fi
+.TP 2
+.B
+\fI@avp_types\fR\&:
+Defines the name, code, type and flags of individual AVPs\&. The section consists of definitions of the form
+.RS 2
+.LP
+\fIName Code Type Flags\fR\&
+.RE
+.RS 2
+.LP
+where Code is the integer AVP code, Flags is a string of V, M and P characters indicating the flags to be set on an outgoing AVP or a single - (minus) character if none are to be set\&. Type identifies either an AVP Data Format as defined in \fBDATA TYPES\fR\& below or a type as defined by a \fI@custom_types\fR\& tag\&.
+.RE
+.RS 2
+.LP
+Example:
+.RE
+.LP
+.nf
+
+@avp_types
+
+Location-Information   350  Grouped     VM
+Requested-Information  353  Enumerated  V
+
+.fi
+.RS 2
+.LP
+Note that the P flag has been deprecated by the Diameter Maintenance and Extensions Working Group of the IETF: diameter will set the P flag to 0 as mandated by the current draft standard\&.
+.RE
+.TP 2
+.B
+\fI@custom_types Mod\fR\&:
+Defines AVPs for which module Mod provides encode/decode\&. The section contents consists of type names\&. For each AVP Name defined with custom type Type, Mod should export the function Name/3 with arguments encode|decode, Type and Data, the latter being the term to be encoded/decoded\&. The function returns the encoded/decoded value\&.
+.RS 2
+.LP
+Can occur 0 or more times (with different values of Mod)\&.
+.RE
+.RS 2
+.LP
+Example:
+.RE
+.LP
+.nf
+
+@custom_types rfc4005_types
+
+Framed-IP-Address
+
+.fi
+.TP 2
+.B
+\fI@messages\fR\&:
+Defines the messages of the application\&. The section content consists of definitions of the form specified in section 3\&.2 of RFC 3588, "Command Code ABNF specification"\&.
+.LP
+.nf
+
+@messages
+
+RTR ::= < Diameter Header: 287, REQ, PXY >
+        < Session-Id >
+        { Auth-Application-Id }
+        { Auth-Session-State }
+        { Origin-Host }
+        { Origin-Realm }
+        { Destination-Host }
+        { SIP-Deregistration-Reason }
+        [ Destination-Realm ]
+        [ User-Name ]
+      * [ SIP-AOR ]
+      * [ Proxy-Info ]
+      * [ Route-Record ]
+      * [ AVP ]
+
+RTA ::= < Diameter Header: 287, PXY >
+        < Session-Id >
+        { Auth-Application-Id }
+        { Result-Code }
+        { Auth-Session-State }
+        { Origin-Host }
+        { Origin-Realm }
+        [ Authorization-Lifetime ]
+        [ Auth-Grace-Period ]
+        [ Redirect-Host ]
+        [ Redirect-Host-Usage ]
+        [ Redirect-Max-Cache-Time ]
+      * [ Proxy-Info ]
+      * [ Route-Record ]
+      * [ AVP ]
+
+.fi
+.TP 2
+.B
+\fI@grouped\fR\&:
+Defines the contents of the AVPs of the application having type Grouped\&. The section content consists of definitions of the form specified in section 4\&.4 of RFC 3588, "Grouped AVP Values"\&.
+.RS 2
+.LP
+Example:
+.RE
+.LP
+.nf
+
+@grouped
+
+SIP-Deregistration-Reason ::= < AVP Header: 383 >
+                              { SIP-Reason-Code }
+                              [ SIP-Reason-Info ]
+                            * [ AVP ]
+
+.fi
+.TP 2
+.B
+\fI@enum Name\fR\&:
+Defines values of AVP Name having type Enumerated\&. Section content consists of names and corresponding integer values\&. Integer values can be prefixed with 0x to be interpreted as hexidecimal\&.
+.RS 2
+.LP
+Can occur 0 or more times (with different values of Name)\&. The AVP in question can be defined in an inherited dictionary in order to introduce additional values\&. An AVP so extended must be referenced by in a \fI@messages\fR\& or \fI@grouped\fR\& section\&.
+.RE
+.RS 2
+.LP
+Example:
+.RE
+.LP
+.nf
+
+@enum SIP-Reason-Code
+
+PERMANENT_TERMINATION    0
+NEW_SIP_SERVER_ASSIGNED  1
+SIP_SERVER_CHANGE        2
+REMOVE_SIP_SERVER        3
+
+.fi
+.RE
+.LP
+Comments can be included in a dictionary file using semicolon: text from a semicolon to end of line is ignored\&.
+.SH "MESSAGE RECORDS"
+
+.LP
+The hrl generated from a dictionary specification defines records for the messages and grouped AVPs defined in \fI@messages\fR\& and \fI@grouped\fR\& sections\&. For each message or grouped AVP definition, a record is defined whose name is the message or AVP name prefixed with any dictionary prefix defined with \fI@prefix\fR\& and whose fields are the names of the AVPs contained in the message or grouped AVP in the order specified in the definition in question\&. For example, the grouped AVP
+.LP
+.nf
+
+SIP-Deregistration-Reason ::= < AVP Header: 383 >
+                              { SIP-Reason-Code }
+                              [ SIP-Reason-Info ]
+                            * [ AVP ]
+
+.fi
+.LP
+will result in the following record definition given an empty prefix\&.
+.LP
+.nf
+
+-record('SIP-Deregistration-Reason' {'SIP-Reason-Code',
+                                     'SIP-Reason-Info',
+                                     'AVP'}).
+
+.fi
+.LP
+The values encoded in the fields of generated records depends on the type and number of times the AVP can occur\&. In particular, an AVP which is specified as occurring exactly once is encoded as a value of the AVP\&'s type while an AVP with any other specification is encoded as a list of values of the AVP\&'s type\&. The AVP\&'s type is as specified in the AVP definition, the RFC 3588 types being described below\&.
+.SH "DATA TYPES"
+
+.LP
+The data formats defined in sections 4\&.2 ("Basic AVP Data Formats") and 4\&.3 ("Derived AVP Data Formats") of RFC 3588 are encoded as values of the types defined here\&. Values are passed to \fBdiameter:call/4\fR\& in a request record when sending a request, returned in a resulting answer record and passed to a \fBhandle_request\fR\& callback upon reception of an incoming request\&.
+.LP
+\fIBasic AVP Data Formats\fR\&
+.LP
+.nf
+
+OctetString() = [0..255]
+Integer32()   = -2147483647..2147483647
+Integer64()   = -9223372036854775807..9223372036854775807
+Unsigned32()  = 0..4294967295
+Unsigned64()  = 0..18446744073709551615
+Float32()     = '-infinity' | float() | infinity
+Float64()     = '-infinity' | float() | infinity
+Grouped()     = record()
+
+.fi
+.LP
+On encode, an OctetString() can be specified as an iolist(), excessively large floats (in absolute value) are equivalent to \fIinfinity\fR\& or \fI\&'-infinity\&'\fR\& and excessively large integers result in encode failure\&. The records for grouped AVPs are as discussed in the previous section\&.
+.LP
+\fIDerived AVP Data Formats\fR\&
+.LP
+.nf
+
+Address() = OctetString()
+          | tuple()
+
+.fi
+.LP
+On encode, an OctetString() IPv4 address is parsed in the usual x\&.x\&.x\&.x format while an IPv6 address is parsed in any of the formats specified by section 2\&.2 of RFC 2373, "Text Representation of Addresses"\&. An IPv4 tuple() has length 4 and contains values of type 0\&.\&.255\&. An IPv6 tuple() has length 8 and contains values of type 0\&.\&.65535\&. The tuple representation is used on decode\&.
+.LP
+.nf
+
+Time() = {date(), time()}
+
+where
+
+  date() = {Year, Month, Day}
+  time() = {Hour, Minute, Second}
+
+  Year   = integer()
+  Month  = 1..12
+  Day    = 1..31
+  Hour   = 0..23
+  Minute = 0..59
+  Second = 0..59
+
+.fi
+.LP
+Additionally, values that can be encoded are limited by way of their encoding as four octets as required by RFC 3588 with the required extension from RFC 2030\&. In particular, only values between \fI{{1968,1,20},{3,14,8}}\fR\& and \fI{{2104,2,26},{9,42,23}}\fR\& (both inclusive) can be encoded\&.
+.LP
+.nf
+
+UTF8String() = [integer()]
+
+.fi
+.LP
+List elements are the UTF-8 encodings of the individual characters in the string\&. Invalid codepoints will result in encode/decode failure\&.
+.LP
+.nf
+
+DiameterIdentity() = OctetString()
+
+.fi
+.LP
+A value must have length at least 1\&.
+.LP
+.nf
+
+DiameterURI() = OctetString()
+              | #diameter_URI{type = Type,
+                              fqdn = FQDN,
+                              port = Port,
+                              transport = Transport,
+                              protocol  = Protocol}
+
+where
+
+  Type = aaa | aaas
+  FQDN = OctetString()
+  Port = integer()
+  Transport = sctp | tcp
+  Protocol  = diameter | radius | 'tacacs+'
+
+.fi
+.LP
+On encode, fields port, transport and protocol default to 3868, sctp and diameter respectively\&. The grammar of an OctetString-valued DiameterURI() is as specified in section 4\&.3 of RFC 3588\&. The record representation is used on decode\&.
+.LP
+.nf
+
+Enumerated() = Integer32()
+
+.fi
+.LP
+On encode, values can be specified using the macros defined in a dictionary\&'s hrl file\&.
+.LP
+.nf
+
+IPFilterRule()  = OctetString()
+QoSFilterRule() = OctetString()
+
+.fi
+.LP
+Values of these types are not currently parsed by diameter\&.
+.SH "SEE ALSO"
+
+.LP
+\fBdiameterc(1)\fR\&, \fBdiameter(3)\fR\&, \fBdiameter_app(3)\fR\&

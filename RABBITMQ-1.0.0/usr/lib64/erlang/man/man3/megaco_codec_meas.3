@@ -1,0 +1,31 @@
+.TH megaco_codec_meas 3 "megaco 3.15.1.1" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+megaco_codec_meas \- This module implements a simple megaco codec measurement tool.
+.SH DESCRIPTION
+.LP
+This module implements a simple megaco codec measurement tool\&.
+.LP
+Results are written to file (excel compatible text files) and on stdout\&.
+.LP
+\fINote\fR\& that this module is \fInot\fR\& included in the runtime part of the application\&.
+.SH EXPORTS
+.LP
+.B
+start() -> void()
+.br
+.B
+start(MessagePackage) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+MessagePackageRaw = message_package()
+.br
+message_package() = atom()
+.br
+.RE
+.RS
+.LP
+This function runs the measurement on all the \fIofficial\fR\& codecs; pretty, compact, ber, per and erlang\&.
+.RE

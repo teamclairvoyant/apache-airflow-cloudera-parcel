@@ -1,0 +1,127 @@
+.TH snmpc(command) 1 "snmp 4.21.1" "Ericsson AB" "User Commands"
+.SH NAME
+snmpc(command) \- SNMP MIB compiler frontend
+.SH DESCRIPTION
+.LP
+The \fIsnmpc\fR\& program provides a way to run the SNMP MIB compiler of the Erlang system\&.
+.SH EXPORTS
+.LP
+.B
+snmpc [options] file\&.mib | file\&.bin
+.br
+.RS
+.LP
+\fIsnmpc\fR\& compile a SNMP MIB file, see \fBcompile/1,2\fR\& for more info\&.
+.LP
+It can also be used to generate a header file (\&.hrl) with definitions of Erlang constants for the objects in the MIB, see \fBmib_to_hrl/1\fR\&\&.
+.RE
+.SH "COMPILER OPTIONS"
+
+.LP
+The following options are supported (note that most of these relate to the compilation of the MIB file):
+.RS 2
+.TP 2
+.B
+--help:
+Prints help info\&.
+.TP 2
+.B
+--version:
+Prints application and mib format version\&.
+.TP 2
+.B
+--verbosity \fIverbosity\fR\&:
+Print debug info\&.
+.RS 2
+.LP
+\fIverbosity\fR\& = \fItrace\fR\& | \fIdebug\fR\& | \fIlog\fR\& | \fIinfo\fR\& | \fIsilence\fR\&
+.RE
+.RS 2
+.LP
+Defaults to \fIsilence\fR\&\&.
+.RE
+.TP 2
+.B
+--warnings | --W:
+Print warning messages\&.
+.TP 2
+.B
+--wae | --Werror:
+Warnings as errors\&. Indicates that warnings shall be treated as errors\&.
+.TP 2
+.B
+--o \fIdirectory\fR\&:
+The directory where the compiler should place the output files\&. If not specified, output files will be placed in the current working directory\&.
+.TP 2
+.B
+--i \fIDirectory\fR\&:
+Specifies the path to search for imported (compiled) MIB files\&. By default, the current working directory is always included\&.
+.RS 2
+.LP
+This option can be present several times, each time specifying \fIone\fR\& path\&.
+.RE
+.TP 2
+.B
+--il \fIDirectory\fR\&:
+This option (include_lib), specifies a list of directories to search for imported MIBs\&. It assumes that the first element in the directory name corresponds to an OTP application\&. The compiler will find the current installed version\&. For example, the value ["snmp/mibs/"] will be replaced by ["snmp-3\&.1\&.1/mibs/"] (or what the current version may be in the system)\&. The current directory and the "snmp-home"/priv/mibs/ are always listed last in the include path\&.
+.TP 2
+.B
+--sgc:
+This option (skip group check), if present, disables the group check of the mib compiler\&. That is, should the OBJECT-GROUP and the NOTIFICATION-GROUP macro(s) be checked for correctness or not\&.
+.TP 2
+.B
+--dep:
+Keep deprecated definition(s)\&. If not specified the compiler will ignore deprecated definitions\&.
+.TP 2
+.B
+--desc:
+The DESCRIPTION field will be included\&.
+.TP 2
+.B
+--ref:
+The REFERENCE field will be included\&.
+.TP 2
+.B
+--imp:
+The IMPORTS field will be included\&.
+.TP 2
+.B
+--mi:
+The MODULE-IDENTITY field will be included\&.
+.TP 2
+.B
+--mc:
+The MODULE-COMPLIANCE field will be included\&.
+.TP 2
+.B
+--ac:
+The AGENT-CAPABILITIES field will be included\&.
+.TP 2
+.B
+--mod \fImodule\fR\&:
+The module which implements all the instrumentation functions\&.
+.RS 2
+.LP
+The name of all instrumentation functions must be the same as the corresponding managed object it implements\&.
+.RE
+.TP 2
+.B
+--nd:
+The default instrumentation functions will \fInot\fR\& be used if a managed object have no instrumentation function\&. Instead this will be reported as an error, and the compilation aborts\&.
+.TP 2
+.B
+--rrnac:
+This option, if present, specifies that the row name assign check shall not be done strictly according to the SMI (which allows only the value 1)\&.
+.RS 2
+.LP
+With this option, all values greater than zero is allowed (>= 1)\&. This means that the error will be converted to a warning\&.
+.RE
+.RS 2
+.LP
+By default it is not included, but if this option is present it will be\&.
+.RE
+.RE
+.SH "SEE ALSO"
+
+.LP
+\fBerlc(1)\fR\&, \fBcompile(3)\fR\&, \fBsnmpc(3)\fR\&

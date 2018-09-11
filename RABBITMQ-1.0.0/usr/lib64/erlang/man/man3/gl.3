@@ -1,0 +1,7426 @@
+.TH gl 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+gl \-  Standard OpenGL api.
+.SH DESCRIPTION
+.LP
+Standard OpenGL api\&. See www\&.opengl\&.org
+.LP
+Booleans are represented by integers 0 and 1\&.
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIclamp()\fR\&:
+
+.RS 2
+.LP
+A float clamped between 0\&.0 - 1\&.0
+.RE
+.TP 2
+.B
+\fIenum()\fR\&:
+
+.RS 2
+.LP
+An integer defined in gl\&.hrl
+.RE
+.TP 2
+.B
+\fImem()\fR\&:
+
+.RS 2
+.LP
+memory block
+.RE
+.TP 2
+.B
+\fIoffset()\fR\&:
+
+.RS 2
+.LP
+An integer which is an offset in an array
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+accum(Op::enum(), Value::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+alphaFunc(Func::enum(), Ref::clamp()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+areTexturesResident(Textures::[integer()]) -> {0 | 1, Residences::[0 | 1]}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+arrayElement(I::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+begin(Mode::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+bindTexture(Target::enum(), Texture::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+bitmap(Width::integer(), Height::integer(), Xorig::float(), Yorig::float(), Xmove::float(), Ymove::float(), Bitmap::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+blendFunc(Sfactor::enum(), Dfactor::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+callList(List::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+callLists(Lists::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+clear(Mask::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+clearAccum(Red::float(), Green::float(), Blue::float(), Alpha::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+clearColor(Red::clamp(), Green::clamp(), Blue::clamp(), Alpha::clamp()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+clearDepth(Depth::clamp()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+clearIndex(C::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+clearStencil(S::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+clipPlane(Plane::enum(), Equation::{float(), float(), float(), float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+color3b(Red::integer(), Green::integer(), Blue::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+color3bv(X1::{Red, Green, Blue}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBcolor3b(Red, Green, Blue)\fR\&\&.
+.RE
+.LP
+.B
+color3d(Red::float(), Green::float(), Blue::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+color3dv(X1::{Red, Green, Blue}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBcolor3d(Red, Green, Blue)\fR\&\&.
+.RE
+.LP
+.B
+color3f(Red::float(), Green::float(), Blue::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+color3fv(X1::{Red, Green, Blue}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBcolor3f(Red, Green, Blue)\fR\&\&.
+.RE
+.LP
+.B
+color3i(Red::integer(), Green::integer(), Blue::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+color3iv(X1::{Red, Green, Blue}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBcolor3i(Red, Green, Blue)\fR\&\&.
+.RE
+.LP
+.B
+color3s(Red::integer(), Green::integer(), Blue::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+color3sv(X1::{Red, Green, Blue}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBcolor3s(Red, Green, Blue)\fR\&\&.
+.RE
+.LP
+.B
+color3ub(Red::integer(), Green::integer(), Blue::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+color3ubv(X1::{Red, Green, Blue}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBcolor3ub(Red, Green, Blue)\fR\&\&.
+.RE
+.LP
+.B
+color3ui(Red::integer(), Green::integer(), Blue::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+color3uiv(X1::{Red, Green, Blue}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBcolor3ui(Red, Green, Blue)\fR\&\&.
+.RE
+.LP
+.B
+color3us(Red::integer(), Green::integer(), Blue::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+color3usv(X1::{Red, Green, Blue}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBcolor3us(Red, Green, Blue)\fR\&\&.
+.RE
+.LP
+.B
+color4b(Red::integer(), Green::integer(), Blue::integer(), Alpha::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+color4bv(X1::{Red, Green, Blue, Alpha}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBcolor4b(Red, Green, Blue, Alpha)\fR\&\&.
+.RE
+.LP
+.B
+color4d(Red::float(), Green::float(), Blue::float(), Alpha::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+color4dv(X1::{Red, Green, Blue, Alpha}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBcolor4d(Red, Green, Blue, Alpha)\fR\&\&.
+.RE
+.LP
+.B
+color4f(Red::float(), Green::float(), Blue::float(), Alpha::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+color4fv(X1::{Red, Green, Blue, Alpha}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBcolor4f(Red, Green, Blue, Alpha)\fR\&\&.
+.RE
+.LP
+.B
+color4i(Red::integer(), Green::integer(), Blue::integer(), Alpha::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+color4iv(X1::{Red, Green, Blue, Alpha}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBcolor4i(Red, Green, Blue, Alpha)\fR\&\&.
+.RE
+.LP
+.B
+color4s(Red::integer(), Green::integer(), Blue::integer(), Alpha::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+color4sv(X1::{Red, Green, Blue, Alpha}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBcolor4s(Red, Green, Blue, Alpha)\fR\&\&.
+.RE
+.LP
+.B
+color4ub(Red::integer(), Green::integer(), Blue::integer(), Alpha::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+color4ubv(X1::{Red, Green, Blue, Alpha}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBcolor4ub(Red, Green, Blue, Alpha)\fR\&\&.
+.RE
+.LP
+.B
+color4ui(Red::integer(), Green::integer(), Blue::integer(), Alpha::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+color4uiv(X1::{Red, Green, Blue, Alpha}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBcolor4ui(Red, Green, Blue, Alpha)\fR\&\&.
+.RE
+.LP
+.B
+color4us(Red::integer(), Green::integer(), Blue::integer(), Alpha::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+color4usv(X1::{Red, Green, Blue, Alpha}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBcolor4us(Red, Green, Blue, Alpha)\fR\&\&.
+.RE
+.LP
+.B
+colorMask(Red::0 | 1, Green::0 | 1, Blue::0 | 1, Alpha::0 | 1) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+colorMaterial(Face::enum(), Mode::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+colorPointer(Size::integer(), Type::enum(), Stride::integer(), Pointer::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+copyPixels(X::integer(), Y::integer(), Width::integer(), Height::integer(), Type::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+copyTexImage1D(Target::enum(), Level::integer(), InternalFormat::enum(), X::integer(), Y::integer(), Width::integer(), Border::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+copyTexImage2D(Target::enum(), Level::integer(), InternalFormat::enum(), X::integer(), Y::integer(), Width::integer(), Height::integer(), Border::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+copyTexSubImage1D(Target::enum(), Level::integer(), Xoffset::integer(), X::integer(), Y::integer(), Width::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+copyTexSubImage2D(Target::enum(), Level::integer(), Xoffset::integer(), Yoffset::integer(), X::integer(), Y::integer(), Width::integer(), Height::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+cullFace(Mode::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+deleteLists(List::integer(), Range::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+deleteTextures(Textures::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+depthFunc(Func::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+depthMask(Flag::0 | 1) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+depthRange(ZNear::clamp(), ZFar::clamp()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+disable(Cap::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+disableClientState(Array::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+drawArrays(Mode::enum(), First::integer(), Count::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+drawBuffer(Mode::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+drawElements(Mode::enum(), Count::integer(), Type::enum(), Indices::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+drawPixels(Width::integer(), Height::integer(), Format::enum(), Type::enum(), Pixels::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+edgeFlag(Flag::0 | 1) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+edgeFlagPointer(Stride::integer(), Pointer::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+edgeFlagv(X1::{Flag}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBedgeFlag(Flag)\fR\&\&.
+.RE
+.LP
+.B
+enable(Cap::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+enableClientState(Array::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+end() -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+endList() -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+evalCoord1d(U::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+evalCoord1dv(X1::{U}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBevalCoord1d(U)\fR\&\&.
+.RE
+.LP
+.B
+evalCoord1f(U::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+evalCoord1fv(X1::{U}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBevalCoord1f(U)\fR\&\&.
+.RE
+.LP
+.B
+evalCoord2d(U::float(), V::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+evalCoord2dv(X1::{U, V}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBevalCoord2d(U, V)\fR\&\&.
+.RE
+.LP
+.B
+evalCoord2f(U::float(), V::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+evalCoord2fv(X1::{U, V}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBevalCoord2f(U, V)\fR\&\&.
+.RE
+.LP
+.B
+evalMesh1(Mode::enum(), I1::integer(), I2::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+evalMesh2(Mode::enum(), I1::integer(), I2::integer(), J1::integer(), J2::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+evalPoint1(I::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+evalPoint2(I::integer(), J::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+feedbackBuffer(Size::integer(), Type::enum(), Buffer::mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+finish() -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+flush() -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+fogf(Pname::enum(), Param::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+fogfv(Pname::enum(), Params::{float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+fogi(Pname::enum(), Param::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+fogiv(Pname::enum(), Params::{integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+frontFace(Mode::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+frustum(Left::float(), Right::float(), Bottom::float(), Top::float(), ZNear::float(), ZFar::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+genLists(Range::integer()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+genTextures(N::integer()) -> [integer()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getBooleanv(Pname::enum()) -> [0 | 1]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getClipPlane(Plane::enum()) -> {float(), float(), float(), float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getDoublev(Pname::enum()) -> [float()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getError() -> enum()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getFloatv(Pname::enum()) -> [float()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getIntegerv(Pname::enum()) -> [integer()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getLightfv(Light::enum(), Pname::enum()) -> {float(), float(), float(), float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getLightiv(Light::enum(), Pname::enum()) -> {integer(), integer(), integer(), integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getMapdv(Target::enum(), Query::enum(), V::mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getMapfv(Target::enum(), Query::enum(), V::mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getMapiv(Target::enum(), Query::enum(), V::mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getMaterialfv(Face::enum(), Pname::enum()) -> {float(), float(), float(), float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getMaterialiv(Face::enum(), Pname::enum()) -> {integer(), integer(), integer(), integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getPixelMapfv(Map::enum(), Values::mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getPixelMapuiv(Map::enum(), Values::mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getPixelMapusv(Map::enum(), Values::mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getPolygonStipple() -> binary()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getString(Name::enum()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getTexEnvfv(Target::enum(), Pname::enum()) -> {float(), float(), float(), float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getTexEnviv(Target::enum(), Pname::enum()) -> {integer(), integer(), integer(), integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getTexGendv(Coord::enum(), Pname::enum()) -> {float(), float(), float(), float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getTexGenfv(Coord::enum(), Pname::enum()) -> {float(), float(), float(), float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getTexGeniv(Coord::enum(), Pname::enum()) -> {integer(), integer(), integer(), integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getTexImage(Target::enum(), Level::integer(), Format::enum(), Type::enum(), Pixels::mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getTexLevelParameterfv(Target::enum(), Level::integer(), Pname::enum()) -> {float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getTexLevelParameteriv(Target::enum(), Level::integer(), Pname::enum()) -> {integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getTexParameterfv(Target::enum(), Pname::enum()) -> {float(), float(), float(), float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getTexParameteriv(Target::enum(), Pname::enum()) -> {integer(), integer(), integer(), integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+hint(Target::enum(), Mode::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+indexMask(Mask::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+indexPointer(Type::enum(), Stride::integer(), Pointer::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+indexd(C::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+indexdv(X1::{C}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBindexd(C)\fR\&\&.
+.RE
+.LP
+.B
+indexf(C::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+indexfv(X1::{C}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBindexf(C)\fR\&\&.
+.RE
+.LP
+.B
+indexi(C::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+indexiv(X1::{C}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBindexi(C)\fR\&\&.
+.RE
+.LP
+.B
+indexs(C::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+indexsv(X1::{C}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBindexs(C)\fR\&\&.
+.RE
+.LP
+.B
+indexub(C::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+indexubv(X1::{C}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBindexub(C)\fR\&\&.
+.RE
+.LP
+.B
+initNames() -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+interleavedArrays(Format::enum(), Stride::integer(), Pointer::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isEnabled(Cap::enum()) -> 0 | 1
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isList(List::integer()) -> 0 | 1
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isTexture(Texture::integer()) -> 0 | 1
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+lightModelf(Pname::enum(), Param::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+lightModelfv(Pname::enum(), Params::{float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+lightModeli(Pname::enum(), Param::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+lightModeliv(Pname::enum(), Params::{integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+lightf(Light::enum(), Pname::enum(), Param::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+lightfv(Light::enum(), Pname::enum(), Params::{float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+lighti(Light::enum(), Pname::enum(), Param::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+lightiv(Light::enum(), Pname::enum(), Params::{integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+lineStipple(Factor::integer(), Pattern::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+lineWidth(Width::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+listBase(Base::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+loadIdentity() -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+loadMatrixd(M::{float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+loadMatrixf(M::{float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+loadName(Name::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+logicOp(Opcode::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+map1d(Target::enum(), U1::float(), U2::float(), Stride::integer(), Order::integer(), Points::binary()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+map1f(Target::enum(), U1::float(), U2::float(), Stride::integer(), Order::integer(), Points::binary()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+map2d(Target::enum(), U1::float(), U2::float(), Ustride::integer(), Uorder::integer(), V1::float(), V2::float(), Vstride::integer(), Vorder::integer(), Points::binary()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+map2f(Target::enum(), U1::float(), U2::float(), Ustride::integer(), Uorder::integer(), V1::float(), V2::float(), Vstride::integer(), Vorder::integer(), Points::binary()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+mapGrid1d(Un::integer(), U1::float(), U2::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+mapGrid1f(Un::integer(), U1::float(), U2::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+mapGrid2d(Un::integer(), U1::float(), U2::float(), Vn::integer(), V1::float(), V2::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+mapGrid2f(Un::integer(), U1::float(), U2::float(), Vn::integer(), V1::float(), V2::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+materialf(Face::enum(), Pname::enum(), Param::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+materialfv(Face::enum(), Pname::enum(), Params::{float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+materiali(Face::enum(), Pname::enum(), Param::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+materialiv(Face::enum(), Pname::enum(), Params::{integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+matrixMode(Mode::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+multMatrixd(M::{float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+multMatrixf(M::{float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+newList(List::integer(), Mode::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+normal3b(Nx::integer(), Ny::integer(), Nz::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+normal3bv(X1::{Nx, Ny, Nz}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBnormal3b(Nx, Ny, Nz)\fR\&\&.
+.RE
+.LP
+.B
+normal3d(Nx::float(), Ny::float(), Nz::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+normal3dv(X1::{Nx, Ny, Nz}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBnormal3d(Nx, Ny, Nz)\fR\&\&.
+.RE
+.LP
+.B
+normal3f(Nx::float(), Ny::float(), Nz::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+normal3fv(X1::{Nx, Ny, Nz}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBnormal3f(Nx, Ny, Nz)\fR\&\&.
+.RE
+.LP
+.B
+normal3i(Nx::integer(), Ny::integer(), Nz::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+normal3iv(X1::{Nx, Ny, Nz}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBnormal3i(Nx, Ny, Nz)\fR\&\&.
+.RE
+.LP
+.B
+normal3s(Nx::integer(), Ny::integer(), Nz::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+normal3sv(X1::{Nx, Ny, Nz}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBnormal3s(Nx, Ny, Nz)\fR\&\&.
+.RE
+.LP
+.B
+normalPointer(Type::enum(), Stride::integer(), Pointer::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+ortho(Left::float(), Right::float(), Bottom::float(), Top::float(), ZNear::float(), ZFar::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+passThrough(Token::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+pixelMapfv(Map::enum(), Mapsize::integer(), Values::binary()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+pixelMapuiv(Map::enum(), Mapsize::integer(), Values::binary()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+pixelMapusv(Map::enum(), Mapsize::integer(), Values::binary()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+pixelStoref(Pname::enum(), Param::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+pixelStorei(Pname::enum(), Param::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+pixelTransferf(Pname::enum(), Param::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+pixelTransferi(Pname::enum(), Param::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+pixelZoom(Xfactor::float(), Yfactor::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+pointSize(Size::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+polygonMode(Face::enum(), Mode::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+polygonOffset(Factor::float(), Units::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+polygonStipple(Mask::binary()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+popAttrib() -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+popClientAttrib() -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+popMatrix() -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+popName() -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+prioritizeTextures(Textures::[integer()], Priorities::[clamp()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+pushAttrib(Mask::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+pushClientAttrib(Mask::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+pushMatrix() -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+pushName(Name::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rasterPos2d(X::float(), Y::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rasterPos2dv(X1::{X, Y}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBrasterPos2d(X, Y)\fR\&\&.
+.RE
+.LP
+.B
+rasterPos2f(X::float(), Y::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rasterPos2fv(X1::{X, Y}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBrasterPos2f(X, Y)\fR\&\&.
+.RE
+.LP
+.B
+rasterPos2i(X::integer(), Y::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rasterPos2iv(X1::{X, Y}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBrasterPos2i(X, Y)\fR\&\&.
+.RE
+.LP
+.B
+rasterPos2s(X::integer(), Y::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rasterPos2sv(X1::{X, Y}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBrasterPos2s(X, Y)\fR\&\&.
+.RE
+.LP
+.B
+rasterPos3d(X::float(), Y::float(), Z::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rasterPos3dv(X1::{X, Y, Z}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBrasterPos3d(X, Y, Z)\fR\&\&.
+.RE
+.LP
+.B
+rasterPos3f(X::float(), Y::float(), Z::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rasterPos3fv(X1::{X, Y, Z}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBrasterPos3f(X, Y, Z)\fR\&\&.
+.RE
+.LP
+.B
+rasterPos3i(X::integer(), Y::integer(), Z::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rasterPos3iv(X1::{X, Y, Z}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBrasterPos3i(X, Y, Z)\fR\&\&.
+.RE
+.LP
+.B
+rasterPos3s(X::integer(), Y::integer(), Z::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rasterPos3sv(X1::{X, Y, Z}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBrasterPos3s(X, Y, Z)\fR\&\&.
+.RE
+.LP
+.B
+rasterPos4d(X::float(), Y::float(), Z::float(), W::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rasterPos4dv(X1::{X, Y, Z, W}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBrasterPos4d(X, Y, Z, W)\fR\&\&.
+.RE
+.LP
+.B
+rasterPos4f(X::float(), Y::float(), Z::float(), W::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rasterPos4fv(X1::{X, Y, Z, W}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBrasterPos4f(X, Y, Z, W)\fR\&\&.
+.RE
+.LP
+.B
+rasterPos4i(X::integer(), Y::integer(), Z::integer(), W::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rasterPos4iv(X1::{X, Y, Z, W}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBrasterPos4i(X, Y, Z, W)\fR\&\&.
+.RE
+.LP
+.B
+rasterPos4s(X::integer(), Y::integer(), Z::integer(), W::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rasterPos4sv(X1::{X, Y, Z, W}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBrasterPos4s(X, Y, Z, W)\fR\&\&.
+.RE
+.LP
+.B
+readBuffer(Mode::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+readPixels(X::integer(), Y::integer(), Width::integer(), Height::integer(), Format::enum(), Type::enum(), Pixels::mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rectd(X1::float(), Y1::float(), X2::float(), Y2::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rectdv(V1::{float(), float()}, V2::{float(), float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rectf(X1::float(), Y1::float(), X2::float(), Y2::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rectfv(V1::{float(), float()}, V2::{float(), float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+recti(X1::integer(), Y1::integer(), X2::integer(), Y2::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rectiv(V1::{integer(), integer()}, V2::{integer(), integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rects(X1::integer(), Y1::integer(), X2::integer(), Y2::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rectsv(V1::{integer(), integer()}, V2::{integer(), integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+renderMode(Mode::enum()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rotated(Angle::float(), X::float(), Y::float(), Z::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+rotatef(Angle::float(), X::float(), Y::float(), Z::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+scaled(X::float(), Y::float(), Z::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+scalef(X::float(), Y::float(), Z::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+scissor(X::integer(), Y::integer(), Width::integer(), Height::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+selectBuffer(Size::integer(), Buffer::mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+shadeModel(Mode::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+stencilFunc(Func::enum(), Ref::integer(), Mask::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+stencilMask(Mask::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+stencilOp(Fail::enum(), Zfail::enum(), Zpass::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texCoord1d(S::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texCoord1dv(X1::{S}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBtexCoord1d(S)\fR\&\&.
+.RE
+.LP
+.B
+texCoord1f(S::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texCoord1fv(X1::{S}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBtexCoord1f(S)\fR\&\&.
+.RE
+.LP
+.B
+texCoord1i(S::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texCoord1iv(X1::{S}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBtexCoord1i(S)\fR\&\&.
+.RE
+.LP
+.B
+texCoord1s(S::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texCoord1sv(X1::{S}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBtexCoord1s(S)\fR\&\&.
+.RE
+.LP
+.B
+texCoord2d(S::float(), T::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texCoord2dv(X1::{S, T}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBtexCoord2d(S, T)\fR\&\&.
+.RE
+.LP
+.B
+texCoord2f(S::float(), T::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texCoord2fv(X1::{S, T}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBtexCoord2f(S, T)\fR\&\&.
+.RE
+.LP
+.B
+texCoord2i(S::integer(), T::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texCoord2iv(X1::{S, T}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBtexCoord2i(S, T)\fR\&\&.
+.RE
+.LP
+.B
+texCoord2s(S::integer(), T::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texCoord2sv(X1::{S, T}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBtexCoord2s(S, T)\fR\&\&.
+.RE
+.LP
+.B
+texCoord3d(S::float(), T::float(), R::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texCoord3dv(X1::{S, T, R}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBtexCoord3d(S, T, R)\fR\&\&.
+.RE
+.LP
+.B
+texCoord3f(S::float(), T::float(), R::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texCoord3fv(X1::{S, T, R}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBtexCoord3f(S, T, R)\fR\&\&.
+.RE
+.LP
+.B
+texCoord3i(S::integer(), T::integer(), R::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texCoord3iv(X1::{S, T, R}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBtexCoord3i(S, T, R)\fR\&\&.
+.RE
+.LP
+.B
+texCoord3s(S::integer(), T::integer(), R::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texCoord3sv(X1::{S, T, R}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBtexCoord3s(S, T, R)\fR\&\&.
+.RE
+.LP
+.B
+texCoord4d(S::float(), T::float(), R::float(), Q::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texCoord4dv(X1::{S, T, R, Q}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBtexCoord4d(S, T, R, Q)\fR\&\&.
+.RE
+.LP
+.B
+texCoord4f(S::float(), T::float(), R::float(), Q::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texCoord4fv(X1::{S, T, R, Q}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBtexCoord4f(S, T, R, Q)\fR\&\&.
+.RE
+.LP
+.B
+texCoord4i(S::integer(), T::integer(), R::integer(), Q::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texCoord4iv(X1::{S, T, R, Q}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBtexCoord4i(S, T, R, Q)\fR\&\&.
+.RE
+.LP
+.B
+texCoord4s(S::integer(), T::integer(), R::integer(), Q::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texCoord4sv(X1::{S, T, R, Q}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBtexCoord4s(S, T, R, Q)\fR\&\&.
+.RE
+.LP
+.B
+texCoordPointer(Size::integer(), Type::enum(), Stride::integer(), Pointer::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texEnvf(Target::enum(), Pname::enum(), Param::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texEnvfv(Target::enum(), Pname::enum(), Params::{float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texEnvi(Target::enum(), Pname::enum(), Param::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texEnviv(Target::enum(), Pname::enum(), Params::{integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texGend(Coord::enum(), Pname::enum(), Param::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texGendv(Coord::enum(), Pname::enum(), Params::{float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texGenf(Coord::enum(), Pname::enum(), Param::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texGenfv(Coord::enum(), Pname::enum(), Params::{float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texGeni(Coord::enum(), Pname::enum(), Param::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texGeniv(Coord::enum(), Pname::enum(), Params::{integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texImage1D(Target::enum(), Level::integer(), Internalformat::integer(), Width::integer(), Border::integer(), Format::enum(), Type::enum(), Pixels::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texImage2D(Target::enum(), Level::integer(), Internalformat::integer(), Width::integer(), Height::integer(), Border::integer(), Format::enum(), Type::enum(), Pixels::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texParameterf(Target::enum(), Pname::enum(), Param::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texParameterfv(Target::enum(), Pname::enum(), Params::{float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texParameteri(Target::enum(), Pname::enum(), Param::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texParameteriv(Target::enum(), Pname::enum(), Params::{integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texSubImage1D(Target::enum(), Level::integer(), Xoffset::integer(), Width::integer(), Format::enum(), Type::enum(), Pixels::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texSubImage2D(Target::enum(), Level::integer(), Xoffset::integer(), Yoffset::integer(), Width::integer(), Height::integer(), Format::enum(), Type::enum(), Pixels::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+translated(X::float(), Y::float(), Z::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+translatef(X::float(), Y::float(), Z::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertex2d(X::float(), Y::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertex2dv(X1::{X, Y}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertex2d(X, Y)\fR\&\&.
+.RE
+.LP
+.B
+vertex2f(X::float(), Y::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertex2fv(X1::{X, Y}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertex2f(X, Y)\fR\&\&.
+.RE
+.LP
+.B
+vertex2i(X::integer(), Y::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertex2iv(X1::{X, Y}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertex2i(X, Y)\fR\&\&.
+.RE
+.LP
+.B
+vertex2s(X::integer(), Y::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertex2sv(X1::{X, Y}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertex2s(X, Y)\fR\&\&.
+.RE
+.LP
+.B
+vertex3d(X::float(), Y::float(), Z::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertex3dv(X1::{X, Y, Z}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertex3d(X, Y, Z)\fR\&\&.
+.RE
+.LP
+.B
+vertex3f(X::float(), Y::float(), Z::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertex3fv(X1::{X, Y, Z}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertex3f(X, Y, Z)\fR\&\&.
+.RE
+.LP
+.B
+vertex3i(X::integer(), Y::integer(), Z::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertex3iv(X1::{X, Y, Z}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertex3i(X, Y, Z)\fR\&\&.
+.RE
+.LP
+.B
+vertex3s(X::integer(), Y::integer(), Z::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertex3sv(X1::{X, Y, Z}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertex3s(X, Y, Z)\fR\&\&.
+.RE
+.LP
+.B
+vertex4d(X::float(), Y::float(), Z::float(), W::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertex4dv(X1::{X, Y, Z, W}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertex4d(X, Y, Z, W)\fR\&\&.
+.RE
+.LP
+.B
+vertex4f(X::float(), Y::float(), Z::float(), W::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertex4fv(X1::{X, Y, Z, W}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertex4f(X, Y, Z, W)\fR\&\&.
+.RE
+.LP
+.B
+vertex4i(X::integer(), Y::integer(), Z::integer(), W::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertex4iv(X1::{X, Y, Z, W}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertex4i(X, Y, Z, W)\fR\&\&.
+.RE
+.LP
+.B
+vertex4s(X::integer(), Y::integer(), Z::integer(), W::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertex4sv(X1::{X, Y, Z, W}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertex4s(X, Y, Z, W)\fR\&\&.
+.RE
+.LP
+.B
+vertexPointer(Size::integer(), Type::enum(), Stride::integer(), Pointer::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+viewport(X::integer(), Y::integer(), Width::integer(), Height::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+blendColor(Red::clamp(), Green::clamp(), Blue::clamp(), Alpha::clamp()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+blendEquation(Mode::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+drawRangeElements(Mode::enum(), Start::integer(), End::integer(), Count::integer(), Type::enum(), Indices::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texImage3D(Target::enum(), Level::integer(), Internalformat::integer(), Width::integer(), Height::integer(), Depth::integer(), Border::integer(), Format::enum(), Type::enum(), Pixels::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texSubImage3D(Target::enum(), Level::integer(), Xoffset::integer(), Yoffset::integer(), Zoffset::integer(), Width::integer(), Height::integer(), Depth::integer(), Format::enum(), Type::enum(), Pixels::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+copyTexSubImage3D(Target::enum(), Level::integer(), Xoffset::integer(), Yoffset::integer(), Zoffset::integer(), X::integer(), Y::integer(), Width::integer(), Height::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+colorTable(Target::enum(), Internalformat::enum(), Width::integer(), Format::enum(), Type::enum(), Table::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+colorTableParameterfv(Target::enum(), Pname::enum(), Params::{float(), float(), float(), float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+colorTableParameteriv(Target::enum(), Pname::enum(), Params::{integer(), integer(), integer(), integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+copyColorTable(Target::enum(), Internalformat::enum(), X::integer(), Y::integer(), Width::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getColorTable(Target::enum(), Format::enum(), Type::enum(), Table::mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getColorTableParameterfv(Target::enum(), Pname::enum()) -> {float(), float(), float(), float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getColorTableParameteriv(Target::enum(), Pname::enum()) -> {integer(), integer(), integer(), integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+colorSubTable(Target::enum(), Start::integer(), Count::integer(), Format::enum(), Type::enum(), Data::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+copyColorSubTable(Target::enum(), Start::integer(), X::integer(), Y::integer(), Width::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+convolutionFilter1D(Target::enum(), Internalformat::enum(), Width::integer(), Format::enum(), Type::enum(), Image::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+convolutionFilter2D(Target::enum(), Internalformat::enum(), Width::integer(), Height::integer(), Format::enum(), Type::enum(), Image::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+convolutionParameterf(Target::enum(), Pname::enum(), Params::{float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+convolutionParameterfv(Target, Pname, X3::{Params}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBconvolutionParameterf(Target, Pname, Params)\fR\&\&.
+.RE
+.LP
+.B
+convolutionParameteri(Target::enum(), Pname::enum(), Params::{integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+convolutionParameteriv(Target, Pname, X3::{Params}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBconvolutionParameteri(Target, Pname, Params)\fR\&\&.
+.RE
+.LP
+.B
+copyConvolutionFilter1D(Target::enum(), Internalformat::enum(), X::integer(), Y::integer(), Width::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+copyConvolutionFilter2D(Target::enum(), Internalformat::enum(), X::integer(), Y::integer(), Width::integer(), Height::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getConvolutionFilter(Target::enum(), Format::enum(), Type::enum(), Image::mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getConvolutionParameterfv(Target::enum(), Pname::enum()) -> {float(), float(), float(), float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getConvolutionParameteriv(Target::enum(), Pname::enum()) -> {integer(), integer(), integer(), integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+separableFilter2D(Target::enum(), Internalformat::enum(), Width::integer(), Height::integer(), Format::enum(), Type::enum(), Row::offset() | mem(), Column::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getHistogram(Target::enum(), Reset::0 | 1, Format::enum(), Type::enum(), Values::mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getHistogramParameterfv(Target::enum(), Pname::enum()) -> {float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getHistogramParameteriv(Target::enum(), Pname::enum()) -> {integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getMinmax(Target::enum(), Reset::0 | 1, Format::enum(), Type::enum(), Values::mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getMinmaxParameterfv(Target::enum(), Pname::enum()) -> {float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getMinmaxParameteriv(Target::enum(), Pname::enum()) -> {integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+histogram(Target::enum(), Width::integer(), Internalformat::enum(), Sink::0 | 1) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+minmax(Target::enum(), Internalformat::enum(), Sink::0 | 1) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+resetHistogram(Target::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+resetMinmax(Target::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+activeTexture(Texture::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+sampleCoverage(Value::clamp(), Invert::0 | 1) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+compressedTexImage3D(Target::enum(), Level::integer(), Internalformat::enum(), Width::integer(), Height::integer(), Depth::integer(), Border::integer(), ImageSize::integer(), Data::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+compressedTexImage2D(Target::enum(), Level::integer(), Internalformat::enum(), Width::integer(), Height::integer(), Border::integer(), ImageSize::integer(), Data::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+compressedTexImage1D(Target::enum(), Level::integer(), Internalformat::enum(), Width::integer(), Border::integer(), ImageSize::integer(), Data::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+compressedTexSubImage3D(Target::enum(), Level::integer(), Xoffset::integer(), Yoffset::integer(), Zoffset::integer(), Width::integer(), Height::integer(), Depth::integer(), Format::enum(), ImageSize::integer(), Data::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+compressedTexSubImage2D(Target::enum(), Level::integer(), Xoffset::integer(), Yoffset::integer(), Width::integer(), Height::integer(), Format::enum(), ImageSize::integer(), Data::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+compressedTexSubImage1D(Target::enum(), Level::integer(), Xoffset::integer(), Width::integer(), Format::enum(), ImageSize::integer(), Data::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getCompressedTexImage(Target::enum(), Level::integer(), Img::mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+clientActiveTexture(Texture::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+multiTexCoord1d(Target::enum(), S::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+multiTexCoord1dv(Target, X2::{S}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBmultiTexCoord1d(Target, S)\fR\&\&.
+.RE
+.LP
+.B
+multiTexCoord1f(Target::enum(), S::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+multiTexCoord1fv(Target, X2::{S}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBmultiTexCoord1f(Target, S)\fR\&\&.
+.RE
+.LP
+.B
+multiTexCoord1i(Target::enum(), S::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+multiTexCoord1iv(Target, X2::{S}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBmultiTexCoord1i(Target, S)\fR\&\&.
+.RE
+.LP
+.B
+multiTexCoord1s(Target::enum(), S::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+multiTexCoord1sv(Target, X2::{S}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBmultiTexCoord1s(Target, S)\fR\&\&.
+.RE
+.LP
+.B
+multiTexCoord2d(Target::enum(), S::float(), T::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+multiTexCoord2dv(Target, X2::{S, T}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBmultiTexCoord2d(Target, S, T)\fR\&\&.
+.RE
+.LP
+.B
+multiTexCoord2f(Target::enum(), S::float(), T::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+multiTexCoord2fv(Target, X2::{S, T}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBmultiTexCoord2f(Target, S, T)\fR\&\&.
+.RE
+.LP
+.B
+multiTexCoord2i(Target::enum(), S::integer(), T::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+multiTexCoord2iv(Target, X2::{S, T}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBmultiTexCoord2i(Target, S, T)\fR\&\&.
+.RE
+.LP
+.B
+multiTexCoord2s(Target::enum(), S::integer(), T::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+multiTexCoord2sv(Target, X2::{S, T}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBmultiTexCoord2s(Target, S, T)\fR\&\&.
+.RE
+.LP
+.B
+multiTexCoord3d(Target::enum(), S::float(), T::float(), R::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+multiTexCoord3dv(Target, X2::{S, T, R}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBmultiTexCoord3d(Target, S, T, R)\fR\&\&.
+.RE
+.LP
+.B
+multiTexCoord3f(Target::enum(), S::float(), T::float(), R::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+multiTexCoord3fv(Target, X2::{S, T, R}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBmultiTexCoord3f(Target, S, T, R)\fR\&\&.
+.RE
+.LP
+.B
+multiTexCoord3i(Target::enum(), S::integer(), T::integer(), R::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+multiTexCoord3iv(Target, X2::{S, T, R}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBmultiTexCoord3i(Target, S, T, R)\fR\&\&.
+.RE
+.LP
+.B
+multiTexCoord3s(Target::enum(), S::integer(), T::integer(), R::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+multiTexCoord3sv(Target, X2::{S, T, R}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBmultiTexCoord3s(Target, S, T, R)\fR\&\&.
+.RE
+.LP
+.B
+multiTexCoord4d(Target::enum(), S::float(), T::float(), R::float(), Q::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+multiTexCoord4dv(Target, X2::{S, T, R, Q}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBmultiTexCoord4d(Target, S, T, R, Q)\fR\&\&.
+.RE
+.LP
+.B
+multiTexCoord4f(Target::enum(), S::float(), T::float(), R::float(), Q::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+multiTexCoord4fv(Target, X2::{S, T, R, Q}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBmultiTexCoord4f(Target, S, T, R, Q)\fR\&\&.
+.RE
+.LP
+.B
+multiTexCoord4i(Target::enum(), S::integer(), T::integer(), R::integer(), Q::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+multiTexCoord4iv(Target, X2::{S, T, R, Q}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBmultiTexCoord4i(Target, S, T, R, Q)\fR\&\&.
+.RE
+.LP
+.B
+multiTexCoord4s(Target::enum(), S::integer(), T::integer(), R::integer(), Q::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+multiTexCoord4sv(Target, X2::{S, T, R, Q}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBmultiTexCoord4s(Target, S, T, R, Q)\fR\&\&.
+.RE
+.LP
+.B
+loadTransposeMatrixf(M::{float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+loadTransposeMatrixd(M::{float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+multTransposeMatrixf(M::{float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+multTransposeMatrixd(M::{float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+blendFuncSeparate(SfactorRGB::enum(), DfactorRGB::enum(), SfactorAlpha::enum(), DfactorAlpha::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+multiDrawArrays(Mode::enum(), First::[integer()], Count::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+pointParameterf(Pname::enum(), Param::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+pointParameterfv(Pname::enum(), Params::{float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+pointParameteri(Pname::enum(), Param::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+pointParameteriv(Pname::enum(), Params::{integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+fogCoordf(Coord::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+fogCoordfv(X1::{Coord}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBfogCoordf(Coord)\fR\&\&.
+.RE
+.LP
+.B
+fogCoordd(Coord::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+fogCoorddv(X1::{Coord}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBfogCoordd(Coord)\fR\&\&.
+.RE
+.LP
+.B
+fogCoordPointer(Type::enum(), Stride::integer(), Pointer::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+secondaryColor3b(Red::integer(), Green::integer(), Blue::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+secondaryColor3bv(X1::{Red, Green, Blue}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBsecondaryColor3b(Red, Green, Blue)\fR\&\&.
+.RE
+.LP
+.B
+secondaryColor3d(Red::float(), Green::float(), Blue::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+secondaryColor3dv(X1::{Red, Green, Blue}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBsecondaryColor3d(Red, Green, Blue)\fR\&\&.
+.RE
+.LP
+.B
+secondaryColor3f(Red::float(), Green::float(), Blue::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+secondaryColor3fv(X1::{Red, Green, Blue}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBsecondaryColor3f(Red, Green, Blue)\fR\&\&.
+.RE
+.LP
+.B
+secondaryColor3i(Red::integer(), Green::integer(), Blue::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+secondaryColor3iv(X1::{Red, Green, Blue}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBsecondaryColor3i(Red, Green, Blue)\fR\&\&.
+.RE
+.LP
+.B
+secondaryColor3s(Red::integer(), Green::integer(), Blue::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+secondaryColor3sv(X1::{Red, Green, Blue}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBsecondaryColor3s(Red, Green, Blue)\fR\&\&.
+.RE
+.LP
+.B
+secondaryColor3ub(Red::integer(), Green::integer(), Blue::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+secondaryColor3ubv(X1::{Red, Green, Blue}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBsecondaryColor3ub(Red, Green, Blue)\fR\&\&.
+.RE
+.LP
+.B
+secondaryColor3ui(Red::integer(), Green::integer(), Blue::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+secondaryColor3uiv(X1::{Red, Green, Blue}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBsecondaryColor3ui(Red, Green, Blue)\fR\&\&.
+.RE
+.LP
+.B
+secondaryColor3us(Red::integer(), Green::integer(), Blue::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+secondaryColor3usv(X1::{Red, Green, Blue}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBsecondaryColor3us(Red, Green, Blue)\fR\&\&.
+.RE
+.LP
+.B
+secondaryColorPointer(Size::integer(), Type::enum(), Stride::integer(), Pointer::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+windowPos2d(X::float(), Y::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+windowPos2dv(X1::{X, Y}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBwindowPos2d(X, Y)\fR\&\&.
+.RE
+.LP
+.B
+windowPos2f(X::float(), Y::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+windowPos2fv(X1::{X, Y}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBwindowPos2f(X, Y)\fR\&\&.
+.RE
+.LP
+.B
+windowPos2i(X::integer(), Y::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+windowPos2iv(X1::{X, Y}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBwindowPos2i(X, Y)\fR\&\&.
+.RE
+.LP
+.B
+windowPos2s(X::integer(), Y::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+windowPos2sv(X1::{X, Y}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBwindowPos2s(X, Y)\fR\&\&.
+.RE
+.LP
+.B
+windowPos3d(X::float(), Y::float(), Z::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+windowPos3dv(X1::{X, Y, Z}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBwindowPos3d(X, Y, Z)\fR\&\&.
+.RE
+.LP
+.B
+windowPos3f(X::float(), Y::float(), Z::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+windowPos3fv(X1::{X, Y, Z}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBwindowPos3f(X, Y, Z)\fR\&\&.
+.RE
+.LP
+.B
+windowPos3i(X::integer(), Y::integer(), Z::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+windowPos3iv(X1::{X, Y, Z}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBwindowPos3i(X, Y, Z)\fR\&\&.
+.RE
+.LP
+.B
+windowPos3s(X::integer(), Y::integer(), Z::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+windowPos3sv(X1::{X, Y, Z}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBwindowPos3s(X, Y, Z)\fR\&\&.
+.RE
+.LP
+.B
+genQueries(N::integer()) -> [integer()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+deleteQueries(Ids::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isQuery(Id::integer()) -> 0 | 1
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+beginQuery(Target::enum(), Id::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+endQuery(Target::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getQueryiv(Target::enum(), Pname::enum()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getQueryObjectiv(Id::integer(), Pname::enum()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getQueryObjectuiv(Id::integer(), Pname::enum()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+bindBuffer(Target::enum(), Buffer::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+deleteBuffers(Buffers::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+genBuffers(N::integer()) -> [integer()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isBuffer(Buffer::integer()) -> 0 | 1
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+bufferData(Target::enum(), Size::integer(), Data::offset() | mem(), Usage::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+bufferSubData(Target::enum(), Offset::integer(), Size::integer(), Data::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getBufferSubData(Target::enum(), Offset::integer(), Size::integer(), Data::mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getBufferParameteriv(Target::enum(), Pname::enum()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+blendEquationSeparate(ModeRGB::enum(), ModeAlpha::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+drawBuffers(Bufs::[enum()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+stencilOpSeparate(Face::enum(), Sfail::enum(), Dpfail::enum(), Dppass::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+stencilFuncSeparate(Face::enum(), Func::enum(), Ref::integer(), Mask::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+stencilMaskSeparate(Face::enum(), Mask::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+attachShader(Program::integer(), Shader::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+bindAttribLocation(Program::integer(), Index::integer(), Name::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+compileShader(Shader::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+createProgram() -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+createShader(Type::enum()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+deleteProgram(Program::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+deleteShader(Shader::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+detachShader(Program::integer(), Shader::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+disableVertexAttribArray(Index::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+enableVertexAttribArray(Index::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getActiveAttrib(Program::integer(), Index::integer(), BufSize::integer()) -> {Size::integer(), Type::enum(), Name::string()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getActiveUniform(Program::integer(), Index::integer(), BufSize::integer()) -> {Size::integer(), Type::enum(), Name::string()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getAttachedShaders(Program::integer(), MaxCount::integer()) -> [integer()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getAttribLocation(Program::integer(), Name::string()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getProgramiv(Program::integer(), Pname::enum()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getProgramInfoLog(Program::integer(), BufSize::integer()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getShaderiv(Shader::integer(), Pname::enum()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getShaderInfoLog(Shader::integer(), BufSize::integer()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getShaderSource(Shader::integer(), BufSize::integer()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getUniformLocation(Program::integer(), Name::string()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getUniformfv(Program::integer(), Location::integer()) -> {float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getUniformiv(Program::integer(), Location::integer()) -> {integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getVertexAttribdv(Index::integer(), Pname::enum()) -> {float(), float(), float(), float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getVertexAttribfv(Index::integer(), Pname::enum()) -> {float(), float(), float(), float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getVertexAttribiv(Index::integer(), Pname::enum()) -> {integer(), integer(), integer(), integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isProgram(Program::integer()) -> 0 | 1
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isShader(Shader::integer()) -> 0 | 1
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+linkProgram(Program::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+shaderSource(Shader::integer(), String::[string()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+useProgram(Program::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform1f(Location::integer(), V0::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform2f(Location::integer(), V0::float(), V1::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform3f(Location::integer(), V0::float(), V1::float(), V2::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform4f(Location::integer(), V0::float(), V1::float(), V2::float(), V3::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform1i(Location::integer(), V0::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform2i(Location::integer(), V0::integer(), V1::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform3i(Location::integer(), V0::integer(), V1::integer(), V2::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform4i(Location::integer(), V0::integer(), V1::integer(), V2::integer(), V3::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform1fv(Location::integer(), Value::[float()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform2fv(Location::integer(), Value::[{float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform3fv(Location::integer(), Value::[{float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform4fv(Location::integer(), Value::[{float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform1iv(Location::integer(), Value::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform2iv(Location::integer(), Value::[{integer(), integer()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform3iv(Location::integer(), Value::[{integer(), integer(), integer()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform4iv(Location::integer(), Value::[{integer(), integer(), integer(), integer()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniformMatrix2fv(Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniformMatrix3fv(Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniformMatrix4fv(Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+validateProgram(Program::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttrib1d(Index::integer(), X::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttrib1dv(Index, X2::{X}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertexAttrib1d(Index, X)\fR\&\&.
+.RE
+.LP
+.B
+vertexAttrib1f(Index::integer(), X::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttrib1fv(Index, X2::{X}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertexAttrib1f(Index, X)\fR\&\&.
+.RE
+.LP
+.B
+vertexAttrib1s(Index::integer(), X::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttrib1sv(Index, X2::{X}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertexAttrib1s(Index, X)\fR\&\&.
+.RE
+.LP
+.B
+vertexAttrib2d(Index::integer(), X::float(), Y::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttrib2dv(Index, X2::{X, Y}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertexAttrib2d(Index, X, Y)\fR\&\&.
+.RE
+.LP
+.B
+vertexAttrib2f(Index::integer(), X::float(), Y::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttrib2fv(Index, X2::{X, Y}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertexAttrib2f(Index, X, Y)\fR\&\&.
+.RE
+.LP
+.B
+vertexAttrib2s(Index::integer(), X::integer(), Y::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttrib2sv(Index, X2::{X, Y}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertexAttrib2s(Index, X, Y)\fR\&\&.
+.RE
+.LP
+.B
+vertexAttrib3d(Index::integer(), X::float(), Y::float(), Z::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttrib3dv(Index, X2::{X, Y, Z}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertexAttrib3d(Index, X, Y, Z)\fR\&\&.
+.RE
+.LP
+.B
+vertexAttrib3f(Index::integer(), X::float(), Y::float(), Z::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttrib3fv(Index, X2::{X, Y, Z}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertexAttrib3f(Index, X, Y, Z)\fR\&\&.
+.RE
+.LP
+.B
+vertexAttrib3s(Index::integer(), X::integer(), Y::integer(), Z::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttrib3sv(Index, X2::{X, Y, Z}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertexAttrib3s(Index, X, Y, Z)\fR\&\&.
+.RE
+.LP
+.B
+vertexAttrib4Nbv(Index::integer(), V::{integer(), integer(), integer(), integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttrib4Niv(Index::integer(), V::{integer(), integer(), integer(), integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttrib4Nsv(Index::integer(), V::{integer(), integer(), integer(), integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttrib4Nub(Index::integer(), X::integer(), Y::integer(), Z::integer(), W::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttrib4Nubv(Index, X2::{X, Y, Z, W}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertexAttrib4Nub(Index, X, Y, Z, W)\fR\&\&.
+.RE
+.LP
+.B
+vertexAttrib4Nuiv(Index::integer(), V::{integer(), integer(), integer(), integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttrib4Nusv(Index::integer(), V::{integer(), integer(), integer(), integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttrib4bv(Index::integer(), V::{integer(), integer(), integer(), integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttrib4d(Index::integer(), X::float(), Y::float(), Z::float(), W::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttrib4dv(Index, X2::{X, Y, Z, W}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertexAttrib4d(Index, X, Y, Z, W)\fR\&\&.
+.RE
+.LP
+.B
+vertexAttrib4f(Index::integer(), X::float(), Y::float(), Z::float(), W::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttrib4fv(Index, X2::{X, Y, Z, W}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertexAttrib4f(Index, X, Y, Z, W)\fR\&\&.
+.RE
+.LP
+.B
+vertexAttrib4iv(Index::integer(), V::{integer(), integer(), integer(), integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttrib4s(Index::integer(), X::integer(), Y::integer(), Z::integer(), W::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttrib4sv(Index, X2::{X, Y, Z, W}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertexAttrib4s(Index, X, Y, Z, W)\fR\&\&.
+.RE
+.LP
+.B
+vertexAttrib4ubv(Index::integer(), V::{integer(), integer(), integer(), integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttrib4uiv(Index::integer(), V::{integer(), integer(), integer(), integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttrib4usv(Index::integer(), V::{integer(), integer(), integer(), integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttribPointer(Index::integer(), Size::integer(), Type::enum(), Normalized::0 | 1, Stride::integer(), Pointer::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniformMatrix2x3fv(Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniformMatrix3x2fv(Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniformMatrix2x4fv(Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniformMatrix4x2fv(Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniformMatrix3x4fv(Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniformMatrix4x3fv(Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+colorMaski(Index::integer(), R::0 | 1, G::0 | 1, B::0 | 1, A::0 | 1) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getBooleani_v(Target::enum(), Index::integer()) -> [0 | 1]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getIntegeri_v(Target::enum(), Index::integer()) -> [integer()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+enablei(Target::enum(), Index::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+disablei(Target::enum(), Index::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isEnabledi(Target::enum(), Index::integer()) -> 0 | 1
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+beginTransformFeedback(PrimitiveMode::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+endTransformFeedback() -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+bindBufferRange(Target::enum(), Index::integer(), Buffer::integer(), Offset::integer(), Size::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+bindBufferBase(Target::enum(), Index::integer(), Buffer::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+transformFeedbackVaryings(Program::integer(), Varyings::[string()], BufferMode::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getTransformFeedbackVarying(Program::integer(), Index::integer(), BufSize::integer()) -> {Size::integer(), Type::enum(), Name::string()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+clampColor(Target::enum(), Clamp::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+beginConditionalRender(Id::integer(), Mode::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+endConditionalRender() -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttribIPointer(Index::integer(), Size::integer(), Type::enum(), Stride::integer(), Pointer::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getVertexAttribIiv(Index::integer(), Pname::enum()) -> {integer(), integer(), integer(), integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getVertexAttribIuiv(Index::integer(), Pname::enum()) -> {integer(), integer(), integer(), integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttribI1i(Index::integer(), X::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttribI2i(Index::integer(), X::integer(), Y::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttribI3i(Index::integer(), X::integer(), Y::integer(), Z::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttribI4i(Index::integer(), X::integer(), Y::integer(), Z::integer(), W::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttribI1ui(Index::integer(), X::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttribI2ui(Index::integer(), X::integer(), Y::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttribI3ui(Index::integer(), X::integer(), Y::integer(), Z::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttribI4ui(Index::integer(), X::integer(), Y::integer(), Z::integer(), W::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttribI1iv(Index, X2::{X}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertexAttribI1i(Index, X)\fR\&\&.
+.RE
+.LP
+.B
+vertexAttribI2iv(Index, X2::{X, Y}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertexAttribI2i(Index, X, Y)\fR\&\&.
+.RE
+.LP
+.B
+vertexAttribI3iv(Index, X2::{X, Y, Z}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertexAttribI3i(Index, X, Y, Z)\fR\&\&.
+.RE
+.LP
+.B
+vertexAttribI4iv(Index, X2::{X, Y, Z, W}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertexAttribI4i(Index, X, Y, Z, W)\fR\&\&.
+.RE
+.LP
+.B
+vertexAttribI1uiv(Index, X2::{X}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertexAttribI1ui(Index, X)\fR\&\&.
+.RE
+.LP
+.B
+vertexAttribI2uiv(Index, X2::{X, Y}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertexAttribI2ui(Index, X, Y)\fR\&\&.
+.RE
+.LP
+.B
+vertexAttribI3uiv(Index, X2::{X, Y, Z}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertexAttribI3ui(Index, X, Y, Z)\fR\&\&.
+.RE
+.LP
+.B
+vertexAttribI4uiv(Index, X2::{X, Y, Z, W}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertexAttribI4ui(Index, X, Y, Z, W)\fR\&\&.
+.RE
+.LP
+.B
+vertexAttribI4bv(Index::integer(), V::{integer(), integer(), integer(), integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttribI4sv(Index::integer(), V::{integer(), integer(), integer(), integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttribI4ubv(Index::integer(), V::{integer(), integer(), integer(), integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttribI4usv(Index::integer(), V::{integer(), integer(), integer(), integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getUniformuiv(Program::integer(), Location::integer()) -> {integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+bindFragDataLocation(Program::integer(), Color::integer(), Name::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getFragDataLocation(Program::integer(), Name::string()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform1ui(Location::integer(), V0::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform2ui(Location::integer(), V0::integer(), V1::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform3ui(Location::integer(), V0::integer(), V1::integer(), V2::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform4ui(Location::integer(), V0::integer(), V1::integer(), V2::integer(), V3::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform1uiv(Location::integer(), Value::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform2uiv(Location::integer(), Value::[{integer(), integer()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform3uiv(Location::integer(), Value::[{integer(), integer(), integer()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform4uiv(Location::integer(), Value::[{integer(), integer(), integer(), integer()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texParameterIiv(Target::enum(), Pname::enum(), Params::{integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texParameterIuiv(Target::enum(), Pname::enum(), Params::{integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getTexParameterIiv(Target::enum(), Pname::enum()) -> {integer(), integer(), integer(), integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getTexParameterIuiv(Target::enum(), Pname::enum()) -> {integer(), integer(), integer(), integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+clearBufferiv(Buffer::enum(), Drawbuffer::integer(), Value::{integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+clearBufferuiv(Buffer::enum(), Drawbuffer::integer(), Value::{integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+clearBufferfv(Buffer::enum(), Drawbuffer::integer(), Value::{float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+clearBufferfi(Buffer::enum(), Drawbuffer::integer(), Depth::float(), Stencil::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getStringi(Name::enum(), Index::integer()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+drawArraysInstanced(Mode::enum(), First::integer(), Count::integer(), Primcount::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+drawElementsInstanced(Mode::enum(), Count::integer(), Type::enum(), Indices::offset() | mem(), Primcount::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texBuffer(Target::enum(), Internalformat::enum(), Buffer::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+primitiveRestartIndex(Index::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getInteger64i_v(Target::enum(), Index::integer()) -> [integer()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getBufferParameteri64v(Target::enum(), Pname::enum()) -> [integer()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+framebufferTexture(Target::enum(), Attachment::enum(), Texture::integer(), Level::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttribDivisor(Index::integer(), Divisor::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+minSampleShading(Value::clamp()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+blendEquationi(Buf::integer(), Mode::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+blendEquationSeparatei(Buf::integer(), ModeRGB::enum(), ModeAlpha::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+blendFunci(Buf::integer(), Src::enum(), Dst::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+blendFuncSeparatei(Buf::integer(), SrcRGB::enum(), DstRGB::enum(), SrcAlpha::enum(), DstAlpha::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+loadTransposeMatrixfARB(M::{float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+loadTransposeMatrixdARB(M::{float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+multTransposeMatrixfARB(M::{float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+multTransposeMatrixdARB(M::{float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+weightbvARB(Weights::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+weightsvARB(Weights::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+weightivARB(Weights::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+weightfvARB(Weights::[float()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+weightdvARB(Weights::[float()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+weightubvARB(Weights::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+weightusvARB(Weights::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+weightuivARB(Weights::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexBlendARB(Count::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+currentPaletteMatrixARB(Index::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+matrixIndexubvARB(Indices::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+matrixIndexusvARB(Indices::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+matrixIndexuivARB(Indices::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programStringARB(Target::enum(), Format::enum(), String::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+bindProgramARB(Target::enum(), Program::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+deleteProgramsARB(Programs::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+genProgramsARB(N::integer()) -> [integer()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programEnvParameter4dARB(Target::enum(), Index::integer(), X::float(), Y::float(), Z::float(), W::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programEnvParameter4dvARB(Target::enum(), Index::integer(), Params::{float(), float(), float(), float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programEnvParameter4fARB(Target::enum(), Index::integer(), X::float(), Y::float(), Z::float(), W::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programEnvParameter4fvARB(Target::enum(), Index::integer(), Params::{float(), float(), float(), float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programLocalParameter4dARB(Target::enum(), Index::integer(), X::float(), Y::float(), Z::float(), W::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programLocalParameter4dvARB(Target::enum(), Index::integer(), Params::{float(), float(), float(), float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programLocalParameter4fARB(Target::enum(), Index::integer(), X::float(), Y::float(), Z::float(), W::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programLocalParameter4fvARB(Target::enum(), Index::integer(), Params::{float(), float(), float(), float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getProgramEnvParameterdvARB(Target::enum(), Index::integer()) -> {float(), float(), float(), float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getProgramEnvParameterfvARB(Target::enum(), Index::integer()) -> {float(), float(), float(), float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getProgramLocalParameterdvARB(Target::enum(), Index::integer()) -> {float(), float(), float(), float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getProgramLocalParameterfvARB(Target::enum(), Index::integer()) -> {float(), float(), float(), float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getProgramStringARB(Target::enum(), Pname::enum(), String::mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getBufferParameterivARB(Target::enum(), Pname::enum()) -> [integer()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+deleteObjectARB(Obj::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getHandleARB(Pname::enum()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+detachObjectARB(ContainerObj::integer(), AttachedObj::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+createShaderObjectARB(ShaderType::enum()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+shaderSourceARB(ShaderObj::integer(), String::[string()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+compileShaderARB(ShaderObj::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+createProgramObjectARB() -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+attachObjectARB(ContainerObj::integer(), Obj::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+linkProgramARB(ProgramObj::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+useProgramObjectARB(ProgramObj::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+validateProgramARB(ProgramObj::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getObjectParameterfvARB(Obj::integer(), Pname::enum()) -> float()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getObjectParameterivARB(Obj::integer(), Pname::enum()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getInfoLogARB(Obj::integer(), MaxLength::integer()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getAttachedObjectsARB(ContainerObj::integer(), MaxCount::integer()) -> [integer()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getUniformLocationARB(ProgramObj::integer(), Name::string()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getActiveUniformARB(ProgramObj::integer(), Index::integer(), MaxLength::integer()) -> {Size::integer(), Type::enum(), Name::string()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getUniformfvARB(ProgramObj::integer(), Location::integer()) -> {float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getUniformivARB(ProgramObj::integer(), Location::integer()) -> {integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getShaderSourceARB(Obj::integer(), MaxLength::integer()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+bindAttribLocationARB(ProgramObj::integer(), Index::integer(), Name::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getActiveAttribARB(ProgramObj::integer(), Index::integer(), MaxLength::integer()) -> {Size::integer(), Type::enum(), Name::string()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getAttribLocationARB(ProgramObj::integer(), Name::string()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isRenderbuffer(Renderbuffer::integer()) -> 0 | 1
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+bindRenderbuffer(Target::enum(), Renderbuffer::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+deleteRenderbuffers(Renderbuffers::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+genRenderbuffers(N::integer()) -> [integer()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+renderbufferStorage(Target::enum(), Internalformat::enum(), Width::integer(), Height::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getRenderbufferParameteriv(Target::enum(), Pname::enum()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isFramebuffer(Framebuffer::integer()) -> 0 | 1
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+bindFramebuffer(Target::enum(), Framebuffer::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+deleteFramebuffers(Framebuffers::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+genFramebuffers(N::integer()) -> [integer()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+checkFramebufferStatus(Target::enum()) -> enum()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+framebufferTexture1D(Target::enum(), Attachment::enum(), Textarget::enum(), Texture::integer(), Level::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+framebufferTexture2D(Target::enum(), Attachment::enum(), Textarget::enum(), Texture::integer(), Level::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+framebufferTexture3D(Target::enum(), Attachment::enum(), Textarget::enum(), Texture::integer(), Level::integer(), Zoffset::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+framebufferRenderbuffer(Target::enum(), Attachment::enum(), Renderbuffertarget::enum(), Renderbuffer::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getFramebufferAttachmentParameteriv(Target::enum(), Attachment::enum(), Pname::enum()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+generateMipmap(Target::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+blitFramebuffer(SrcX0::integer(), SrcY0::integer(), SrcX1::integer(), SrcY1::integer(), DstX0::integer(), DstY0::integer(), DstX1::integer(), DstY1::integer(), Mask::integer(), Filter::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+renderbufferStorageMultisample(Target::enum(), Samples::integer(), Internalformat::enum(), Width::integer(), Height::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+framebufferTextureLayer(Target::enum(), Attachment::enum(), Texture::integer(), Level::integer(), Layer::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+framebufferTextureFaceARB(Target::enum(), Attachment::enum(), Texture::integer(), Level::integer(), Face::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+flushMappedBufferRange(Target::enum(), Offset::integer(), Length::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+bindVertexArray(Array::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+deleteVertexArrays(Arrays::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+genVertexArrays(N::integer()) -> [integer()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isVertexArray(Array::integer()) -> 0 | 1
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getUniformIndices(Program::integer(), UniformNames::[string()]) -> [integer()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getActiveUniformsiv(Program::integer(), UniformIndices::[integer()], Pname::enum()) -> [integer()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getActiveUniformName(Program::integer(), UniformIndex::integer(), BufSize::integer()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getUniformBlockIndex(Program::integer(), UniformBlockName::string()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getActiveUniformBlockiv(Program::integer(), UniformBlockIndex::integer(), Pname::enum(), Params::mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getActiveUniformBlockName(Program::integer(), UniformBlockIndex::integer(), BufSize::integer()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniformBlockBinding(Program::integer(), UniformBlockIndex::integer(), UniformBlockBinding::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+copyBufferSubData(ReadTarget::enum(), WriteTarget::enum(), ReadOffset::integer(), WriteOffset::integer(), Size::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+drawElementsBaseVertex(Mode::enum(), Count::integer(), Type::enum(), Indices::offset() | mem(), Basevertex::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+drawRangeElementsBaseVertex(Mode::enum(), Start::integer(), End::integer(), Count::integer(), Type::enum(), Indices::offset() | mem(), Basevertex::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+drawElementsInstancedBaseVertex(Mode::enum(), Count::integer(), Type::enum(), Indices::offset() | mem(), Primcount::integer(), Basevertex::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+provokingVertex(Mode::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+fenceSync(Condition::enum(), Flags::integer()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isSync(Sync::integer()) -> 0 | 1
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+deleteSync(Sync::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+clientWaitSync(Sync::integer(), Flags::integer(), Timeout::integer()) -> enum()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+waitSync(Sync::integer(), Flags::integer(), Timeout::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getInteger64v(Pname::enum()) -> [integer()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getSynciv(Sync::integer(), Pname::enum(), BufSize::integer()) -> [integer()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texImage2DMultisample(Target::enum(), Samples::integer(), Internalformat::integer(), Width::integer(), Height::integer(), Fixedsamplelocations::0 | 1) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+texImage3DMultisample(Target::enum(), Samples::integer(), Internalformat::integer(), Width::integer(), Height::integer(), Depth::integer(), Fixedsamplelocations::0 | 1) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getMultisamplefv(Pname::enum(), Index::integer()) -> {float(), float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+sampleMaski(Index::integer(), Mask::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+namedStringARB(Type::enum(), Name::string(), String::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+deleteNamedStringARB(Name::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+compileShaderIncludeARB(Shader::integer(), Path::[string()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isNamedStringARB(Name::string()) -> 0 | 1
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getNamedStringARB(Name::string(), BufSize::integer()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getNamedStringivARB(Name::string(), Pname::enum()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+bindFragDataLocationIndexed(Program::integer(), ColorNumber::integer(), Index::integer(), Name::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getFragDataIndex(Program::integer(), Name::string()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+genSamplers(Count::integer()) -> [integer()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+deleteSamplers(Samplers::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isSampler(Sampler::integer()) -> 0 | 1
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+bindSampler(Unit::integer(), Sampler::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+samplerParameteri(Sampler::integer(), Pname::enum(), Param::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+samplerParameteriv(Sampler::integer(), Pname::enum(), Param::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+samplerParameterf(Sampler::integer(), Pname::enum(), Param::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+samplerParameterfv(Sampler::integer(), Pname::enum(), Param::[float()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+samplerParameterIiv(Sampler::integer(), Pname::enum(), Param::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+samplerParameterIuiv(Sampler::integer(), Pname::enum(), Param::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getSamplerParameteriv(Sampler::integer(), Pname::enum()) -> [integer()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getSamplerParameterIiv(Sampler::integer(), Pname::enum()) -> [integer()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getSamplerParameterfv(Sampler::integer(), Pname::enum()) -> [float()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getSamplerParameterIuiv(Sampler::integer(), Pname::enum()) -> [integer()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+queryCounter(Id::integer(), Target::enum()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getQueryObjecti64v(Id::integer(), Pname::enum()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getQueryObjectui64v(Id::integer(), Pname::enum()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+drawArraysIndirect(Mode::enum(), Indirect::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+drawElementsIndirect(Mode::enum(), Type::enum(), Indirect::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform1d(Location::integer(), X::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform2d(Location::integer(), X::float(), Y::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform3d(Location::integer(), X::float(), Y::float(), Z::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform4d(Location::integer(), X::float(), Y::float(), Z::float(), W::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform1dv(Location::integer(), Value::[float()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform2dv(Location::integer(), Value::[{float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform3dv(Location::integer(), Value::[{float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniform4dv(Location::integer(), Value::[{float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniformMatrix2dv(Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniformMatrix3dv(Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniformMatrix4dv(Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniformMatrix2x3dv(Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniformMatrix2x4dv(Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniformMatrix3x2dv(Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniformMatrix3x4dv(Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniformMatrix4x2dv(Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniformMatrix4x3dv(Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getUniformdv(Program::integer(), Location::integer()) -> {float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getSubroutineUniformLocation(Program::integer(), Shadertype::enum(), Name::string()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getSubroutineIndex(Program::integer(), Shadertype::enum(), Name::string()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getActiveSubroutineUniformName(Program::integer(), Shadertype::enum(), Index::integer(), Bufsize::integer()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getActiveSubroutineName(Program::integer(), Shadertype::enum(), Index::integer(), Bufsize::integer()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+uniformSubroutinesuiv(Shadertype::enum(), Indices::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getUniformSubroutineuiv(Shadertype::enum(), Location::integer()) -> {integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer(), integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getProgramStageiv(Program::integer(), Shadertype::enum(), Pname::enum()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+patchParameteri(Pname::enum(), Value::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+patchParameterfv(Pname::enum(), Values::[float()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+bindTransformFeedback(Target::enum(), Id::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+deleteTransformFeedbacks(Ids::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+genTransformFeedbacks(N::integer()) -> [integer()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isTransformFeedback(Id::integer()) -> 0 | 1
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+pauseTransformFeedback() -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+resumeTransformFeedback() -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+drawTransformFeedback(Mode::enum(), Id::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+drawTransformFeedbackStream(Mode::enum(), Id::integer(), Stream::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+beginQueryIndexed(Target::enum(), Index::integer(), Id::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+endQueryIndexed(Target::enum(), Index::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getQueryIndexediv(Target::enum(), Index::integer(), Pname::enum()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+releaseShaderCompiler() -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+shaderBinary(Shaders::[integer()], Binaryformat::enum(), Binary::binary()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getShaderPrecisionFormat(Shadertype::enum(), Precisiontype::enum()) -> {Range::{integer(), integer()}, Precision::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+depthRangef(N::clamp(), F::clamp()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+clearDepthf(D::clamp()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getProgramBinary(Program::integer(), BufSize::integer()) -> {BinaryFormat::enum(), Binary::binary()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programBinary(Program::integer(), BinaryFormat::enum(), Binary::binary()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programParameteri(Program::integer(), Pname::enum(), Value::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+useProgramStages(Pipeline::integer(), Stages::integer(), Program::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+activeShaderProgram(Pipeline::integer(), Program::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+createShaderProgramv(Type::enum(), Strings::[string()]) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+bindProgramPipeline(Pipeline::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+deleteProgramPipelines(Pipelines::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+genProgramPipelines(N::integer()) -> [integer()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isProgramPipeline(Pipeline::integer()) -> 0 | 1
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getProgramPipelineiv(Pipeline::integer(), Pname::enum()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform1i(Program::integer(), Location::integer(), V0::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform1iv(Program::integer(), Location::integer(), Value::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform1f(Program::integer(), Location::integer(), V0::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform1fv(Program::integer(), Location::integer(), Value::[float()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform1d(Program::integer(), Location::integer(), V0::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform1dv(Program::integer(), Location::integer(), Value::[float()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform1ui(Program::integer(), Location::integer(), V0::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform1uiv(Program::integer(), Location::integer(), Value::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform2i(Program::integer(), Location::integer(), V0::integer(), V1::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform2iv(Program::integer(), Location::integer(), Value::[{integer(), integer()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform2f(Program::integer(), Location::integer(), V0::float(), V1::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform2fv(Program::integer(), Location::integer(), Value::[{float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform2d(Program::integer(), Location::integer(), V0::float(), V1::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform2dv(Program::integer(), Location::integer(), Value::[{float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform2ui(Program::integer(), Location::integer(), V0::integer(), V1::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform2uiv(Program::integer(), Location::integer(), Value::[{integer(), integer()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform3i(Program::integer(), Location::integer(), V0::integer(), V1::integer(), V2::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform3iv(Program::integer(), Location::integer(), Value::[{integer(), integer(), integer()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform3f(Program::integer(), Location::integer(), V0::float(), V1::float(), V2::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform3fv(Program::integer(), Location::integer(), Value::[{float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform3d(Program::integer(), Location::integer(), V0::float(), V1::float(), V2::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform3dv(Program::integer(), Location::integer(), Value::[{float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform3ui(Program::integer(), Location::integer(), V0::integer(), V1::integer(), V2::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform3uiv(Program::integer(), Location::integer(), Value::[{integer(), integer(), integer()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform4i(Program::integer(), Location::integer(), V0::integer(), V1::integer(), V2::integer(), V3::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform4iv(Program::integer(), Location::integer(), Value::[{integer(), integer(), integer(), integer()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform4f(Program::integer(), Location::integer(), V0::float(), V1::float(), V2::float(), V3::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform4fv(Program::integer(), Location::integer(), Value::[{float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform4d(Program::integer(), Location::integer(), V0::float(), V1::float(), V2::float(), V3::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform4dv(Program::integer(), Location::integer(), Value::[{float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform4ui(Program::integer(), Location::integer(), V0::integer(), V1::integer(), V2::integer(), V3::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniform4uiv(Program::integer(), Location::integer(), Value::[{integer(), integer(), integer(), integer()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniformMatrix2fv(Program::integer(), Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniformMatrix3fv(Program::integer(), Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniformMatrix4fv(Program::integer(), Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniformMatrix2dv(Program::integer(), Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniformMatrix3dv(Program::integer(), Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniformMatrix4dv(Program::integer(), Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniformMatrix2x3fv(Program::integer(), Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniformMatrix3x2fv(Program::integer(), Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniformMatrix2x4fv(Program::integer(), Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniformMatrix4x2fv(Program::integer(), Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniformMatrix3x4fv(Program::integer(), Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniformMatrix4x3fv(Program::integer(), Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniformMatrix2x3dv(Program::integer(), Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniformMatrix3x2dv(Program::integer(), Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniformMatrix2x4dv(Program::integer(), Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniformMatrix4x2dv(Program::integer(), Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniformMatrix3x4dv(Program::integer(), Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+programUniformMatrix4x3dv(Program::integer(), Location::integer(), Transpose::0 | 1, Value::[{float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+validateProgramPipeline(Pipeline::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getProgramPipelineInfoLog(Pipeline::integer(), BufSize::integer()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttribL1d(Index::integer(), X::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttribL2d(Index::integer(), X::float(), Y::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttribL3d(Index::integer(), X::float(), Y::float(), Z::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttribL4d(Index::integer(), X::float(), Y::float(), Z::float(), W::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+vertexAttribL1dv(Index, X2::{X}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertexAttribL1d(Index, X)\fR\&\&.
+.RE
+.LP
+.B
+vertexAttribL2dv(Index, X2::{X, Y}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertexAttribL2d(Index, X, Y)\fR\&\&.
+.RE
+.LP
+.B
+vertexAttribL3dv(Index, X2::{X, Y, Z}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertexAttribL3d(Index, X, Y, Z)\fR\&\&.
+.RE
+.LP
+.B
+vertexAttribL4dv(Index, X2::{X, Y, Z, W}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBvertexAttribL4d(Index, X, Y, Z, W)\fR\&\&.
+.RE
+.LP
+.B
+vertexAttribLPointer(Index::integer(), Size::integer(), Type::enum(), Stride::integer(), Pointer::offset() | mem()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getVertexAttribLdv(Index::integer(), Pname::enum()) -> {float(), float(), float(), float()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+viewportArrayv(First::integer(), V::[{float(), float(), float(), float()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+viewportIndexedf(Index::integer(), X::float(), Y::float(), W::float(), H::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+viewportIndexedfv(Index::integer(), V::{float(), float(), float(), float()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+scissorArrayv(First::integer(), V::[{integer(), integer(), integer(), integer()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+scissorIndexed(Index::integer(), Left::integer(), Bottom::integer(), Width::integer(), Height::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+scissorIndexedv(Index::integer(), V::{integer(), integer(), integer(), integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+depthRangeArrayv(First::integer(), V::[{clamp(), clamp()}]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+depthRangeIndexed(Index::integer(), N::clamp(), F::clamp()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getFloati_v(Target::enum(), Index::integer()) -> [float()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getDoublei_v(Target::enum(), Index::integer()) -> [float()]
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+debugMessageControlARB(Source::enum(), Type::enum(), Severity::enum(), Ids::[integer()], Enabled::0 | 1) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+debugMessageInsertARB(Source::enum(), Type::enum(), Id::integer(), Severity::enum(), Buf::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getDebugMessageLogARB(Count::integer(), Bufsize::integer()) -> {integer(), Sources::[enum()], Types::[enum()], Ids::[integer()], Severities::[enum()], MessageLog::[string()]}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getGraphicsResetStatusARB() -> enum()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+resizeBuffersMESA() -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+windowPos4dMESA(X::float(), Y::float(), Z::float(), W::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+windowPos4dvMESA(X1::{X, Y, Z, W}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBwindowPos4dMESA(X, Y, Z, W)\fR\&\&.
+.RE
+.LP
+.B
+windowPos4fMESA(X::float(), Y::float(), Z::float(), W::float()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+windowPos4fvMESA(X1::{X, Y, Z, W}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBwindowPos4fMESA(X, Y, Z, W)\fR\&\&.
+.RE
+.LP
+.B
+windowPos4iMESA(X::integer(), Y::integer(), Z::integer(), W::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+windowPos4ivMESA(X1::{X, Y, Z, W}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBwindowPos4iMESA(X, Y, Z, W)\fR\&\&.
+.RE
+.LP
+.B
+windowPos4sMESA(X::integer(), Y::integer(), Z::integer(), W::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+windowPos4svMESA(X1::{X, Y, Z, W}) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBwindowPos4sMESA(X, Y, Z, W)\fR\&\&.
+.RE
+.LP
+.B
+depthBoundsEXT(Zmin::clamp(), Zmax::clamp()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+stencilClearTagEXT(StencilTagBits::integer(), StencilClearTag::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

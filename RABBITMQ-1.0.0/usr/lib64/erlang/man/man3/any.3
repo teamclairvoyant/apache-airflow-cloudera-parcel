@@ -1,0 +1,115 @@
+.TH any 3 "orber 3.6.22" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+any \- the corba any type
+.SH DESCRIPTION
+.LP
+This module contains functions that gives an interface to the CORBA any type\&.
+.LP
+Note that the \fIany\fR\& interface in orber does not contain a destroy function because the any type is represented as an Erlang record and therefor will be removed by the garbage collector when not in use\&.
+.LP
+The type \fITC\fR\& used below describes an IDL type and is a tuple according to the to the Erlang language mapping\&.
+.LP
+The type \fIAny\fR\& used below is defined as:
+.LP
+.nf
+
+      -record(any, {typecode, value}).
+    
+.fi
+.LP
+where \fItypecode\fR\& is a TC tuple and \fIvalue\fR\& is an Erlang term of the type defined by the typecode field\&.
+.SH EXPORTS
+.LP
+.B
+create() -> Result
+.br
+.B
+create(Typecode, Value) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Typecode = TC
+.br
+Value = term()
+.br
+Result = Any
+.br
+.RE
+.RS
+.LP
+The create/0 function creates an empty any record and the create/2 function creates an initialized record\&.
+.RE
+.LP
+.B
+set_typecode(A, Typecode) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+A = Any
+.br
+Typecode = TC
+.br
+Result = Any
+.br
+.RE
+.RS
+.LP
+This function sets the typecode of \fIA\fR\& and returns a new any record\&.
+.RE
+.LP
+.B
+get_typecode(A) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+A = Any
+.br
+Result = TC
+.br
+.RE
+.RS
+.LP
+This function returns the typecode of \fIA\fR\&\&.
+.RE
+.LP
+.B
+set_value(A, Value) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+A = Any
+.br
+Value = term()
+.br
+Result = Any
+.br
+.RE
+.RS
+.LP
+This function sets the value of \fIA\fR\& and returns a new any record\&.
+.RE
+.LP
+.B
+get_value(A) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+A = Any
+.br
+Result = term()
+.br
+.RE
+.RS
+.LP
+This function returns the value of \fIA\fR\&\&.
+.RE

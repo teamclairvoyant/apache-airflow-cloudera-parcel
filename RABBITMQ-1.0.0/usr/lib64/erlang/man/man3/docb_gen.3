@@ -1,0 +1,152 @@
+.TH docb_gen 3 "docbuilder 0.9.8.11" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+docb_gen \- Generate XML from EDoc comments in Erlang source code.
+  
+.SH DESCRIPTION
+.LP
+\fIdocb_gen\fR\& contains functions for generating XML documentation source code according to the \fIerlref\fR\& or \fIchapter\fR\& DTD from \fBEDoc\fR\& comments in Erlang source code or an \fIoverview\&.edoc\fR\& file, using EDoc\&.
+.SH EXPORTS
+.LP
+.B
+module(File) -> ok | {error, Reason}
+.br
+.B
+module(File, Options) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+File = string()
+.br
+Options = [Opt]
+.br
+Opt = {def,Defs} | {includes,Dirs} | {preprocess,Bool} | {sort_functions,Bool}
+.br
+Defs = [{atom(),string()}]
+.br
+Dirs = [string()]
+.br
+Bool = bool()
+.br
+Reason = badfile | {badopt,term()} | term()
+.br
+.RE
+.RS
+.LP
+Generates XML documentation source code according to the \fIerlref\fR\& DTD from EDoc comments \fIFile\fR\&, using the EDoc application\&.
+.LP
+\fIFile\fR\& is an Erlang source file, given with or without the \fI\&.erl\fR\& extension as \fIName\&.erl\fR\& or \fIName\fR\&\&. The resulting XML file is created in the current working directory and named \fIName\&.xml\fR\&\&.
+.LP
+\fIOptions\fR\& is a list of options, see below\&.
+.LP
+Returns \fIok\fR\& if successful, and an error tuple otherwise\&.
+.RE
+.LP
+.B
+users_guide(File) -> ok | {error, Reason}
+.br
+.B
+users_guide(File, Options) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+File -- see module/1,2
+.br
+Options -- see module/1,2
+.br
+Reason -- see module/1,2
+.br
+.RE
+.RS
+.LP
+Like \fImodule/1,2\fR\& but generates XML source code according to the \fIchapter\fR\& DTD from an \fIoverview\&.edoc\fR\& or similar file\&.
+.LP
+The resulting file is named \fIchapter\&.xml\fR\&\&.
+.RE
+.SH "OPTIONS"
+
+.RS 2
+.TP 2
+.B
+\fI{def, [{Name,Text}]}\fR\&:
+Specifies EDoc macro definitions\&. See \fBedoc:get_doc/2\fR\&\&.
+.TP 2
+.B
+\fI{includes, [Dir]}\fR\&:
+Specifies directories where EDoc should search for include files\&. See \fBedoc:read_source/2\fR\&\&.
+.TP 2
+.B
+\fI{preprocess, true|false}\fR\&:
+Specifies if EDoc should read the source file via the Erlang preprocessor\&. Default is \fIfalse\fR\&\&. See \fBedoc:read_source/2\fR\&\&.
+.TP 2
+.B
+\fI{sort_functions, true|false}\fR\&:
+Specifies if the functions in the resulting XML file should be sorted alphabetically\&. Default is \fItrue\fR\&\&.
+.RE
+.SH "LIMITATIONS"
+
+.LP
+The mapping from the EDoc XHTML output to valid Erlang/OTP XML is not complete\&. An attempt has been made to cover the most commonly used XHTML constructs, but there will still be cases where XML generation fails or where the resulting XML is inadequate\&. This is especially true for \fIusers_guide/1,2\fR\&\&.
+.LP
+Known limitations for some XHTML tags:
+.RS 2
+.TP 2
+.B
+\fI<a>\fR\&:
+All attributes except the first \fIhref\fR\& or \fIname\fR\& attribute are ignored\&.
+.RS 2
+.LP
+A \fIhref\fR\& attribute means the \fI<a>\fR\& tag will be transformed to a \fI<seealso>\fR\& or \fI<url>\fR\& tag and an attempt is made to resolve the reference if necessary\&.
+.RE
+.RS 2
+.LP
+A \fIname\fR\& attribute means the \fI<a>\fR\& tag will be transformed to a \fI<marker>\fR\& tag\&.
+.RE
+.TP 2
+.B
+\fI<b>, <em>, <pre>\fR\&:
+Cannot contain other tags in Erlang/OTP XML, content is converted to plain text\&. 
+.TP 2
+.B
+\fI<center>\fR\&:
+No corresponding Erlang/OTP XML tag, converted to plain text\&. 
+.TP 2
+.B
+\fI<font>\fR\&:
+No corresponding Erlang/OTP XML tag, converted to plain text\&. 
+.TP 2
+.B
+\fI<h1>, <h2>, \&.\&.\&.\fR\&:
+There is no tag corresponding to a header in Erlang/OTP XML, so these are converted to plain text instead, with the exception of \fI<h3>\fR\& and \fI<h4>\fR\& tags within \fIoverview\&.edoc\fR\&, see part about "\fIchapter\fR\& DTD" below\&. 
+.TP 2
+.B
+\fI<sup>\fR\&:
+There is no tag corresponding to superscript in Erlang/OTP XML, so this is converted to plain text within brackets "(\&.\&.)"\&. 
+.TP 2
+.B
+References:
+The markers automatically inserted by EDoc at each heading and function will override the markers automatically inserted by DocBuilder, with the unfortunate result that the links in the left-hand frame of the User\&'s Guide will not work, and also that cross referencing a function in a module the usual Erlang/OTP way "\fI<seealso marker="edoc:edoc#run/3\&.\&.\&.>\fR\&" does not work\&. (But "\fI<seealso marker="edoc:edoc#run-3\&.\&.\&.>\fR\&" does\&.) 
+.RE
+.LP
+\fIerlref DTD\fR\&
+.RS 2
+.TP 2
+.B
+Tables:
+Tables are not allowed\&. The contents of a table is converted to text instead, each row corresponding to one line of text\&. 
+.RE
+.LP
+\fIchapter DTD\fR\&
+.RS 2
+.TP 2
+.B
+Sections:
+Only two levels of sections\&. \fI<h3>\fR\& (equivalent to EDoc headings "\fI== Heading ==\fR\&") is interpreted as start of top-level section, or if there is no \fI<h3>\fR\& tag, the entire document is made into one top-level section\&. \fI<h4>\fR\& (equivalent to EDoc sub-headings ("\fI=== Sub-heading ===\fR\&") is interpreted as start of second-level section\&. 
+.TP 2
+.B
+Tables:
+Tables without borders are converted to text in the same manner as for the \fIerlref\fR\& DTD\&. 
+.RE

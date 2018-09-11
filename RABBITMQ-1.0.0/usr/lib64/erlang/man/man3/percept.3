@@ -1,0 +1,108 @@
+.TH percept 3 "percept 0.8.6" "" "Erlang Module Definition"
+.SH NAME
+percept \- Percept - Erlang Concurrency Profiling Tool.
+.SH DESCRIPTION
+.LP
+Percept - Erlang Concurrency Profiling Tool
+.LP
+This module provides the user interface for the application\&.
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIpercept_option() = procs | ports | exclusive\fR\&:
+
+.RE
+.SH EXPORTS
+.LP
+.B
+analyze(Filename::string()) -> ok | {error, Reason}
+.br
+.RS
+.LP
+Analyze file\&.
+.RE
+.LP
+.B
+profile(Filename::string()) -> {ok, Port} | {already_started, Port}
+.br
+.RS
+.LP
+\fISee also:\fR\& \fBpercept_profile\fR\&\&.
+.RE
+.LP
+.B
+profile(Filename::string(), Options::[percept_option()]) -> {ok, Port} | {already_started, Port}
+.br
+.RS
+.LP
+\fISee also:\fR\& \fBpercept_profile\fR\&\&.
+.RE
+.LP
+.B
+profile(Filename::string(), MFA::mfa(), Options::[percept_option()]) -> ok | {already_started, Port} | {error, not_started}
+.br
+.RS
+.LP
+\fISee also:\fR\& \fBpercept_profile\fR\&\&.
+.RE
+.LP
+.B
+start_webserver() -> {started, Hostname, Port} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Hostname = string()
+.br
+Port = integer()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Starts webserver\&.
+.RE
+.LP
+.B
+start_webserver(Port::integer()) -> {started, Hostname, AssignedPort} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Hostname = string()
+.br
+AssignedPort = integer()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Starts webserver\&. If port number is 0, an available port number will be assigned by inets\&.
+.RE
+.LP
+.B
+stop_profile() -> ok | {error, not_started}
+.br
+.RS
+.LP
+\fISee also:\fR\& \fBpercept_profile\fR\&\&.
+.RE
+.LP
+.B
+stop_webserver() -> ok | {error, not_started}
+.br
+.RS
+.LP
+Stops webserver\&.
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

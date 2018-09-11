@@ -1,0 +1,80 @@
+.TH CosPropertyService_PropertySetFactory 3 "cosProperty 1.1.14" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+CosPropertyService_PropertySetFactory \- This module implements the OMG CosPropertyService::PropertySetFactory interface.
+.SH DESCRIPTION
+.LP
+To get access to the record definitions for the structures use: 
+.br
+\fI-include_lib("cosProperty/include/CosPropertyService\&.hrl")\&.\fR\&
+.SH EXPORTS
+.LP
+.B
+create_propertyset(Factory) -> PropertySet
+.br
+.RS
+.TP 3
+Types:
+
+Factory = PropertySet = #objref
+.br
+.RE
+.RS
+.LP
+This operation creates a new \fIPropertySe\fR\&t with no predefined properties\&.
+.RE
+.LP
+.B
+create_constrained_propertyset(Factory, PropertyTypes, Properties) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+Factory = #objref
+.br
+PropertyTypes = [CORBA::TypeCode]
+.br
+Properties = [#'CosPropertyService_Property'{property_name = Name, property_value = Value}]
+.br
+Name = string()
+.br
+Value = #any
+.br
+Reply = {'EXCEPTION', #CosPropertyService_ConstraintNotSupported{}} | PropertySet
+.br
+PropertySet = #objref
+.br
+.RE
+.RS
+.LP
+This operation creates a new \fIPropertySet\fR\& with specific constraints\&. PropertyTypes states allowed TypeCode\&'s and Properties valid \fICosPropertyService::Property\fR\& data\&.
+.RE
+.LP
+.B
+create_initial_propertyset(Factory, Properties) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+Factory = #objref
+.br
+Properties = [#'CosPropertyService_Property'{property_name = Name, property_value = Value}]
+.br
+Name = string()
+.br
+Value = #any
+.br
+Reply = {'EXCEPTION', #CosPropertyService_MultipleExceptions{exceptions = Excs}} | PropertySet
+.br
+Excs = [#'CosPropertyService_PropertyException{reason = Reason, failing_property_name = Name}]
+.br
+Reason = invalid_property_name | conflicting_property | property_not_found | unsupported_type_code | unsupported_property | unsupported_mode | fixed_property | read_only_property
+.br
+PropertySet = #objref
+.br
+.RE
+.RS
+.LP
+This operation creates a new \fIPropertySet\fR\& with specific initial properties\&.
+.RE

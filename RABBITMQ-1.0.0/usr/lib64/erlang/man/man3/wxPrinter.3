@@ -1,0 +1,143 @@
+.TH wxPrinter 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxPrinter \- See external documentation: wxPrinter.
+.SH DESCRIPTION
+.LP
+See external documentation: wxPrinter\&.
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxPrinter()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+new() -> wxPrinter()
+.br
+.RS
+.LP
+Equivalent to \fBnew([])\fR\&\&.
+.RE
+.LP
+.B
+new(Options::[Option]) -> wxPrinter()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {data, wxPrintDialogData() (see module wxPrintDialogData)}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+createAbortWindow(This::wxPrinter(), Parent::wxWindow() (see module wxWindow), Printout::wxPrintout() (see module wxPrintout)) -> wxWindow() (see module wxWindow)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getAbort(This::wxPrinter()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getLastError() -> WxPrinterError
+.br
+.RS
+.TP 3
+Types:
+
+WxPrinterError = integer()
+.br
+.RE
+.RS
+.LP
+See external documentation\&. 
+.br
+WxPrinterError is one of ?wxPRINTER_NO_ERROR | ?wxPRINTER_CANCELLED | ?wxPRINTER_ERROR
+.RE
+.LP
+.B
+getPrintDialogData(This::wxPrinter()) -> wxPrintDialogData() (see module wxPrintDialogData)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+print(This::wxPrinter(), Parent::wxWindow() (see module wxWindow), Printout::wxPrintout() (see module wxPrintout)) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBprint(This, Parent, Printout, [])\fR\&\&.
+.RE
+.LP
+.B
+print(This::wxPrinter(), Parent::wxWindow() (see module wxWindow), Printout::wxPrintout() (see module wxPrintout), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {prompt, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+printDialog(This::wxPrinter(), Parent::wxWindow() (see module wxWindow)) -> wxDC() (see module wxDC)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+reportError(This::wxPrinter(), Parent::wxWindow() (see module wxWindow), Printout::wxPrintout() (see module wxPrintout), Message::string()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setup(This::wxPrinter(), Parent::wxWindow() (see module wxWindow)) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+destroy(This::wxPrinter()) -> ok
+.br
+.RS
+.LP
+Destroys this object, do not use object again
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

@@ -1,0 +1,34 @@
+{% extends 'admin/model/edit.html' %}
+{% block tail %}
+  {{ super() }}
+  <script src="{{ url_for('static', filename='ace.js') }}"></script>
+  <script src="{{ url_for('static', filename='mode-sql.js') }}"></script>
+  <script src="{{ url_for('static', filename='theme-crimson_editor.js') }}"></script>
+  <script>
+    $( document ).ready(function() {
+        var sql_clone = $('#sql').clone().attr('id', 'sql_clone').appendTo($('#sql').parent());
+        var textarea = $('#sql').hide();
+        var editor = ace.edit("sql_clone");
+        editor.setTheme("ace/theme/crimson_editor");
+        editor.setOptions({
+            minLines: 3,
+            maxLines: Infinity,
+        });
+        editor.getSession().setMode("ace/mode/sql");
+        editor.getSession().on('change', function(){
+            textarea.val(editor.getSession().getValue());
+        });
+        editor.focus();
+
+        // Getting column_descriptions in tooltips
+        $(":checkbox").removeClass("form-control");
+        $("span.help-block").each(function(){
+            $(this).parent().attr("title", $(this).text());
+            $(this).parent().attr("data-toggle", "tooltip");
+            $(this).remove();
+        });
+
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+  </script>
+{% endblock %}

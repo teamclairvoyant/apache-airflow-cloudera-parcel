@@ -1,0 +1,69 @@
+.TH error_handler 3 "kernel 2.14.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+error_handler \- Default System Error Handler
+.SH DESCRIPTION
+.LP
+The error handler module defines what happens when certain types of errors occur\&.
+.SH EXPORTS
+.LP
+.nf
+
+.B
+undefined_function(Module, Function, Args) -> any()
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Module = Function = atom()
+.br
+Args = list()
+.br
+ A (possibly empty) list of arguments \fIArg1,\&.\&.,ArgN\fR\&
+.br
+.RE
+.RS
+.LP
+This function is evaluated if a call is made to \fIModule:Function(Arg1,\&.\&., ArgN)\fR\& and \fIModule:Function/N\fR\& is undefined\&. Note that \fIundefined_function/3\fR\& is evaluated inside the process making the original call\&.
+.LP
+If \fIModule\fR\& is interpreted, the interpreter is invoked and the return value of the interpreted \fIFunction(Arg1,\&.\&., ArgN)\fR\& call is returned\&.
+.LP
+Otherwise, it returns, if possible, the value of \fIapply(Module, Function, Args)\fR\& after an attempt has been made to autoload \fIModule\fR\&\&. If this is not possible, the call to \fIModule:Function(Arg1,\&.\&., ArgN)\fR\& fails with exit reason \fIundef\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+undefined_lambda(Module, Fun, Args) -> term()
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Module = atom()
+.br
+Fun = function()
+.br
+Args = list()
+.br
+ A (possibly empty) list of arguments \fIArg1,\&.\&.,ArgN\fR\&
+.br
+.RE
+.RS
+.LP
+This function is evaluated if a call is made to \fIFun(Arg1,\&.\&., ArgN)\fR\& when the module defining the fun is not loaded\&. The function is evaluated inside the process making the original call\&.
+.LP
+If \fIModule\fR\& is interpreted, the interpreter is invoked and the return value of the interpreted \fIFun(Arg1,\&.\&., ArgN)\fR\& call is returned\&.
+.LP
+Otherwise, it returns, if possible, the value of \fIapply(Fun, Args)\fR\& after an attempt has been made to autoload \fIModule\fR\&\&. If this is not possible, the call fails with exit reason \fIundef\fR\&\&.
+.RE
+.SH "NOTES"
+
+.LP
+The code in \fIerror_handler\fR\& is complex and should not be changed without fully understanding the interaction between the error handler, the \fIinit\fR\& process of the code server, and the I/O mechanism of the code\&.
+.LP
+Changes in the code which may seem small can cause a deadlock as unforeseen consequences may occur\&. The use of \fIinput\fR\& is dangerous in this type of code\&.

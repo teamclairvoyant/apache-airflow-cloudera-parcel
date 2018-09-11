@@ -1,0 +1,88 @@
+.TH wxAuiNotebookEvent 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxAuiNotebookEvent \- See external documentation: wxAuiNotebookEvent.
+.SH DESCRIPTION
+.LP
+See external documentation: wxAuiNotebookEvent\&.
+.RS 2
+.TP 2
+.B
+Use \fBwxEvtHandler:connect/3\fR\& with EventType::
+\fIcommand_auinotebook_page_close\fR\&, \fIcommand_auinotebook_page_changed\fR\&, \fIcommand_auinotebook_page_changing\fR\&, \fIcommand_auinotebook_button\fR\&, \fIcommand_auinotebook_begin_drag\fR\&, \fIcommand_auinotebook_end_drag\fR\&, \fIcommand_auinotebook_drag_motion\fR\&, \fIcommand_auinotebook_allow_dnd\fR\&, \fIcommand_auinotebook_tab_middle_down\fR\&, \fIcommand_auinotebook_tab_middle_up\fR\&, \fIcommand_auinotebook_tab_right_down\fR\&, \fIcommand_auinotebook_tab_right_up\fR\&, \fIcommand_auinotebook_page_closed\fR\&, \fIcommand_auinotebook_drag_done\fR\&, \fIcommand_auinotebook_bg_dclick\fR\&
+.RE
+.LP
+See also the message variant \fB#wxAuiNotebook{\fR\&} event record type\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxNotifyEvent\fR\& 
+.br
+\fBwxCommandEvent\fR\& 
+.br
+\fBwxEvent\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxAuiNotebookEvent()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+setSelection(This::wxAuiNotebookEvent(), S::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getSelection(This::wxAuiNotebookEvent()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setOldSelection(This::wxAuiNotebookEvent(), S::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getOldSelection(This::wxAuiNotebookEvent()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setDragSource(This::wxAuiNotebookEvent(), S::wxAuiNotebook() (see module wxAuiNotebook)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getDragSource(This::wxAuiNotebookEvent()) -> wxAuiNotebook() (see module wxAuiNotebook)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

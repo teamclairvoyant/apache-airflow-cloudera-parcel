@@ -1,0 +1,662 @@
+.TH ssh_sftp 3 "ssh 2.0.8" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+ssh_sftp \- SFTP client.
+.SH DESCRIPTION
+.LP
+This module implements an SFTP (SSH FTP) client\&. SFTP is a secure, encrypted file transfer service available for SSH\&.
+.SH "COMMON DATA TYPES "
+
+.LP
+Type definitions that are used more than once in this module and/or abstractions to indicate the intended use of the data type:
+.LP
+\fIssh_connection_ref() - opaque to the user returned by ssh:connect/3\fR\&
+.LP
+\fItimeout() = infinity | integer() - in milliseconds\&.\fR\&
+.SH "TIMEOUTS "
+
+.LP
+If the request functions for the sftp channel return {error, timeout} it does not mean that the request did not reach the server and was not performed, it only means that we did not receive an answer from the server within the time that was expected\&.
+.SH EXPORTS
+.LP
+.B
+start_channel(ConnectionRef) -> 
+.br
+.B
+start_channel(ConnectionRef, Options) -> 
+.br
+.B
+start_channel(Host, Options) ->
+.br
+.B
+start_channel(Host, Port, Options) -> {ok, Pid} | {ok, Pid, ConnectionRef} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Host = string()
+.br
+ConnectionRef = ssh_connection_ref()
+.br
+Port = integer()
+.br
+Options = [{Option, Value}]
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+If not provided, setups a ssh connection in this case a connection reference will be returned too\&. A ssh channel process is started to handle the communication with the SFTP server, the returned pid for this process should be used as input to all other API functions in this module\&.
+.LP
+Options are:
+.RS 2
+.TP 2
+.B
+\fI{timeout, timeout()}\fR\&:
+The timeout is passed to the ssh_channel start function, and defaults to infinity\&.
+.RE
+.LP
+All other options are directly passed to \fBssh:connect/3\fR\& or ignored if a connection is already provided\&.
+.RE
+.LP
+.B
+stop_channel(ChannelPid) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+ChannelPid = pid()
+.br
+.RE
+.RS
+.LP
+Stops a sftp channel\&. If the ssh connection should be closed call \fBssh:close/1\fR\&\&.
+.RE
+.LP
+.B
+read_file(ChannelPid, File) -> 
+.br
+.B
+read_file(ChannelPid, File, Timeout) -> {ok, Data} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ChannelPid = pid()
+.br
+File = string()
+.br
+Data = binary()
+.br
+Timeout = timeout()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Reads a file from the server, and returns the data in a binary, like \fIfile:read_file/1\fR\&\&.
+.RE
+.LP
+.B
+write_file(ChannelPid, File, Iolist) -> 
+.br
+.B
+write_file(ChannelPid, File, Iolist, Timeout) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ChannelPid = pid()
+.br
+File = string()
+.br
+Iolist = iolist()
+.br
+Timeout = timeout()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Writes a file to the server, like \fIfile:write_file/2\fR\&\&. The file is created if it\&'s not there\&.
+.RE
+.LP
+.B
+list_dir(ChannelPid, Path) -> 
+.br
+.B
+list_dir(ChannelPid, Path, Timeout) -> {ok, Filenames} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ChannelPid = pid()
+.br
+Path = string()
+.br
+Filenames = [Filename]
+.br
+Filename = string()
+.br
+Timeout = timeout()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Lists the given directory on the server, returning the filenames as a list of strings\&.
+.RE
+.LP
+.B
+open(ChannelPid, File, Mode) -> 
+.br
+.B
+open(ChannelPid, File, Mode, Timeout) -> {ok, Handle} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ChannelPid = pid()
+.br
+File = string()
+.br
+Mode = [Modeflag]
+.br
+Modeflag = read | write | creat | trunc | append | binary
+.br
+Timeout = timeout()
+.br
+Handle = term()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Opens a file on the server, and returns a handle that is used for reading or writing\&.
+.RE
+.LP
+.B
+opendir(ChannelPid, Path) -> 
+.br
+.B
+opendir(ChannelPid, Path, Timeout) -> {ok, Handle} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ChannelPid = pid()
+.br
+Path = string()
+.br
+Timeout = timeout()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Opens a handle to a directory on the server, the handle is used for reading directory contents\&.
+.RE
+.LP
+.B
+close(ChannelPid, Handle) -> 
+.br
+.B
+close(ChannelPid, Handle, Timeout) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ChannelPid = pid()
+.br
+Handle = term()
+.br
+Timeout = timeout()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Closes a handle to an open file or directory on the server\&.
+.RE
+.LP
+.B
+read(ChannelPid, Handle, Len) -> 
+.br
+.B
+read(ChannelPid, Handle, Len, Timeout) -> {ok, Data} | eof | {error, Error}
+.br
+.B
+pread(ChannelPid, Handle, Position, Len) -> 
+.br
+.B
+pread(ChannelPid, Handle, Position, Len, Timeout) -> {ok, Data} | eof | {error, Error}
+.br
+.RS
+.TP 3
+Types:
+
+ChannelPid = pid()
+.br
+Handle = term()
+.br
+Position = integer()
+.br
+Len = integer()
+.br
+Timeout = timeout()
+.br
+Data = string() | binary()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Reads \fILen\fR\& bytes from the file referenced by \fIHandle\fR\&\&. Returns \fI{ok, Data}\fR\&, or \fIeof\fR\&, or \fI{error, Reason}\fR\&\&. If the file is opened with \fIbinary\fR\&, \fIData\fR\& is a binary, otherwise it is a string\&.
+.LP
+If the file is read past eof, only the remaining bytes will be read and returned\&. If no bytes are read, \fIeof\fR\& is returned\&.
+.LP
+The \fIpread\fR\& function reads from a specified position, combining the \fIposition\fR\& and \fIread\fR\& functions\&.
+.RE
+.LP
+.B
+aread(ChannelPid, Handle, Len) -> {async, N} | {error, Error}
+.br
+.B
+apread(ChannelPid, Handle, Position, Len) -> {async, N} | {error, Error}
+.br
+.RS
+.TP 3
+Types:
+
+ChannelPid = pid()
+.br
+Handle = term()
+.br
+Position = integer()
+.br
+Len = integer()
+.br
+N = term()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Reads from an open file, without waiting for the result\&. If the handle is valid, the function returns \fI{async, N}\fR\&, where N is a term guaranteed to be unique between calls of \fIaread\fR\&\&. The actual data is sent as a message to the calling process\&. This message has the form \fI{async_reply, N, Result}\fR\&, where \fIResult\fR\& is the result from the read, either \fI{ok, Data}\fR\&, or \fIeof\fR\&, or \fI{error, Error}\fR\&\&.
+.LP
+The \fIapread\fR\& function reads from a specified position, combining the \fIposition\fR\& and \fIaread\fR\& functions\&.
+.RE
+.LP
+.B
+write(ChannelPid, Handle, Data) ->
+.br
+.B
+write(ChannelPid, Handle, Data, Timeout) -> ok | {error, Error}
+.br
+.B
+pwrite(ChannelPid, Handle, Position, Data) -> ok 
+.br
+.B
+pwrite(ChannelPid, Handle, Position, Data, Timeout) -> ok | {error, Error}
+.br
+.RS
+.TP 3
+Types:
+
+ChannelPid = pid()
+.br
+Handle = term()
+.br
+Position = integer()
+.br
+Data = iolist()
+.br
+Timeout = timeout()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Write \fIdata\fR\& to the file referenced by \fIHandle\fR\&\&. The file should be opened with \fIwrite\fR\& or \fIappend\fR\& flag\&. Returns \fIok\fR\& if successful and \fI{error, Reason}\fR\& otherwise\&.
+.LP
+Typical error reasons are:
+.RS 2
+.TP 2
+.B
+\fIebadf\fR\&:
+The file is not opened for writing\&.
+.TP 2
+.B
+\fIenospc\fR\&:
+There is a no space left on the device\&.
+.RE
+.RE
+.LP
+.B
+awrite(ChannelPid, Handle, Data) -> ok | {error, Reason} 
+.br
+.B
+apwrite(ChannelPid, Handle, Position, Data) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ChannelPid = pid()
+.br
+Handle = term()
+.br
+Position = integer()
+.br
+Len = integer()
+.br
+Data = binary()
+.br
+Timeout = timeout()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Writes to an open file, without waiting for the result\&. If the handle is valid, the function returns \fI{async, N}\fR\&, where N is a term guaranteed to be unique between calls of \fIawrite\fR\&\&. The result of the \fIwrite\fR\& operation is sent as a message to the calling process\&. This message has the form \fI{async_reply, N, Result}\fR\&, where \fIResult\fR\& is the result from the write, either \fIok\fR\&, or \fI{error, Error}\fR\&\&.
+.LP
+The \fIapwrite\fR\& writes on a specified position, combining the \fIposition\fR\& and \fIawrite\fR\& operations\&.
+.RE
+.LP
+.B
+position(ChannelPid, Handle, Location) -> 
+.br
+.B
+position(ChannelPid, Handle, Location, Timeout) -> {ok, NewPosition | {error, Error}
+.br
+.RS
+.TP 3
+Types:
+
+ChannelPid = pid()
+.br
+Handle = term()
+.br
+Location = Offset | {bof, Offset} | {cur, Offset} | {eof, Offset} | bof | cur | eof
+.br
+Offset = int()
+.br
+Timeout = timeout()
+.br
+NewPosition = integer()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Sets the file position of the file referenced by \fIHandle\fR\&\&. Returns \fI{ok, NewPosition\fR\& (as an absolute offset) if successful, otherwise \fI{error, Reason}\fR\&\&. \fILocation\fR\& is one of the following:
+.RS 2
+.TP 2
+.B
+\fIOffset\fR\&:
+The same as \fI{bof, Offset}\fR\&\&.
+.TP 2
+.B
+\fI{bof, Offset}\fR\&:
+Absolute offset\&.
+.TP 2
+.B
+\fI{cur, Offset}\fR\&:
+Offset from the current position\&.
+.TP 2
+.B
+\fI{eof, Offset}\fR\&:
+Offset from the end of file\&.
+.TP 2
+.B
+\fIbof | cur | eof\fR\&:
+The same as above with \fIOffset\fR\& 0\&.
+.RE
+.RE
+.LP
+.B
+read_file_info(ChannelPid, Name) -> 
+.br
+.B
+read_file_info(ChannelPid, Name, Timeout) -> {ok, FileInfo} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ChannelPid = pid()
+.br
+Name = string()
+.br
+Handle = term()
+.br
+Timeout = timeout()
+.br
+FileInfo = record()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Returns a \fIfile_info\fR\& record from the file specified by \fIName\fR\& or \fIHandle\fR\&, like \fIfile:read_file_info/2\fR\&\&.
+.RE
+.LP
+.B
+read_link_info(ChannelPid, Name) -> {ok, FileInfo} | {error, Reason}
+.br
+.B
+read_link_info(ChannelPid, Name, Timeout) -> {ok, FileInfo} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ChannelPid = pid()
+.br
+Name = string()
+.br
+Handle = term()
+.br
+Timeout = timeout()
+.br
+FileInfo = record()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Returns a \fIfile_info\fR\& record from the symbolic link specified by \fIName\fR\& or \fIHandle\fR\&, like \fIfile:read_link_info/2\fR\&\&.
+.RE
+.LP
+.B
+write_file_info(ChannelPid, Name, Info) -> 
+.br
+.B
+write_file_info(ChannelPid, Name, Info, Timeout) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ChannelPid = pid()
+.br
+Name = string()
+.br
+Info = record()
+.br
+Timeout = timeout()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Writes file information from a \fIfile_info\fR\& record to the file specified by \fIName\fR\&, like \fIfile:write_file_info\fR\&\&.
+.RE
+.LP
+.B
+read_link(ChannelPid, Name) -> 
+.br
+.B
+read_link(ChannelPid, Name, Timeout) -> {ok, Target} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ChannelPid = pid()
+.br
+Name = string()
+.br
+Target = string()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Read the link target from the symbolic link specified by \fIname\fR\&, like \fIfile:read_link/1\fR\&\&.
+.RE
+.LP
+.B
+make_symlink(ChannelPid, Name, Target) -> 
+.br
+.B
+make_symlink(ChannelPid, Name, Target, Timeout) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ChannelPid = pid()
+.br
+Name = string()
+.br
+Target = string()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Creates a symbolic link pointing to \fITarget\fR\& with the name \fIName\fR\&, like \fIfile:make_symlink/2\fR\&\&.
+.RE
+.LP
+.B
+rename(ChannelPid, OldName, NewName) -> 
+.br
+.B
+rename(ChannelPid, OldName, NewName, Timeout) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ChannelPid = pid()
+.br
+OldName = string()
+.br
+NewName = string()
+.br
+Timeout = timeout()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Renames a file named \fIOldName\fR\&, and gives it the name \fINewName\fR\&, like \fIfile:rename/2\fR\&
+.RE
+.LP
+.B
+delete(ChannelPid, Name) -> 
+.br
+.B
+delete(ChannelPid, Name, Timeout) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ChannelPid = pid()
+.br
+Name = string()
+.br
+Timeout = timeout()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Deletes the file specified by \fIName\fR\&, like \fIfile:delete/1\fR\&
+.RE
+.LP
+.B
+make_dir(ChannelPid, Name) -> 
+.br
+.B
+make_dir(ChannelPid, Name, Timeout) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ChannelPid = pid()
+.br
+Name = string()
+.br
+Timeout = timeout()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Creates a directory specified by \fIName\fR\&\&. \fIName\fR\& should be a full path to a new directory\&. The directory can only be created in an existing directory\&.
+.RE
+.LP
+.B
+del_dir(ChannelPid, Name) -> 
+.br
+.B
+del_dir(ChannelPid, Name, Timeout) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ChannelPid = pid()
+.br
+Name = string()
+.br
+Timeout = timeout()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Deletes a directory specified by \fIName\fR\&\&. The directory should be empty\&.
+.RE

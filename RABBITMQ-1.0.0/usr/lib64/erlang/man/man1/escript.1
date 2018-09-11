@@ -1,0 +1,326 @@
+.TH escript 1 "erts 5.8.5" "Ericsson AB" "User Commands"
+.SH NAME
+escript \- Erlang scripting support
+.SH DESCRIPTION
+.LP
+\fIescript\fR\& provides support for running short Erlang programs without having to compile them first and an easy way to retrieve the command line arguments\&.
+.SH EXPORTS
+.LP
+.B
+script-name script-arg1 script-arg2\&.\&.\&.
+.br
+.B
+escript escript-flags script-name script-arg1 script-arg2\&.\&.\&.
+.br
+.RS
+.LP
+\fIescript\fR\& runs a script written in Erlang\&.
+.LP
+Here follows an example\&.
+.LP
+.nf
+
+$ cat factorial
+#!/usr/bin/env escript
+%% -*- erlang -*-
+%%! -smp enable -sname factorial -mnesia debug verbose
+main([String]) ->
+    try
+        N = list_to_integer(String),
+        F = fac(N),
+        io:format("factorial ~w = ~w\\n", [N,F])
+    catch
+        _:_ ->
+            usage()
+    end;
+main(_) ->
+    usage().
+
+usage() ->
+    io:format("usage: factorial integer\\n"),
+    halt(1).
+
+fac(0) -> 1;
+fac(N) -> N * fac(N-1).
+$ factorial 5
+factorial 5 = 120
+$ factorial
+usage: factorial integer
+$ factorial five
+usage: factorial integer        
+.fi
+.LP
+The header of the Erlang script in the example differs from a normal Erlang module\&. The first line is intended to be the interpreter line, which invokes \fIescript\fR\&\&. However if you invoke the \fIescript\fR\& like this
+.LP
+.nf
+
+$ escript factorial 5        
+.fi
+.LP
+the contents of the first line does not matter, but it cannot contain Erlang code as it will be ignored\&.
+.LP
+The second line in the example, contains an optional directive to the \fIEmacs\fR\& editor which causes it to enter the major mode for editing Erlang source files\&. If the directive is present it must be located on the second line\&.
+.LP
+On the third line (or second line depending on the presence of the Emacs directive), it is possible to give arguments to the emulator, such as
+.LP
+.nf
+
+%%! -smp enable -sname factorial -mnesia debug verbose
+.fi
+.LP
+Such an argument line must start with \fI%%!\fR\& and the rest of the line will interpreted as arguments to the emulator\&.
+.LP
+If you know the location of the \fIescript\fR\& executable, the first line can directly give the path to \fIescript\fR\&\&. For instance:
+.LP
+.nf
+
+#!/usr/local/bin/escript        
+.fi
+.LP
+As any other kind of scripts, Erlang scripts will not work on Unix platforms if the execution bit for the script file is not set\&. (Use \fIchmod +x script-name\fR\& to turn on the execution bit\&.)
+.LP
+The rest of the Erlang script file may either contain Erlang \fIsource code\fR\&, an \fIinlined beam file\fR\& or an \fIinlined archive file\fR\&\&.
+.LP
+An Erlang script file must always contain the function \fImain/1\fR\&\&. When the script is run, the \fImain/1\fR\& function will be called with a list of strings representing the arguments given to the script (not changed or interpreted in any way)\&.
+.LP
+If the \fImain/1\fR\& function in the script returns successfully, the exit status for the script will be 0\&. If an exception is generated during execution, a short message will be printed and the script terminated with exit status 127\&.
+.LP
+To return your own non-zero exit code, call \fIhalt(ExitCode)\fR\&; for instance:
+.LP
+.nf
+
+halt(1).
+.fi
+.LP
+Call \fBescript:script_name()\fR\& from your to script to retrieve the pathname of the script (the pathname is usually, but not always, absolute)\&.
+.LP
+If the file contains source code (as in the example above), it will be processed by the preprocessor \fIepp\fR\&\&. This means that you for example may use pre-defined macros (such as \fI?MODULE\fR\&) as well as include directives like the \fI-include_lib\fR\& directive\&. For instance, use
+.LP
+.nf
+
+-include_lib("kernel/include/file.hrl").
+.fi
+.LP
+to include the record definitions for the records used by the \fIfile:read_link_info/1\fR\& function\&.
+.LP
+The script will be checked for syntactic and semantic correctness before being run\&. If there are warnings (such as unused variables), they will be printed and the script will still be run\&. If there are errors, they will be printed and the script will not be run and its exit status will be 127\&.
+.LP
+Both the module declaration and the export declaration of the \fImain/1\fR\& function are optional\&.
+.LP
+By default, the script will be interpreted\&. You can force it to be compiled by including the following line somewhere in the script file:
+.LP
+.nf
+
+-mode(compile).
+.fi
+.LP
+Execution of interpreted code is slower than compiled code\&. If much of the execution takes place in interpreted code it may be worthwhile to compile it, even though the compilation itself will take a little while\&. It is also possible to supply \fInative\fR\& instead of compile, this will compile the script using the native flag, again depending on the characteristics of the escript this could or could not be worth while\&.
+.LP
+As mentioned earlier, it is possible to have a script which contains precompiled \fIbeam\fR\& code\&. In a precompiled script, the interpretation of the script header is exactly the same as in a script containing source code\&. That means that you can make a \fIbeam\fR\& file executable by prepending the file with the lines starting with \fI#!\fR\& and \fI%%!\fR\& mentioned above\&. In a precompiled script, the function \fImain/1\fR\& must be exported\&.
+.LP
+As yet another option it is possible to have an entire Erlang archive in the script\&. In a archive script, the interpretation of the script header is exactly the same as in a script containing source code\&. That means that you can make an archive file executable by prepending the file with the lines starting with \fI#!\fR\& and \fI%%!\fR\& mentioned above\&. In an archive script, the function \fImain/1\fR\& must be exported\&. By default the \fImain/1\fR\& function in the module with the same name as the basename of the \fIescript\fR\& file will be invoked\&. This behavior can be overridden by setting the flag \fI-escript main Module\fR\& as one of the emulator flags\&. The \fIModule\fR\& must be the name of a module which has an exported \fImain/1\fR\& function\&. See \fBcode(3)\fR\& for more information about archives and code loading\&.
+.LP
+In many cases it is very convenient to have a header in the escript, especially on Unix platforms\&. But the header is in fact optional\&. This means that you directly can "execute" an Erlang module, beam file or archive file without adding any header to them\&. But then you have to invoke the script like this:
+.LP
+.nf
+
+$ escript factorial\&.erl 5
+factorial 5 = 120
+$ escript factorial\&.beam 5
+factorial 5 = 120
+$ escript factorial\&.zip 5
+factorial 5 = 120
+
+.fi
+.RE
+.LP
+.B
+escript:create(FileOrBin, Sections) -> ok | {ok, binary()} | {error, term()}
+.br
+.RS
+.TP 3
+Types:
+
+FileOrBin = filename() | 'binary'
+.br
+Sections = [Header] Body | Body
+.br
+Header = shebang | {shebang, Shebang} | comment | {comment, Comment} | {emu_args, EmuArgs}
+.br
+Shebang = string() | 'default' | 'undefined'
+.br
+Comment = string() | 'default' | 'undefined'
+.br
+EmuArgs = string() | 'undefined'
+.br
+Body = {source, SourceCode} | {beam, BeamCode} | {archive, ZipArchive}
+.br
+SourceCode = BeamCode = ZipArchive = binary()
+.br
+.RE
+.RS
+.LP
+The \fIcreate/2\fR\& function creates an escript from a list of sections\&. The sections can be given in any order\&. An escript begins with an optional \fIHeader\fR\& followed by a mandatory \fIBody\fR\&\&. If the header is present, it does always begin with a \fIshebang\fR\&, possibly followed by a \fIcomment\fR\& and \fIemu_args\fR\&\&. The \fIshebang\fR\& defaults to \fI"/usr/bin/env escript"\fR\&\&. The comment defaults to \fI"This is an -*- erlang -*- file"\fR\&\&. The created escript can either be returned as a binary or written to file\&.
+.LP
+As an example of how the function can be used, we create an interpreted escript which uses emu_args to set some emulator flag\&. In this case it happens to disable the smp_support\&. We do also extract the different sections from the newly created script:
+.LP
+.nf
+
+> Source = "%% Demo\\nmain(_Args) ->\\n io:format(erlang:system_info(smp_support))\&.\\n"\&.
+"%% Demo\\nmain(_Args) ->\\n    io:format(erlang:system_info(smp_support)).\\n"
+> io:format("~s\\n", [Source])\&.
+%% Demo
+main(_Args) ->
+    io:format(erlang:system_info(smp_support)).
+
+ok
+> {ok, Bin} = escript:create(binary, [shebang, comment, {emu_args, "-smp disable"}, {source, list_to_binary(Source)}])\&.
+{ok,<<"#!/usr/bin/env escript\\n%% This is an -*- erlang -*- file\\n%%!-smp disabl"...>>}
+> file:write_file("demo\&.escript", Bin)\&.
+ok
+> os:cmd("escript demo\&.escript")\&.
+"false"
+> escript:extract("demo\&.escript", [])\&.
+{ok,[{shebang,default}, {comment,default}, {emu_args,"-smp disable"},
+     {source,<<"%% Demo\\nmain(_Args) ->\\n    io:format(erlang:system_info(smp_su"...>>}]}
+	
+.fi
+.LP
+An escript without header can be created like this:
+.LP
+.nf
+
+> file:write_file("demo\&.erl", ["%% demo\&.erl\\n-module(demo)\&.\\n-export([main/1])\&.\\n\\n", Source])\&.
+ok
+> {ok, _, BeamCode} = compile:file("demo\&.erl", [binary, debug_info])\&.
+{ok,demo,
+    <<70,79,82,49,0,0,2,208,66,69,65,77,65,116,111,109,0,0,0,
+      79,0,0,0,9,4,100,...>>}
+> escript:create("demo\&.beam", [{beam, BeamCode}])\&.
+ok
+> escript:extract("demo\&.beam", [])\&.
+{ok,[{shebang,undefined}, {comment,undefined}, {emu_args,undefined},
+     {beam,<<70,79,82,49,0,0,3,68,66,69,65,77,65,116,
+             111,109,0,0,0,83,0,0,0,9,...>>}]}
+> os:cmd("escript demo\&.beam")\&.
+"true"
+
+.fi
+.LP
+Here we create an archive script containing both Erlang code as well as beam code\&. Then we iterate over all files in the archive and collect their contents and some info about them\&.
+.LP
+.nf
+
+> {ok, SourceCode} = file:read_file("demo\&.erl")\&.
+{ok,<<"%% demo.erl\\n-module(demo).\\n-export([main/1]).\\n\\n%% Demo\\nmain(_Arg"...>>}
+> escript:create("demo\&.escript", [shebang, {archive, [{"demo\&.erl", SourceCode}, {"demo\&.beam", BeamCode}], []}])\&.
+ok
+> {ok, [{shebang,default}, {comment,undefined}, {emu_args,undefined}, {archive, ArchiveBin}]} = escript:extract("demo\&.escript", [])\&.
+{ok,[{shebang,default}, {comment,undefined}, {emu_args,undefined},
+     {{archive,<<80,75,3,4,20,0,0,0,8,0,118,7,98,60,105,
+                152,61,93,107,0,0,0,118,0,...>>}]}
+> file:write_file("demo\&.zip", ArchiveBin)\&.
+ok
+> zip:foldl(fun(N, I, B, A) -> [{N, I(), B()} | A] end, [], "demo\&.zip")\&.
+{ok,[{"demo.beam",
+      {file_info,748,regular,read_write,
+                 {{2010,3,2},{0,59,22}},
+                 {{2010,3,2},{0,59,22}},
+                 {{2010,3,2},{0,59,22}},
+                 54,1,0,0,0,0,0},
+      <<70,79,82,49,0,0,2,228,66,69,65,77,65,116,111,109,0,0,0,
+        83,0,0,...>>},
+     {"demo.erl",
+      {file_info,118,regular,read_write,
+                 {{2010,3,2},{0,59,22}},
+                 {{2010,3,2},{0,59,22}},
+                 {{2010,3,2},{0,59,22}},
+                 54,1,0,0,0,0,0},
+      <<"%% demo.erl\\n-module(demo).\\n-export([main/1]).\\n\\n%% Demo\\nmain(_Arg"...>>}]}
+.fi
+.RE
+.LP
+.B
+escript:extract(File, Options) -> {ok, Sections} | {error, term()}
+.br
+.RS
+.TP 3
+Types:
+
+File = filename()
+.br
+Options = [] | [compile_source]
+.br
+Sections = Headers Body
+.br
+Headers = {shebang, Shebang} {comment, Comment} {emu_args, EmuArgs}
+.br
+Shebang = string() | 'default' | 'undefined'
+.br
+Comment = string() | 'default' | 'undefined'
+.br
+EmuArgs = string() | 'undefined'
+.br
+Body = {source, SourceCode} | {source, BeamCode} | {beam, BeamCode} | {archive, ZipArchive}
+.br
+SourceCode = BeamCode = ZipArchive = binary()
+.br
+.RE
+.RS
+.LP
+The \fIextract/2\fR\& function parses an escript and extracts its sections\&. This is the reverse of \fIcreate/2\fR\&\&.
+.LP
+All sections are returned even if they do not exist in the escript\&. If a particular section happens to have the same value as the default value, the extracted value is set to the atom \fIdefault\fR\&\&. If a section is missing, the extracted value is set to the atom \fIundefined\fR\&\&.
+.LP
+The \fIcompile_source\fR\& option only affects the result if the escript contains \fIsource\fR\& code\&. In that case the Erlang code is automatically compiled and \fI{source, BeamCode}\fR\& is returned instead of \fI{source, SourceCode}\fR\&\&.
+.LP
+.nf
+
+> escript:create("demo\&.escript", [shebang, {archive, [{"demo\&.erl", SourceCode}, {"demo\&.beam", BeamCode}], []}])\&.
+ok
+> {ok, [{shebang,default}, {comment,undefined}, {emu_args,undefined}, {archive, ArchiveBin}]} = escript:extract("demo\&.escript", [])\&.
+{ok,[{{archive,<<80,75,3,4,20,0,0,0,8,0,118,7,98,60,105,
+                152,61,93,107,0,0,0,118,0,...>>}
+     {emu_args,undefined}]}
+	
+.fi
+.RE
+.LP
+.B
+escript:script_name() -> File
+.br
+.RS
+.TP 3
+Types:
+
+File = filename()
+.br
+.RE
+.RS
+.LP
+The \fIscript_name/0\fR\& function returns the name of the escript being executed\&. If the function is invoked outside the context of an escript, the behavior is undefined\&.
+.RE
+.SH "OPTIONS ACCEPTED BY ESCRIPT"
+
+.RS 2
+.TP 2
+.B
+-c:
+Compile the escript regardless of the value of the mode attribute\&. 
+.TP 2
+.B
+-d:
+Debug the escript\&. Starts the debugger, loads the module containing the \fImain/1\fR\& function into the debugger, sets a breakpoint in \fImain/1\fR\& and invokes \fImain/1\fR\&\&. If the module is precompiled, it must be explicitly compiled with the \fIdebug_info\fR\& option\&. 
+.TP 2
+.B
+-i:
+Interpret the escript regardless of the value of the mode attribute\&. 
+.TP 2
+.B
+-s:
+Only perform a syntactic and semantic check of the script file\&. Warnings and errors (if any) are written to the standard output, but the script will not be run\&. The exit status will be 0 if there were no errors, and 127 otherwise\&.
+.TP 2
+.B
+-n:
+Compile the escript using the +native flag\&.
+.RE

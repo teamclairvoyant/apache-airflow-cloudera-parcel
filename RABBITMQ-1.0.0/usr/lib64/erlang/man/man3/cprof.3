@@ -1,0 +1,250 @@
+.TH cprof 3 "tools 2.6.6.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+cprof \- A simple Call Count Profiling Tool using breakpoints for minimal runtime performance impact.
+.SH DESCRIPTION
+.LP
+The \fIcprof\fR\& module is used to profile a program to find out how many times different functions are called\&. Breakpoints similar to local call trace, but containing a counter, are used to minimise runtime performance impact\&.
+.LP
+Since breakpoints are used there is no need for special compilation of any module to be profiled\&. For now these breakpoints can only be set on BEAM code so s cannot be call count traced\&.
+.LP
+The size of the call counters is the host machine word size\&. One bit is used when pausing the counter, so the maximum counter value for a 32-bit host is 2147483647\&.
+.LP
+The profiling result is delivered as a term containing a sorted list of entries, one per module\&. Each module entry contains a sorted list of functions\&. The sorting order in both cases is of decreasing call count\&.
+.LP
+Call count tracing is very lightweight compared to other forms of tracing since no trace message has to be generated\&. Some measurements indicates performance degradation in the vicinity of 10 percent\&. 
+.SH EXPORTS
+.LP
+.B
+analyse() -> {AllCallCount, ModAnalysisList}
+.br
+.B
+analyse(Limit) -> {AllCallCount, ModAnalysisList}
+.br
+.B
+analyse(Mod) -> ModAnlysis
+.br
+.B
+analyse(Mod, Limit) -> ModAnalysis
+.br
+.RS
+.TP 3
+Types:
+
+Limit = integer()
+.br
+Mod = atom()
+.br
+AllCallCount = integer()
+.br
+ModAnalysisList = [ModAnalysis]
+.br
+ModAnalysis = {Mod, ModCallCount, FuncAnalysisList}
+.br
+ModCallCount = integer()
+.br
+FuncAnalysisList = [{{Mod, Func, Arity}, FuncCallCount}]
+.br
+Func = atom()
+.br
+Arity = integer()
+.br
+FuncCallCount = integer()
+.br
+.RE
+.RS
+.LP
+Collects and analyses the call counters presently in the node for either module \fIMod\fR\&, or for all modules (except \fIcprof\fR\& itself), and returns:
+.RS 2
+.TP 2
+.B
+\fIFuncAnalysisList\fR\&:
+A list of tuples, one for each function in a module, in decreasing \fIFuncCallCount\fR\& order\&.
+.TP 2
+.B
+\fIModCallCount\fR\&:
+The sum of \fIFuncCallCount\fR\& values for all functions in module \fIMod\fR\&\&.
+.TP 2
+.B
+\fIAllCallCount\fR\&:
+The sum of \fIModCallCount\fR\& values for all modules concerned in \fIModAnalysisList\fR\&\&.
+.TP 2
+.B
+\fIModAnalysisList\fR\&:
+A list of tuples, one for each module except \fIcprof\fR\&, in decreasing \fIModCallCount\fR\& order\&.
+.RE
+.LP
+If call counters are still running while \fIanalyse/0\&.\&.2\fR\& is executing, you might get an inconsistent result\&. This happens if the process executing \fIanalyse/0\&.\&.2\fR\& gets scheduled out so some other process can increment the counters that are being analysed, Calling \fIpause()\fR\& before analysing takes care of the problem\&.
+.LP
+If the \fIMod\fR\& argument is given, the result contains a \fIModAnalysis\fR\& tuple for module \fIMod\fR\& only, otherwise the result contains one \fIModAnalysis\fR\& tuple for all modules returned from \fIcode:all_loaded()\fR\& except \fIcprof\fR\& itself\&.
+.LP
+All functions with a \fIFuncCallCount\fR\& lower than \fILimit\fR\& are excluded from \fIFuncAnalysisList\fR\&\&. They are still included in \fIModCallCount\fR\&, though\&. The default value for \fILimit\fR\& is \fI1\fR\&\&. 
+.RE
+.LP
+.B
+pause() -> integer()
+.br
+.RS
+.LP
+Pause call count tracing for all functions in all modules and stop it for all functions in modules to be loaded\&. This is the same as \fI(pause({\&'_\&',\&'_\&',\&'_\&'})+stop({on_load}))\fR\&\&.
+.LP
+See also \fBpause/1\&.\&.3\fR\& below\&. 
+.RE
+.LP
+.B
+pause(FuncSpec) -> integer()
+.br
+.B
+pause(Mod, Func) -> integer()
+.br
+.B
+pause(Mod, Func, Arity) -> integer()
+.br
+.RS
+.TP 3
+Types:
+
+FuncSpec = Mod | {Mod,Func,Arity}, {FS}
+.br
+Mod = atom()
+.br
+Func = atom()
+.br
+Arity = integer()
+.br
+FS = term()
+.br
+.RE
+.RS
+.LP
+Pause call counters for matching functions in matching modules\&. The \fIFS\fR\& argument can be used to specify the first argument to \fIerlang:trace_pattern/3\fR\&\&. See erlang(3)\&.
+.LP
+The call counters for all matching functions that has got call count breakpoints are paused at their current count\&.
+.LP
+Return the number of matching functions that can have call count breakpoints, the same as \fIstart/0\&.\&.3\fR\& with the same arguments would have returned\&. 
+.RE
+.LP
+.B
+restart() -> integer()
+.br
+.B
+restart(FuncSpec) -> integer()
+.br
+.B
+restart(Mod, Func) -> integer()
+.br
+.B
+restart(Mod, Func, Arity) -> integer()
+.br
+.RS
+.TP 3
+Types:
+
+FuncSpec = Mod | {Mod,Func,Arity}, {FS}
+.br
+Mod = atom()
+.br
+Func = atom()
+.br
+Arity = integer()
+.br
+FS = term()
+.br
+.RE
+.RS
+.LP
+Restart call counters for the matching functions in matching modules that are call count traced\&. The \fIFS\fR\& argument can be used to specify the first argument to \fIerlang:trace_pattern/3\fR\&\&. See erlang(3)\&.
+.LP
+The call counters for all matching functions that has got call count breakpoints are set to zero and running\&.
+.LP
+Return the number of matching functions that can have call count breakpoints, the same as \fIstart/0\&.\&.3\fR\& with the same arguments would have returned\&. 
+.RE
+.LP
+.B
+start() -> integer()
+.br
+.RS
+.LP
+Start call count tracing for all functions in all modules, and also for all functions in modules to be loaded\&. This is the same as \fI(start({\&'_\&',\&'_\&',\&'_\&'})+start({on_load}))\fR\&\&.
+.LP
+See also \fBstart/1\&.\&.3\fR\& below\&. 
+.RE
+.LP
+.B
+start(FuncSpec) -> integer()
+.br
+.B
+start(Mod, Func) -> integer()
+.br
+.B
+start(Mod, Func, Arity) -> integer()
+.br
+.RS
+.TP 3
+Types:
+
+FuncSpec = Mod | {Mod,Func,Arity}, {FS}
+.br
+Mod = atom()
+.br
+Func = atom()
+.br
+Arity = integer()
+.br
+FS = term()
+.br
+.RE
+.RS
+.LP
+Start call count tracing for matching functions in matching modules\&. The \fIFS\fR\& argument can be used to specify the first argument to \fIerlang:trace_pattern/3\fR\&, for example \fIon_load\fR\&\&. See erlang(3)\&.
+.LP
+Set call count breakpoints on the matching functions that has no call count breakpoints\&. Call counters are set to zero and running for all matching functions\&.
+.LP
+Return the number of matching functions that has got call count breakpoints\&. 
+.RE
+.LP
+.B
+stop() -> integer()
+.br
+.RS
+.LP
+Stop call count tracing for all functions in all modules, and also for all functions in modules to be loaded\&. This is the same as \fI(stop({\&'_\&',\&'_\&',\&'_\&'})+stop({on_load}))\fR\&\&.
+.LP
+See also \fBstop/1\&.\&.3\fR\& below\&. 
+.RE
+.LP
+.B
+stop(FuncSpec) -> integer()
+.br
+.B
+stop(Mod, Func) -> integer()
+.br
+.B
+stop(Mod, Func, Arity) -> integer()
+.br
+.RS
+.TP 3
+Types:
+
+FuncSpec = Mod | {Mod,Func,Arity}, {FS}
+.br
+Mod = atom()
+.br
+Func = atom()
+.br
+Arity = integer()
+.br
+FS = term()
+.br
+.RE
+.RS
+.LP
+Stop call count tracing for matching functions in matching modules\&. The \fIFS\fR\& argument can be used to specify the first argument to \fIerlang:trace_pattern/3\fR\&, for example \fIon_load\fR\&\&. See erlang(3)\&.
+.LP
+Remove call count breakpoints from the matching functions that has call count breakpoints\&.
+.LP
+Return the number of matching functions that can have call count breakpoints, the same as \fIstart/0\&.\&.3\fR\& with the same arguments would have returned\&.
+.RE
+.SH "SEE ALSO"
+
+.LP
+\fBeprof\fR\&(3), \fBfprof\fR\&(3), erlang(3), \fBUser\&'s Guide\fR\&

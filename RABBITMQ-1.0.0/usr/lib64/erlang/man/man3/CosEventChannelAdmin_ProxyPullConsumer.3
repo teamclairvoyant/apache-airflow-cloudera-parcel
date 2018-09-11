@@ -1,0 +1,51 @@
+.TH CosEventChannelAdmin_ProxyPullConsumer 3 "cosEvent 2.1.11" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+CosEventChannelAdmin_ProxyPullConsumer \- This module implements a ProxyPullConsumer interface which acts as a middleman between pull supplier and the event channel.
+.SH DESCRIPTION
+.LP
+The ProxyPullConsumer interface defines the second step for connecting pull suppliers to the event channel\&. A proxy consumer is similar to a normal consumer, but includes an additional method for connecting a supplier to the proxy consumer\&.
+.LP
+To get access to all definitions, e\&.g\&., exceptions, include necessary \fIhrl\fR\& files by using:
+.br
+\fI-include_lib("cosEvent/include/*\&.hrl")\&.\fR\&
+.LP
+Any object that possesses an object reference that supports the ProxyPullConsumer interface can perform the following operations:
+.SH EXPORTS
+.LP
+.B
+connect_pull_supplier(Object, PullSupplier) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Object = #objref
+.br
+PullSupplier = #objref of PullSupplier type
+.br
+Return = ok | {'EXCEPTION', E}
+.br
+E = #'CosEventChannelAdmin_AlreadyConnected'{} | #'CosEventChannelAdmin_TypeError'{}
+.br
+.RE
+.RS
+.LP
+This operation connects PullSupplier object to the ProxyPullConsumer object\&. If a nil object reference is passed CORBA standard \fIBAD_PARAM\fR\& exception is raised\&. If the ProxyPullConsumer is already connected to a PullSupplier, then the \fICosEventChannelAdmin_AlreadyConnected\fR\& exception is raised\&. Implementations of ProxyPullConsumers may require additional interface functionality; if these requirements are not met the \fICosEventChannelAdmin_TypeError\fR\& exception will be raised\&.
+.RE
+.LP
+.B
+disconnect_pull_consumer(Object) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Object = #objref
+.br
+Return = ok
+.br
+.RE
+.RS
+.LP
+This operation disconnects proxy pull consumer from the event channel and sends a notification about the loss of the connection to the pull supplier attached to it\&.
+.RE

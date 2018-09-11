@@ -1,0 +1,778 @@
+.TH digraph 3 "stdlib 1.17.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+digraph \- Directed Graphs
+.SH DESCRIPTION
+.LP
+The \fIdigraph\fR\& module implements a version of labeled directed graphs\&. What makes the graphs implemented here non-proper directed graphs is that multiple edges between vertices are allowed\&. However, the customary definition of directed graphs will be used in the text that follows\&.
+.LP
+A \fIdirected graph\fR\& (or just "digraph") is a pair (V, E) of a finite set V of \fIvertices\fR\& and a finite set E of \fIdirected edges\fR\& (or just "edges")\&. The set of edges E is a subset of V x V (the Cartesian product of V with itself)\&. In this module, V is allowed to be empty; the so obtained unique digraph is called the \fIempty digraph\fR\&\&. Both vertices and edges are represented by unique Erlang terms\&.
+.LP
+Digraphs can be annotated with additional information\&. Such information may be attached to the vertices and to the edges of the digraph\&. A digraph which has been annotated is called a \fIlabeled digraph\fR\&, and the information attached to a vertex or an edge is called a \fIlabel\fR\&\&. Labels are Erlang terms\&.
+.LP
+An edge e = (v, w) is said to \fIemanate\fR\& from vertex v and to be \fIincident\fR\& on vertex w\&. The \fIout-degree\fR\& of a vertex is the number of edges emanating from that vertex\&. The \fIin-degree\fR\& of a vertex is the number of edges incident on that vertex\&. If there is an edge emanating from v and incident on w, then w is said to be an \fIout-neighbour\fR\& of v, and v is said to be an \fIin-neighbour\fR\& of w\&. A \fIpath\fR\& P from v[1] to v[k] in a digraph (V, E) is a non-empty sequence v[1], v[2], \&.\&.\&., v[k] of vertices in V such that there is an edge (v[i],v[i+1]) in E for 1 <= i < k\&. The \fIlength\fR\& of the path P is k-1\&. P is \fIsimple\fR\& if all vertices are distinct, except that the first and the last vertices may be the same\&. P is a \fIcycle\fR\& if the length of P is not zero and v[1] = v[k]\&. A \fIloop\fR\& is a cycle of length one\&. A \fIsimple cycle\fR\& is a path that is both a cycle and simple\&. An \fIacyclic digraph\fR\& is a digraph that has no cycles\&.
+.SH DATA TYPES
+.nf
+
+\fBd_type()\fR\& = \fBd_cyclicity()\fR\& | \fBd_protection()\fR\&
+.br
+.fi
+.nf
+
+\fBd_cyclicity()\fR\& = acyclic | cyclic
+.br
+.fi
+.nf
+
+\fBd_protection()\fR\& = private | protected
+.br
+.fi
+.nf
+
+.B
+\fBdigraph()\fR\&
+.br
+.fi
+.RS
+.LP
+A digraph as returned by \fInew/0,1\fR\&\&.
+.RE
+.nf
+
+.B
+\fBedge()\fR\&
+.br
+.fi
+.nf
+
+\fBlabel()\fR\& = term()
+.br
+.fi
+.nf
+
+.B
+\fBvertex()\fR\&
+.br
+.fi
+.SH EXPORTS
+.LP
+.nf
+
+.B
+add_edge(G, V1, V2) -> \fBedge()\fR\& | {error, \fBadd_edge_err_rsn()\fR\&}
+.br
+.fi
+.br
+.nf
+
+.B
+add_edge(G, V1, V2, Label) -> \fBedge()\fR\& | {error, \fBadd_edge_err_rsn()\fR\&}
+.br
+.fi
+.br
+.nf
+
+.B
+add_edge(G, E, V1, V2, Label) ->
+.B
+            \fBedge()\fR\& | {error, \fBadd_edge_err_rsn()\fR\&}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+E = \fBedge()\fR\&
+.br
+V1 = V2 = \fBvertex()\fR\&
+.br
+Label = \fBlabel()\fR\&
+.br
+.nf
+\fBadd_edge_err_rsn()\fR\& = {bad_edge, Path :: [\fBvertex()\fR\&]}
+.br
+                   | {bad_vertex, V :: \fBvertex()\fR\&}
+.fi
+.br
+.RE
+.RS
+.LP
+\fIadd_edge/5\fR\& creates (or modifies) the edge \fIE\fR\& of the digraph \fIG\fR\&, using \fILabel\fR\& as the (new) \fBlabel\fR\& of the edge\&. The edge is \fBemanating\fR\& from \fIV1\fR\& and \fBincident\fR\& on \fIV2\fR\&\&. Returns \fIE\fR\&\&.
+.LP
+\fIadd_edge(G, V1, V2, Label)\fR\& is equivalent to \fIadd_edge(G, E, V1, V2, Label)\fR\&, where \fIE\fR\& is a created edge\&. The created edge is represented by the term \fI[\&'$e\&' | N]\fR\&, where N is an integer >= 0\&.
+.LP
+\fIadd_edge(G, V1, V2)\fR\& is equivalent to \fIadd_edge(G, V1, V2, [])\fR\&\&.
+.LP
+If the edge would create a cycle in an \fBacyclic digraph\fR\&, then \fI{error, {bad_edge, Path}}\fR\& is returned\&. If either of \fIV1\fR\& or \fIV2\fR\& is not a vertex of the digraph \fIG\fR\&, then \fI{error, {bad_vertex, \fR\&V\fI}}\fR\& is returned, V = \fIV1\fR\& or V = \fIV2\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+add_vertex(G) -> \fBvertex()\fR\&
+.br
+.fi
+.br
+.nf
+
+.B
+add_vertex(G, V) -> \fBvertex()\fR\&
+.br
+.fi
+.br
+.nf
+
+.B
+add_vertex(G, V, Label) -> \fBvertex()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+V = \fBvertex()\fR\&
+.br
+Label = \fBlabel()\fR\&
+.br
+.RE
+.RS
+.LP
+\fIadd_vertex/3\fR\& creates (or modifies) the vertex \fIV\fR\& of the digraph \fIG\fR\&, using \fILabel\fR\& as the (new) \fBlabel\fR\& of the vertex\&. Returns \fIV\fR\&\&.
+.LP
+\fIadd_vertex(G, V)\fR\& is equivalent to \fIadd_vertex(G, V, [])\fR\&\&.
+.LP
+\fIadd_vertex/1\fR\& creates a vertex using the empty list as label, and returns the created vertex\&. The created vertex is represented by the term \fI[\&'$v\&' | N]\fR\&, where N is an integer >= 0\&.
+.RE
+.LP
+.nf
+
+.B
+del_edge(G, E) -> true
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+E = \fBedge()\fR\&
+.br
+.RE
+.RS
+.LP
+Deletes the edge \fIE\fR\& from the digraph \fIG\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+del_edges(G, Edges) -> true
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+Edges = [\fBedge()\fR\&]
+.br
+.RE
+.RS
+.LP
+Deletes the edges in the list \fIEdges\fR\& from the digraph \fIG\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+del_path(G, V1, V2) -> true
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+V1 = V2 = \fBvertex()\fR\&
+.br
+.RE
+.RS
+.LP
+Deletes edges from the digraph \fIG\fR\& until there are no \fBpaths\fR\& from the vertex \fIV1\fR\& to the vertex \fIV2\fR\&\&.
+.LP
+A sketch of the procedure employed: Find an arbitrary \fBsimple path\fR\& v[1], v[2], \&.\&.\&., v[k] from \fIV1\fR\& to \fIV2\fR\& in \fIG\fR\&\&. Remove all edges of \fIG\fR\& \fBemanating\fR\& from v[i] and \fBincident\fR\& to v[i+1] for 1 <= i < k (including multiple edges)\&. Repeat until there is no path between \fIV1\fR\& and \fIV2\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+del_vertex(G, V) -> true
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+V = \fBvertex()\fR\&
+.br
+.RE
+.RS
+.LP
+Deletes the vertex \fIV\fR\& from the digraph \fIG\fR\&\&. Any edges \fBemanating\fR\& from \fIV\fR\& or \fBincident\fR\& on \fIV\fR\& are also deleted\&.
+.RE
+.LP
+.nf
+
+.B
+del_vertices(G, Vertices) -> true
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+Vertices = [\fBvertex()\fR\&]
+.br
+.RE
+.RS
+.LP
+Deletes the vertices in the list \fIVertices\fR\& from the digraph \fIG\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+delete(G) -> true
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+.RE
+.RS
+.LP
+Deletes the digraph \fIG\fR\&\&. This call is important because digraphs are implemented with \fIETS\fR\&\&. There is no garbage collection of \fIETS\fR\& tables\&. The digraph will, however, be deleted if the process that created the digraph terminates\&.
+.RE
+.LP
+.nf
+
+.B
+edge(G, E) -> {E, V1, V2, Label} | false
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+E = \fBedge()\fR\&
+.br
+V1 = V2 = \fBvertex()\fR\&
+.br
+Label = \fBlabel()\fR\&
+.br
+.RE
+.RS
+.LP
+Returns \fI{E, V1, V2, Label}\fR\& where \fILabel\fR\& is the \fBlabel\fR\& of the edge \fIE\fR\& \fBemanating\fR\& from \fIV1\fR\& and \fBincident\fR\& on \fIV2\fR\& of the digraph \fIG\fR\&\&. If there is no edge \fIE\fR\& of the digraph \fIG\fR\&, then \fIfalse\fR\& is returned\&.
+.RE
+.LP
+.nf
+
+.B
+edges(G) -> Edges
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+Edges = [\fBedge()\fR\&]
+.br
+.RE
+.RS
+.LP
+Returns a list of all edges of the digraph \fIG\fR\&, in some unspecified order\&.
+.RE
+.LP
+.nf
+
+.B
+edges(G, V) -> Edges
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+V = \fBvertex()\fR\&
+.br
+Edges = [\fBedge()\fR\&]
+.br
+.RE
+.RS
+.LP
+Returns a list of all edges \fBemanating\fR\& from or \fBincident\fR\& on \fIV\fR\& of the digraph \fIG\fR\&, in some unspecified order\&.
+.RE
+.LP
+.nf
+
+.B
+get_cycle(G, V) -> Vertices | false
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+V = \fBvertex()\fR\&
+.br
+Vertices = [\fBvertex()\fR\&, \&.\&.\&.]
+.br
+.RE
+.RS
+.LP
+If there is a \fBsimple cycle\fR\& of length two or more through the vertex \fIV\fR\&, then the cycle is returned as a list \fI[V, \&.\&.\&., V]\fR\& of vertices, otherwise if there is a \fBloop\fR\& through \fIV\fR\&, then the loop is returned as a list \fI[V]\fR\&\&. If there are no cycles through \fIV\fR\&, then \fIfalse\fR\& is returned\&.
+.LP
+\fIget_path/3\fR\& is used for finding a simple cycle through \fIV\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+get_path(G, V1, V2) -> Vertices | false
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+V1 = V2 = \fBvertex()\fR\&
+.br
+Vertices = [\fBvertex()\fR\&, \&.\&.\&.]
+.br
+.RE
+.RS
+.LP
+Tries to find a \fBsimple path\fR\& from the vertex \fIV1\fR\& to the vertex \fIV2\fR\& of the digraph \fIG\fR\&\&. Returns the path as a list \fI[V1, \&.\&.\&., V2]\fR\& of vertices, or \fIfalse\fR\& if no simple path from \fIV1\fR\& to \fIV2\fR\& of length one or more exists\&.
+.LP
+The digraph \fIG\fR\& is traversed in a depth-first manner, and the first path found is returned\&.
+.RE
+.LP
+.nf
+
+.B
+get_short_cycle(G, V) -> Vertices | false
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+V = \fBvertex()\fR\&
+.br
+Vertices = [\fBvertex()\fR\&, \&.\&.\&.]
+.br
+.RE
+.RS
+.LP
+Tries to find an as short as possible \fBsimple cycle\fR\& through the vertex \fIV\fR\& of the digraph \fIG\fR\&\&. Returns the cycle as a list \fI[V, \&.\&.\&., V]\fR\& of vertices, or \fIfalse\fR\& if no simple cycle through \fIV\fR\& exists\&. Note that a \fBloop\fR\& through \fIV\fR\& is returned as the list \fI[V, V]\fR\&\&.
+.LP
+\fIget_short_path/3\fR\& is used for finding a simple cycle through \fIV\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+get_short_path(G, V1, V2) -> Vertices | false
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+V1 = V2 = \fBvertex()\fR\&
+.br
+Vertices = [\fBvertex()\fR\&, \&.\&.\&.]
+.br
+.RE
+.RS
+.LP
+Tries to find an as short as possible \fBsimple path\fR\& from the vertex \fIV1\fR\& to the vertex \fIV2\fR\& of the digraph \fIG\fR\&\&. Returns the path as a list \fI[V1, \&.\&.\&., V2]\fR\& of vertices, or \fIfalse\fR\& if no simple path from \fIV1\fR\& to \fIV2\fR\& of length one or more exists\&.
+.LP
+The digraph \fIG\fR\& is traversed in a breadth-first manner, and the first path found is returned\&.
+.RE
+.LP
+.nf
+
+.B
+in_degree(G, V) -> integer() >= 0
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+V = \fBvertex()\fR\&
+.br
+.RE
+.RS
+.LP
+Returns the \fBin-degree\fR\& of the vertex \fIV\fR\& of the digraph \fIG\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+in_edges(G, V) -> Edges
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+V = \fBvertex()\fR\&
+.br
+Edges = [\fBedge()\fR\&]
+.br
+.RE
+.RS
+.LP
+Returns a list of all edges \fBincident\fR\& on \fIV\fR\& of the digraph \fIG\fR\&, in some unspecified order\&.
+.RE
+.LP
+.nf
+
+.B
+in_neighbours(G, V) -> Vertex
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+V = \fBvertex()\fR\&
+.br
+Vertex = [\fBvertex()\fR\&]
+.br
+.RE
+.RS
+.LP
+Returns a list of all \fBin-neighbours\fR\& of \fIV\fR\& of the digraph \fIG\fR\&, in some unspecified order\&.
+.RE
+.LP
+.nf
+
+.B
+info(G) -> InfoList
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+InfoList = 
+.br
+    [{cyclicity, Cyclicity :: \fBd_cyclicity()\fR\&} |
+.br
+     {memory, NoWords :: integer() >= 0} |
+.br
+     {protection, Protection :: \fBd_protection()\fR\&}]
+.br
+.nf
+\fBd_cyclicity()\fR\& = acyclic | cyclic
+.fi
+.br
+.nf
+\fBd_protection()\fR\& = private | protected
+.fi
+.br
+.RE
+.RS
+.LP
+Returns a list of \fI{Tag, Value}\fR\& pairs describing the digraph \fIG\fR\&\&. The following pairs are returned:
+.RS 2
+.TP 2
+*
+\fI{cyclicity, Cyclicity}\fR\&, where \fICyclicity\fR\& is \fIcyclic\fR\& or \fIacyclic\fR\&, according to the options given to \fInew\fR\&\&.
+.LP
+.TP 2
+*
+\fI{memory, NoWords}\fR\&, where \fINoWords\fR\& is the number of words allocated to the \fIETS\fR\& tables\&.
+.LP
+.TP 2
+*
+\fI{protection, Protection}\fR\&, where \fIProtection\fR\& is \fIprotected\fR\& or \fIprivate\fR\&, according to the options given to \fInew\fR\&\&.
+.LP
+.RE
+
+.RE
+.LP
+.nf
+
+.B
+new() -> digraph()
+.br
+.fi
+.br
+.RS
+.LP
+Equivalent to \fInew([])\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+new(Type) -> digraph()
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Type = [\fBd_type()\fR\&]
+.br
+.nf
+\fBd_type()\fR\& = \fBd_cyclicity()\fR\& | \fBd_protection()\fR\&
+.fi
+.br
+.nf
+\fBd_cyclicity()\fR\& = acyclic | cyclic
+.fi
+.br
+.nf
+\fBd_protection()\fR\& = private | protected
+.fi
+.br
+.RE
+.RS
+.LP
+Returns an \fBempty digraph\fR\& with properties according to the options in \fIType\fR\&:
+.RS 2
+.TP 2
+.B
+\fIcyclic\fR\&:
+Allow \fBcycles\fR\& in the digraph (default)\&.
+.TP 2
+.B
+\fIacyclic\fR\&:
+The digraph is to be kept \fBacyclic\fR\&\&.
+.TP 2
+.B
+\fIprotected\fR\&:
+Other processes can read the digraph (default)\&.
+.TP 2
+.B
+\fIprivate\fR\&:
+The digraph can be read and modified by the creating process only\&.
+.RE
+.LP
+If an unrecognized type option \fIT\fR\& is given or \fIType\fR\& is not a proper list, there will be a \fIbadarg\fR\& exception\&.
+.RE
+.LP
+.nf
+
+.B
+no_edges(G) -> integer() >= 0
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+.RE
+.RS
+.LP
+Returns the number of edges of the digraph \fIG\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+no_vertices(G) -> integer() >= 0
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+.RE
+.RS
+.LP
+Returns the number of vertices of the digraph \fIG\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+out_degree(G, V) -> integer() >= 0
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+V = \fBvertex()\fR\&
+.br
+.RE
+.RS
+.LP
+Returns the \fBout-degree\fR\& of the vertex \fIV\fR\& of the digraph \fIG\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+out_edges(G, V) -> Edges
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+V = \fBvertex()\fR\&
+.br
+Edges = [\fBedge()\fR\&]
+.br
+.RE
+.RS
+.LP
+Returns a list of all edges \fBemanating\fR\& from \fIV\fR\& of the digraph \fIG\fR\&, in some unspecified order\&.
+.RE
+.LP
+.nf
+
+.B
+out_neighbours(G, V) -> Vertices
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+V = \fBvertex()\fR\&
+.br
+Vertices = [\fBvertex()\fR\&]
+.br
+.RE
+.RS
+.LP
+Returns a list of all \fBout-neighbours\fR\& of \fIV\fR\& of the digraph \fIG\fR\&, in some unspecified order\&.
+.RE
+.LP
+.nf
+
+.B
+vertex(G, V) -> {V, Label} | false
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+V = \fBvertex()\fR\&
+.br
+Label = \fBlabel()\fR\&
+.br
+.RE
+.RS
+.LP
+Returns \fI{V, Label}\fR\& where \fILabel\fR\& is the \fBlabel\fR\& of the vertex \fIV\fR\& of the digraph \fIG\fR\&, or \fIfalse\fR\& if there is no vertex \fIV\fR\& of the digraph \fIG\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+vertices(G) -> Vertices
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+G = digraph()
+.br
+Vertices = [\fBvertex()\fR\&]
+.br
+.RE
+.RS
+.LP
+Returns a list of all vertices of the digraph \fIG\fR\&, in some unspecified order\&.
+.RE
+.SH "SEE ALSO"
+
+.LP
+\fBdigraph_utils(3)\fR\&, \fBets(3)\fR\&

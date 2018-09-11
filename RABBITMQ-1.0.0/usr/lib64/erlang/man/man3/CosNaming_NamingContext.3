@@ -1,0 +1,310 @@
+.TH CosNaming_NamingContext 3 "orber 3.6.22" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+CosNaming_NamingContext \- This interface supports different bind and access functions for names in a context.
+.SH DESCRIPTION
+.LP
+This is the object that defines name scopes, names must be unique within a naming context\&. Objects may have multiple names and may exist in multiple naming contexts\&. Name context may be named in other contexts and cycles are permitted\&.
+.LP
+The type \fINameComponent\fR\& used below is defined as:
+.LP
+.nf
+
+      -record('CosNaming_NameComponent', {id, kind=""}).
+    
+.fi
+.LP
+where \fIid\fR\& and \fIkind\fR\& are strings\&.
+.LP
+The type \fIBinding\fR\& used below is defined as:
+.LP
+.nf
+
+      -record('CosNaming_Binding', {binding_name, binding_type}).
+    
+.fi
+.LP
+where \fIbinding_name\fR\& is a Name and \fIbinding_type\fR\& is an enum which has the values \fInobject\fR\& and \fIncontext\fR\&\&.
+.LP
+Both these records are defined in the file \fICosNaming\&.hrl\fR\& and it is included with:
+.LP
+.nf
+
+      -include_lib("orber/COSS/CosNaming/CosNaming.hrl").
+    
+.fi
+.LP
+There are a number of exceptions that can be returned from functions in this interface\&.
+.RS 2
+.TP 2
+*
+NotFound is defined as
+.LP
+.nf
+
+-record('CosNaming_NamingContext_NotFound', 
+                      {rest_of_name, why}).        
+.fi
+.LP
+.TP 2
+*
+CannotProceed is defined as
+.LP
+.nf
+
+-record('CosNaming_NamingContext_CannotProceed', 
+                      {rest_of_name, cxt}).        
+.fi
+.LP
+.TP 2
+*
+InvalidName is defined as
+.LP
+.nf
+
+-record('CosNaming_NamingContext_InvalidName', {}).        
+.fi
+.LP
+.TP 2
+*
+NotFound is defined as
+.LP
+.nf
+
+-record('CosNaming_NamingContext_NotFound', {}).        
+.fi
+.LP
+.TP 2
+*
+AlreadyBound is defined as
+.LP
+.nf
+
+-record('CosNaming_NamingContext_AlreadyBound', {}).        
+.fi
+.LP
+.TP 2
+*
+NotEmpty is defined as
+.LP
+.nf
+
+-record('CosNaming_NamingContext_NotEmpty', {).        
+.fi
+.LP
+.RE
+
+.LP
+These exceptions are defined in the file \fICosNaming_NamingContext\&.hrl\fR\& and it is included with:
+.LP
+.nf
+
+      -include_lib("orber/COSS/CosNaming/CosNaming_NamingContext.hrl").
+    
+.fi
+.SH EXPORTS
+.LP
+.B
+bind(NamingContext, Name, Object) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+NameContext = #objref
+.br
+Name = [NameComponent]
+.br
+Object = #objref
+.br
+Return = ok
+.br
+.RE
+.RS
+.LP
+Creates a binding of a name and an object in the naming context\&. Naming contexts that are bound using \fIbind()\fR\& do not participate in name resolution\&.
+.RE
+.LP
+.B
+rebind(NamingContext, Name, Object) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+NamingContext = #objref
+.br
+Name = [NameComponent]
+.br
+Object = #objref
+.br
+Return = ok
+.br
+.RE
+.RS
+.LP
+Creates a binding of a name and an object in the naming context even if the name is already bound\&. Naming contexts that are bound using \fIrebind()\fR\& do not participate in name resolution\&.
+.RE
+.LP
+.B
+bind_context(NamingContext1, Name, NamingContex2) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+NamingContext1 = NamingContext2 =#objref
+.br
+Name = [NameComponent]
+.br
+Return = ok
+.br
+.RE
+.RS
+.LP
+The bind_context function creates a binding of a name and a naming context in the current context\&. Naming contexts that are bound using \fIbind_context()\fR\& participate in name resolution\&.
+.RE
+.LP
+.B
+rebind_context(NamingContext1, Name, NamingContex2) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+NamingContext1 = NamingContext2 =#objref
+.br
+Name = [NameComponent]
+.br
+Return = ok
+.br
+.RE
+.RS
+.LP
+The rebind_context function creates a binding of a name and a naming context in the current context even if the name already is bound\&. Naming contexts that are bound using \fIrebind_context()\fR\& participate in name resolution\&.
+.RE
+.LP
+.B
+resolve(NamingContext, Name) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+NamingContext = #objref
+.br
+Name = [NameComponent]
+.br
+Return = Object
+.br
+Object = #objref
+.br
+.RE
+.RS
+.LP
+The resolve function is the way to retrieve an object bound to a name in the naming context\&. The given name must match exactly the bound name\&. The type of the object is not returned, clients are responsible for narrowing the object to the correct type\&.
+.RE
+.LP
+.B
+unbind(NamingContext, Name) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+NamingContext = #objref
+.br
+Name = [NameComponent]
+.br
+Return = ok
+.br
+.RE
+.RS
+.LP
+The unbind operation removes a name binding from the naming context\&.
+.RE
+.LP
+.B
+new_context(NamingContext) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+NamingContext = #objref
+.br
+Return = #objref
+.br
+.RE
+.RS
+.LP
+The new_context operation creates a new naming context\&.
+.RE
+.LP
+.B
+bind_new_context(NamingContext, Name) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+NamingContext = #objref
+.br
+Name = [NameComponent]
+.br
+Return = #objref
+.br
+.RE
+.RS
+.LP
+The new_context operation creates a new naming context and binds it to Name in the current context\&.
+.RE
+.LP
+.B
+destroy(NamingContext) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+NamingContext = #objref
+.br
+Return = ok
+.br
+.RE
+.RS
+.LP
+The destroy operation disposes the NamingContext object and removes it from the name server\&. The context must be empty e\&.g\&. not contain any bindings to be removed\&.
+.RE
+.LP
+.B
+list(NamingContext, HowMany) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+NamingContext = #objref
+.br
+HowMany = int()
+.br
+Return = {ok, BindingList, BindingIterator}
+.br
+BindingList = [Binding]
+.br
+BindingIterator = #objref
+.br
+.RE
+.RS
+.LP
+The list operation returns a BindingList with a number of bindings up-to HowMany from the context\&. It also returns a BindinIterator which can be used to step through the list\&. If the total number of existing bindings are less than, or equal to, the \fIHowMany\fR\& parameter a NIL object reference is returned\&.
+.LP
+
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+One must destroy the BindingIterator, unless it is a NIL object reference, by using \&'BindingIterator\&':destroy()\&. Otherwise one can get dangling objects\&.
+
+.RE

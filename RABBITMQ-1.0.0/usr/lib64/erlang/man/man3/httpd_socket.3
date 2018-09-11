@@ -1,0 +1,69 @@
+.TH httpd_socket 3 "inets 5.7.1" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+httpd_socket \- Communication utility functions to be used by the Erlang
+    Web server API programmer.
+.SH DESCRIPTION
+.LP
+This module provides the Erlang Web server API module programmer with utility functions for generic sockets communication\&. The appropriate communication mechanism is transparently used, that is \fIip_comm\fR\& or \fIssl\fR\&\&.
+.SH EXPORTS
+.LP
+.B
+deliver(SocketType, Socket, Data) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+SocketType = socket_type()
+.br
+Socket = socket()
+.br
+Data = io_list() | binary()
+.br
+Result = socket_closed | void()
+.br
+.RE
+.RS
+.LP
+\fIdeliver/3\fR\& sends the \fIBinary\fR\& over the \fISocket\fR\& using the specified \fISocketType\fR\&\&. Socket and SocketType should be the socket and the socket_type form the mod record as defined in httpd\&.hrl
+.RE
+.LP
+.B
+peername(SocketType,Socket) -> {Port,IPAddress}
+.br
+.RS
+.TP 3
+Types:
+
+SocketType = socket_type()
+.br
+Socket = socket()
+.br
+Port = integer()
+.br
+IPAddress = string()
+.br
+.RE
+.RS
+.LP
+\fIpeername/3\fR\& returns the \fIPort\fR\& and \fIIPAddress\fR\& of the remote \fISocket\fR\&\&.
+.RE
+.LP
+.B
+resolve() -> HostName
+.br
+.RS
+.TP 3
+Types:
+
+HostName = string()
+.br
+.RE
+.RS
+.LP
+\fIresolve/0\fR\& returns the official \fIHostName\fR\& of the current host\&.
+.RE
+.SH "SEE ALSO"
+
+.LP
+\fBhttpd(3)\fR\&

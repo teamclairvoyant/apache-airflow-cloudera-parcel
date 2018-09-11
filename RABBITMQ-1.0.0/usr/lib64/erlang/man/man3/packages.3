@@ -1,0 +1,129 @@
+.TH packages 3 "kernel 2.14.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+packages \- Packages in Erlang
+.SH DESCRIPTION
+.LP
+
+.RS -4
+.B
+Warning:
+.RE
+Packages has since it was introduced more than 5 years ago been an experimental feature\&. Use it at your own risk, we do not actively maintain and develop this feature\&. It might however be supported some day\&.
+.LP
+In spite of this packages work quite well, but there are some known issues in tools and other parts where packages don\&'t work well\&.
+
+.LP
+\fIIntroduction\fR\&
+.LP
+Packages are simply namespaces for modules\&. All old Erlang modules automatically belong to the top level ("empty-string") namespace, and do not need any changes\&.
+.LP
+The full name of a packaged module is written as e\&.g\&. "\fIfee\&.fie\&.foe\&.foo\fR\&", i\&.e\&., as atoms separated by periods, where the package name is the part up to but not including the last period; in this case "\fIfee\&.fie\&.foe\fR\&"\&. A more concrete example is the module \fIerl\&.lang\&.term\fR\&, which is in the package \fIerl\&.lang\fR\&\&. Package names can have any number of segments, as in \fIerl\&.lang\&.list\&.sort\fR\&\&. The atoms in the name can be quoted, as in \fIfoo\&.\&'Bar\&'\&.baz\fR\&, or even the whole name, as in \fI\&'foo\&.bar\&.baz\&'\fR\& but the concatenation of atoms and periods must not contain two consecutive period characters or end with a period, as in \fI\&'foo\&.\&.bar\&'\fR\&, \fIfoo\&.\&'\&.bar\&'\fR\&, or \fIfoo\&.\&'bar\&.\&'\fR\&\&. The periods must not be followed by whitespace\&.
+.LP
+The code loader maps module names onto the file system directory structure\&. E\&.g\&., the module \fIerl\&.lang\&.term\fR\& corresponds to a file \fI\&.\&.\&./erl/lang/term\&.beam\fR\& in the search path\&. Note that the name of the actual object file corresponds to the last part only of the full module name\&. (Thus, old existing modules such as \fIlists\fR\& simply map to \fI\&.\&.\&./lists\&.beam\fR\&, exactly as before\&.)
+.LP
+A packaged module in a file "\fIfoo/bar/fred\&.erl\fR\&" is declared as:
+.LP
+.nf
+
+-module(foo.bar.fred).
+.fi
+.LP
+This can be compiled and loaded from the Erlang shell using \fIc(fred)\fR\&, if your current directory is the same as that of the file\&. The object file will be named \fIfred\&.beam\fR\&\&.
+.LP
+The Erlang search path works exactly as before, except that the package segments will be appended to each directory in the path in order to find the file\&. E\&.g\&., assume the path is \fI["/usr/lib/erl", "/usr/local/lib/otp/legacy/ebin", "/home/barney/erl"]\fR\&\&. Then, the code for a module named \fIfoo\&.bar\&.fred\fR\& will be searched for first as \fI"/usr/lib/erl/foo/bar/fred\&.beam"\fR\&, then \fI"/usr/local/lib/otp/legacy/ebin/foo/bar/fred\&.beam"\fR\& and lastly \fI"/home/barney/erl/foo/bar/fred\&.beam"\fR\&\&. A module like \fIlists\fR\&, which is in the top-level package, will be looked for as \fI"/usr/lib/erl/lists\&.beam"\fR\&, \fI"/usr/local/lib/otp/legacy/ebin/lists\&.beam"\fR\& and \fI"/home/barney/erl/lists\&.beam"\fR\&\&.
+.LP
+\fIProgramming\fR\&
+.LP
+Normally, if a call is made from one module to another, it is assumed that the called module belongs to the same package as the source module\&. The compiler automatically expands such calls\&. E\&.g\&., in:
+.LP
+.nf
+
+-module(foo.bar.m1).
+-export([f/1]).
+
+f(X) -> m2:g(X).
+.fi
+.LP
+\fIm2:g(X)\fR\& becomes a call to \fIfoo\&.bar\&.m2\fR\& If this is not what was intended, the call can be written explicitly, as in
+.LP
+.nf
+
+-module(foo.bar.m1).
+-export([f/1]).
+
+f(X) -> fee.fie.foe.m2:g(X).
+.fi
+.LP
+Because the called module is given with an explicit package name, no expansion is done in this case\&.
+.LP
+If a module from another package is used repeatedly in a module, an import declaration can make life easier:
+.LP
+.nf
+
+-module(foo.bar.m1).
+-export([f/1, g/1]).
+-import(fee.fie.foe.m2).
+
+f(X) -> m2:g(X).
+g(X) -> m2:h(X).
+.fi
+.LP
+will make the calls to \fIm2\fR\& refer to \fIfee\&.fie\&.foe\&.m2\fR\&\&. More generally, a declaration \fI-import(Package\&.Module)\&.\fR\& will cause calls to \fIModule\fR\& to be expanded to \fIPackage\&.Module\fR\&\&.
+.LP
+Old-style function imports work as normal (but full module names must be used); e\&.g\&.:
+.LP
+.nf
+
+-import(fee.fie.foe.m2, [g/1, h/1]).
+.fi
+.LP
+however, it is probably better to avoid this form of import altogether in new code, since it makes it hard to see what calls are really "remote"\&.
+.LP
+If it is necessary to call a module in the top-level package from within a named package, the module name can be written either with an initial period as in e\&.g\&. "\fI\&.lists\fR\&", or with an empty initial atom, as in "\fI\&'\&'\&.lists\fR\&"\&. However, the best way is to use an import declaration - this is most obvious to the eye, and makes sure we don\&'t forget adding a period somewhere:
+.LP
+.nf
+
+-module(foo.bar.fred).
+-export([f/1]).
+-import(lists).
+
+f(X) -> lists:reverse(X).
+.fi
+.LP
+The dot-syntax for module names can be used in any expression\&. All segments must be constant atoms, and the result must be a well-formed package/module name\&. E\&.g\&.:
+.LP
+.nf
+
+spawn(foo.bar.fred, f, [X])
+.fi
+.LP
+is equivalent to \fIspawn(\&'foo\&.bar\&.fred\&', f, [X])\fR\&\&.
+.LP
+\fIThe Erlang Shell\fR\&
+.LP
+The shell also automatically expands remote calls, however currently no expansions are made by default\&. The user can change the behaviour by using the \fIimport/1\fR\& shell command (or its abbreviation \fIuse/1\fR\&)\&. E\&.g\&.:
+.LP
+.nf
+
+1> import(foo\&.bar\&.m)\&.
+ok
+2> m:f()\&.
+.fi
+.LP
+will evaluate \fIfoo\&.bar\&.m:f()\fR\&\&. If a new import is made of the same name, this overrides any previous import\&. (It is likely that in the future, some system packages will be pre-imported\&.)
+.LP
+In addition, the shell command \fIimport_all/1\fR\& (and its alias \fIuse_all/1\fR\&) imports all modules currently found in the path for a given package name\&. E\&.g\&., assuming the files "\fI\&.\&.\&./foo/bar/fred\&.beam\fR\&", "\fI\&.\&.\&./foo/bar/barney\&.beam\fR\&" and "\fI\&.\&.\&./foo/bar/bambam\&.beam\fR\&" can be found from our current path,
+.LP
+.nf
+
+1> import_all(foo\&.bar)\&.
+.fi
+.LP
+will make \fIfred\fR\&, \fIbarney\fR\& and \fIbambam\fR\& expand to \fIfoo\&.bar\&.fred\fR\&, \fIfoo\&.bar\&.barney\fR\& and \fIfoo\&.bar\&.bambam\fR\&, respectively\&.
+.LP
+Note: The compiler does not have an "import all" directive, for the reason that Erlang has no compile time type checking\&. E\&.g\&. if the wrong search path is used at compile time, a call \fIm:f(\&.\&.\&.)\fR\& could be expanded to \fIfoo\&.bar\&.m:f(\&.\&.\&.)\fR\& without any warning, instead of the intended \fIfrob\&.ozz\&.m:f(\&.\&.\&.)\fR\&, if package \fIfoo\&.bar\fR\& happens to be found first in the path\&. Explicitly declaring each use of a module makes for safe code\&.
+.SH EXPORTS
+.LP
+.B
+no functions exported
+.br

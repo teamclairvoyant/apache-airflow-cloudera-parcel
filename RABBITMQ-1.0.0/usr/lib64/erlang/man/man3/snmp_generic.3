@@ -1,0 +1,364 @@
+.TH snmp_generic 3 "snmp 4.21.1" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+snmp_generic \- Generic Functions for Implementing SNMP Objects in a Database
+.SH DESCRIPTION
+.LP
+The module \fIsnmp_generic\fR\& contains generic functions for implementing tables (and variables) using the SNMP built-in database or Mnesia\&. These default functions are used if no instrumentation function is provided for a managed object in a MIB\&. Sometimes, it might be necessary to customize the behaviour of the default functions\&. For example, in some situations a trap should be sent if a row is deleted or modified, or some hardware is to be informed, when information is changed\&.
+.LP
+The overall structure is shown in the following figure:
+.LP
+.nf
+
+         +---------------+
+         |   SNMP Agent  |
+         +- - - - - - - -+
+         |      MIB      |
+         +---------------+
+                 |
+         Association file       (associates a MIB object with
+                 |               snmp_generic:table_funct
+                 |               snmp_generic:variable_func)
++--------------------------------------+
+|           snmp_generic               |  Support for get-next,
+|                                      |  RowStatus operations
++----------------------+---------------+
+|    snmpa_local_db    |    Mnesia     |  Database
++--------------+-------+---------------+
+|     dets     |  ets  | 
+| (persistent) |       | 
++--------------+-------+     
+.fi
+.LP
+Each function takes the argument \fINameDb\fR\&, which is a tuple \fI{Name, Db}\fR\&, to identify which database the functions should use\&. \fIName\fR\& is the symbolic name of the managed object as defined in the MIB, and \fIDb\fR\& is either \fIvolatile\fR\&, \fIpersistent\fR\&, or \fImnesia\fR\&\&. If it is \fImnesia\fR\&, all variables are stored in the Mnesia table \fIsnmp_variables\fR\& which must be a table with two attributes (not a Mnesia SNMP table)\&. The SNMP tables are stored in Mnesia tables with the same names as the SNMP tables\&. All functions assume that a Mnesia table exists with the correct name and attributes\&. It is the programmer\&'s responsibility to ensure this\&. Specifically, if variables are stored in Mnesia, the table \fIsnmp_variables\fR\& must be created by the programmer\&. The record definition for this table is defined in the file \fIsnmp/include/snmp_types\&.hrl\fR\&\&.
+.LP
+If an instrumentation function in the association file for a variable \fImyVar\fR\& does not have a name when compiling an MIB, the compiler generates an entry\&.
+.LP
+.nf
+
+{myVar, {snmp_generic, variable_func, [{myVar, Db]}}.
+    
+.fi
+.LP
+And for a table:
+.LP
+.nf
+
+{myTable, {snmp_generic, table_func, [{myTable, Db]}}.
+    
+.fi
+.SH "DATA TYPES"
+
+.LP
+In the functions defined below, the following types are used:
+.LP
+.nf
+
+name_db() = {name(), db()} 
+name() = atom()
+db() = volatile | persistent | mnesia
+row_index() = [int()]
+columns() = [column()] | [{column(), value()}]
+column() = int()
+value() = term()
+    
+.fi
+.RS 2
+.TP 2
+.B
+\fIrow_index()\fR\&:
+Denotes the last part of the OID which specifies the index of the row in the table (see RFC1212, 4\&.1\&.6 for more information about INDEX)\&.
+.TP 2
+.B
+\fIcolumns()\fR\&:
+Is a list of column numbers in the case of a \fIget\fR\& operation, and a list of column numbers and values in the case of a \fIset\fR\& operation\&.
+.RE
+.SH EXPORTS
+.LP
+.B
+get_status_col(Name, Cols)
+.br
+.B
+get_status_col(NameDb, Cols) -> {ok, StatusVal} | false
+.br
+.RS
+.TP 3
+Types:
+
+Name = name()
+.br
+NameDb = name_db()
+.br
+Cols = columns()
+.br
+StatusVal = term()
+.br
+.RE
+.RS
+.LP
+Gets the value of the status column from \fICols\fR\&\&.
+.LP
+This function can be used in instrumentation functions for \fIis_set_ok\fR\&, \fIundo\fR\& or \fIset\fR\& to check if the status column of a table is modified\&.
+.RE
+.LP
+.B
+get_index_types(Name)
+.br
+.RS
+.TP 3
+Types:
+
+Name = name()
+.br
+.RE
+.RS
+.LP
+Gets the index types of \fIName\fR\&
+.LP
+This function can be used in instrumentation functions to retrieve the index types part of the table info\&.
+.RE
+.LP
+.B
+table_func(Op1, NameDb)
+.br
+.B
+table_func(Op2, RowIndex, Cols, NameDb) -> Ret
+.br
+.RS
+.TP 3
+Types:
+
+Op1 = new | delete
+.br
+Op2 = get | next | is_set_ok | set | undo
+.br
+NameDb = name_db()
+.br
+RowIndex = row_index()
+.br
+Cols = columns()
+.br
+Ret = term()
+.br
+.RE
+.RS
+.LP
+This is the default instrumentation function for tables\&.
+.RS 2
+.TP 2
+*
+The \fInew\fR\& function creates the table if it does not exist, but only if the database is the SNMP internal db\&.
+.LP
+.TP 2
+*
+The \fIdelete\fR\& function does not delete the table from the database since unloading an MIB does not necessarily mean that the table should be destroyed\&.
+.LP
+.TP 2
+*
+The \fIis_set_ok\fR\& function checks that a row which is to be modified or deleted exists, and that a row which is to be created does not exist\&.
+.LP
+.TP 2
+*
+The \fIundo\fR\& function does nothing\&.
+.LP
+.TP 2
+*
+The \fIset\fR\& function checks if it has enough information to make the row change its status from \fInotReady\fR\& to \fInotInService\fR\& (when a row has been been set to \fIcreateAndWait\fR\&)\&. If a row is set to \fIcreateAndWait\fR\&, columns without a value are set to \fInoinit\fR\&\&. If Mnesia is used, the set functionality is handled within a transaction\&.
+.LP
+.RE
+
+.LP
+If it is possible for a manager to create or delete rows in the table, there must be a \fIRowStatus\fR\& column for \fIis_set_ok\fR\&, \fIset\fR\& and \fIundo\fR\& to work properly\&.
+.LP
+The function returns according to the specification of an instrumentation function\&.
+.RE
+.LP
+.B
+table_get_elements(NameDb, RowIndex, Cols) -> Values
+.br
+.RS
+.TP 3
+Types:
+
+NameDb = name_db()
+.br
+RowIndex = row_index()
+.br
+Cols = columns()
+.br
+Values = [value() | noinit]
+.br
+.RE
+.RS
+.LP
+Returns a list with values for all columns in \fICols\fR\&\&. If a column is undefined, its value is \fInoinit\fR\&\&.
+.RE
+.LP
+.B
+table_next(NameDb, RestOid) -> RowIndex | endOfTable
+.br
+.RS
+.TP 3
+Types:
+
+NameDb = name_db()
+.br
+RestOid = [int()]
+.br
+RowIndex = row_index()
+.br
+.RE
+.RS
+.LP
+Finds the indices of the next row in the table\&. \fIRestOid\fR\& does not have to specify an existing row\&.
+.RE
+.LP
+.B
+table_row_exists(NameDb, RowIndex) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+NameDb = name_db()
+.br
+RowIndex = row_index()
+.br
+.RE
+.RS
+.LP
+Checks if a row in a table exists\&.
+.RE
+.LP
+.B
+table_set_elements(NameDb, RowIndex, Cols) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+NameDb = name_db()
+.br
+RowIndex = row_index()
+.br
+Cols = columns()
+.br
+.RE
+.RS
+.LP
+Sets the elements in \fICols\fR\& to the row specified by \fIRowIndex\fR\&\&. No checks are performed on the new values\&.
+.LP
+If the Mnesia database is used, this function calls \fImnesia:write\fR\& to store the values\&. This means that this function must be called from within a transaction (\fImnesia:transaction/1\fR\& or \fImnesia:dirty/1\fR\&)\&.
+.RE
+.LP
+.B
+variable_func(Op1, NameDb)
+.br
+.B
+variable_func(Op2, Val, NameDb) -> Ret
+.br
+.RS
+.TP 3
+Types:
+
+Op1 = new | delete | get
+.br
+Op2 = is_set_ok | set | undo
+.br
+NameDb = name_db()
+.br
+Val = value()
+.br
+Ret = term()
+.br
+.RE
+.RS
+.LP
+This is the default instrumentation function for variables\&.
+.LP
+The \fInew\fR\& function creates a new variable in the database with a default value as defined in the MIB, or a zero value (depending on the type)\&.
+.LP
+The \fIdelete\fR\& function does not delete the variable from the database\&.
+.LP
+The function returns according to the specification of an instrumentation function\&.
+.RE
+.LP
+.B
+variable_get(NameDb) -> {value, Value} | undefined
+.br
+.RS
+.TP 3
+Types:
+
+NameDb = name_db()
+.br
+Value = value()
+.br
+.RE
+.RS
+.LP
+Gets the value of a variable\&.
+.RE
+.LP
+.B
+variable_set(NameDb, NewVal) -> true | false
+.br
+.RS
+.TP 3
+Types:
+
+NameDb = name_db()
+.br
+NewVal = value()
+.br
+.RE
+.RS
+.LP
+Sets a new value to a variable\&. The variable is created if it does not exist\&. No checks are made on the type of the new value\&.
+.LP
+Returns \fIfalse\fR\& if the \fINameDb\fR\& argument is incorrectly specified, otherwise \fItrue\fR\&\&.
+.RE
+.SH "EXAMPLE"
+
+.LP
+The following example shows an implementation of a table which is stored in Mnesia, but with some checks performed at set-request operations\&.
+.LP
+.nf
+
+myTable_func(new, NameDb) ->   % pass unchanged
+  snmp_generic:table_func(new, NameDb).
+
+myTable_func(delete, NameDb) ->   % pass unchanged
+  snmp_generic:table_func(delete, NameDb).
+
+%% change row
+myTable_func(is_set_ok, RowIndex, Cols, NameDb) ->
+  case snmp_generic:table_func(is_set_ok, RowIndex,
+                               Cols, NameDb) of
+    {noError, 0} -> 
+      myApplication:is_set_ok(RowIndex, Cols);
+    Err ->
+      Err
+  end;
+
+myTable_func(set, RowIndex, Cols, NameDb) ->
+  case snmp_generic:table_func(set, RowIndex, Cols,
+                               NameDb),
+    {noError, 0} ->
+      % Now the row is updated, tell the application
+      myApplication:update(RowIndex, Cols);
+    Err ->
+      Err
+  end;
+
+myTable_func(Op, RowIndex, Cols, NameDb) ->   % pass unchanged
+  snmp_generic:table_func(Op, RowIndex, Cols, NameDb).
+    
+.fi
+.LP
+The \fI\&.funcs\fR\& file would look like:
+.LP
+.nf
+
+{myTable, {myModule, myTable_func, [{myTable, mnesia}]}}.
+    
+.fi

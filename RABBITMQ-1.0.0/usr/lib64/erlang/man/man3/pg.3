@@ -1,0 +1,141 @@
+.TH pg 3 "stdlib 1.17.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+pg \- Distributed, Named Process Groups
+.SH DESCRIPTION
+.LP
+This (experimental) module implements process groups\&. A process group is a group of processes that can be accessed by a common name\&. For example, a group named \fIfoobar\fR\& can include a set of processes as members of this group and they can be located on different nodes\&.
+.LP
+When messages are sent to the named group, all members of the group receive the message\&. The messages are serialized\&. If the process \fIP1\fR\& sends the message \fIM1\fR\& to the group, and process \fIP2\fR\& simultaneously sends message \fIM2\fR\&, then all members of the group receive the two messages in the same order\&. If members of a group terminate, they are automatically removed from the group\&.
+.LP
+This module is not complete\&. The module is inspired by the ISIS system and the causal order protocol of the ISIS system should also be implemented\&. At the moment, all messages are serialized by sending them through a group master process\&.
+.SH EXPORTS
+.LP
+.nf
+
+.B
+create(PgName) -> ok | {error, Reason}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+PgName = term()
+.br
+Reason = already_created | term()
+.br
+.RE
+.RS
+.LP
+Creates an empty group named \fIPgName\fR\& on the current node\&.
+.RE
+.LP
+.nf
+
+.B
+create(PgName, Node) -> ok | {error, Reason}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+PgName = term()
+.br
+Node = node()
+.br
+Reason = already_created | term()
+.br
+.RE
+.RS
+.LP
+Creates an empty group named \fIPgName\fR\& on the node \fINode\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+join(PgName, Pid) -> Members
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+PgName = term()
+.br
+Pid = pid()
+.br
+Members = [pid()]
+.br
+.RE
+.RS
+.LP
+Joins the pid \fIPid\fR\& to the process group \fIPgName\fR\&\&. Returns a list of all old members of the group\&.
+.RE
+.LP
+.nf
+
+.B
+send(PgName, Msg) -> ok
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+PgName = Msg = term()
+.br
+.RE
+.RS
+.LP
+Sends the tuple \fI{pg_message, From, PgName, Msg}\fR\& to all members of the process group \fIPgName\fR\&\&.
+.LP
+Failure: \fI{badarg, {PgName, Msg}}\fR\& if \fIPgName\fR\& is not a process group (a globally registered name)\&.
+.RE
+.LP
+.nf
+
+.B
+esend(PgName, Msg) -> ok
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+PgName = Msg = term()
+.br
+.RE
+.RS
+.LP
+Sends the tuple \fI{pg_message, From, PgName, Msg}\fR\& to all members of the process group \fIPgName\fR\&, except ourselves\&.
+.LP
+Failure: \fI{badarg, {PgName, Msg}}\fR\& if \fIPgName\fR\& is not a process group (a globally registered name)\&.
+.RE
+.LP
+.nf
+
+.B
+members(PgName) -> Members
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+PgName = term()
+.br
+Members = [pid()]
+.br
+.RE
+.RS
+.LP
+Returns a list of all members of the process group \fIPgName\fR\&\&.
+.RE

@@ -1,0 +1,662 @@
+.TH sys 3 "stdlib 1.17.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+sys \- A Functional Interface to System Messages
+.SH DESCRIPTION
+.LP
+This module contains functions for sending system messages used by programs, and messages used for debugging purposes\&.
+.LP
+Functions used for implementation of processes should also understand system messages such as debugging messages and code change\&. These functions must be used to implement the use of system messages for a process; either directly, or through standard behaviours, such as \fIgen_server\fR\&\&.
+.LP
+The default timeout is 5000 ms, unless otherwise specified\&. The \fItimeout\fR\& defines the time period to wait for the process to respond to a request\&. If the process does not respond, the function evaluates \fIexit({timeout, {M, F, A}})\fR\&\&.
+.LP
+The functions make reference to a debug structure\&. The debug structure is a list of \fIdbg_opt()\fR\&\&. \fIdbg_opt()\fR\& is an internal data type used by the \fIhandle_system_msg/6\fR\& function\&. No debugging is performed if it is an empty list\&.
+.SH "SYSTEM MESSAGES"
+
+.LP
+Processes which are not implemented as one of the standard behaviours must still understand system messages\&. There are three different messages which must be understood:
+.RS 2
+.TP 2
+*
+Plain system messages\&. These are received as \fI{system, From, Msg}\fR\&\&. The content and meaning of this message are not interpreted by the receiving process module\&. When a system message has been received, the function \fIsys:handle_system_msg/6\fR\& is called in order to handle the request\&.
+.LP
+.TP 2
+*
+Shutdown messages\&. If the process traps exits, it must be able to handle an shut-down request from its parent, the supervisor\&. The message \fI{\&'EXIT\&', Parent, Reason}\fR\& from the parent is an order to terminate\&. The process must terminate when this message is received, normally with the same \fIReason\fR\& as \fIParent\fR\&\&.
+.LP
+.TP 2
+*
+There is one more message which the process must understand if the modules used to implement the process change dynamically during runtime\&. An example of such a process is the \fIgen_event\fR\& processes\&. This message is \fI{get_modules, From}\fR\&\&. The reply to this message is \fIFrom ! {modules, Modules}\fR\&, where \fIModules\fR\& is a list of the currently active modules in the process\&.
+.RS 2
+.LP
+This message is used by the release handler to find which processes execute a certain module\&. The process may at a later time be suspended and ordered to perform a code change for one of its modules\&.
+.RE
+.LP
+.RE
+
+.SH "SYSTEM EVENTS"
+
+.LP
+When debugging a process with the functions of this module, the process generates \fIsystem_events\fR\& which are then treated in the debug function\&. For example, \fItrace\fR\& formats the system events to the tty\&.
+.LP
+There are three predefined system events which are used when a process receives or sends a message\&. The process can also define its own system events\&. It is always up to the process itself to format these events\&.
+.SH DATA TYPES
+.nf
+
+\fBname()\fR\& = pid() | atom() | {global, atom()}
+.br
+.fi
+.nf
+
+\fBsystem_event()\fR\& = {in, Msg :: term()}
+.br
+               | {in, Msg :: term(), From :: term()}
+.br
+               | {out, Msg :: term(), To :: term()}
+.br
+               | term()
+.br
+.fi
+.nf
+
+\fBdbg_opt()\fR\&
+.br
+.fi
+.RS
+.LP
+See \fBabove\fR\&\&.
+.RE
+.nf
+
+\fBdbg_fun()\fR\& = 
+.br
+    fun((FuncState :: term(),
+.br
+         Event :: \fBsystem_event()\fR\&,
+.br
+         ProcState :: term()) ->
+.br
+            done | (NewFuncState :: term()))
+.br
+.fi
+.SH EXPORTS
+.LP
+.nf
+
+.B
+log(Name, Flag) -> ok | {ok, [\fBsystem_event()\fR\&]}
+.br
+.fi
+.br
+.nf
+
+.B
+log(Name, Flag, Timeout) -> ok | {ok, [\fBsystem_event()\fR\&]}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = \fBname()\fR\&
+.br
+Flag = true | {true, N :: integer() >= 1} | false | get | print
+.br
+Timeout = timeout()
+.br
+.RE
+.RS
+.LP
+Turns the logging of system events On or Off\&. If On, a maximum of \fIN\fR\& events are kept in the debug structure (the default is 10)\&. If \fIFlag\fR\& is \fIget\fR\&, a list of all logged events is returned\&. If \fIFlag\fR\& is \fIprint\fR\&, the logged events are printed to \fIstandard_io\fR\&\&. The events are formatted with a function that is defined by the process that generated the event (with a call to \fIsys:handle_debug/4\fR\&)\&.
+.RE
+.LP
+.nf
+
+.B
+log_to_file(Name, Flag) -> ok | {error, open_file}
+.br
+.fi
+.br
+.nf
+
+.B
+log_to_file(Name, Flag, Timeout) -> ok | {error, open_file}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = \fBname()\fR\&
+.br
+Flag = (FileName :: string()) | false
+.br
+Timeout = timeout()
+.br
+.RE
+.RS
+.LP
+Enables or disables the logging of all system events in textual format to the file\&. The events are formatted with a function that is defined by the process that generated the event (with a call to \fIsys:handle_debug/4\fR\&)\&.
+.RE
+.LP
+.nf
+
+.B
+statistics(Name, Flag) -> ok | {ok, Statistics}
+.br
+.fi
+.br
+.nf
+
+.B
+statistics(Name, Flag, Timeout) -> ok | {ok, Statistics}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = \fBname()\fR\&
+.br
+Flag = true | false | get
+.br
+Statistics = [StatisticsTuple] | no_statistics
+.br
+StatisticsTuple = {start_time, DateTime1}
+.br
+                | {current_time, DateTime2}
+.br
+                | {reductions, integer() >= 0}
+.br
+                | {messages_in, integer() >= 0}
+.br
+                | {messages_out, integer() >= 0}
+.br
+DateTime1 = DateTime2 = \fBfile:date_time()\fR\&
+.br
+Timeout = timeout()
+.br
+.RE
+.RS
+.LP
+Enables or disables the collection of statistics\&. If \fIFlag\fR\& is \fIget\fR\&, the statistical collection is returned\&.
+.RE
+.LP
+.nf
+
+.B
+trace(Name, Flag) -> ok
+.br
+.fi
+.br
+.nf
+
+.B
+trace(Name, Flag, Timeout) -> ok
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = \fBname()\fR\&
+.br
+Flag = boolean()
+.br
+Timeout = timeout()
+.br
+.RE
+.RS
+.LP
+Prints all system events on \fIstandard_io\fR\&\&. The events are formatted with a function that is defined by the process that generated the event (with a call to \fIsys:handle_debug/4\fR\&)\&.
+.RE
+.LP
+.nf
+
+.B
+no_debug(Name) -> ok
+.br
+.fi
+.br
+.nf
+
+.B
+no_debug(Name, Timeout) -> ok
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = \fBname()\fR\&
+.br
+Timeout = timeout()
+.br
+.RE
+.RS
+.LP
+Turns off all debugging for the process\&. This includes functions that have been installed explicitly with the \fIinstall\fR\& function, for example triggers\&.
+.RE
+.LP
+.nf
+
+.B
+suspend(Name) -> Void
+.br
+.fi
+.br
+.nf
+
+.B
+suspend(Name, Timeout) -> Void
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = \fBname()\fR\&
+.br
+Timeout = timeout()
+.br
+Void = term()
+.br
+.RE
+.RS
+.LP
+Suspends the process\&. When the process is suspended, it will only respond to other system messages, but not other messages\&.
+.RE
+.LP
+.nf
+
+.B
+resume(Name) -> Void
+.br
+.fi
+.br
+.nf
+
+.B
+resume(Name, Timeout) -> Void
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = \fBname()\fR\&
+.br
+Timeout = timeout()
+.br
+Void = term()
+.br
+.RE
+.RS
+.LP
+Resumes a suspended process\&.
+.RE
+.LP
+.nf
+
+.B
+change_code(Name, Module, OldVsn, Extra) -> ok | {error, Reason}
+.br
+.fi
+.br
+.nf
+
+.B
+change_code(Name, Module, OldVsn, Extra, Timeout) ->
+.B
+               ok | {error, Reason}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = \fBname()\fR\&
+.br
+Module = module()
+.br
+OldVsn = undefined | term()
+.br
+Extra = term()
+.br
+Timeout = timeout()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Tells the process to change code\&. The process must be suspended to handle this message\&. The \fIExtra\fR\& argument is reserved for each process to use as its own\&. The function \fIModule:system_code_change/4\fR\& is called\&. \fIOldVsn\fR\& is the old version of the \fIModule\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+get_status(Name) -> Status
+.br
+.fi
+.br
+.nf
+
+.B
+get_status(Name, Timeout) -> Status
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = \fBname()\fR\&
+.br
+Timeout = timeout()
+.br
+Status = 
+.br
+    {status, Pid :: pid(), {module, Module :: module()}, [SItem]}
+.br
+SItem = (PDict :: [{Key :: term(), Value :: term()}])
+.br
+      | (SysState :: running | suspended)
+.br
+      | (Parent :: pid())
+.br
+      | (Dbg :: \fBdbg_opt()\fR\&)
+.br
+      | (Misc :: term())
+.br
+.RE
+.RS
+.LP
+Gets the status of the process\&.
+.LP
+The value of \fIMisc\fR\& varies for different types of processes\&. For example, a \fIgen_server\fR\& process returns the callback module\&'s state, and a \fIgen_fsm\fR\& process returns information such as its current state name\&. Callback modules for \fIgen_server\fR\& and \fIgen_fsm\fR\& can also customise the value of \fIMisc\fR\& by exporting a \fIformat_status/2\fR\& function that contributes module-specific information; see \fBgen_server:format_status/2\fR\& and \fBgen_fsm:format_status/2\fR\& for more details\&.
+.RE
+.LP
+.nf
+
+.B
+install(Name, FuncSpec) -> Void
+.br
+.fi
+.br
+.nf
+
+.B
+install(Name, FuncSpec, Timeout) -> Void
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = \fBname()\fR\&
+.br
+FuncSpec = {Func, FuncState}
+.br
+Func = \fBdbg_fun()\fR\&
+.br
+FuncState = term()
+.br
+Timeout = timeout()
+.br
+Void = term()
+.br
+.RE
+.RS
+.LP
+This function makes it possible to install other debug functions than the ones defined above\&. An example of such a function is a trigger, a function that waits for some special event and performs some action when the event is generated\&. This could, for example, be turning on low level tracing\&.
+.LP
+\fIFunc\fR\& is called whenever a system event is generated\&. This function should return \fIdone\fR\&, or a new func state\&. In the first case, the function is removed\&. It is removed if the function fails\&.
+.RE
+.LP
+.nf
+
+.B
+remove(Name, Func) -> Void
+.br
+.fi
+.br
+.nf
+
+.B
+remove(Name, Func, Timeout) -> Void
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Name = \fBname()\fR\&
+.br
+Func = \fBdbg_fun()\fR\&
+.br
+Timeout = timeout()
+.br
+Void = term()
+.br
+.RE
+.RS
+.LP
+Removes a previously installed debug function from the process\&. \fIFunc\fR\& must be the same as previously installed\&.
+.RE
+.SH "PROCESS IMPLEMENTATION FUNCTIONS"
+
+.LP
+The following functions are used when implementing a special process\&. This is an ordinary process which does not use a standard behaviour, but a process which understands the standard system messages\&.
+.SH EXPORTS
+.LP
+.nf
+
+.B
+debug_options(Options) -> [\fBdbg_opt()\fR\&]
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Options = [Opt]
+.br
+Opt = trace
+.br
+    | log
+.br
+    | statistics
+.br
+    | {log_to_file, FileName}
+.br
+    | {install, FuncSpec}
+.br
+FileName = \fBfile:name()\fR\&
+.br
+FuncSpec = {Func, FuncState}
+.br
+Func = \fBdbg_fun()\fR\&
+.br
+FuncState = term()
+.br
+.RE
+.RS
+.LP
+This function can be used by a process that initiates a debug structure from a list of options\&. The values of the \fIOpt\fR\& argument are the same as the corresponding functions\&.
+.RE
+.LP
+.nf
+
+.B
+get_debug(Item, Debug, Default) -> term()
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Item = log | statistics
+.br
+Debug = [\fBdbg_opt()\fR\&]
+.br
+Default = term()
+.br
+.RE
+.RS
+.LP
+This function gets the data associated with a debug option\&. \fIDefault\fR\& is returned if the \fIItem\fR\& is not found\&. Can be used by the process to retrieve debug data for printing before it terminates\&.
+.RE
+.LP
+.nf
+
+.B
+handle_debug(Debug, FormFunc, Extra, Event) -> [\fBdbg_opt()\fR\&]
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Debug = [\fBdbg_opt()\fR\&]
+.br
+FormFunc = \fBdbg_fun()\fR\&
+.br
+Extra = term()
+.br
+Event = \fBsystem_event()\fR\&
+.br
+.RE
+.RS
+.LP
+This function is called by a process when it generates a system event\&. \fIFormFunc\fR\& is a formatting function which is called as \fIFormFunc(Device, Event, Extra)\fR\& in order to print the events, which is necessary if tracing is activated\&. \fIExtra\fR\& is any extra information which the process needs in the format function, for example the name of the process\&.
+.RE
+.LP
+.nf
+
+.B
+handle_system_msg(Msg, From, Parent, Module, Debug, Misc) -> Void
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Msg = term()
+.br
+From = {pid(), Tag :: term()}
+.br
+Parent = pid()
+.br
+Module = module()
+.br
+Debug = [\fBdbg_opt()\fR\&]
+.br
+Misc = Void = term()
+.br
+.RE
+.RS
+.LP
+This function is used by a process module that wishes to take care of system messages\&. The process receives a \fI{system, From, Msg}\fR\& message and passes the \fIMsg\fR\& and \fIFrom\fR\& to this function\&.
+.LP
+This function \fInever\fR\& returns\&. It calls the function \fIModule:system_continue(Parent, NDebug, Misc)\fR\& where the process continues the execution, or \fIModule:system_terminate(Reason, Parent, Debug, Misc)\fR\& if the process should terminate\&. The \fIModule\fR\& must export \fIsystem_continue/3\fR\&, \fIsystem_terminate/4\fR\&, and \fIsystem_code_change/4\fR\& (see below)\&.
+.LP
+The \fIMisc\fR\& argument can be used to save internal data in a process, for example its state\&. It is sent to \fIModule:system_continue/3\fR\& or \fIModule:system_terminate/4\fR\&
+.RE
+.LP
+.nf
+
+.B
+print_log(Debug) -> Void
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Debug = [\fBdbg_opt()\fR\&]
+.br
+Void = term()
+.br
+.RE
+.RS
+.LP
+Prints the logged system events in the debug structure using \fIFormFunc\fR\& as defined when the event was generated by a call to \fIhandle_debug/4\fR\&\&.
+.RE
+.LP
+.B
+Mod:system_continue(Parent, Debug, Misc) -> none()
+.br
+.RS
+.TP 3
+Types:
+
+Parent = pid()
+.br
+Debug = [
+.br
+Misc = term()
+.br
+.RE
+.RS
+.LP
+This function is called from \fIsys:handle_system_msg/6\fR\& when the process should continue its execution (for example after it has been suspended)\&. This function never returns\&.
+.RE
+.LP
+.B
+Mod:system_terminate(Reason, Parent, Debug, Misc) -> none()
+.br
+.RS
+.TP 3
+Types:
+
+Reason = term()
+.br
+Parent = pid()
+.br
+Debug = [
+.br
+Misc = term()
+.br
+.RE
+.RS
+.LP
+This function is called from \fIsys:handle_system_msg/6\fR\& when the process should terminate\&. For example, this function is called when the process is suspended and its parent orders shut-down\&. It gives the process a chance to do a clean-up\&. This function never returns\&.
+.RE
+.LP
+.B
+Mod:system_code_change(Misc, Module, OldVsn, Extra) -> {ok, NMisc}
+.br
+.RS
+.TP 3
+Types:
+
+Misc = term()
+.br
+OldVsn = undefined | term()
+.br
+Module = atom()
+.br
+Extra = term()
+.br
+NMisc = term()
+.br
+.RE
+.RS
+.LP
+Called from \fIsys:handle_system_msg/6\fR\& when the process should perform a code change\&. The code change is used when the internal data structure has changed\&. This function converts the \fIMisc\fR\& argument to the new data structure\&. \fIOldVsn\fR\& is the \fIvsn\fR\& attribute of the old version of the \fIModule\fR\&\&. If no such attribute was defined, the atom \fIundefined\fR\& is sent\&.
+.RE

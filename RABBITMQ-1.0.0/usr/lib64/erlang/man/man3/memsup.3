@@ -1,0 +1,285 @@
+.TH memsup 3 "os_mon 2.2.7" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+memsup \- A Memory Supervisor Process
+.SH DESCRIPTION
+.LP
+\fImemsup\fR\& is a process which supervises the memory usage for the system and for individual processes\&. It is part of the OS_Mon application, see \fBos_mon(6)\fR\&\&. Available for Unix, Windows and VxWorks\&.
+.LP
+Periodically performs a memory check:
+.RS 2
+.TP 2
+*
+If more than a certain amount of available system memory is allocated, as reported by the underlying operating system, the alarm \fI{system_memory_high_watermark, []}\fR\& is set\&.
+.LP
+.TP 2
+*
+If any Erlang process \fIPid\fR\& in the system has allocated more than a certain amount of total system memory, the alarm \fI{process_memory_high_watermark, Pid}\fR\& is set\&.
+.LP
+.RE
+
+.LP
+Alarms are reported to the SASL alarm handler, see \fBalarm_handler(3)\fR\&\&. To set an alarm, \fIalarm_handler:set_alarm(Alarm)\fR\& is called where \fIAlarm\fR\& is either of the alarms specified above\&.
+.LP
+The alarms are cleared automatically when the alarm cause is no longer valid\&.
+.LP
+The function \fBget_memory_data()\fR\& can be used to retrieve the result of the latest periodic memory check\&.
+.LP
+There is also a interface to system dependent memory data, \fBget_system_memory_data()\fR\&\&. The result is highly dependent on the underlying operating system and the interface is targeted primarily for systems without virtual memory (e\&.g\&. VxWorks)\&. The output on other systems is however still valid, although sparse\&.
+.LP
+A call to \fIget_system_memory_data/0\fR\& is more costly than a call to \fIget_memory_data/0\fR\& as data is collected synchronously when this function is called\&.
+.LP
+The total system memory reported under UNIX is the number of physical pages of memory times the page size, and the available memory is the number of available physical pages times the page size\&. This is a reasonable measure as swapping should be avoided anyway, but the task of defining total memory and available memory is difficult because of virtual memory and swapping\&.
+.SH "CONFIGURATION"
+
+.LP
+The following configuration parameters can be used to change the default values for time intervals and thresholds:
+.RS 2
+.TP 2
+.B
+\fImemory_check_interval = int()>0\fR\&:
+The time interval, in minutes, for the periodic memory check\&. The default is one minute\&.
+.TP 2
+.B
+\fIsystem_memory_high_watermark = float()\fR\&:
+The threshold, as percentage of system memory, for how much system memory can be allocated before the corresponding alarm is set\&. The default is 0\&.80 (80%)\&.
+.TP 2
+.B
+\fIprocess_memory_high_watermark = float()\fR\&:
+The threshold, as percentage of system memory, for how much system memory can be allocated by one Erlang process before the corresponding alarm is set\&. The default is 0\&.05 (5%)\&.
+.TP 2
+.B
+\fImemsup_helper_timeout = int()>0\fR\&:
+A timeout, in seconds, for how long the \fImemsup\fR\& process should wait for a result from a memory check\&. If the timeout expires, a warning message \fI"OS_MON (memsup) timeout"\fR\& is issued via \fIerror_logger\fR\& and any pending, synchronous client calls will return a dummy value\&. Normally, this situation should not occur\&. There have been cases on Linux, however, where the pseudo file from which system data is read is temporarily unavailable when the system is heavily loaded\&.
+.RS 2
+.LP
+The default is 30 seconds\&.
+.RE
+.TP 2
+.B
+\fImemsup_system_only = bool()\fR\&:
+Specifies whether the \fImemsup\fR\& process should only check system memory usage (\fItrue\fR\&) or not\&. The default is \fIfalse\fR\&, meaning that information regarding both system memory usage and Erlang process memory usage is collected\&.
+.RS 2
+.LP
+It is recommended to set this parameter to \fIfalse\fR\& on systems with many concurrent processes, as each process memory check makes a traversal of the entire list of processes\&.
+.RE
+.RE
+.LP
+See \fBconfig(4)\fR\& for information about how to change the value of configuration parameters\&.
+.SH EXPORTS
+.LP
+.B
+get_memory_data() -> {Total,Allocated,Worst}
+.br
+.RS
+.TP 3
+Types:
+
+Total = Allocated = int()
+.br
+Worst = {Pid, PidAllocated} | undefined
+.br
+Pid = pid()
+.br
+PidAllocated = int()
+.br
+.RE
+.RS
+.LP
+Returns the result of the latest memory check, where \fITotal\fR\& is the total memory size and \fIAllocated\fR\& the allocated memory size, in bytes\&.
+.LP
+\fIWorst\fR\& is the pid and number of allocated bytes of the largest Erlang process on the node\&. If \fImemsup\fR\& should not collect process data, that is if the configuration parameter \fImemsup_system_only\fR\& was set to \fItrue\fR\&, \fIWorst\fR\& is \fIundefined\fR\&\&.
+.LP
+The function is normally asynchronous in the sense that it does not invoke a memory check, but returns the latest available value\&. The one exception if is the function is called before a first memory check is finished, in which case it does not return a value until the memory check is finished\&.
+.LP
+Returns \fI{0,0,{pid(),0}}\fR\& or \fI{0,0,undefined}\fR\& if \fImemsup\fR\& is not available, or if all memory checks so far have timed out\&.
+.RE
+.LP
+.B
+get_system_memory_data() -> MemDataList
+.br
+.RS
+.TP 3
+Types:
+
+MemDataList = [{Tag, Size}]
+.br
+Tag = atom()
+.br
+Size = int()
+.br
+.RE
+.RS
+.LP
+Invokes a memory check and returns the resulting, system dependent, data as a list of tagged tuples, where \fITag\fR\& can be one of the following:
+.RS 2
+.TP 2
+.B
+\fItotal_memory\fR\&:
+The total amount of memory available to the Erlang emulator, allocated and free\&. May or may not be equal to the amount of memory configured in the system\&.
+.TP 2
+.B
+\fIfree_memory\fR\&:
+The amount of free memory available to the Erlang emulator for allocation\&.
+.TP 2
+.B
+\fIsystem_total_memory\fR\&:
+The amount of memory available to the whole operating system\&. This may well be equal to \fItotal_memory\fR\& but not necessarily\&.
+.TP 2
+.B
+\fIlargest_free\fR\&:
+The size of the largest contiguous free memory block available to the Erlang emulator\&.
+.TP 2
+.B
+\fInumber_of_free\fR\&:
+The number of free blocks available to the Erlang runtime system\&. This gives a fair indication of how fragmented the memory is\&.
+.TP 2
+.B
+\fIbuffered_memory\fR\&:
+ The amount of memory the system uses for temporary storing raw disk blocks\&. 
+.TP 2
+.B
+\fIcached_memory\fR\&:
+ The amount of memory the system uses for cached files read from disk\&. 
+.TP 2
+.B
+\fItotal_swap\fR\&:
+ The amount of total amount of memory the system has available for disk swap\&. 
+.TP 2
+.B
+\fIfree_swap\fR\&:
+ The amount of memory the system has available for disk swap\&. 
+.RE
+.LP
+All memory sizes are presented as number of \fIbytes\fR\&\&.
+.LP
+The \fIlargest_free\fR\& and \fInumber_of_free\fR\& tags are currently only returned on a VxWorks system\&.
+.LP
+Returns the empty list [] if \fImemsup\fR\& is not available, or if the memory check times out\&.
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+On linux the memory available to the emulator is \fIcached_memory\fR\& and \fIbuffered_memory\fR\& in addition to \fIfree_memory\fR\&\&.
+
+.RE
+.LP
+.B
+get_os_wordsize() -> Wordsize
+.br
+.RS
+.TP 3
+Types:
+
+Wordsize = 32 | 64 | unsupported_os
+.br
+.RE
+.RS
+.LP
+Returns the wordsize of the current running operating system\&.
+.RE
+.LP
+.B
+get_check_interval() -> MS
+.br
+.RS
+.TP 3
+Types:
+
+MS = int()
+.br
+.RE
+.RS
+.LP
+Returns the time interval, in milliseconds, for the periodic memory check\&.
+.RE
+.LP
+.B
+set_check_interval(Minutes) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Minutes = int()>0
+.br
+.RE
+.RS
+.LP
+Changes the time interval, given in minutes, for the periodic memory check\&.
+.LP
+The change will take effect after the next memory check and is non-persistent\&. That is, in case of a process restart, this value is forgotten and the default value will be used\&. See \fBConfiguration\fR\& above\&.
+.RE
+.LP
+.B
+get_procmem_high_watermark() -> int()
+.br
+.RS
+.LP
+Returns the threshold, in percent, for process memory allocation\&.
+.RE
+.LP
+.B
+set_procmem_high_watermark(Float) -> ok
+.br
+.RS
+.LP
+Changes the threshold, given as a float, for process memory allocation\&.
+.LP
+The change will take effect during the next periodic memory check and is non-persistent\&. That is, in case of a process restart, this value is forgotten and the default value will be used\&. See \fBConfiguration\fR\& above\&.
+.RE
+.LP
+.B
+get_sysmem_high_watermark() -> int()
+.br
+.RS
+.LP
+Returns the threshold, in percent, for system memory allocation\&.
+.RE
+.LP
+.B
+set_sysmem_high_watermark(Float) -> ok
+.br
+.RS
+.LP
+Changes the threshold, given as a float, for system memory allocation\&.
+.LP
+The change will take effect during the next periodic memory check and is non-persistent\&. That is, in case of a process restart, this value is forgotten and the default value will be used\&. See \fBConfiguration\fR\& above\&.
+.RE
+.LP
+.B
+get_helper_timeout() -> Seconds
+.br
+.RS
+.TP 3
+Types:
+
+Seconds = int()
+.br
+.RE
+.RS
+.LP
+Returns the timeout value, in seconds, for memory checks\&.
+.RE
+.LP
+.B
+set_helper_timeout(Seconds) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Seconds = int() (>= 1)
+.br
+.RE
+.RS
+.LP
+Changes the timeout value, given in seconds, for memory checks\&.
+.LP
+The change will take effect for the next memory check and is non-persistent\&. That is, in the case of a process restart, this value is forgotten and the default value will be used\&. See \fBConfiguration\fR\& above\&.
+.RE
+.SH "SEE ALSO"
+
+.LP
+\fBalarm_handler(3)\fR\&, \fBos_mon(3)\fR\&

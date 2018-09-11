@@ -1,0 +1,1562 @@
+.TH snmpa 3 "snmp 4.21.1" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+snmpa \- Interface Functions to the SNMP toolkit agent
+.SH DESCRIPTION
+.LP
+The module \fIsnmpa\fR\& contains interface functions to the SNMP agent\&.
+.SH "DATA TYPES"
+
+.LP
+.nf
+
+oid() = [byte()] 
+atl_type() = read | write | read_write
+notification_delivery_info() = #snmpa_notification_delivery_info{}
+    
+.fi
+.LP
+The \fIoid()\fR\& type is used to represent an ASN\&.1 OBJECT IDENTIFIER\&.
+.LP
+The record \fIsnmpa_notification_delivery_info\fR\& contains the following fields:
+.RS 2
+.TP 2
+.B
+\fItag = term()\fR\&:
+A user defined identity representing this notification send operation\&.
+.TP 2
+.B
+\fImod = module()\fR\&:
+A module implementing the \fBsnmpa_notification_delivery_info_receiver\fR\& behaviour\&. The info functions of this module will be called at various stages of delivery\&.
+.TP 2
+.B
+\fIextra = term()\fR\&:
+This is any extra info the user wants to have supplied when the functions in the callback module is called\&.
+.RE
+.SH EXPORTS
+.LP
+.B
+add_agent_caps(SysORID, SysORDescr) -> SysORIndex
+.br
+.RS
+.TP 3
+Types:
+
+SysORID = oid()
+.br
+SysORDescr = string()
+.br
+SysORIndex = integer()
+.br
+.RE
+.RS
+.LP
+This function can be used to add an AGENT-CAPABILITY statement to the sysORTable in the agent\&. The table is defined in the SNMPv2-MIB\&.
+.RE
+.LP
+.B
+del_agent_caps(SysORIndex) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+SysORIndex = integer()
+.br
+.RE
+.RS
+.LP
+This function can be used to delete an AGENT-CAPABILITY statement to the sysORTable in the agent\&. This table is defined in the SNMPv2-MIB\&.
+.RE
+.LP
+.B
+get_agent_caps() -> [[SysORIndex, SysORID, SysORDescr, SysORUpTime]]
+.br
+.RS
+.TP 3
+Types:
+
+SysORIndex = integer()
+.br
+SysORId = oid()
+.br
+SysORDescr = string()
+.br
+SysORUpTime = integer()
+.br
+.RE
+.RS
+.LP
+Returns all AGENT-CAPABILITY statements in the sysORTable in the agent\&. This table is defined in the SNMPv2-MIB\&.
+.RE
+.LP
+.B
+get(Agent, Vars) -> Values | {error, Reason}
+.br
+.B
+get(Agent, Vars, Context) -> Values | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+Vars = [oid()]
+.br
+Context = string()
+.br
+Values = [term()]
+.br
+Reason = {atom(), oid()}
+.br
+.RE
+.RS
+.LP
+Performs a GET operation on the agent\&. All loaded MIB objects are visible in this operation\&. The agent calls the corresponding instrumentation functions just as if it was a GET request coming from a manager\&.
+.LP
+Note that the request specific parameters (such as \fBcurrent_request_id\fR\&) are not accessible for the instrumentation functions if this function is used\&.
+.RE
+.LP
+.B
+get_next(Agent, Vars) -> Values | {error, Reason}
+.br
+.B
+get_next(Agent, Vars, Context) -> Values | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+Vars = [oid()]
+.br
+Context = string()
+.br
+Values = [{oid(), term()}]
+.br
+Reason = {atom(), oid()}
+.br
+.RE
+.RS
+.LP
+Performs a GET-NEXT operation on the agent\&. All loaded MIB objects are visible in this operation\&. The agent calls the corresponding instrumentation functions just as if it was a GET request coming from a manager\&.
+.LP
+Note that the request specific parameters (such as \fIsnmpa:current_request_id/0\fR\& are not accessible for the instrumentation functions if this function is used\&.
+.RE
+.LP
+.B
+backup(BackupDir) -> ok | {error, Reason}
+.br
+.B
+backup(Agent, BackupDir) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+BackupDir = string()
+.br
+Agent = pid() | atom()
+.br
+.RE
+.RS
+.LP
+Backup persistent/permanent data handled by the agent (such as local-db, mib-data and vacm)\&.
+.LP
+Data stored by mnesia is not handled\&.
+.LP
+BackupDir cannot be identical to DbDir\&.
+.RE
+.LP
+.B
+info() -> [{Key, Value}]
+.br
+.B
+info(Agent) -> [{Key, Value}]
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+.RE
+.RS
+.LP
+Returns a list (a dictionary) containing information about the agent\&. Information includes loaded MIBs, registered sub-agents, some information about the memory allocation\&.
+.LP
+As of version 4\&.4 the format of the info has been changed\&. To convert the info to the old format, call the \fBold_info_format\fR\& function\&.
+.RE
+.LP
+.B
+old_info_format(NewInfo) -> OldInfo
+.br
+.RS
+.TP 3
+Types:
+
+OldInfo = NewInfo = [{Key, Value}]
+.br
+.RE
+.RS
+.LP
+As of version 4\&.4 the format of the info has been changed\&. This function is used to convert to the old (pre-4\&.4) info format\&.
+.RE
+.LP
+.B
+load_mibs(Mibs) -> ok | {error, Reason}
+.br
+.B
+load_mibs(Agent,Mibs) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+Mibs = [MibName]
+.br
+MibName = string()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Loads \fIMibs\fR\& into an agent\&. If the agent cannot load all MIBs, it will indicate where loading was aborted\&. The \fIMibName\fR\& is the name of the Mib, including the path to where the compiled mib is found\&. For example,
+.LP
+.nf
+
+          Dir = code:priv_dir(my_app) ++ "/mibs/",
+          snmpa:load_mibs(snmp_master_agent, [Dir ++ "MY-MIB"]).
+        
+.fi
+.RE
+.LP
+.B
+unload_mibs(Mibs) -> ok | {error, Reason}
+.br
+.B
+unload_mibs(Agent,Mibs) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+Mibs = [MibName]
+.br
+MibName = string()
+.br
+.RE
+.RS
+.LP
+Unloads MIBs into an agent\&. If it cannot unload all MIBs, it will indicate where unloading was aborted\&.
+.RE
+.LP
+.B
+which_mibs() -> Mibs
+.br
+.B
+which_mibs(Agent) -> Mibs
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+Mibs = [{MibName, MibFile}]
+.br
+MibName = atom()
+.br
+MibFile = string()
+.br
+.RE
+.RS
+.LP
+Retrieve the list of all the mibs loaded into this agent\&. Default is the master agent\&.
+.RE
+.LP
+.B
+whereis_mib(MibName) -> {ok, MibFile} | {error, Reason}
+.br
+.B
+whereis_mib(Agent, MibName) -> {ok, MibFile} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+MibName = atom()
+.br
+MibFile = string()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Get the full path to the (compiled) mib-file\&.
+.RE
+.LP
+.B
+current_request_id() -> {value, RequestId} | false
+.br
+.B
+current_context() -> {value, Context} | false
+.br
+.B
+current_community() -> {value, Community} | false
+.br
+.B
+current_address() -> {value, Address} | false
+.br
+.RS
+.TP 3
+Types:
+
+RequestId = integer()
+.br
+Context = string()
+.br
+Community = string()
+.br
+Address = term()
+.br
+.RE
+.RS
+.LP
+Get the request-id, context, community and address of the request currently being processed by the agent\&.
+.LP
+Note that these functions is intended to be called by the instrumentation functions and \fIonly\fR\& if they are executed in the context of the agent process (e\&.g\&. it does not work if called from a spawned process)\&.
+.RE
+.LP
+.B
+enum_to_int(Name, Enum) -> {value, Int} | false
+.br
+.B
+enum_to_int(Db, Name, Enum) -> {value, Int} | false
+.br
+.RS
+.TP 3
+Types:
+
+Db = term()
+.br
+Name = atom()
+.br
+Enum = atom()
+.br
+Int = int()
+.br
+.RE
+.RS
+.LP
+Converts the symbolic value \fIEnum\fR\& to the corresponding integer of the enumerated object or type \fIName\fR\& in a MIB\&. The MIB must be loaded\&.
+.LP
+\fIfalse\fR\& is returned if the object or type is not defined in any loaded MIB, or if it does not define the symbolic value as enumerated\&.
+.LP
+\fIDb\fR\& is a reference to the symbolic store database (retrieved by a call to \fIget_symbolic_store_db/0\fR\&)\&.
+.RE
+.LP
+.B
+int_to_enum(Name, Int) -> {value, Enum} | false
+.br
+.B
+int_to_enum(Db, Name, Int) -> {value, Enum} | false
+.br
+.RS
+.TP 3
+Types:
+
+Db = term()
+.br
+Name = atom()
+.br
+Int = int()
+.br
+Enum = atom()
+.br
+.RE
+.RS
+.LP
+Converts the integer \fIInt\fR\& to the corresponding symbolic value of the enumerated object or type \fIName\fR\& in a MIB\&. The MIB must be loaded\&.
+.LP
+\fIfalse\fR\& is returned if the object or type is not defined in any loaded MIB, or if it does not define the symbolic value as enumerated\&.
+.LP
+\fIDb\fR\& is a reference to the symbolic store database (retrieved by a call to \fIget_symbolic_store_db/0\fR\&)\&.
+.RE
+.LP
+.B
+name_to_oid(Name) -> {value, oid()} | false
+.br
+.B
+name_to_oid(Db, Name) -> {value, oid()} | false
+.br
+.RS
+.TP 3
+Types:
+
+Db = term()
+.br
+Name = atom()
+.br
+.RE
+.RS
+.LP
+Looks up the OBJECT IDENTIFIER of a MIB object, given the symbolic name\&. Note, the OBJECT IDENTIFIER is given for the object, not for an instance\&.
+.LP
+\fIfalse\fR\& is returned if the object is not defined in any loaded MIB\&.
+.LP
+\fIDb\fR\& is a reference to the symbolic store database (retrieved by a call to \fIget_symbolic_store_db/0\fR\&)\&.
+.RE
+.LP
+.B
+oid_to_name(OID) -> {value, Name} | false
+.br
+.B
+oid_to_name(Db, OID) -> {value, Name} | false
+.br
+.RS
+.TP 3
+Types:
+
+Db = term()
+.br
+OID = oid()
+.br
+Name = atom()
+.br
+.RE
+.RS
+.LP
+Looks up the symbolic name of a MIB object, given OBJECT IDENTIFIER\&.
+.LP
+\fIfalse\fR\& is returned if the object is not defined in any loaded MIB\&.
+.LP
+\fIDb\fR\& is a reference to the symbolic store database (retrieved by a call to \fIget_symbolic_store_db/0\fR\&)\&.
+.RE
+.LP
+.B
+which_aliasnames() -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Result = [atom()]
+.br
+.RE
+.RS
+.LP
+Retrieve all alias-names known to the agent\&.
+.RE
+.LP
+.B
+which_tables() -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Result = [atom()]
+.br
+.RE
+.RS
+.LP
+Retrieve all tables known to the agent\&.
+.RE
+.LP
+.B
+which_variables() -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Result = [atom()]
+.br
+.RE
+.RS
+.LP
+Retrieve all variables known to the agent\&.
+.RE
+.LP
+.B
+which_notifications() -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Result = [{Name, MibName, Info}]
+.br
+Name = atom()
+.br
+MibName = atom()
+.br
+Info = term()
+.br
+.RE
+.RS
+.LP
+Retrieve all notifications (and traps) known to the agent\&.
+.RE
+.LP
+.B
+log_to_txt(LogDir, Mibs)
+.br
+.B
+log_to_txt(LogDir, Mibs, OutFile) -> ok | {error, Reason}
+.br
+.B
+log_to_txt(LogDir, Mibs, OutFile, LogName) -> ok | {error, Reason}
+.br
+.B
+log_to_txt(LogDir, Mibs, OutFile, LogName, LogFile) -> ok | {error, Reason}
+.br
+.B
+log_to_txt(LogDir, Mibs, OutFile, LogName, LogFile, Start) -> ok | {error, Reason}
+.br
+.B
+log_to_txt(LogDir, Mibs, OutFile, LogName, LogFile, Start, Stop) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+LogDir = string()
+.br
+Mibs = [MibName]
+.br
+MibName = string()
+.br
+OutFile = string()
+.br
+LogName = string()
+.br
+LogFile = string()
+.br
+Start = Stop = null | datetime() | {local_time,datetime()} | {universal_time,datetime()}
+.br
+Reason = disk_log_open_error() | file_open_error() | term()
+.br
+disk_log_open_error() = {LogName, term()}
+.br
+file_open_error() = {OutFile, term()}
+.br
+.RE
+.RS
+.LP
+Converts an Audit Trail Log to a readable text file\&. \fIOutFile\fR\& defaults to "\&./snmpa_log\&.txt"\&. \fILogName\fR\& defaults to "snmpa_log"\&. \fILogFile\fR\& defaults to "snmpa\&.log"\&. See \fBsnmp:log_to_txt\fR\& for more info\&.
+.RE
+.LP
+.B
+change_log_size(NewSize) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+NewSize = {MaxBytes, MaxFiles}
+.br
+MaxBytes = integer()
+.br
+MaxFiles = integer()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Changes the log size of the Audit Trail Log\&. The application must be configured to use the audit trail log function\&. Please refer to disk_log(3) in Kernel Reference Manual for a description of how to change the log size\&.
+.LP
+The change is permanent, as long as the log is not deleted\&. That means, the log size is remembered across reboots\&.
+.RE
+.LP
+.B
+set_log_type(NewType) -> {ok, OldType} | {error, Reason}
+.br
+.B
+set_log_type(Agent, NewType) -> {ok, OldType} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+NewType = OldType = atl_type()
+.br
+Agent = pid() | atom()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Changes the run-time Audit Trail log type\&.
+.LP
+Note that this has no effect on the application configuration as defined by configuration files, so a node restart will revert the config to whatever is in those files\&.
+.LP
+This function is primarily useful in testing/debugging scenarios\&.
+.RE
+.LP
+.B
+mib_of(Oid) -> {ok, MibName} | {error, Reason}
+.br
+.B
+mib_of(Agent, Oid) -> {ok, MibName} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+Oid = oid()
+.br
+MibName = atom()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Finds the mib corresponding to the \fIOid\fR\&\&. If it is a variable, the Oid must be <Oid for var>\&.0 and if it is a table, Oid must be <table>\&.<entry>\&.<col>\&.<any>
+.RE
+.LP
+.B
+me_of(Oid) -> {ok, Me} | {error, Reason}
+.br
+.B
+me_of(Agent, Oid) -> {ok, Me} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+Oid = oid()
+.br
+Me = #me{}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Finds the mib entry corresponding to the \fIOid\fR\&\&. If it is a variable, the Oid must be <Oid for var>\&.0 and if it is a table, Oid must be <table>\&.<entry>\&.<col>\&.<any>
+.RE
+.LP
+.B
+invalidate_mibs_cache() -> void()
+.br
+.B
+invalidate_mibs_cache(Agent) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+.RE
+.RS
+.LP
+Invalidate the mib server cache\&.
+.LP
+The entire contents of the cache will be deleted\&.
+.RE
+.LP
+.B
+enable_mibs_cache() -> void()
+.br
+.B
+enable_mibs_cache(Agent) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+.RE
+.RS
+.LP
+Enable the mib server cache\&.
+.RE
+.LP
+.B
+disable_mibs_cache() -> void()
+.br
+.B
+disable_mibs_cache(Agent) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+.RE
+.RS
+.LP
+Disable the mib server cache\&.
+.RE
+.LP
+.B
+which_mibs_cache_size() -> void()
+.br
+.B
+which_mibs_cache_size(Agent) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+.RE
+.RS
+.LP
+Retreive the size of the mib server cache\&.
+.RE
+.LP
+.B
+gc_mibs_cache() -> {ok, NumElementsGCed} | {error, Reason}
+.br
+.B
+gc_mibs_cache(Agent) -> {ok, NumElementsGCed} | {error, Reason}
+.br
+.B
+gc_mibs_cache(Age) -> {ok, NumElementsGCed} | {error, Reason}
+.br
+.B
+gc_mibs_cache(Agent, Age) -> {ok, NumElementsGCed} | {error, Reason}
+.br
+.B
+gc_mibs_cache(Age, GcLimit) -> {ok, NumElementsGCed} | {error, Reason}
+.br
+.B
+gc_mibs_cache(Agent, Age, GcLimit) -> {ok, NumElementsGCed} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+Age = integer() > 0
+.br
+GcLimit = integer() > 0 | infinity
+.br
+NumElementsGCed = integer() >= 0
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Perform mib server cache gc\&.
+.LP
+Manually performs a mib server cache gc\&. This can be done regardless of the value of the \fIautogc\fR\& option\&. The \fINumElementsGCed\fR\& value indicates how many elements where actually removed from the cache\&.
+.RE
+.LP
+.B
+enable_mibs_cache_autogc() -> void()
+.br
+.B
+enable_mibs_cache_autogc(Agent) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+.RE
+.RS
+.LP
+Enable automatic gc of the mib server cache\&.
+.RE
+.LP
+.B
+disable_mibs_cache_autogc() -> void()
+.br
+.B
+disable_mibs_cache_autogc(Agent) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+.RE
+.RS
+.LP
+Disable automatic gc of the mib server cache\&.
+.RE
+.LP
+.B
+update_mibs_cache_age(NewAge) -> ok | {error, Reason}
+.br
+.B
+update_mibs_cache_age(Agent, NewAge) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+NewAge = integer() > 0
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Change the mib server cache \fIage\fR\& property\&.
+.RE
+.LP
+.B
+update_mibs_cache_gclimit(NewGcLimit) -> ok | {error, Reason}
+.br
+.B
+update_mibs_cache_gclimit(Agent, NewGCLimit) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+NewGcLimit = integer() > 0 | infinity
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Change the mib server cache \fIgclimit\fR\& property\&.
+.RE
+.LP
+.B
+register_notification_filter(Id, Mod, Data) -> ok | {error, Reason}
+.br
+.B
+register_notification_filter(Agent, Id, Mod, Data) -> ok | {error, Reason}
+.br
+.B
+register_notification_filter(Id, Mod, Data, Where) -> ok | {error, Reason}
+.br
+.B
+register_notification_filter(Agent, Id, Mod, Data, Where) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+Id = filter_id()
+.br
+filter_id() = term()
+.br
+Mod = atom()
+.br
+Data = term()
+.br
+Where = filter_position()
+.br
+Reason = term()
+.br
+filter_position() = first | last | {insert_before, filter_id()} | {insert_after, filter_id()}
+.br
+.RE
+.RS
+.LP
+Registers a notification filter\&.
+.LP
+\fIMod\fR\& is a module implementing the \fIsnmpa_notification_filter\fR\& behaviour\&.
+.LP
+\fIData\fR\& will be passed on to the filter when calling the functions of the behaviour\&.
+.RE
+.LP
+.B
+unregister_notification_filter(Id) -> ok | {error, Reason}
+.br
+.B
+unregister_notification_filter(Agent, Id) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+Id = filter_id()
+.br
+filter_id() = term()
+.br
+.RE
+.RS
+.LP
+Unregister a notification filter\&.
+.RE
+.LP
+.B
+which_notification_filter() -> Filters
+.br
+.B
+which_notification_filter(Agent) -> Filters
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+Filters = [filter_id()]
+.br
+filter_id() = term()
+.br
+.RE
+.RS
+.LP
+List all notification filters in an agent\&.
+.RE
+.LP
+.B
+set_request_limit(NewLimit) -> {ok, OldLimit} | {error, Reason}
+.br
+.B
+set_request_limit(Agent, NewLimit) -> {ok, OldLimit} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+NewLimit = OldLimit = infinity | integer() >= 0
+.br
+Agent = pid() | atom()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Changes the request limit\&.
+.LP
+Note that this has no effect on the application configuration as defined by configuration files, so a node restart will revert the config to whatever is in those files\&.
+.LP
+This function is primarily useful in load regulation scenarios\&.
+.RE
+.LP
+.B
+register_subagent(Agent, SubTreeOid, Subagent) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+SubTreeOid = oid()
+.br
+SubAgent = pid()
+.br
+.RE
+.RS
+.LP
+Registers a sub-agent under a sub-tree of another agent\&.
+.LP
+It is easy to make mistakes when registering sub-agents and this activity should be done carefully\&. For example, a strange behaviour would result from the following configuration:
+.LP
+.nf
+
+snmp_agent:register_subagent(MAPid,[1,2,3,4],SA1),
+snmp_agent:register_subagent(SA1,[1,2,3], SA2).
+        
+.fi
+.LP
+\fISA2\fR\& will not get requests starting with object identifier \fI[1,2,3]\fR\& since \fISA1\fR\& does not\&.
+.RE
+.LP
+.B
+unregister_subagent(Agent, SubagentOidOrPid) -> ok | {ok, SubAgentPid} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+SubTreeOidorPid = oid() | pid()
+.br
+.RE
+.RS
+.LP
+Unregister a sub-agent\&. If the second argument is a pid, then that sub-agent will be unregistered from all trees in \fIAgent\fR\&\&.
+.RE
+.LP
+.B
+send_notification2(Agent, Notification, SendOpts) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+Notification = atom()
+.br
+SendOpts = [send_option()]
+.br
+send_option() = {receiver, receiver()} | {name, notify_name()} | {context, context_name()} | {varbinds, varbinds()} | {local_engine_id, string()} | {extra, extra_info()}
+.br
+receiver() = no_receiver | {tag(), tag_receiver()} | notification_delivery_info()
+.br
+tag() = term(()
+.br
+tag_receiver() = pid() | registered_name() | {Mod, Func, Args}
+.br
+registered_name() = atom()
+.br
+Mod = atom()
+.br
+Func = atom()
+.br
+Args = list()
+.br
+notify_name() = string()
+.br
+context_name() = string()
+.br
+varbinds() = [varbind()]
+.br
+varbind() = {variable(), value()} | {column(), row_index(), value()} | {oid(), value()}
+.br
+variable() = atom()
+.br
+value() = term()
+.br
+column() = atom()
+.br
+row_index() = [int()]
+.br
+extra_info() = term()
+.br
+.RE
+.RS
+.LP
+Send the notification \fINotification\fR\& to the management targets defined for notify-name (\fIname\fR\&) in the \fIsnmpNotifyTable\fR\& in SNMP-NOTIFICATION-MIB from the specified \fIcontext\fR\&\&.
+.LP
+If no \fIname\fR\& is specified (or if it is \fI""\fR\&), the notification is sent to all management targets\&.
+.LP
+If no \fIcontext\fR\& is specified, the default context, \fI""\fR\&, is used\&.
+.LP
+The send option \fIreceiver\fR\& specifies where information about delivery of Inform-Requests should be sent\&. The agent sends Inform-Requests and waits for acknowledgments from the management targets\&. The \fIreceiver\fR\& can have three values:
+.RS 2
+.TP 2
+*
+\fIno_receiver\fR\& - No information is delivered\&.
+.LP
+.TP 2
+*
+\fInotification_delivery_info()\fR\& - The information is delivered via a function call according to this data\&. See the \fBDATA TYPES\fR\& section above for details\&.
+.LP
+.TP 2
+*
+\fI{tag(), tag_receiver()}\fR\& - The information is delivered either via messages or via a function call according to the value of \fItag_receiver()\fR\&\&.
+.RS 2
+.LP
+Delivery is done differently depending on the value of \fItag_receiver()\fR\&:
+.RE
+.RS 2
+.TP 2
+*
+\fIpid() | registered_name()\fR\& - The info will be delivered in the following messages:
+.RS 2
+.TP 2
+*
+\fI{snmp_targets, tag(), Addresses}\fR\&
+.RS 2
+.LP
+This informs the user which target addresses the notification was sent to\&.
+.RE
+.LP
+.TP 2
+*
+\fI{snmp_notification, tag(), {got_response, Address}}\fR\&
+.RS 2
+.LP
+This informs the user that this target address acknowledged the notification\&.
+.RE
+.LP
+.TP 2
+*
+\fI{snmp_notification, tag(), {no_response, Address}}\fR\&
+.RS 2
+.LP
+This informs the user that this target address did not acknowledge the notification\&.
+.RE
+.LP
+.RE
+
+.RS 2
+.LP
+The notification is sent as an Inform-Request to each target address in \fIAddresses\fR\& and if there are no targets for which an Inform-Request is sent, \fIAddresses\fR\& is the empty list \fI[]\fR\&\&.
+.RE
+.RS 2
+.LP
+The \fItag_receiver()\fR\& will first be sent the \fIsnmp_targets\fR\& message, and then for each address in \fIAddresses\fR\& list, one of the two \fIsnmp_notification\fR\& messages\&.
+.RE
+.LP
+.TP 2
+*
+\fI{Mod, Func, Args}\fR\& - The info will be delivered via the function call:
+.RS 2
+.LP
+\fIMod:Func([Msg | Args])\fR\&
+.RE
+.RS 2
+.LP
+where \fIMsg\fR\& has the same content and purpose as the messages descrived above\&.
+.RE
+.LP
+.RE
+
+.LP
+.RE
+
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+The \fIextra\fR\& info is not normally interpreted by the agent, instead it is passed through to the \fBnet-if\fR\& process\&. It is up to the implementor of that process to make use of this data\&.
+.LP
+The version of net-if provided by this application makes no use of this data, with one exception: Any tuple containing the atom \fIsnmpa_default_notification_extra_info\fR\& may be used by the agent and is therefor \fIreserved\fR\&\&.
+.LP
+See the net-if incomming messages for sending a \fB trap\fR\& and \fB notification\fR\& for more info\&.
+
+.RE
+.LP
+.B
+send_notification(Agent, Notification, Receiver)
+.br
+.B
+send_notification(Agent, Notification, Receiver, Varbinds)
+.br
+.B
+send_notification(Agent, Notification, Receiver, NotifyName, Varbinds)
+.br
+.B
+send_notification(Agent, Notification, Receiver, NotifyName, ContextName, Varbinds) -> void() 
+.br
+.B
+send_notification(Agent, Notification, Receiver, NotifyName, ContextName, Varbinds, LocalEngineID) -> void() 
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+Notification = atom()
+.br
+Receiver = no_receiver | {Tag, Recv} | notification_delivery_info()
+.br
+Tag = term()
+.br
+Recv = receiver()
+.br
+receiver() = pid() | atom() | {Mod, Func, Args}
+.br
+Mod = atom()
+.br
+Func = atom()
+.br
+Args = list()
+.br
+NotifyName = string()
+.br
+ContextName = string()
+.br
+Varbinds = varbinds()
+.br
+varbinds() = [varbind()]
+.br
+varbind() = {Variable, Value} | {Column, RowIndex, Value} | {OID, Value}
+.br
+Variable = atom()
+.br
+Column = atom()
+.br
+OID = oid()
+.br
+Value = term()
+.br
+RowIndex = [int()]
+.br
+LocalEngineID = string()
+.br
+.RE
+.RS
+.LP
+Sends the notification \fINotification\fR\& to the management targets defined for \fINotifyName\fR\& in the \fIsnmpNotifyTable\fR\& in SNMP-NOTIFICATION-MIB from the specified context\&.
+.LP
+If no \fINotifyName\fR\& is specified (or if it is \fI""\fR\&), the notification is sent to all management targets (\fIAddresses\fR\& below)\&.
+.LP
+If no \fIContextName\fR\& is specified, the default \fI""\fR\& context is used\&.
+.LP
+The parameter \fIReceiver\fR\& specifies where information about delivery of Inform-Requests should be sent\&. The agent sends Inform-Requests and waits for acknowledgments from the managers\&. \fIReceiver\fR\& can have three values:
+.RS 2
+.TP 2
+*
+\fIno_receiver\fR\& - No information is delivered\&.
+.LP
+.TP 2
+*
+\fInotification_delivery_info()\fR\& - The information is delivered via a function call according to this data\&. See the \fBDATA TYPES\fR\& section above for details\&.
+.LP
+.TP 2
+*
+\fI{Tag, Recv}\fR\& - The information is delivered either via messages or via a function call according to the value of \fIRecv\fR\&\&.
+.LP
+.RE
+
+.LP
+If \fIReceiver\fR\& has the value \fI{Tag, Recv}\fR\&, the delivery is done according to \fIRecv\fR\&:
+.RS 2
+.TP 2
+*
+\fIpid() | atom()\fR\& - The info will be delivered in the following messages:
+.RS 2
+.TP 2
+*
+\fI{snmp_targets, Tag, Addresses}\fR\&
+.RS 2
+.LP
+This inform the user which target addresses the notification was sent to\&.
+.RE
+.LP
+.TP 2
+*
+\fI{snmp_notification, Tag, {got_response, Address}}\fR\&
+.RS 2
+.LP
+This informs the user that this target address acknowledged the notification\&.
+.RE
+.LP
+.TP 2
+*
+\fI{snmp_notification, Tag, {no_response, Address}}\fR\&
+.RS 2
+.LP
+This informs the user that this target address did not acknowledge notification\&.
+.RE
+.LP
+.RE
+
+.RS 2
+.LP
+The notification is sent as an Inform-Request to each target address in \fIAddresses\fR\& and if there are no targets for which an Inform-Request is sent, \fIAddresses\fR\& is the empty list \fI[]\fR\&\&.
+.RE
+.RS 2
+.LP
+The \fIreceiver\fR\& will first be sent the \fIsnmp_targets\fR\& message, and then for each address in \fIAddresses\fR\& list, one of the two \fIsnmp_notification\fR\& messages\&.
+.RE
+.LP
+.TP 2
+*
+\fI{Mod, Func, Args}\fR\& - The info will be delivered via the function call:
+.RS 2
+.LP
+\fIMod:Func([Msg | Args])\fR\&
+.RE
+.RS 2
+.LP
+where \fIMsg\fR\& has the same content and purpose as the messages descrived above\&.
+.RE
+.LP
+.RE
+
+.LP
+\fIAddress\fR\& is a management target address and \fIAddresses\fR\& is a list of management target addresses\&. They are defined as followes:
+.LP
+.nf
+
+        Addresses  = [address()]
+        Address    = address()
+        address()  = v1_address() | v3_address()
+        v1_address() = {TDomain, TAddress}
+        v3_address() = {{TDomain, TAddress}, V3MsgData}
+        TDomain    = tdoamin()
+        TAddress   = taddress()
+        tdomain()  = The oid of snmpUDPDomain 
+                     This is the only supported transport domain.
+        taddress() = [A1, A2, A3, A4, P1, P3]
+                     The 4 first bytes makes up the IP-address and the last 2,
+                     the UDP-port number.
+        V3MsgData  = v3_msg_data()
+        v3_msg_data() = term()
+
+.fi
+.LP
+If \fIReceiver\fR\& is a \fInotification_delivery_info()\fR\& record, then the information about the notification delivery will be delivered to the \fIreceiver\fR\& via the callback functions defined by the \fBsnmpa_notification_delivery_info_receiver\fR\& behaviour according to the content of the \fInotification_delivery_info()\fR\& record\&.
+.LP
+The optional argument \fIVarbinds\fR\& defines values for the objects in the notification\&. If no value is given for an object, the \fIAgent\fR\& performs a get-operation to retrieve the value\&.
+.LP
+\fIVarbinds\fR\& is a list of \fIVarbind\fR\&, where each \fIVarbind\fR\& is one of:
+.RS 2
+.TP 2
+*
+\fI{Variable, Value}\fR\&, where \fIVariable\fR\& is the symbolic name of a scalar variable referred to in the notification specification\&. 
+.LP
+.TP 2
+*
+\fI{Column, RowIndex, Value}\fR\&, where \fIColumn\fR\& is the symbolic name of a column variable\&. \fIRowIndex\fR\& is a list of indices for the specified element\&. If this is the case, the OBJECT IDENTIFIER sent in the notification is the \fIRowIndex\fR\& appended to the OBJECT IDENTIFIER for the table column\&. This is the OBJECT IDENTIFIER which specifies the element\&. 
+.LP
+.TP 2
+*
+\fI{OID, Value}\fR\&, where \fIOID\fR\& is the OBJECT IDENTIFIER for an instance of an object, scalar variable, or column variable\&. 
+.LP
+.RE
+
+.LP
+For example, to specify that \fIsysLocation\fR\& should have the value \fI"upstairs"\fR\& in the notification, we could use one of:
+.RS 2
+.TP 2
+*
+\fI{sysLocation, "upstairs"}\fR\& or
+.LP
+.TP 2
+*
+\fI{[1,3,6,1,2,1,1,6,0], "upstairs"}\fR\& or
+.LP
+.TP 2
+*
+\fI{?sysLocation_instance, "upstairs"}\fR\& (provided that the generated \fI\&.hrl\fR\& file is included)
+.LP
+.RE
+
+.LP
+If a variable in the notification is a table element, the \fIRowIndex\fR\& for the element must be given in the \fIVarbinds\fR\& list\&. In this case, the OBJECT IDENTIFIER sent in the notification is the OBJECT IDENTIFIER that identifies this element\&. This OBJECT IDENTIFIER could be used in a get operation later\&.
+.LP
+This function is asynchronous, and does not return any information\&. If an error occurs, \fIuser_err/2\fR\& of the error report module is called and the notification is discarded\&.
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+Note that the use of the LocalEngineID argument is only intended for special cases, if the agent is to "emulate" multiple EngineIDs! By default, the agent uses the value of \fISnmpEngineID\fR\& (see SNMP-FRAMEWORK-MIB)\&.
+
+.LP
+\fIExtraInfo\fR\& is not normally used in any way by the agent\&. It is intended to be passed along to the net-if process, which is a component that a user can implement themself\&. The users own net-if may then make use of ExtraInfo\&. The net-if provided with this application does not process ExtraInfo\&.
+.LP
+There is one exception\&. \fIAny\fR\& tuple containing the atom \fIsnmpa_default_notification_extra_info\fR\& will, in this context, be considered belonging to this application, and may be processed by the agent\&.
+.RE
+.LP
+.B
+discovery(TargetName, Notification) -> {ok, ManagerEngineID} | {error, Reason}
+.br
+.B
+discovery(TargetName, Notification, Varbinds) -> {ok, ManagerEngineID} | {error, Reason}
+.br
+.B
+discovery(TargetName, Notification, DiscoHandler) -> {ok, ManagerEngineID} | {error, Reason}
+.br
+.B
+discovery(TargetName, Notification, ContextName, Varbinds) -> {ok, ManagerEngineID} | {error, Reason}
+.br
+.B
+discovery(TargetName, Notification, Varbinds, DiscoHandler) -> {ok, ManagerEngineID} | {error, Reason}
+.br
+.B
+discovery(TargetName, Notification, ContextName, Varbinds, DiscoHandler) -> {ok, ManagerEngineID} | {error, Reason}
+.br
+.B
+discovery(TargetName, Notification, ContextName, Varbinds, DiscoHandler, ExtraInfo) -> {ok, ManagerEngineID} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+TargetName = string()
+.br
+Notification = atom()
+.br
+ContextName = string() (defaults to "")
+.br
+Varbinds = varbinds()
+.br
+varbinds() = [varbind()]
+.br
+DiscoHandler = snmpa_discovery_handler()
+.br
+ExtraInfo = term()
+.br
+snmpa_discovery_handler() = Module implementing the snmpa_discovery_handler behaviour
+.br
+ManagerEngineID = string()
+.br
+varbind() = {Variable, Value} | {Column, RowIndex, Value} | {OID, Value}
+.br
+Variable = atom()
+.br
+Column = atom()
+.br
+OID = oid()
+.br
+Value = term()
+.br
+RowIndex = [int()]
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Initiate the discovery process with the manager identified by \fITargetName\fR\& using the notification \fINotification\fR\&\&.
+.LP
+This function is synchronous, which means that it will return when the discovery process has been completed or failed\&.
+.LP
+The \fIDiscoHandler\fR\& module is used during the discovery process\&. See \fBdiscovery handler\fR\& for more info\&.
+.LP
+The \fIExtraInfo\fR\& argument is passed on to the callback functions of the \fIDiscoHandler\fR\&\&.
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+If we are not at security-level \fInoAuthNoPriv\fR\&, this could be complicated, since the agent will then continue with stage 2, before which the usm-related updates must be done\&.
+
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+The default discovery handler will require additional actions by the caller and the discovery will not work if the security-level is higher then \fInoAuthNoPriv\fR\&\&.
+
+.RE
+.LP
+.B
+convert_config(OldConfig) -> AgentConfig
+.br
+.RS
+.TP 3
+Types:
+
+OldConfig = list()
+.br
+AgentConfig = list()
+.br
+.RE
+.RS
+.LP
+This off-line utility function can be used to convert the old snmp application config (pre snmp-4\&.0) to the new snmp agent config (as of snmp-4\&.0)\&.
+.LP
+For information about the old config (\fIOldConfig\fR\&) see the OTP R9C documentation\&.
+.LP
+For information about the current agent config (\fIAgentConfig\fR\&), see either the \fBSNMP application\fR\& part of the reference manual or the \fBConfiguring the application\fR\& chapter of the SNMP user\&'s guide\&.
+.RE
+.LP
+.B
+restart_worker() -> void()
+.br
+.B
+restart_worker(Agent) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+.RE
+.RS
+.LP
+Restart the worker process of a multi-threaded agent\&.
+.LP
+This is a utility function, that can be useful when e\&.g\&. debugging instrumentation functions\&.
+.RE
+.LP
+.B
+restart_set_worker() -> void()
+.br
+.B
+restart_set_worker(Agent) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+.RE
+.RS
+.LP
+Restart the set worker process of a multi-threaded agent\&.
+.LP
+This is a utility function, that can be useful when e\&.g\&. debugging instrumentation functions\&.
+.RE
+.LP
+.B
+print_mib_info() -> void()
+.br
+.RS
+.LP
+Prints the content of all the (snmp) tables and variables for all mibs handled by the snmp agent\&.
+.RE
+.LP
+.B
+print_mib_tables() -> void()
+.br
+.RS
+.LP
+Prints the content of all the (snmp) tables for all mibs handled by the snmp agent\&.
+.RE
+.LP
+.B
+print_mib_variables() -> void()
+.br
+.RS
+.LP
+Prints the content of all the (snmp) variables for all mibs handled by the snmp agent\&.
+.RE
+.LP
+.B
+verbosity(Ref,Verbosity) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+Ref = pid() | sub_agents | master_agent | net_if | mib_server | symbolic_store | note_store | local_db
+.br
+Verbosity = verbosity() | {subagents, verbosity()}
+.br
+verbosity() = silence | info | log | debug | trace
+.br
+.RE
+.RS
+.LP
+Sets verbosity for the designated process\&. For the lowest verbosity \fIsilence\fR\&, nothing is printed\&. The higher the verbosity, the more is printed\&.
+.RE
+.SH "SEE ALSO"
+
+.LP
+calendar(3), erlc(1)

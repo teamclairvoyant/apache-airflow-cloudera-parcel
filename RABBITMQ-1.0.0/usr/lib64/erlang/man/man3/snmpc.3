@@ -1,0 +1,226 @@
+.TH snmpc 3 "snmp 4.21.1" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+snmpc \- Interface Functions to the SNMP toolkit MIB compiler
+.SH DESCRIPTION
+.LP
+The module \fIsnmpc\fR\& contains interface functions to the SNMP toolkit MIB compiler\&.
+.SH EXPORTS
+.LP
+.B
+compile(File)
+.br
+.B
+compile(File, Options) -> {ok, BinFileName} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+File = string()
+.br
+Options = [opt()]
+.br
+opt() = db() | relaxed_row_name_assign_check() | deprecated() | description() | reference() | group_check() | i() | il() | imports() | module() | module_identity() | module_compliance() | agent_capabilities() | outdir() | no_defs() | verbosity() | warnings() | warnings_as_errors()
+.br
+db() = {db, volatile|persistent|mnesia}
+.br
+deprecated() = {deprecated, bool()}
+.br
+relaxed_row_name_assign_check() = relaxed_row_name_assign_check
+.br
+description() = description
+.br
+reference() = reference
+.br
+group_check() = {group_check, bool()}
+.br
+i() = {i, [dir()]}
+.br
+il() = {il, [dir()]}
+.br
+imports() = imports
+.br
+module() = {module, atom()}
+.br
+module_identity() = module_identity
+.br
+module_compliance() = module_compliance
+.br
+agent_capabilities() = agent_capabilities
+.br
+no_defs() = no_defs
+.br
+outdir() = {outdir, dir()}
+.br
+verbosity() = {verbosity, silence|warning|info|log|debug|trace}
+.br
+warnings() = {warnings, bool()}
+.br
+warnings_as_errors() = warnings_as_errors
+.br
+dir() = string()
+.br
+BinFileName = string()
+.br
+.RE
+.RS
+.LP
+Compiles the specified MIB file \fI<File>\&.mib\fR\&\&. The compiled file \fIBinFileName\fR\& is called \fI<File>\&.bin\fR\&\&.
+.RS 2
+.TP 2
+*
+The option \fIdb\fR\& specifies which database should be used for the default instrumentation\&.
+.RS 2
+.LP
+Default is \fIvolatile\fR\&\&.
+.RE
+.LP
+.TP 2
+*
+The option \fIdeprecated\fR\& specifies if a deprecated definition should be kept or not\&. If the option is false the MIB compiler will ignore all deprecated definitions\&.
+.RS 2
+.LP
+Default is \fItrue\fR\&\&.
+.RE
+.LP
+.TP 2
+*
+The option \fIrelaxed_row_name_assign_check\fR\&, if present, specifies that the row name assign check shall not be done strictly according to the SMI (which allows only the value 1)\&. With this option, all values greater than zero is allowed (>= 1)\&. This means that the error will be converted to a warning\&.
+.RS 2
+.LP
+By default it is not included, but if this option is present it will be\&.
+.RE
+.LP
+.TP 2
+*
+The option \fIdescription\fR\& specifies if the text of the DESCRIPTION field will be included or not\&.
+.RS 2
+.LP
+By default it is not included, but if this option is present it will be\&.
+.RE
+.LP
+.TP 2
+*
+The option \fIreference\fR\& specifies if the text of the REFERENCE field, when found in a table definition, will be included or not\&.
+.RS 2
+.LP
+By default it is not included, but if this option is present it will be\&. The reference text will be placed in the allocList field of the mib-entry record (#me{}) for the table\&.
+.RE
+.LP
+.TP 2
+*
+The option \fIgroup_check\fR\& specifies whether the mib compiler should check the OBJECT-GROUP macro and the NOTIFICATION-GROUP macro for correctness or not\&.
+.RS 2
+.LP
+Default is \fItrue\fR\&\&.
+.RE
+.LP
+.TP 2
+*
+The option \fIi\fR\& specifies the path to search for imported (compiled) MIB files\&. The directories should be strings with a trailing directory delimiter\&.
+.RS 2
+.LP
+Default is \fI["\&./"]\fR\&\&.
+.RE
+.LP
+.TP 2
+*
+The option \fIil\fR\& (include_lib) also specifies a list of directories to search for imported MIBs\&. It assumes that the first element in the directory name corresponds to an OTP application\&. The compiler will find the current installed version\&. For example, the value ["snmp/mibs/"] will be replaced by ["snmp-3\&.1\&.1/mibs/"] (or what the current version may be in the system)\&. The current directory and the \fI<snmp-home>/priv/mibs/\fR\& are always listed last in the include path\&.
+.LP
+.TP 2
+*
+The option \fIimports\fR\&, if present, specifies that the IMPORT statement of the MIB shall be included in the compiled mib\&.
+.LP
+.TP 2
+*
+The option \fImodule\fR\&, if present, specifies the name of a module which implements all instrumentation functions for the MIB\&.
+.RS 2
+.LP
+The name of all instrumentation functions must be the same as the corresponding managed object it implements\&.
+.RE
+.LP
+.TP 2
+*
+The option \fImodule_identity\fR\&, if present, specifies that the info part of the MODULE-IDENTITY statement of the MIB shall be included in the compiled mib\&.
+.LP
+.TP 2
+*
+The option \fImodule_compliance\fR\&, if present, specifies that the MODULE-COMPLIANCE statement of the MIB shall be included (with a mib-entry record) in the compiled mib\&. The mib-entry record of the module-compliance will contain \fIreference\fR\& and \fImodule\fR\& part(s) this info in the \fIassocList\fR\& field)\&.
+.LP
+.TP 2
+*
+The option \fIagent_capabilities\fR\&, if present, specifies that the AGENT-CAPABILITIES statement of the MIB shall be included (with a mib-entry record) in the compiled mib\&. The mib-entry record of the agent-capabilitie will contain \fIreference\fR\& and \fImodules\fR\& part(s) this info in the \fIassocList\fR\& field)\&.
+.LP
+.TP 2
+*
+The option \fIno_defs\fR\&, if present, specifies that if a managed object does not have an instrumentation function, the default instrumentation function should NOT be used, instead this is reported as an error, and the compilation aborts\&.
+.LP
+.TP 2
+*
+The option \fIverbosity\fR\& specifies the verbosity of the SNMP mib compiler\&. I\&.e\&. if warning, info, log, debug and trace messages shall be shown\&.
+.RS 2
+.LP
+Default is \fIsilence\fR\&\&.
+.RE
+.RS 2
+.LP
+Note that if the option \fIwarnings\fR\& is \fItrue\fR\& and the option \fIverbosity\fR\& is \fIsilence\fR\&, warning messages will still be shown\&.
+.RE
+.LP
+.TP 2
+*
+The option \fIwarnings\fR\& specifies whether warning messages should be shown\&.
+.RS 2
+.LP
+Default is \fItrue\fR\&\&.
+.RE
+.LP
+.TP 2
+*
+The option \fIwarnings_as_errors\fR\&, if present, specifies whether warnings should be treated as errors\&.
+.LP
+.RE
+
+.LP
+The MIB compiler understands both SMIv1 and SMIv2 MIBs\&. It uses the \fIMODULE-IDENTITY\fR\& statement to determine if the MIB is version 1 or 2\&.
+.LP
+The MIB compiler can be invoked from the OS command line by using the command \fIerlc\fR\&\&. \fIerlc\fR\& recognizes the extension \fI\&.mib\fR\&, and invokes the SNMP MIB compiler for files with that extension\&. The options \fIdb\fR\&, \fIgroup_check\fR\&, \fIdeprecated\fR\&, \fIdescription\fR\&, \fIverbosity\fR\&, \fIimports\fR\& and \fImodule_identity\fR\& have to be specified to \fIerlc\fR\& using the syntax \fI+term\fR\&\&. See \fIerlc(1)\fR\& for details\&.
+.RE
+.LP
+.B
+is_consistent(Mibs) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Mibs = [MibName]
+.br
+MibName = string()
+.br
+.RE
+.RS
+.LP
+Checks for multiple usage of object identifiers and traps between MIBs\&.
+.RE
+.LP
+.B
+mib_to_hrl(MibName) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+MibName = string()
+.br
+.RE
+.RS
+.LP
+Generates a \fI\&.hrl\fR\& file with definitions of Erlang constants for the objects in the MIB\&. The \fI\&.hrl\fR\& file is called \fI<MibName>\&.hrl\fR\&\&. The MIB must be compiled, and present in the current directory\&.
+.LP
+The \fImib_to_hrl\fR\& generator can be invoked from the OS command line by using the command \fIerlc\fR\&\&. \fIerlc\fR\& recognizes the extension \fI\&.bin\fR\&, and invokes this function for files with that extension\&.
+.RE
+.SH "SEE ALSO"
+
+.LP
+erlc(1)

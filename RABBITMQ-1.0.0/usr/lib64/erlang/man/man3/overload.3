@@ -1,0 +1,101 @@
+.TH overload 3 "sasl 2.1.10" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+overload \- An Overload Regulation Process
+.SH DESCRIPTION
+.LP
+\fIoverload\fR\& is a process which indirectly regulates CPU usage in the system\&. The idea is that a main application calls the \fIrequest/0\fR\& function before starting a major job, and proceeds with the job if the return value is positive; otherwise the job must not be started\&.
+.LP
+\fIoverload\fR\& is part of the \fIsasl\fR\& application, and all configuration parameters are defined there\&.
+.LP
+A set of two intensities are maintained, the \fItotal intensity\fR\& and the \fIaccept intensity\fR\&\&. For that purpose there are two configuration parameters, the \fIMaxIntensity\fR\& and the \fIWeight\fR\& value (both are measured in 1/second)\&.
+.LP
+Then total and accept intensities are calculated as follows\&. Assume that the time of the current call to \fIrequest/0\fR\& is \fIT(n)\fR\&, and that the time of the previous call was \fIT(n-1)\fR\&\&.
+.RS 2
+.TP 2
+*
+The current \fItotal intensity\fR\&, denoted \fITI(n)\fR\&, is calculated according to the formula,
+.RS 2
+.LP
+\fITI(n) = exp(-Weight*(T(n) - T(n-1)) * TI(n-1) + Weight\fR\&,
+.RE
+.RS 2
+.LP
+where \fITI(n-1)\fR\& is the previous total intensity\&.
+.RE
+.LP
+.TP 2
+*
+The current \fIaccept intensity\fR\&, denoted \fIAI(n)\fR\&, is determined by the formula,
+.RS 2
+.LP
+\fIAI(n) = exp(-Weight*(T(n) - T(n-1)) * AI(n-1) + Weight\fR\&,
+.RE
+.RS 2
+.LP
+where \fIAI(n-1)\fR\& is the previous accept intensity, provided that the value of \fIexp(-Weight*(T(n) - T(n-1)) * AI(n-1)\fR\& is less than \fIMaxIntensity\fR\&; otherwise the value is
+.RE
+.RS 2
+.LP
+\fIAI(n) = exp(-Weight*(T(n) - T(n-1)) * AI(n-1)\fR\&\&.
+.RE
+.LP
+.RE
+
+.LP
+The value of configuration parameter \fIWeight\fR\& controls the speed with which the calculations of intensities will react to changes in the underlying input intensity\&. The inverted value of \fIWeight\fR\&,
+.LP
+\fIT = 1/Weight\fR\&
+.LP
+can be thought of as the "time constant" of the intensity calculation formulas\&. For example, if \fIWeight = 0\&.1\fR\&, then a change in the underlying input intensity will be reflected in the \fItotal\fR\& and \fIaccept intensities\fR\& within approximately 10 seconds\&.
+.LP
+The overload process defines one alarm, which it sets using \fIalarm_handler:set_alarm(Alarm)\fR\&\&. \fIAlarm\fR\& is defined as:
+.RS 2
+.TP 2
+.B
+\fI{overload, []}\fR\&:
+This alarm is set when the current accept intensity exceeds \fIMaxIntensity\fR\&\&.
+.RE
+.LP
+A new overload alarm is not set until the current accept intensity has fallen below \fIMaxIntensity\fR\&\&. To prevent the overload process from generating a lot of set/reset alarms, the alarm is not reset until the current accept intensity has fallen below 75% of \fIMaxIntensity\fR\&, and it is not until then that the alarm can be set again\&.
+.SH EXPORTS
+.LP
+.B
+request() -> accept | reject
+.br
+.RS
+.LP
+Returns \fIaccept\fR\& or \fIreject\fR\& depending on the current value of the accept intensity\&.
+.LP
+The application calling this function should be processed with the job in question if the return value is \fIaccept\fR\&; otherwise it should not continue with that job\&.
+.RE
+.LP
+.B
+get_overload_info() -> OverloadInfo
+.br
+.RS
+.TP 3
+Types:
+
+OverloadInfo = [{total_intensity, TotalIntensity}, {accept_intensity, AcceptIntensity}, {max_intensity, MaxIntensity}, {weight, Weight}, {total_requests, TotalRequests}, {accepted_requests, AcceptedRequests}].
+.br
+TotalIntensity = float() > 0
+.br
+AcceptIntensity = float() > 0
+.br
+MaxIntensity = float() > 0
+.br
+Weight = float() > 0
+.br
+TotalRequests = integer()
+.br
+AcceptedRequests = integer()
+.br
+.RE
+.RS
+.LP
+Returns the current total and accept intensities, the configuration parameters, and absolute counts of the total number of requests, and accepted number of requests (since the overload process was started)\&.
+.RE
+.SH "SEE ALSO"
+
+.LP
+alarm_handler(3), sasl(3)

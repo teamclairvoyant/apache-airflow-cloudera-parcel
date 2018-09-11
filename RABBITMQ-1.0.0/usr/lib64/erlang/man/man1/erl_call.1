@@ -1,0 +1,218 @@
+.TH erl_call 1 "erl_interface 3.7.5" "Ericsson AB" "User Commands"
+.SH NAME
+erl_call \- Call/Start a Distributed Erlang Node
+.SH DESCRIPTION
+.LP
+\fIerl_call\fR\& makes it possible to start and/or communicate with a distributed Erlang node\&. It is built upon the \fIerl_interface\fR\& library as an example application\&. Its purpose is to use an Unix shell script to interact with a distributed Erlang node\&. It performs all communication with the Erlang \fIrex server\fR\&, using the standard Erlang RPC facility\&. It does not require any special software to be run at the Erlang target node\&.
+.LP
+The main use is to either start a distributed Erlang node or to make an ordinary function call\&. However, it is also possible to pipe an Erlang module to \fIerl_call\fR\& and have it compiled, or to pipe a sequence of Erlang expressions to be evaluated (similar to the Erlang shell)\&.
+.LP
+Options, which cause \fIstdin\fR\& to be read, can be used with advantage as scripts from within (Unix) shell scripts\&. Another nice use of \fIerl_call\fR\& could be from (http) CGI-bin scripts\&.
+.SH EXPORTS
+.LP
+.B
+erl_call <options>
+.br
+.RS
+.LP
+Each option flag is described below with its name, type and meaning\&.
+.RS 2
+.TP 2
+.B
+-a [Mod [Fun [Args]]]]:
+(\fIoptional\fR\&): Applies the specified function and returns the result\&. \fIMod\fR\& must be specified, however \fIstart\fR\& and \fI[]\fR\& are assumed for unspecified \fIFun\fR\& and \fIArgs\fR\&, respectively\&. \fIArgs\fR\& should be in the same format as for \fIerlang:apply/3\fR\&\&. Note that this flag takes exactly one argument, so quoting may be necessary in order to group \fIMod\fR\&, \fIFun\fR\& and \fIArgs\fR\&, in a manner dependent on the behavior of your command shell\&.
+.RS 2
+.LP
+
+.RE
+.TP 2
+.B
+-c Cookie:
+(\fIoptional\fR\&): Use this option to specify a certain cookie\&. If no cookie is specified, the \fI~/\&.erlang\&.cookie\fR\& file is read and its content are used as cookie\&. The Erlang node we want to communicate with must have the same cookie\&.
+.TP 2
+.B
+-d:
+(\fIoptional\fR\&): Debug mode\&. This causes all IO to be output to the file \fI~/\&.erl_call\&.out\&.Nodename\fR\&, where \fINodename\fR\& is the node name of the Erlang node in question\&.
+.RS 2
+.LP
+
+.RE
+.TP 2
+.B
+-e:
+(\fIoptional\fR\&): Reads a sequence of Erlang expressions, separated by \&'\fI,\fR\&\&' and ended with a \&'\fI\&.\fR\&\&', from \fIstdin\fR\& until EOF (Control-D)\&. Evaluates the expressions and returns the result from the last expression\&. Returns \fI{ok,Result}\fR\& if successful\&.
+.RS 2
+.LP
+
+.RE
+.TP 2
+.B
+-h HiddenName:
+(\fIoptional\fR\&): Specifies the name of the hidden node that \fIerl_call\fR\& represents\&.
+.RS 2
+.LP
+
+.RE
+.TP 2
+.B
+-m:
+(\fIoptional\fR\&): Reads an Erlang module from \fIstdin\fR\& and compiles it\&.
+.RS 2
+.LP
+
+.RE
+.TP 2
+.B
+-n Node:
+(one of \fI-n, -name, -sname\fR\& is required): Has the same meaning as \fI-name\fR\& and can still be used for backwards compatibility reasons\&.
+.RS 2
+.LP
+
+.RE
+.TP 2
+.B
+-name Node:
+(one of \fI-n, -name, -sname\fR\& is required): \fINode\fR\& is the name of the node to be started or communicated with\&. It is assumed that \fINode\fR\& is started with \fIerl -name\fR\&, which means that fully qualified long node names are used\&. If the \fI-s\fR\& option is given, an Erlang node will (if necessary) be started with \fIerl -name\fR\&\&.
+.RS 2
+.LP
+
+.RE
+.TP 2
+.B
+-q:
+(\fIoptional\fR\&): Halts the Erlang node specified with the -n switch\&. This switch overrides the -s switch\&.
+.RS 2
+.LP
+
+.RE
+.TP 2
+.B
+-r:
+(\fIoptional\fR\&): Generates a random name of the hidden node that \fIerl_call\fR\& represents\&.
+.RS 2
+.LP
+
+.RE
+.TP 2
+.B
+-s:
+(\fIoptional\fR\&): Starts a distributed Erlang node if necessary\&. This means that in a sequence of calls, where the \&'\fI-s\fR\&\&' and \&'\fI-n Node\fR\&\&' are constant, only the first call will start the Erlang node\&. This makes the rest of the communication very fast\&. This flag is currently only available on the Unix platform\&.
+.RS 2
+.LP
+
+.RE
+.TP 2
+.B
+-sname Node:
+(one of \fI-n, -name, -sname\fR\& is required): \fINode\fR\& is the name of the node to be started or communicated with\&. It is assumed that \fINode\fR\& is started with \fIerl -sname\fR\& which means that short node names are used\&. If \fI-s\fR\& option is given, an Erlang node will be started (if necessary) with \fIerl -sname\fR\&\&.
+.RS 2
+.LP
+
+.RE
+.TP 2
+.B
+-v:
+(\fIoptional\fR\&): Prints a lot of \fIverbose\fR\& information\&. This is only useful for the developer and maintainer of \fIerl_call\fR\&\&.
+.RS 2
+.LP
+
+.RE
+.TP 2
+.B
+-x ErlScript:
+(\fIoptional\fR\&): Specifies another name of the Erlang start-up script to be used\&. If not specified, the standard \fIerl\fR\& start-up script is used\&.
+.RE
+.RE
+.SH "EXAMPLES"
+
+.LP
+Starts an Erlang node and calls \fIerlang:time/0\fR\&\&.
+.LP
+.nf
+
+erl_call -s -a 'erlang time' -n madonna
+{18,27,34}
+    
+.fi
+.LP
+Terminates an Erlang node by calling \fIerlang:halt/0\fR\&\&.
+.LP
+.nf
+
+erl_call -s -a 'erlang halt' -n madonna
+    
+.fi
+.LP
+An apply with several arguments\&.
+.LP
+.nf
+
+erl_call -s -a 'lists map [{math,sqrt},[1,4,9,16,25]]' -n madonna
+    
+.fi
+.LP
+Evaluates a couple of expressions\&. \fBThe input ends with EOF (Control-D)\fR\& \&.
+.LP
+.nf
+
+erl_call -s -e -n madonna
+statistics(runtime),
+X=1,
+Y=2,
+{_,T}=statistics(runtime),
+{X+Y,T}.
+^D
+{ok,{3,0}}
+    
+.fi
+.LP
+Compiles a module and runs it\&. \fBAgain, the input ends with EOF (Control-D)\fR\& \&. (In the example shown, the output has been formatted afterwards)\&.
+.LP
+.nf
+
+erl_call -s -m -a lolita -n madonna
+-module(lolita).
+-compile(export_all).
+start() ->
+        P = processes(),
+        F = fun(X) -> {X,process_info(X,registered_name)} end,
+        lists:map(F,[],P).
+^D
+[{<madonna@chivas.du.etx.ericsson.se,0,0>,
+                  {registered_name,init}},
+ {<madonna@chivas.du.etx.ericsson.se,2,0>,
+                  {registered_name,erl_prim_loader}},
+ {<madonna@chivas.du.etx.ericsson.se,4,0>,
+                  {registered_name,error_logger}},
+ {<madonna@chivas.du.etx.ericsson.se,5,0>,
+                  {registered_name,application_controller}},
+ {<madonna@chivas.du.etx.ericsson.se,6,0>,
+                  {registered_name,kernel}},
+ {<madonna@chivas.du.etx.ericsson.se,7,0>,
+                  []},
+ {<madonna@chivas.du.etx.ericsson.se,8,0>,
+                  {registered_name,kernel_sup}},
+ {<madonna@chivas.du.etx.ericsson.se,9,0>,
+                  {registered_name,net_sup}},
+ {<madonna@chivas.du.etx.ericsson.se,10,0>,
+                  {registered_name,net_kernel}},
+ {<madonna@chivas.du.etx.ericsson.se,11,0>,
+                  []},
+ {<madonna@chivas.du.etx.ericsson.se,12,0>,
+                  {registered_name,global_name_server}},
+ {<madonna@chivas.du.etx.ericsson.se,13,0>,
+                  {registered_name,auth}},
+ {<madonna@chivas.du.etx.ericsson.se,14,0>,
+                  {registered_name,rex}},
+ {<madonna@chivas.du.etx.ericsson.se,15,0>,
+                  []},
+ {<madonna@chivas.du.etx.ericsson.se,16,0>,
+                  {registered_name,file_server}},
+ {<madonna@chivas.du.etx.ericsson.se,17,0>,
+                  {registered_name,code_server}},
+ {<madonna@chivas.du.etx.ericsson.se,20,0>,
+                  {registered_name,user}},
+ {<madonna@chivas.du.etx.ericsson.se,38,0>,
+                  []}]
+    
+.fi

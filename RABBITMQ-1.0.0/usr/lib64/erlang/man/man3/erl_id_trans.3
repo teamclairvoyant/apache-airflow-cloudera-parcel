@@ -1,0 +1,40 @@
+.TH erl_id_trans 3 "stdlib 1.17.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+erl_id_trans \- An Identity Parse Transform
+.SH DESCRIPTION
+.LP
+This module performs an identity parse transformation of Erlang code\&. It is included as an example for users who may wish to write their own parse transformers\&. If the option \fI{parse_transform,Module}\fR\& is passed to the compiler, a user written function \fIparse_transform/2\fR\& is called by the compiler before the code is checked for errors\&.
+.SH EXPORTS
+.LP
+.B
+parse_transform(Forms, Options) -> Forms
+.br
+.RS
+.TP 3
+Types:
+
+Forms = [
+.br
+Options = [
+.br
+.RE
+.RS
+.LP
+Performs an identity transformation on Erlang forms, as an example\&.
+.RE
+.SH "PARSE TRANSFORMATIONS"
+
+.LP
+Parse transformations are used if a programmer wants to use Erlang syntax, but with different semantics\&. The original Erlang code is then transformed into other Erlang code\&.
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+Programmers are strongly advised not to engage in parse transformations and no support is offered for problems encountered\&.
+
+.SH "SEE ALSO"
+
+.LP
+\fBerl_parse(3)\fR\&, \fBcompile(3)\fR\&\&.

@@ -1,0 +1,283 @@
+.TH wxGridBagSizer 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxGridBagSizer \- See external documentation: wxGridBagSizer.
+.SH DESCRIPTION
+.LP
+See external documentation: wxGridBagSizer\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxFlexGridSizer\fR\& 
+.br
+\fBwxGridSizer\fR\& 
+.br
+\fBwxSizer\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxGridBagSizer()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+new() -> wxGridBagSizer()
+.br
+.RS
+.LP
+Equivalent to \fBnew([])\fR\&\&.
+.RE
+.LP
+.B
+new(Options::[Option]) -> wxGridBagSizer()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {vgap, integer()} | {hgap, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+add(This::wxGridBagSizer(), Item::wxSizerItem() (see module wxSizerItem) | wxGBSizerItem() (see module wxGBSizerItem)) -> wxSizerItem() (see module wxSizerItem)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+add(This::wxGridBagSizer(), X::integer() | term(), X::integer() | term()) -> wxSizerItem() (see module wxSizerItem)
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI add(This::wxGridBagSizer(), Width::integer(), Height::integer()) -> add(This,Width,Height, []) \fR\&
+.LP
+\fI add(This::wxGridBagSizer(), Window::wxWindow:wxWindow() | wxSizer:wxSizer(), Pos::{R::integer(),C::integer()}) -> add(This,Window,Pos, []) \fR\&
+.LP
+\fI add(This::wxGridBagSizer(), Window::wxWindow:wxWindow() | wxSizer:wxSizer(), [Option]) -> wxSizerItem:wxSizerItem() \fR\& 
+.br
+Option = {proportion, integer()} | {flag, integer()} | {border, integer()} | {userData, wx:wx()}
+.RE
+.LP
+.B
+add(This::wxGridBagSizer(), X::integer() | term(), X::integer() | term(), X::term()) -> wxSizerItem() (see module wxSizerItem)
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI add(This::wxGridBagSizer(), Width::integer(), Height::integer(), Pos::{R::integer(),C::integer()}) -> add(This,Width,Height,Pos, []) \fR\&
+.LP
+\fI add(This::wxGridBagSizer(), Width::integer(), Height::integer(), [Option]) -> wxSizerItem:wxSizerItem() \fR\& 
+.br
+Option = {proportion, integer()} | {flag, integer()} | {border, integer()} | {userData, wx:wx()}
+.LP
+\fI add(This::wxGridBagSizer(), Window::wxWindow:wxWindow() | wxSizer:wxSizer(), Pos::{R::integer(),C::integer()}, [Option]) -> wxSizerItem:wxSizerItem() \fR\& 
+.br
+Option = {span, {RS::integer(),CS::integer()}} | {flag, integer()} | {border, integer()} | {userData, wx:wx()}
+.RE
+.LP
+.B
+add(This::wxGridBagSizer(), Width::integer(), Height::integer(), Pos::{R::integer(), C::integer()}, Options::[Option]) -> wxSizerItem() (see module wxSizerItem)
+.br
+.RS
+.TP 3
+Types:
+
+Option = {span, {RS::integer(), CS::integer()}} | {flag, integer()} | {border, integer()} | {userData, wx() (see module wx)}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+calcMin(This::wxGridBagSizer()) -> {W::integer(), H::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+checkForIntersection(This::wxGridBagSizer(), Item::wxGBSizerItem() (see module wxGBSizerItem)) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBcheckForIntersection(This, Item, [])\fR\&\&.
+.RE
+.LP
+.B
+checkForIntersection(This::wxGridBagSizer(), X::term(), X::term()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI checkForIntersection(This::wxGridBagSizer(), Pos::{R::integer(),C::integer()}, Span::{RS::integer(),CS::integer()}) -> checkForIntersection(This,Pos,Span, []) \fR\&
+.LP
+\fI checkForIntersection(This::wxGridBagSizer(), Item::wxGBSizerItem:wxGBSizerItem(), [Option]) -> bool() \fR\& 
+.br
+Option = {excludeItem, wxGBSizerItem:wxGBSizerItem()}
+.RE
+.LP
+.B
+checkForIntersection(This::wxGridBagSizer(), Pos::{R::integer(), C::integer()}, Span::{RS::integer(), CS::integer()}, Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {excludeItem, wxGBSizerItem() (see module wxGBSizerItem)}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+findItem(This::wxGridBagSizer(), Window::wxWindow() (see module wxWindow) | wxSizer() (see module wxSizer)) -> wxGBSizerItem() (see module wxGBSizerItem)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+findItemAtPoint(This::wxGridBagSizer(), Pt::{X::integer(), Y::integer()}) -> wxGBSizerItem() (see module wxGBSizerItem)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+findItemAtPosition(This::wxGridBagSizer(), Pos::{R::integer(), C::integer()}) -> wxGBSizerItem() (see module wxGBSizerItem)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+findItemWithData(This::wxGridBagSizer(), UserData::wx() (see module wx)) -> wxGBSizerItem() (see module wxGBSizerItem)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getCellSize(This::wxGridBagSizer(), Row::integer(), Col::integer()) -> {W::integer(), H::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getEmptyCellSize(This::wxGridBagSizer()) -> {W::integer(), H::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getItemPosition(This::wxGridBagSizer(), X::integer() | term()) -> {R::integer(), C::integer()}
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI getItemPosition(This::wxGridBagSizer(), Index::integer()) -> {R::integer(),C::integer()} \fR\& 
+.LP
+\fI getItemPosition(This::wxGridBagSizer(), Window::wxWindow:wxWindow() | wxSizer:wxSizer()) -> {R::integer(),C::integer()} \fR\& 
+.RE
+.LP
+.B
+getItemSpan(This::wxGridBagSizer(), X::integer() | term()) -> {RS::integer(), CS::integer()}
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI getItemSpan(This::wxGridBagSizer(), Index::integer()) -> {RS::integer(),CS::integer()} \fR\& 
+.LP
+\fI getItemSpan(This::wxGridBagSizer(), Window::wxWindow:wxWindow() | wxSizer:wxSizer()) -> {RS::integer(),CS::integer()} \fR\& 
+.RE
+.LP
+.B
+setEmptyCellSize(This::wxGridBagSizer(), Sz::{W::integer(), H::integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setItemPosition(This::wxGridBagSizer(), X::integer() | term(), Pos::{R::integer(), C::integer()}) -> bool()
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI setItemPosition(This::wxGridBagSizer(), Index::integer(), Pos::{R::integer(),C::integer()}) -> bool() \fR\& 
+.LP
+\fI setItemPosition(This::wxGridBagSizer(), Window::wxWindow:wxWindow() | wxSizer:wxSizer(), Pos::{R::integer(),C::integer()}) -> bool() \fR\& 
+.RE
+.LP
+.B
+setItemSpan(This::wxGridBagSizer(), X::integer() | term(), Span::{RS::integer(), CS::integer()}) -> bool()
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI setItemSpan(This::wxGridBagSizer(), Index::integer(), Span::{RS::integer(),CS::integer()}) -> bool() \fR\& 
+.LP
+\fI setItemSpan(This::wxGridBagSizer(), Window::wxWindow:wxWindow() | wxSizer:wxSizer(), Span::{RS::integer(),CS::integer()}) -> bool() \fR\& 
+.RE
+.LP
+.B
+destroy(This::wxGridBagSizer()) -> ok
+.br
+.RS
+.LP
+Destroys this object, do not use object again
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

@@ -1,0 +1,990 @@
+.TH snmpa_conf 3 "snmp 4.21.1" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+snmpa_conf \- Utility functions for handling the agent config files.
+.SH DESCRIPTION
+.LP
+The module \fIsnmpa_conf\fR\& contains various utility functions to used for manipulating (write/append/read) the config files of the SNMP agent\&.
+.SH "DATA TYPES"
+
+.LP
+.nf
+
+transportDomain() = transportDomainUdpIpv4 | transportDomainUdpIpv6
+transportAddressIPv4() = [integer()], length 4
+transportAddressIPv6() = [integer()], length 8
+transportAddressMask() = [integer()], length 0 (default), 6 (IPv4) or 10 (IPv6)
+    
+.fi
+.SH EXPORTS
+.LP
+.B
+agent_entry(Tag, Val) -> agent_entry()
+.br
+.RS
+.TP 3
+Types:
+
+Tag = intAgentIpAddress | intAgentUDPPort | intAgentMaxPacketSize | snmpEngineMaxMessageSize | snmpEngineID
+.br
+Val = term()
+.br
+agent_entry() = term()
+.br
+.RE
+.RS
+.LP
+Create an entry for the agent config file, \fIagent\&.conf\fR\&\&.
+.LP
+The type of \fIVal\fR\& depends on the value of \fITag\fR\&, see \fBAgent Information\fR\& for more info\&.
+.RE
+.LP
+.B
+write_agent_config(Dir, Conf) -> ok
+.br
+.B
+write_agent_config(Dir, Hdr, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Hdr = string()
+.br
+Conf = [agent_entry()]
+.br
+.RE
+.RS
+.LP
+Write the agent config to the agent config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+\fIHdr\fR\& is an optional file header (note that this text is written to the file as is)\&.
+.LP
+See \fBAgent Information\fR\& for more info\&.
+.RE
+.LP
+.B
+append_agent_config(Dir, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [agent_entry()]
+.br
+.RE
+.RS
+.LP
+Append the config to the current agent config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBAgent Information\fR\& for more info\&.
+.RE
+.LP
+.B
+read_agent_config(Dir) -> Conf
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [agent_entry()]
+.br
+.RE
+.RS
+.LP
+Read the current agent config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBAgent Information\fR\& for more info\&.
+.RE
+.LP
+.B
+standard_entry(Tag, Val) -> standard_entry()
+.br
+.RS
+.TP 3
+Types:
+
+Tag = sysDescr | sysObjectID | sysContact | sysName | sysLocation | sysServices | snmpEnableAuthenTraps
+.br
+Val = term()
+.br
+standard_entry() = term()
+.br
+.RE
+.RS
+.LP
+Create an entry for the agent standard config file, \fIstandard\&.conf\fR\&\&.
+.LP
+The type of \fIVal\fR\& depends on the value of \fITag\fR\&, see \fBSystem Information\fR\& for more info\&.
+.RE
+.LP
+.B
+write_standard_config(Dir, Conf) -> ok
+.br
+.B
+write_standard_config(Dir, Hdr, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Hdr = string()
+.br
+Conf = [standard_entry()]
+.br
+.RE
+.RS
+.LP
+Write the agent standard config to the agent standard config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+\fIHdr\fR\& is an optional file header (note that this text is written to the file as is)\&.
+.LP
+See \fBSystem Information\fR\& for more info\&.
+.RE
+.LP
+.B
+append_standard_config(Dir, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [standard_entry()]
+.br
+.RE
+.RS
+.LP
+Append the standard config to the current agent standard config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBSystem Information\fR\& for more info\&.
+.RE
+.LP
+.B
+read_standard_config(Dir) -> Conf
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [standard_entry()]
+.br
+.RE
+.RS
+.LP
+Read the current agent standard config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBSystem Information\fR\& for more info\&.
+.RE
+.LP
+.B
+context_entry(Context) -> context_entry()
+.br
+.RS
+.TP 3
+Types:
+
+Context = string()
+.br
+context_entry() = term()
+.br
+.RE
+.RS
+.LP
+Create an entry for the agent context config file, \fIcontext\&.conf\fR\&\&.
+.LP
+See \fBContexts\fR\& for more info\&.
+.RE
+.LP
+.B
+write_context_config(Dir, Conf) -> ok
+.br
+.B
+write_context_config(Dir, Hdr, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Hdr = string()
+.br
+Conf = [context_entry()]
+.br
+.RE
+.RS
+.LP
+Write the agent context config to the agent context config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+\fIHdr\fR\& is an optional file header (note that this text is written to the file as is)\&.
+.LP
+See \fBContexts\fR\& for more info\&.
+.RE
+.LP
+.B
+append_context_config(Dir, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [context_entry()]
+.br
+.RE
+.RS
+.LP
+Append the context config to the current agent context config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBContexts\fR\& for more info\&.
+.RE
+.LP
+.B
+read_context_config(Dir) -> Conf
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [context_entry()]
+.br
+.RE
+.RS
+.LP
+Read the current agent context config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBContexts\fR\& for more info\&.
+.RE
+.LP
+.B
+community_entry(CommunityIndex) -> community_entry()
+.br
+.B
+community_entry(CommunityIndex, CommunityName, SecName, ContextName, TransportTag) -> community_entry()
+.br
+.RS
+.TP 3
+Types:
+
+CommunityIndex = string()
+.br
+CommunityName = string()
+.br
+SecName = string()
+.br
+CtxName = string()
+.br
+TransportTag = string()
+.br
+community_entry() = term()
+.br
+.RE
+.RS
+.LP
+Create an entry for the agent community config file, \fIcommunity\&.conf\fR\&\&.
+.LP
+\fICommunityIndex\fR\& must be a \fInon-empty\fR\& string\&.
+.LP
+\fIcommunity_entry("public")\fR\& translates to the following call: \fIcommunity_entry(CommunityIndex, CommunityIndex, "initial", "", "")\fR\&\&.
+.LP
+\fIcommunity_entry("all-rights")\fR\& translates to the following call: \fIcommunity_entry(CommunityIndex, CommunityIndex, CommunityIndex, "", "")\fR\&\&.
+.LP
+See \fBCommunity\fR\& for more info\&.
+.RE
+.LP
+.B
+write_community_config(Dir, Conf) -> ok
+.br
+.B
+write_community_config(Dir, Hdr, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Hdr = string()
+.br
+Conf = [community_entry()]
+.br
+.RE
+.RS
+.LP
+Write the agent community config to the agent community config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+\fIHdr\fR\& is an optional file header (note that this text is written to the file as is)\&.
+.LP
+See \fBCommunity\fR\& for more info\&.
+.RE
+.LP
+.B
+append_community_config(Dir, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [community_entry()]
+.br
+.RE
+.RS
+.LP
+Append the community config to the current agent community config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBCommunity\fR\& for more info\&.
+.RE
+.LP
+.B
+read_community_config(Dir) -> Conf
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [community_entry()]
+.br
+.RE
+.RS
+.LP
+Read the current agent community config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBCommunities\fR\& for more info\&.
+.RE
+.LP
+.B
+target_addr_entry(Name, Ip, TagList, ParamsName, EngineId) -> target_addr_entry()
+.br
+.B
+target_addr_entry(Name, Ip, TagList, ParamsName, EngineId, TMask) -> target_addr_entry()
+.br
+.B
+target_addr_entry(Name, Ip, Udp, TagList, ParamsName, EngineId, TMask, MaxMessageSize) -> target_addr_entry()
+.br
+.B
+target_addr_entry(Name, Ip, Udp, Timeout, RetryCount, TagList, ParamsName, EngineId, TMask, MaxMessageSize) -> target_addr_entry()
+.br
+.B
+target_addr_entry(Name, Domain, Ip, Udp, Timeout, RetryCount, TagList, ParamsName, EngineId, TMask, MaxMessageSize) -> target_addr_entry()
+.br
+.RS
+.TP 3
+Types:
+
+Name = string()
+.br
+Domain = transportDomain()
+.br
+Ip = transportAddressIPv4() | transportAddressIPv6() (depends on Domain)
+.br
+Udp = integer()
+.br
+Timeout = integer()
+.br
+RetryCount = integer()
+.br
+TagList = string()
+.br
+ParamsName = string()
+.br
+EngineId = string()
+.br
+TMask = transportAddressMask() (depends on Domain)
+.br
+MaxMessageSize = integer()
+.br
+target_addr_entry() = term()
+.br
+.RE
+.RS
+.LP
+Create an entry for the agent target_addr config file, \fItarget_addr\&.conf\fR\&\&.
+.LP
+\fIName\fR\& must be a \fInon-empty\fR\& string\&.
+.LP
+\fItarget_addr_entry/5\fR\& translates to the following call: \fItarget_addr_entry(Name, Ip, TagList, ParamsName, EngineId)\fR\&\&.
+.LP
+\fItarget_addr_entry/6\fR\& translates to the following call: \fItarget_addr_entry(Name, Ip, 162, TagList, ParamsName, EngineId, TMask, 2048)\fR\&\&.
+.LP
+\fItarget_addr_entry/8\fR\& translates to the following call: \fItarget_addr_entry(Name, Ip, Udp, 1500, 3, TagList, ParamsName, EngineId, TMask, MaxMessageSize)\fR\&\&.
+.LP
+See \fBTarget Address Definitions\fR\& for more info\&.
+.RE
+.LP
+.B
+write_target_addr_config(Dir, Conf) -> ok
+.br
+.B
+write_target_addr_config(Dir, Hdr, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Hdr = string()
+.br
+Conf = [target_addr_entry()]
+.br
+.RE
+.RS
+.LP
+Write the agent target_addr config to the agent target_addr config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+\fIHdr\fR\& is an optional file header (note that this text is written to the file as is)\&.
+.LP
+See \fBTarget Address Definitions\fR\& for more info\&.
+.RE
+.LP
+.B
+append_target_addr_config(Dir, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [target_addr_entry()]
+.br
+.RE
+.RS
+.LP
+Append the target_addr config to the current agent target_addr config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBTarget Address Definitions\fR\& for more info\&.
+.RE
+.LP
+.B
+read_target_addr_config(Dir) -> Conf
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [target_addr_entry()]
+.br
+.RE
+.RS
+.LP
+Read the current agent target_addr config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBTarget Address Definitions\fR\& for more info\&.
+.RE
+.LP
+.B
+target_params_entry(Name, Vsn) -> target_params_entry()
+.br
+.B
+target_params_entry(Name, Vsn, SecName, SecLevel) -> target_params_entry()
+.br
+.B
+target_params_entry(Name, MPModel, SecModel, SecName, SecLevel) -> target_params_entry()
+.br
+.RS
+.TP 3
+Types:
+
+Name = string()
+.br
+Vsn = v1 | v2 | v3
+.br
+MPModel = v1 | v2c | v3
+.br
+SecModel = v1 | v2c | usm
+.br
+SecName = string()
+.br
+SecLevel = noAuthNoPriv | authNoPriv | authPriv
+.br
+target_params_entry() = term()
+.br
+.RE
+.RS
+.LP
+Create an entry for the agent target_params config file, \fItarget_params\&.conf\fR\&\&.
+.LP
+\fIName\fR\& must be a \fInon-empty\fR\& string\&.
+.LP
+\fIVsn\fR\& translates into \fIMPModel\fR\& and \fISecModel\fR\& as follows:
+.LP
+.nf
+
+\\011  Vsn = v1 => MPModel = v1,  SecModel = v1
+\\011  Vsn = v2 => MPModel = v2c, SecModel = v2c
+\\011  Vsn = v3 => MPModel = v3,  SecModel = usm
+        
+.fi
+.LP
+\fItarget_params_entry/2\fR\& translates to the following call: \fItarget_params_entry(Name, Vsn, "initial", noAuthNoPriv)\fR\&\&.
+.LP
+\fItarget_params_entry/4\fR\& translates to the following call: \fItarget_params_entry(Name, MPModel, SecModel, SecName, SecLevel)\fR\& where \fIMPModel\fR\& and \fISecModel\fR\& is mapped from \fIVsn\fR\&, see above\&.
+.LP
+See \fBTarget Parameters Definitions\fR\& for more info\&.
+.RE
+.LP
+.B
+write_target_params_config(Dir, Conf) -> ok
+.br
+.B
+write_target_params_config(Dir, Hdr, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Hdr = string()
+.br
+Conf = [target_params_entry()]
+.br
+.RE
+.RS
+.LP
+Write the agent target_params config to the agent target_params config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+\fIHdr\fR\& is an optional file header (note that this text is written to the file as is)\&.
+.LP
+See \fBTarget Parameters Definitions\fR\& for more info\&.
+.RE
+.LP
+.B
+append_target_params_config(Dir, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [target_params_entry()]
+.br
+.RE
+.RS
+.LP
+Append the target_params config to the current agent target_params config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBTarget Parameters Definitions\fR\& for more info\&.
+.RE
+.LP
+.B
+read_target_params_config(Dir) -> Conf
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [target_params_entry()]
+.br
+.RE
+.RS
+.LP
+Read the current agent target_params config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBTarget Parameters Definitions\fR\& for more info\&.
+.RE
+.LP
+.B
+vacm_s2g_entry(SecModel, SecName, GroupName) -> vacm_s2g_entry()
+.br
+.B
+vacm_acc_entry(GroupName, Prefix, SecModel, SecLevel, Match, ReadView, WriteView, NotifyView) -> vacm_acc_entry()
+.br
+.B
+vacm_vtf_entry(ViewIndex, ViewSubtree) -> vacm_vtf_entry()
+.br
+.B
+vacm_vtf_entry(ViewIndex, ViewSubtree, ViewStatus, ViewMask) -> vacm_vtf_entry()
+.br
+.RS
+.TP 3
+Types:
+
+SecModel = v1 | v2c | usm
+.br
+SecName = string()
+.br
+GroupName = string()
+.br
+Prefix = string()
+.br
+SecLevel = noAuthNoPriv | authNoPriv | authPriv
+.br
+Match = prefix | exact
+.br
+ReadView = string()
+.br
+WriteView = string()
+.br
+NotifyView = string()
+.br
+ViewIndex = integer()
+.br
+ViewSubtree = [integer()]
+.br
+ViewStatus = included | excluded
+.br
+ViewMask = null | [zero_or_one()]
+.br
+zero_or_one() = 0 | 1
+.br
+vacm_s2g_entry() = term()
+.br
+vacm_acc_entry() = term()
+.br
+vacm_vtf_entry() = term()
+.br
+.RE
+.RS
+.LP
+Create an entry for the agent vacm config file, \fIvacm\&.conf\fR\&\&.
+.LP
+\fIvacm_vtf_entry/2\fR\& translates to the following call: \fIvacm_vtf_entry(ViewIndex, ViewSubtree, included, null)\fR\&\&.
+.LP
+See \fBMIB Views for VACM\fR\& for more info\&.
+.RE
+.LP
+.B
+write_vacm_config(Dir, Conf) -> ok
+.br
+.B
+write_vacm_config(Dir, Hdr, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Hdr = string()
+.br
+Conf = [vacm_entry()]
+.br
+vacm_entry() = vacm_sg2_entry() | vacm_acc_entry() | vacm_vtf_entry()
+.br
+.RE
+.RS
+.LP
+Write the agent vacm config to the agent vacm config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+\fIHdr\fR\& is an optional file header (note that this text is written to the file as is)\&.
+.LP
+See \fBMIB Views for VACM\fR\& for more info\&.
+.RE
+.LP
+.B
+append_vacm_config(Dir, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [vacm_entry()]
+.br
+.RE
+.RS
+.LP
+Append the vacm config to the current agent vacm config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBMIB Views for VACM\fR\& for more info\&.
+.RE
+.LP
+.B
+read_vacm_config(Dir) -> Conf
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [vacm_entry()]
+.br
+.RE
+.RS
+.LP
+Read the current agent vacm config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBMIB Views for VACM\fR\& for more info\&.
+.RE
+.LP
+.B
+usm_entry(EngineId) -> usm_entry()
+.br
+.B
+usm_entry(EngineID, UserName, SecName, Clone, AuthP, AuthKeyC, OwnAuthKeyC, PrivP, PrivKeyC, OwnPrivKeyC, Public, AuthKey, PrivKey) -> usm_entry()
+.br
+.RS
+.TP 3
+Types:
+
+EngineId = string()
+.br
+UserName = string()
+.br
+SecName = string()
+.br
+Clone = zeroDotZero | [integer()]
+.br
+AuthP = usmNoAuthProtocol | usmHMACMD5AuthProtocol, | usmHMACSHAAuthProtocol
+.br
+AuthKeyC = string()
+.br
+OwnAuthKeyC = string()
+.br
+PrivP = usmNoPrivProtocol | usmDESPrivProtocol | usmAesCfb128Protocol
+.br
+PrivKeyC = string()
+.br
+OwnPrivKeyC = string()
+.br
+Public = string()
+.br
+AuthKey = [integer()]
+.br
+PrivKey = [integer()]
+.br
+usm_entry() = term()
+.br
+.RE
+.RS
+.LP
+Create an entry for the agent vacm config file, \fIvacm\&.conf\fR\&\&.
+.LP
+\fIusm_entry/1\fR\& translates to the following call: \fIusm_entry("initial", "initial", zeroDotZero, usmNoAuthProtocol, "", "", usmNoPrivProtocol, "", "", "", "", "")\fR\&\&.
+.LP
+See \fBSecurity data for USM\fR\& for more info\&.
+.RE
+.LP
+.B
+write_usm_config(Dir, Conf) -> ok
+.br
+.B
+write_usm_config(Dir, Hdr, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Hdr = string()
+.br
+Conf = [usm_entry()]
+.br
+.RE
+.RS
+.LP
+Write the agent usm config to the agent usm config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+\fIHdr\fR\& is an optional file header (note that this text is written to the file as is)\&.
+.LP
+See \fBSecurity data for USM\fR\& for more info\&.
+.RE
+.LP
+.B
+append_usm_config(Dir, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [usm_entry()]
+.br
+.RE
+.RS
+.LP
+Append the usm config to the current agent vacm config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBSecurity data for USM\fR\& for more info\&.
+.RE
+.LP
+.B
+read_usm_config(Dir) -> Conf
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [usm_entry()]
+.br
+.RE
+.RS
+.LP
+Read the current agent usm config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBSecurity data for USM\fR\& for more info\&.
+.RE
+.LP
+.B
+notify_entry(Name, Tag, Type) -> notify_entry()
+.br
+.RS
+.TP 3
+Types:
+
+Name = string()
+.br
+Tag = string()
+.br
+Type = trap | inform
+.br
+community_entry() = term()
+.br
+.RE
+.RS
+.LP
+Create an entry for the agent notify config file, \fInotify\&.conf\fR\&\&.
+.LP
+\fIName\fR\& must be a \fInon-empty\fR\& string\&.
+.LP
+See \fBNotify Definitions\fR\& for more info\&.
+.RE
+.LP
+.B
+write_notify_config(Dir, Conf) -> ok
+.br
+.B
+write_notify_config(Dir, Hdr, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Hdr = string()
+.br
+Conf = [notify_entry()]
+.br
+.RE
+.RS
+.LP
+Write the agent notify config to the agent notify config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+\fIHdr\fR\& is an optional file header (note that this text is written to the file as is)\&.
+.LP
+See \fBNotify Definitions\fR\& for more info\&.
+.RE
+.LP
+.B
+append_notify_config(Dir, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [notify_entry()]
+.br
+.RE
+.RS
+.LP
+Append the notify config to the current agent notify config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBNotify Definitions\fR\& for more info\&.
+.RE
+.LP
+.B
+read_notify_config(Dir) -> Conf
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [community_entry()]
+.br
+.RE
+.RS
+.LP
+Read the current agent notify config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBNotify Definitions\fR\& for more info\&.
+.RE

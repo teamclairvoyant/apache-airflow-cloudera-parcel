@@ -1,0 +1,484 @@
+.TH timer 3 "stdlib 1.17.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+timer \- Timer Functions
+.SH DESCRIPTION
+.LP
+This module provides useful functions related to time\&. Unless otherwise stated, time is always measured in \fImilliseconds\fR\&\&. All timer functions return immediately, regardless of work carried out by another process\&.
+.LP
+Successful evaluations of the timer functions yield return values containing a timer reference, denoted \fITRef\fR\& below\&. By using \fIcancel/1\fR\&, the returned reference can be used to cancel any requested action\&. A \fITRef\fR\& is an Erlang term, the contents of which must not be altered\&.
+.LP
+The timeouts are not exact, but should be \fIat least\fR\& as long as requested\&.
+.SH DATA TYPES
+.nf
+
+\fBtime()\fR\& = integer() >= 0
+.br
+.fi
+.RS
+.LP
+Time in milliseconds\&.
+.RE
+.nf
+
+\fBtref()\fR\&
+.br
+.fi
+.RS
+.LP
+A timer reference\&.
+.RE
+.SH EXPORTS
+.LP
+.nf
+
+.B
+start() -> ok
+.br
+.fi
+.br
+.RS
+.LP
+Starts the timer server\&. Normally, the server does not need to be started explicitly\&. It is started dynamically if it is needed\&. This is useful during development, but in a target system the server should be started explicitly\&. Use configuration parameters for \fIkernel\fR\& for this\&.
+.RE
+.LP
+.nf
+
+.B
+apply_after(Time, Module, Function, Arguments) ->
+.B
+               {ok, TRef} | {error, Reason}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Time = \fBtime()\fR\&
+.br
+Module = module()
+.br
+Function = atom()
+.br
+Arguments = [term()]
+.br
+TRef = \fBtref()\fR\&
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Evaluates \fIapply(Module, Function, Arguments)\fR\& after \fITime\fR\& amount of time has elapsed\&. Returns \fI{ok, TRef}\fR\&, or \fI{error, Reason}\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+send_after(Time, Message) -> {ok, TRef} | {error, Reason}
+.br
+.fi
+.br
+.nf
+
+.B
+send_after(Time, Pid, Message) -> {ok, TRef} | {error, Reason}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Time = \fBtime()\fR\&
+.br
+Pid = pid() | (RegName :: atom())
+.br
+Message = term()
+.br
+TRef = \fBtref()\fR\&
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+
+.RS 2
+.TP 2
+.B
+\fIsend_after/3\fR\&:
+Evaluates \fIPid ! Message\fR\& after \fITime\fR\& amount of time has elapsed\&. (\fIPid\fR\& can also be an atom of a registered name\&.) Returns \fI{ok, TRef}\fR\&, or \fI{error, Reason}\fR\&\&.
+.TP 2
+.B
+\fIsend_after/2\fR\&:
+Same as \fIsend_after(Time, self(), Message)\fR\&\&.
+.RE 
+.RE
+.LP
+.nf
+
+.B
+kill_after(Time) -> {ok, TRef} | {error, Reason2}
+.br
+.fi
+.br
+.nf
+
+.B
+kill_after(Time, Pid) -> {ok, TRef} | {error, Reason2}
+.br
+.fi
+.br
+.nf
+
+.B
+exit_after(Time, Reason1) -> {ok, TRef} | {error, Reason2}
+.br
+.fi
+.br
+.nf
+
+.B
+exit_after(Time, Pid, Reason1) -> {ok, TRef} | {error, Reason2}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Time = \fBtime()\fR\&
+.br
+Pid = pid() | (RegName :: atom())
+.br
+TRef = \fBtref()\fR\&
+.br
+Reason1 = Reason2 = term()
+.br
+.RE
+.RS
+.LP
+
+.RS 2
+.TP 2
+.B
+\fIexit_after/3\fR\&:
+Send an exit signal with reason \fIReason1\fR\& to Pid \fIPid\fR\&\&. Returns \fI{ok, TRef}\fR\&, or \fI{error, Reason2}\fR\&\&.
+.TP 2
+.B
+\fIexit_after/2\fR\&:
+Same as \fIexit_after(Time, self(), Reason1)\fR\&\&.
+.TP 2
+.B
+\fIkill_after/2\fR\&:
+Same as \fIexit_after(Time, Pid, kill)\fR\&\&.
+.TP 2
+.B
+\fIkill_after/1\fR\&:
+Same as \fIexit_after(Time, self(), kill)\fR\&\&.
+.RE 
+.RE
+.LP
+.nf
+
+.B
+apply_interval(Time, Module, Function, Arguments) ->
+.B
+                  {ok, TRef} | {error, Reason}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Time = \fBtime()\fR\&
+.br
+Module = module()
+.br
+Function = atom()
+.br
+Arguments = [term()]
+.br
+TRef = \fBtref()\fR\&
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Evaluates \fIapply(Module, Function, Arguments)\fR\& repeatedly at intervals of \fITime\fR\&\&. Returns \fI{ok, TRef}\fR\&, or \fI{error, Reason}\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+send_interval(Time, Message) -> {ok, TRef} | {error, Reason}
+.br
+.fi
+.br
+.nf
+
+.B
+send_interval(Time, Pid, Message) -> {ok, TRef} | {error, Reason}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Time = \fBtime()\fR\&
+.br
+Pid = pid() | (RegName :: atom())
+.br
+Message = term()
+.br
+TRef = \fBtref()\fR\&
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+
+.RS 2
+.TP 2
+.B
+\fIsend_interval/3\fR\&:
+Evaluates \fIPid ! Message\fR\& repeatedly after \fITime\fR\& amount of time has elapsed\&. (\fIPid\fR\& can also be an atom of a registered name\&.) Returns \fI{ok, TRef}\fR\& or \fI{error, Reason}\fR\&\&.
+.TP 2
+.B
+\fIsend_interval/2\fR\&:
+Same as \fIsend_interval(Time, self(), Message)\fR\&\&.
+.RE 
+.RE
+.LP
+.nf
+
+.B
+cancel(TRef) -> {ok, cancel} | {error, Reason}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+TRef = \fBtref()\fR\&
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Cancels a previously requested timeout\&. \fITRef\fR\& is a unique timer reference returned by the timer function in question\&. Returns \fI{ok, cancel}\fR\&, or \fI{error, Reason}\fR\& when \fITRef\fR\& is not a timer reference\&.
+.RE
+.LP
+.nf
+
+.B
+sleep(Time) -> ok
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Time = timeout()
+.br
+.RE
+.RS
+.LP
+Suspends the process calling this function for \fITime\fR\& amount of milliseconds and then returns \fIok\fR\&, or suspend the process forever if \fITime\fR\& is the atom \fIinfinity\fR\&\&. Naturally, this function does \fInot\fR\& return immediately\&.
+.RE
+.LP
+.nf
+
+.B
+tc(Fun) -> {Time, Value}
+.br
+.fi
+.br
+.nf
+
+.B
+tc(Fun, Arguments) -> {Time, Value}
+.br
+.fi
+.br
+.nf
+
+.B
+tc(Module, Function, Arguments) -> {Time, Value}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Module = module()
+.br
+Function = atom()
+.br
+Arguments = [term()]
+.br
+Time = integer()
+.br
+In microseconds
+.br
+Value = term()
+.br
+.RE
+.RS
+.LP
+
+.RS 2
+.TP 2
+.B
+\fItc/3\fR\&:
+Evaluates \fIapply(Module, Function, Arguments)\fR\& and measures the elapsed real time as reported by \fIos:timestamp/0\fR\&\&. Returns \fI{Time, Value}\fR\&, where \fITime\fR\& is the elapsed real time in \fImicroseconds\fR\&, and \fIValue\fR\& is what is returned from the apply\&.
+.TP 2
+.B
+\fItc/2\fR\&:
+Evaluates \fIapply(Fun, Arguments)\fR\&\&. Otherwise works like \fItc/3\fR\&\&.
+.TP 2
+.B
+\fItc/1\fR\&:
+Evaluates \fIFun()\fR\&\&. Otherwise works like \fItc/2\fR\&\&.
+.RE 
+.RE
+.LP
+.nf
+
+.B
+now_diff(T2, T1) -> Tdiff
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+T1 = T2 = \fBerlang:timestamp()\fR\&
+.br
+Tdiff = integer()
+.br
+In microseconds
+.br
+.RE
+.RS
+.LP
+Calculates the time difference \fITdiff = T2 - T1\fR\& in \fImicroseconds\fR\&, where \fIT1\fR\& and \fIT2\fR\& probably are timestamp tuples returned from \fIerlang:now/0\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+seconds(Seconds) -> MilliSeconds
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Seconds = MilliSeconds = integer() >= 0
+.br
+.RE
+.RS
+.LP
+Returns the number of milliseconds in \fISeconds\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+minutes(Minutes) -> MilliSeconds
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Minutes = MilliSeconds = integer() >= 0
+.br
+.RE
+.RS
+.LP
+Return the number of milliseconds in \fIMinutes\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+hours(Hours) -> MilliSeconds
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Hours = MilliSeconds = integer() >= 0
+.br
+.RE
+.RS
+.LP
+Returns the number of milliseconds in \fIHours\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+hms(Hours, Minutes, Seconds) -> MilliSeconds
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Hours = Minutes = Seconds = MilliSeconds = integer() >= 0
+.br
+.RE
+.RS
+.LP
+Returns the number of milliseconds in \fIHours + Minutes + Seconds\fR\&\&.
+.RE
+.SH "EXAMPLES"
+
+.LP
+This example illustrates how to print out "Hello World!" in 5 seconds:
+.LP
+.nf
+
+      1> timer:apply_after(5000, io, format, ["~nHello World!~n", []])\&.
+      {ok,TRef}
+      Hello World!
+.fi
+.LP
+The following coding example illustrates a process which performs a certain action and if this action is not completed within a certain limit, then the process is killed\&.
+.LP
+.nf
+
+      Pid = spawn(mod, fun, [foo, bar]),
+      %% If pid is not finished in 10 seconds, kill him
+      {ok, R} = timer:kill_after(timer:seconds(10), Pid),
+      ...
+      %% We change our mind...
+      timer:cancel(R),
+      ...
+.fi
+.SH "WARNING"
+
+.LP
+A timer can always be removed by calling \fIcancel/1\fR\&\&.
+.LP
+An interval timer, i\&.e\&. a timer created by evaluating any of the functions \fIapply_interval/4\fR\&, \fIsend_interval/3\fR\&, and \fIsend_interval/2\fR\&, is linked to the process towards which the timer performs its task\&.
+.LP
+A one-shot timer, i\&.e\&. a timer created by evaluating any of the functions \fIapply_after/4\fR\&, \fIsend_after/3\fR\&, \fIsend_after/2\fR\&, \fIexit_after/3\fR\&, \fIexit_after/2\fR\&, \fIkill_after/2\fR\&, and \fIkill_after/1\fR\& is not linked to any process\&. Hence, such a timer is removed only when it reaches its timeout, or if it is explicitly removed by a call to \fIcancel/1\fR\&\&.

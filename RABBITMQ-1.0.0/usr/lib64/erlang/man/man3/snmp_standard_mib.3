@@ -1,0 +1,102 @@
+.TH snmp_standard_mib 3 "snmp 4.21.1" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+snmp_standard_mib \- Instrumentation Functions for STANDARD-MIB and SNMPv2-MIB
+.SH DESCRIPTION
+.LP
+The module \fIsnmp_standard_mib\fR\& implements the instrumentation functions for the STANDARD-MIB and SNMPv2-MIB, and functions for configuring the database\&.
+.LP
+The configuration files are described in the SNMP User\&'s Manual\&.
+.SH EXPORTS
+.LP
+.B
+configure(ConfDir) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+ConfDir = string()
+.br
+.RE
+.RS
+.LP
+This function is called from the supervisor at system start-up\&.
+.LP
+Inserts all data in the configuration files into the database and destroys all old rows with StorageType \fIvolatile\fR\&\&. The rows created from the configuration file will have StorageType \fInonVolatile\fR\&\&.
+.LP
+All \fIsnmp\fR\& counters are set to zero\&.
+.LP
+If an error is found in the configuration file, it is reported using the function \fIconfig_err/2\fR\& of the error report module, and the function fails with the reason \fIconfiguration_error\fR\&\&.
+.LP
+\fIConfDir\fR\& is a string which points to the directory where the configuration files are found\&.
+.LP
+The configuration file read is: \fIstandard\&.conf\fR\&\&.
+.RE
+.LP
+.B
+inc(Name) -> void()
+.br
+.B
+inc(Name, N) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+Name = atom()
+.br
+N = integer()
+.br
+.RE
+.RS
+.LP
+Increments a variable in the MIB with \fIN\fR\&, or one if \fIN\fR\& is not specified\&.
+.RE
+.LP
+.B
+reconfigure(ConfDir) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+ConfDir = string()
+.br
+.RE
+.RS
+.LP
+Inserts all data in the configuration files into the database and destroys all old data, including the rows with StorageType \fInonVolatile\fR\&\&. The rows created from the configuration file will have StorageType \fInonVolatile\fR\&\&.
+.LP
+Thus, the data in the SNMP-STANDARD-MIB and SNMPv2-MIB, after this function has been called, is from the configuration files\&.
+.LP
+All \fIsnmp\fR\& counters are set to zero\&.
+.LP
+If an error is found in the configuration file, it is reported using the function \fIconfig_err/2\fR\& of the error report module, and the function fails with the reason \fIconfiguration_error\fR\&\&.
+.LP
+\fIConfDir\fR\& is a string which points to the directory where the configuration files are found\&.
+.LP
+The configuration file read is: \fIstandard\&.conf\fR\&\&.
+.RE
+.LP
+.B
+reset() -> void()
+.br
+.RS
+.LP
+Resets all \fIsnmp\fR\& counters to 0\&.
+.RE
+.LP
+.B
+sys_up_time() -> Time
+.br
+.RS
+.TP 3
+Types:
+
+Time = int()
+.br
+.RE
+.RS
+.LP
+Gets the system up time in hundredth of a second\&.
+.RE

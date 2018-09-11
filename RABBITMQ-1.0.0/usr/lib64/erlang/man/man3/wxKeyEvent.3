@@ -1,0 +1,148 @@
+.TH wxKeyEvent 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxKeyEvent \- See external documentation: wxKeyEvent.
+.SH DESCRIPTION
+.LP
+See external documentation: wxKeyEvent\&.
+.RS 2
+.TP 2
+.B
+Use \fBwxEvtHandler:connect/3\fR\& with EventType::
+\fIchar\fR\&, \fIchar_hook\fR\&, \fIkey_down\fR\&, \fIkey_up\fR\&
+.RE
+.LP
+See also the message variant \fB#wxKey{\fR\&} event record type\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxEvent\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxKeyEvent()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+altDown(This::wxKeyEvent()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+cmdDown(This::wxKeyEvent()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+controlDown(This::wxKeyEvent()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getKeyCode(This::wxKeyEvent()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getModifiers(This::wxKeyEvent()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getPosition(This::wxKeyEvent()) -> {X::integer(), Y::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getRawKeyCode(This::wxKeyEvent()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getRawKeyFlags(This::wxKeyEvent()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getUnicodeKey(This::wxKeyEvent()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getX(This::wxKeyEvent()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getY(This::wxKeyEvent()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+hasModifiers(This::wxKeyEvent()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+metaDown(This::wxKeyEvent()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+shiftDown(This::wxKeyEvent()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

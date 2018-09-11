@@ -1,0 +1,207 @@
+.TH wxGridCellAttr 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxGridCellAttr \- See external documentation: wxGridCellAttr.
+.SH DESCRIPTION
+.LP
+See external documentation: wxGridCellAttr\&.
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxGridCellAttr()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+setTextColour(This::wxGridCellAttr(), ColText::colour() (see module wx)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setBackgroundColour(This::wxGridCellAttr(), ColBack::colour() (see module wx)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setFont(This::wxGridCellAttr(), Font::wxFont() (see module wxFont)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setAlignment(This::wxGridCellAttr(), HAlign::integer(), VAlign::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setReadOnly(This::wxGridCellAttr()) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBsetReadOnly(This, [])\fR\&\&.
+.RE
+.LP
+.B
+setReadOnly(This::wxGridCellAttr(), Options::[Option]) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Option = {isReadOnly, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setRenderer(This::wxGridCellAttr(), Renderer::wxGridCellRenderer() (see module wxGridCellRenderer)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setEditor(This::wxGridCellAttr(), Editor::wxGridCellEditor() (see module wxGridCellEditor)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+hasTextColour(This::wxGridCellAttr()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+hasBackgroundColour(This::wxGridCellAttr()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+hasFont(This::wxGridCellAttr()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+hasAlignment(This::wxGridCellAttr()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+hasRenderer(This::wxGridCellAttr()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+hasEditor(This::wxGridCellAttr()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getTextColour(This::wxGridCellAttr()) -> colour() (see module wx)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getBackgroundColour(This::wxGridCellAttr()) -> colour() (see module wx)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getFont(This::wxGridCellAttr()) -> wxFont() (see module wxFont)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getAlignment(This::wxGridCellAttr()) -> {HAlign::integer(), VAlign::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getRenderer(This::wxGridCellAttr(), Grid::wxGrid() (see module wxGrid), Row::integer(), Col::integer()) -> wxGridCellRenderer() (see module wxGridCellRenderer)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getEditor(This::wxGridCellAttr(), Grid::wxGrid() (see module wxGrid), Row::integer(), Col::integer()) -> wxGridCellEditor() (see module wxGridCellEditor)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isReadOnly(This::wxGridCellAttr()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setDefAttr(This::wxGridCellAttr(), DefAttr::wxGridCellAttr()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

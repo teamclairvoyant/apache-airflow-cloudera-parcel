@@ -1,0 +1,89 @@
+.TH megaco_transport 3 "megaco 3.15.1.1" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+megaco_transport \- Megaco transport behaviour.
+.SH DESCRIPTION
+.LP
+The following functions should be exported from a \fImegaco_transport\fR\& callback module:
+.RS 2
+.TP 2
+*
+\fBsend_message/2\fR\& [\fImandatory\fR\&]
+.LP
+.TP 2
+*
+\fBsend_message/3\fR\& [\fIoptional\fR\&]
+.LP
+.TP 2
+*
+\fBresend_message/2\fR\& [\fIoptional\fR\&]
+.LP
+.TP 2
+*
+
+.LP
+.RE
+
+.SH EXPORTS
+.LP
+.B
+Module:send_message(Handle, Msg) -> ok | {cancel, Reason} | Error
+.br
+.B
+Module:send_message(Handle, Msg, Resend) -> ok | {cancel, Reason} | Error
+.br
+.RS
+.TP 3
+Types:
+
+Handle = term()
+.br
+Msg = binary() | iolist()
+.br
+Resend = boolean()
+.br
+Reason = term()
+.br
+Error = term()
+.br
+.RE
+.RS
+.LP
+Send a megaco message\&.
+.LP
+If the function returns \fI{cancel, Reason}\fR\&, this means the transport module decided not to send the message\&. This is \fInot\fR\& an error\&. No error messages will be issued and no error counters incremented\&. What actions this will result in depends on what kind of message was sent\&.
+.LP
+In the case of requests, megaco will cancel the message in much the same way as if \fImegaco:cancel\fR\& had been called (after a successfull send)\&. The information will be propagated back to the user differently depending on how the request(s) where issued: For requests issued using \fBmegaco:call\fR\&, the info will be delivered in the return value\&. For requests issued using \fImegaco:cast\fR\& the info will be delivered via a call to the callback function \fBhandle_trans_reply\fR\&\&.
+.LP
+In the case of reply, megaco will cancel the reply and information of this will be returned to the user via a call to the callback function \fBhandle_trans_ack\fR\&\&.
+.LP
+The function \fIsend_message/3\fR\& will only be called if the \fBresend_indication\fR\& config option has been set to the value \fIflag\fR\&\&. The third argument, \fIResend\fR\& then indicates if the message send is a resend or not\&.
+.RE
+.LP
+.B
+Module:resend_message(Handle, Msg) -> ok | {cancel, Reason} | Error
+.br
+.RS
+.TP 3
+Types:
+
+Handle = term()
+.br
+Msg = binary() | iolist()
+.br
+Reason = term()
+.br
+Error = term()
+.br
+.RE
+.RS
+.LP
+Re-send a megaco message\&.
+.LP
+Note that this function will only be called if the user has set the \fBresend_indication\fR\& config option to \fItrue\fR\&\fIand\fR\& it is in fact a message resend\&. If not \fIboth\fR\& of these condition\&'s are meet, \fIsend_message\fR\& will be called\&.
+.LP
+If the function returns \fI{cancel, Reason}\fR\&, this means the transport module decided not to send the message\&. This is \fInot\fR\& an error\&. No error messages will be issued and no error counters incremented\&. What actions this will result in depends on what kind of message was sent\&.
+.LP
+In the case of requests, megaco will cancel the message in much the same way as if \fImegaco:cancel\fR\& had been called (after a successfull send)\&. The information will be propagated back to the user differently depending on how the request(s) where issued: For requests issued using \fBmegaco:call\fR\&, the info will be delivered in the return value\&. For requests issued using \fImegaco:cast\fR\& the info will be delivered via a call to the callback function \fBhandle_trans_reply\fR\&\&.
+.LP
+In the case of reply, megaco will cancel the reply and information of this will be returned to the user via a call to the callback function \fBhandle_trans_ack\fR\&\&.
+.RE

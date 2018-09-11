@@ -1,0 +1,97 @@
+.TH snmpa_supervisor 3 "snmp 4.21.1" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+snmpa_supervisor \- A supervisor for the SNMP agent Processes
+.SH DESCRIPTION
+.LP
+This is the top supervisor for the agent part of the SNMP application\&. There is always one supervisor at each node with an SNMP agent (master agent or sub-agent)\&.
+.SH EXPORTS
+.LP
+.B
+start_sub_sup(Opts) -> {ok, pid()} | {error, {already_started, pid()}} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Opts = [opt()]
+.br
+opt() = {db_dir, string()} | ...
+.br
+.RE
+.RS
+.LP
+Starts a supervisor for the SNMP agent system without a master agent\&. The supervisor starts all involved SNMP processes, but no agent processes\&. Sub-agents should be started by calling \fIstart_sub_agent/3\fR\&\&.
+.LP
+\fIdb_dir\fR\& is mandatory\&.
+.LP
+See \fBconfiguration parameters\fR\& for a description of the options\&.
+.RE
+.LP
+.B
+start_master_sup(Opts) -> {ok, pid()} | {error, {already_started, pid()}} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Opts = [opt()]
+.br
+opt() = {db_dir, string()} | {config, ConfOpts()} | ...
+.br
+ConfOpts = [conf_opts()]
+.br
+conf_opts() = {dir, string()} | ...
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Starts a supervisor for the SNMP agent system\&. The supervisor starts all involved SNMP processes, including the master agent\&. Sub-agents should be started by calling \fIstart_subagent/3\fR\&\&.
+.LP
+\fIdb_dir\fR\& is mandatory\&.
+.LP
+\fIdir\fR\& in config is mandatory\&.
+.LP
+See \fBsnmp config\fR\& for a description of the options\&.
+.RE
+.LP
+.B
+start_sub_agent(ParentAgent,Subtree,Mibs) -> {ok, pid()} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+ParentAgent = pid()
+.br
+SubTree = oid()
+.br
+Mibs = [MibName]
+.br
+MibName = [string()]
+.br
+.RE
+.RS
+.LP
+Starts a sub-agent on the node where the function is called\&. The \fIsnmpa_supervisor\fR\& must be running\&.
+.LP
+If the supervisor is not running, the function fails with the reason \fIbadarg\fR\&\&.
+.RE
+.LP
+.B
+stop_sub_agent(SubAgent) -> ok | no_such_child
+.br
+.RS
+.TP 3
+Types:
+
+SubAgent = pid()
+.br
+.RE
+.RS
+.LP
+Stops the sub-agent on the node where the function is called\&. The \fIsnmpa_supervisor\fR\& must be running\&.
+.LP
+If the supervisor is not running, the function fails with the reason \fIbadarg\fR\&\&.
+.RE

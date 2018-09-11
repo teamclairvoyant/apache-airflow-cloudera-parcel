@@ -1,0 +1,280 @@
+.TH asn1ct 3 "asn1 1.6.18" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+asn1ct \- ASN.1 compiler and compile-time support functions
+.SH DESCRIPTION
+.LP
+The ASN\&.1 compiler takes an ASN\&.1 module as input and generates a corresponding Erlang module which can encode and decode the data-types specified\&. Alternatively the compiler takes a specification module (se below) specifying all input modules and generates one module with encode/decode functions\&. There are also some generic functions which can be used in during development of applications which handles ASN\&.1 data (encoded as BER or PER)\&.
+.SH EXPORTS
+.LP
+.B
+compile(Asn1module) -> ok | {error,Reason}
+.br
+.B
+compile(Asn1module , Options) -> ok | {error,Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Asn1module = atom() | string()
+.br
+Options = [Option| OldOption]
+.br
+Option = ber_bin | per_bin | uper_bin | der | compact_bit_string | noobj | {n2n,EnumTypeName} |{outdir,Dir} | {i,IncludeDir} | optimize | driver | asn1config | undec_rest | {inline,OutputName} | inline | {macro_name_prefix, Prefix} | {record_name_prefix, Prefix} | verbose | warnings_as_errors
+.br
+OldOption = ber | per
+.br
+Reason = term()
+.br
+Prefix = string()
+.br
+.RE
+.RS
+.LP
+Compiles the ASN\&.1 module \fIAsn1module\fR\& and generates an Erlang module \fIAsn1module\&.erl\fR\& with encode and decode functions for the types defined in \fIAsn1module\fR\&\&. For each ASN\&.1 value defined in the module an Erlang function which returns the value in Erlang representation is generated\&.
+.LP
+If \fIAsn1module\fR\& is a filename without extension first \fI"\&.asn1"\fR\& is assumed, then \fI"\&.asn"\fR\& and finally \fI"\&.py"\fR\& (to be compatible with the old ASN\&.1 compiler)\&. Of course \fIAsn1module\fR\& can be a full pathname (relative or absolute) including filename with (or without) extension\&. 
+.LP
+If one wishes to compile a set of Asn1 modules into one Erlang file with encode/decode functions one has to list all involved files in a configuration file\&. This configuration file must have a double extension "\&.set\&.asn", ("\&.asn" can alternatively be "\&.asn1" or "\&.py")\&. The input files\&' names must be listed, within quotation marks (""), one at each row in the file\&. If the input files are \fIFile1\&.asn\fR\&, \fIFile2\&.asn\fR\& and \fIFile3\&.asn\fR\& the configuration file shall look like:
+.LP
+.nf
+
+File1.asn
+File2.asn
+File3.asn        
+.fi
+.LP
+The output files will in this case get their names from the configuration file\&. If the configuration file has the name \fISetOfFiles\&.set\&.asn\fR\& the name of the output files will be \fISetOfFiles\&.hrl, SetOfFiles\&.erl and SetOfFiles\&.asn1db\fR\&\&.
+.LP
+Sometimes in a system of ASN\&.1 modules there are different default tag modes, e\&.g\&. AUTOMATIC, IMPLICIT or EXPLICIT\&. The multi file compilation resolves the default tagging as if the modules were compiled separately\&.
+.LP
+Another unwanted effect that may occur in multi file compilation is name collisions\&. The compiler solves this problem in two ways: If the definitions are identical then the output module keeps only one definition with the original name\&. But if definitions only have same name and differs in the definition, then they will be renamed\&. The new names will be the definition name and the original module name concatenated\&.
+.LP
+If any name collision have occurred the compiler reports a "NOTICE: \&.\&.\&." message that tells if a definition was renamed, and the new name that must be used to encode/decode data\&.
+.LP
+\fIOptions\fR\& is a list with options specific for the asn1 compiler and options that are applied to the Erlang compiler\&. The latter are those that not is recognized as asn1 specific\&. For \fIpreferred option use\fR\& see \fBPreferred Option Use section in users guide\fR\&\&. Available options are:
+.RS 2
+.TP 2
+.B
+\fIber | ber_bin | per | per_bin | uper_bin\fR\&:
+The encoding rule to be used\&. The supported encoding rules are BER (Basic Encoding Rules), PER aligned (Packed Encoding Rules) and PER unaligned\&. If the encoding rule option is omitted \fIber\fR\& is the default\&. The \fIper_bin\fR\& option means the aligned variant\&. To use the unaligned variant the \fIuper_bin\fR\& option has to be used\&.
+.RS 2
+.LP
+The generated Erlang module always gets the same name as the ASN\&.1 module and as a consequence of this only one encoding rule per ASN\&.1 module can be used at runtime\&.
+.RE
+.RS 2
+.LP
+The \fIber_bin\fR\& and \fIper_bin\fR\& options are equivalent with the \fIOldOptions\fR\& \fIber\fR\& and \fIper\fR\& with the difference that the generated encoding/decoding functions take advantage of the bit syntax, which in most cases increases the performance considerably\&. The result from encoding is a binary or an iolist\&.
+.RE
+.TP 2
+.B
+\fIder\fR\&:
+By this option the Distinguished Encoding Rules (DER) is chosen\&. DER is regarded as a specialized variant of the BER encoding rule, therefore the \fIder\fR\& option only makes sense together with the \fIber\fR\& or \fIber_bin\fR\& option\&. This option sometimes adds sorting and value checks when encoding, which implies a slower encoding\&. The decoding routines are the same as for \fIber\fR\&\&.
+.TP 2
+.B
+\fIcompact_bit_string\fR\&:
+Makes it possible to use a compact notation for values of the BIT STRING type in Erlang\&. The notation:
+.LP
+.nf
+
+BitString = {Unused,Binary},
+Unused = integer(),
+Binary = binary()            
+	    
+.fi
+.RS 2
+.LP
+\fIUnused\fR\& must be a number in the range 0 to 7\&. It tells how many bits in the least significant byte in \fIBinary\fR\& that is unused\&. For details see \fB BIT STRING type section in users guide \fR\&\&.
+.RE
+.TP 2
+.B
+\fI{n2n,EnumTypeName}\fR\&:
+Tells the compiler to generate functions for conversion between names (as atoms) and numbers and vice versa for the EnumTypeName specified\&. There can be multiple occurrences of this option in order to specify several type names\&. The type names must be declared as ENUMERATIONS in the ASN\&.1 spec\&. If the EnumTypeName does not exist in the ASN\&.1 spec the compilation will stop with an error code\&. The generated conversion functions are named \fIname2num_EnumTypeName/1\fR\& and \fInum2name_EnumTypeName/1\fR\&\&.
+.TP 2
+.B
+\fInoobj\fR\&:
+Do not compile (i\&.e do not produce object code) the generated \fI\&.erl\fR\& file\&. If this option is omitted the generated Erlang module will be compiled\&.
+.TP 2
+.B
+\fI{i,IncludeDir}\fR\&:
+Adds \fIIncludeDir\fR\& to the search-path for \fI\&.asn1db\fR\& and asn1 source files\&. The compiler tries to open a \fI\&.asn1db\fR\& file when a module imports definitions from another ASN\&.1 module\&. If no \fI\&.asn1db\fR\& file is found the asn1 source file is parsed\&. Several \fI{i,IncludeDir}\fR\& can be given\&.
+.TP 2
+.B
+\fI{outdir,Dir}\fR\&:
+Specifies the directory \fIDir\fR\& where all generated files shall be placed\&. If omitted the files are placed in the current directory\&.
+.TP 2
+.B
+\fIoptimize\fR\&:
+This option is only valid together with one of the \fIper_bin\fR\& or \fIber_bin\fR\& option\&. It gives time optimized code generated and it uses another runtime module and in the \fIper_bin\fR\& case a linked-in driver\&. The result in the \fIper_bin\fR\& case from an encode when compiled with this option will be a binary\&.
+.TP 2
+.B
+\fIdriver\fR\&:
+Option valid together with \fIber_bin\fR\& and \fIoptimize\fR\& options\&. It enables the use of a linked-in driver that gives considerable faster decode\&. In \fIber_bin\fR\& the driver is enabled only by explicit use of the option \fIdriver\fR\&\&.
+.TP 2
+.B
+\fIasn1config\fR\&:
+When one of the specialized decodes, exclusive or selective decode, is wanted one has to give instructions in a configuration file\&. The option \fIasn1config\fR\& enables specialized decodes and takes the configuration file, which has the same name as the ASN\&.1 spec but with extension \fI\&.asn1config\fR\&, in concern\&.
+.RS 2
+.LP
+The instructions for exclusive decode must follow the \fBinstruction and grammar in the User\&'s Guide\fR\&\&.
+.RE
+.RS 2
+.LP
+You can also find the instructions for selective decode in the \fBUser\&'s Guide\fR\&\&.
+.RE
+.TP 2
+.B
+\fIundec_rest\fR\&:
+A buffer that holds a message, being decoded may also have some following bytes\&. Now it is possible to get those following bytes returned together with the decoded value\&. If an asn1 spec is compiled with this option a tuple \fI{ok,Value,Rest}\fR\& is returned\&. \fIRest\fR\& may be a list or a binary\&. Earlier versions of the compiler ignored those following bytes\&.
+.TP 2
+.B
+\fI{inline,OutputName}\fR\&:
+Compiling with this option gives one output module containing all asn1 run-time functionality\&. The asn1 specs are provided in a target module Module\&.set\&.asn as described \fBabove\fR\&\&. The name of the resulting module containing generated encode/decode functions and in-lined run-time functions will be \fIOutputName\&.erl\fR\&\&. The merging/in-lining of code is done by the \fIigor\fR\& module of \fIsyntax_tools\fR\&\&. By default the functions generated from the first asn1 spec in the \fI\&.set\&.asn\fR\& are exported, unless a \fI{export,[atom()]}\fR\& or \fI{export_all,true}\fR\& option are provided\&. The list of atoms are names of chosen asn1 specs from the \fI\&.set\&.asn\fR\& file\&.
+.TP 2
+.B
+\fIinline\fR\&:
+It is also possible to use the sole argument \fIinline\fR\&\&. It is as \fI{inline,OutputName}\fR\&, but the output file gets the default name of the source \fI\&.set\&.asn\fR\& file\&.
+.TP 2
+.B
+\fI{macro_name_prefix, Prefix}\fR\&:
+All macro names generated by the compiler are prefixed with \fIPrefix\fR\&\&. This is useful when multiple protocols that contains macros with identical names are included in a single module\&.
+.TP 2
+.B
+\fI{record_name_prefix, Prefix}\fR\&:
+All record names generated by the compiler are prefixed with \fIPrefix\fR\&\&. This is useful when multiple protocols that contains records with identical names are included in a single module\&.
+.TP 2
+.B
+\fIverbose\fR\&:
+Causes more verbose information from the compiler describing what it is doing\&.
+.TP 2
+.B
+\fIwarnings_as_errors\fR\&:
+Causes warnings to be treated as errors\&.
+.RE
+.LP
+Any additional option that is applied will be passed to the final step when the generated \&.erl file is compiled\&.
+.LP
+The compiler generates the following files:
+.RS 2
+.TP 2
+*
+\fIAsn1module\&.hrl\fR\& (if any SET or SEQUENCE is defined)
+.LP
+.TP 2
+*
+\fIAsn1module\&.erl\fR\& the Erlang module with encode, decode and value functions\&.
+.LP
+.TP 2
+*
+\fIAsn1module\&.asn1db\fR\& intermediate format used by the compiler when modules IMPORTS definitions from each other\&.
+.LP
+.RE
+
+.RE
+.LP
+.B
+encode(Module,Type,Value)-> {ok,Bytes} | {error,Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Module = Type = atom()
+.br
+Value = term()
+.br
+Bytes = [Int] when integer(Int), Int >= 0, Int =< 255
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Encodes \fIValue\fR\& of \fIType\fR\& defined in the ASN\&.1 module \fIModule\fR\&\&. Returns a list of bytes if successful\&. To get as fast execution as possible the encode function only performs rudimentary tests that the input \fIValue\fR\& is a correct instance of \fIType\fR\&\&. The length of strings is for example not always checked\&. Returns \fI{ok,Bytes}\fR\& if successful or \fI{error,Reason}\fR\& if an error occurred\&.
+.RE
+.LP
+.B
+decode(Module,Type,Bytes) -> {ok,Value}|{error,Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Module = Type = atom()
+.br
+Value = Reason = term()
+.br
+Bytes = [Int] when integer(Int), Int >= 0, Int =< 255
+.br
+.RE
+.RS
+.LP
+Decodes \fIType\fR\& from \fIModule\fR\& from the list of bytes \fIBytes\fR\&\&. Returns \fI{ok,Value}\fR\& if successful\&.
+.RE
+.LP
+.B
+validate(Module,Type,Value) -> ok | {error,Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Module = Type = atom()
+.br
+Value = term()
+.br
+.RE
+.RS
+.LP
+Validates that \fIValue\fR\& conforms to \fIType\fR\& from \fIModule\fR\&\&. \fINot implemented in this version of the ASN\&.1 application\&.\fR\&
+.RE
+.LP
+.B
+value(Module ,Type) -> {ok,Value} | {error,Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Module = Type = atom()
+.br
+Value = term()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Returns an Erlang term which is an example of a valid Erlang representation of a value of the ASN\&.1 type \fIType\fR\&\&. The value is a random value and subsequent calls to this function will for most types return different values\&.
+.RE
+.LP
+.B
+test(Module) -> ok | {error,Reason}
+.br
+.B
+test(Module,Type) -> ok | {error,Reason}
+.br
+.B
+test(Module,Type,Value) -> ok | {error,Reason}
+.br
+.RS
+.LP
+Performs a test of encode and decode of all types in \fIModule\fR\&\&. The generated functions are called by this function\&. This function is useful during test to secure that the generated encode and decode functions and the general runtime support work as expected\&. 
+.br
+\fItest/1\fR\& iterates over all types in \fIModule\fR\&\&. 
+.br
+\fItest/2\fR\& tests type \fIType\fR\& with a random value\&. 
+.br
+\fItest/3 tests type <c>Type\fR\& with \fIValue\fR\&\&. 
+.br
+Schematically the following happens for each type in the module\&.
+.LP
+
+.LP
+.nf
+
+{ok,Value} = asn1ct:value(Module,Type),
+{ok,Bytes} = asn1ct:encode(Module,Type,Value),
+{ok,Value} = asn1ct:decode(Module,Type,Bytes).         
+.fi
+.RE

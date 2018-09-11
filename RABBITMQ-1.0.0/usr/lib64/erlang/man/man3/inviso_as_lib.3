@@ -1,0 +1,100 @@
+.TH inviso_as_lib 3 "inviso 0.6.2" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+inviso_as_lib \- The Inviso Autostart Utility Library
+.SH DESCRIPTION
+.LP
+The purpose of the Inviso autostart utility library is to facilitate the creation and modification of autostart configuration files used by the standard autostart\&.
+.SH EXPORTS
+.LP
+.B
+setup_autostart(Node, R, Opts, TracerData, CmdFiles, Bindings, Transl, RTtag) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Node = atom()
+.br
+R = int()
+.br
+Opts -- see inviso:add_nodes/2,3
+.br
+TracerData -- see inviso:init_tracing/1,2
+.br
+CmdFiles = [CmdFile]
+.br
+CmdFile = string()
+.br
+Bindings = [{Var,Val}]
+.br
+Var = atom()
+.br
+Val = term()
+.br
+Transl = [{{M1,F1,Arity}, {M2,F2,{Mt,Ft}}}]
+.br
+M1 = F1 = M2 = F2 = Mt = Ft = atom()
+.br
+Arity = int()
+.br
+RTtag = term()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Creates an autostart configuration file on \fINode\fR\&\&. The name of the file is automatically deducted from consulting the Runtime_Tools configuration parameters at \fINode\fR\&\&.
+.LP
+\fIR\fR\& is the number of allowed autostarts remaining\&.
+.LP
+\fIOpts\fR\& is the options which shall be given to the runtime component\&. See \fBinviso:add_nodes/2,3\fR\&\&.
+.LP
+\fITracerData\fR\& is used when initiating tracing on this node\&. See \fBinviso:init_tracing/1,2\fR\&\&.
+.LP
+\fICmdFiles\fR\& points out files containing instructions understood by the \fIinviso_autostart_server\fR\& implementation of an autostart initiator\&.
+.LP
+\fIBindings\fR\& is a list of \fI{Var, Val}\fR\& tuples, where \fIVar\fR\& is the name of a variable and \fIVal\fR\& the actual value of the variable\&.
+.LP
+\fITransl\fR\& means that \fIM1:F1/Arity\fR\& shall be translated into \fIM2:F2\fR\&\&.
+.LP
+\fIRTtag\fR\& is the incarnation tag of the runtime component\&. See See \fBinviso:add_nodes/2,3\fR\&\&.
+.RE
+.LP
+.B
+set_repeat(Node, R) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Node = atom()
+.br
+R = int()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Sets the repeat parameter in the autostart file at \fINode\fR\& without changing any of its other contents\&. The autostart configuration file must exist\&.
+.LP
+\fIR\fR\& is the number of allowed autostarts remaining\&.
+.RE
+.LP
+.B
+inhibit_autostart(Node) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Node = atom()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Sets the repeat parameter in the autostart file at \fINode\fR\& to 0\&. Equivalent to \fIset_repeat(Node, 0)\fR\&\&.
+.RE

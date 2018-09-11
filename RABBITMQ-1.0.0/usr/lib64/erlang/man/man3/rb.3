@@ -1,0 +1,212 @@
+.TH rb 3 "sasl 2.1.10" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+rb \- The Report Browser Tool
+.SH DESCRIPTION
+.LP
+The Report Browser (RB) tool makes it possible to browse and format error reports written by the error logger handler \fIlog_mf_h\fR\&\&.
+.SH EXPORTS
+.LP
+.B
+filter(Filters)
+.br
+.B
+filter(Filters, Dates)
+.br
+.RS
+.TP 3
+Types:
+
+Filters = [filter()]
+.br
+filter() = {Key, Value} | {Key, Value, no} | {Key, RegExp, re} | {Key, RegExp, re, no}
+.br
+Key = term()
+.br
+Value = term()
+.br
+RegExp = string() | {string, Options} | mp(), {mp(), Options}
+.br
+Dates = {DateFrom, DateTo} | {DateFrom, from} | {DateTo, to}
+.br
+DateFrom = DateTo = {date(), time()}
+.br
+date() and time() are the same type as in the
+.br
+.RE
+.RS
+.LP
+This function displays the reports that match the provided filters\&.
+.LP
+When a filter includes the \fIno\fR\& atom it will exclude the reports that match that filter\&.
+.LP
+The reports are matched using the \fIproplists\fR\& module\&. The report must be a proplist to be matched against any of the \fIfilters()\fR\&\&.
+.LP
+If the filter is of the form \fI{Key, RegExp, re}\fR\& the report must contain an element with \fIkey = Key\fR\& and \fIValue\fR\& must match the RegExp regular expression\&.
+.LP
+If the Dates parameter is provided, then the reports are filtered according to the date when they occurred\&. If Dates is of the form \fI{DateFrom, from}\fR\& then reports that occurred after DateFrom are displayed\&.
+.LP
+If Dates is of the form \fI{DateTo, to}\fR\& then reports that occurred before DateTo are displayed\&.
+.LP
+If two Dates are provided, then reports that occurred between those dates are returned\&.
+.LP
+If you only want to filter only by dates, then you can provide the empty list as the Filters parameter\&.
+.LP
+See \fIrb:grep/1\fR\& for more information on the RegExp parameter\&.
+.RE
+.LP
+.B
+grep(RegExp)
+.br
+.RS
+.TP 3
+Types:
+
+RegExp = string() | {string, Options} | mp(), {mp(), Options}
+.br
+.RE
+.RS
+.LP
+All reports containing the regular expression \fIRegExp\fR\& are printed\&.
+.LP
+\fIRegExp\fR\& can be a string containing the regular expression; a tuple with the string and the options for compilation; a compiled regular expression; a compiled regular expression and the options for running it\&. Refer to the module \fIre\fR\& and specially the function \fIre:run/3\fR\& for a definition of valid regular expressions and options\&.
+.RE
+.LP
+.B
+h()
+.br
+.B
+help()
+.br
+.RS
+.LP
+Prints the on-line help information\&.
+.RE
+.LP
+.B
+list()
+.br
+.B
+list(Type)
+.br
+.RS
+.TP 3
+Types:
+
+Type = type()
+.br
+type() = crash_report | supervisor_report | error | progress
+.br
+.RE
+.RS
+.LP
+This function lists all reports loaded in the \fIrb_server\fR\&\&. Each report is given a unique number that can be used as a reference to the report in the \fIshow/1\fR\& function\&.
+.LP
+If no \fIType\fR\& is given, all reports are listed\&.
+.RE
+.LP
+.B
+rescan()
+.br
+.B
+rescan(Options)
+.br
+.RS
+.TP 3
+Types:
+
+Options = [opt()]
+.br
+.RE
+.RS
+.LP
+Rescans the report directory\&. \fIOptions\fR\& is the same as for \fIstart()\fR\&\&.
+.RE
+.LP
+.B
+show()
+.br
+.B
+show(Report)
+.br
+.RS
+.TP 3
+Types:
+
+Report = int() | type()
+.br
+.RE
+.RS
+.LP
+If a type argument is given, all loaded reports of this type are printed\&. If an integer argument is given, the report with this reference number is printed\&. If no argument is given, all reports are shown\&.
+.RE
+.LP
+.B
+start()
+.br
+.B
+start(Options)
+.br
+.RS
+.TP 3
+Types:
+
+Options = [opt()]
+.br
+opt() = {start_log, FileName} | {max, MaxNoOfReports} | {report_dir, DirString} | {type, ReportType} | {abort_on_error, Bool}
+.br
+FileName = string() | standard_io
+.br
+MaxNoOfReports = int() | all
+.br
+DirString = string()
+.br
+ReportType = type() | [type()] | all
+.br
+Bool = true | false
+.br
+.RE
+.RS
+.LP
+The function \fIstart/1\fR\& starts the \fIrb_server\fR\& with the specified options, while \fIstart/0\fR\& starts with default options\&. The \fIrb_server\fR\& must be started before reports can be browsed\&. When the \fIrb_server\fR\& is started, the files in the specified directory are scanned\&. The other functions assume that the server has started\&.
+.LP
+\fI{start_log, FileName}\fR\& starts logging to file\&. All reports will be printed to the named file\&. The default is \fIstandard_io\fR\&\&.
+.LP
+\fI{max, MaxNoOfReports}\fR\&\&. Controls how many reports the \fIrb_server\fR\& should read on start-up\&. This option is useful as the directory may contain 20\&.000 reports\&. If this option is given, the \fIMaxNoOfReports\fR\& latest reports will be read\&. The default is \&'all\&'\&.
+.LP
+\fI{report_dir, DirString}\fR\&\&. Defines the directory where the error log files are located\&. The default is \fI{sasl, error_logger_mf_dir}\fR\&\&.
+.LP
+\fI{type, ReportType}\fR\&\&. Controls what kind of reports the \fIrb_server\fR\& should read on start-up\&. \fIReportType\fR\& is a supported type, \&'all\&', or a list of supported types\&. The default is \&'all\&'\&.
+.LP
+\fI{abort_on_error, Bool}\fR\&\&. This option specifies whether or not logging should be aborted if rb encounters an unprintable report\&. (You may get a report on incorrect form if the \fIerror_logger\fR\& function \fIerror_msg\fR\& or \fIinfo_msg\fR\& has been called with an invalid format string)\&. If \fIBool\fR\& is \fItrue\fR\&, rb will stop logging (and print an error message to stdout) if it encounters a badly formatted report\&. If logging to file is enabled, an error message will be appended to the log file as well\&. If \fIBool\fR\& is \fIfalse\fR\& (which is the default value), rb will print an error message to stdout for every bad report it encounters, but the logging process is never aborted\&. All printable reports will be written\&. If logging to file is enabled, rb prints \fI* UNPRINTABLE REPORT *\fR\& in the log file at the location of an unprintable report\&.
+.RE
+.LP
+.B
+start_log(FileName)
+.br
+.RS
+.TP 3
+Types:
+
+FileName = string()
+.br
+.RE
+.RS
+.LP
+Redirects all report output from the RB tool to the specified file\&.
+.RE
+.LP
+.B
+stop()
+.br
+.RS
+.LP
+Stops the \fIrb_server\fR\&\&.
+.RE
+.LP
+.B
+stop_log()
+.br
+.RS
+.LP
+Closes the log file\&. The output from the RB tool will be directed to \fIstandard_io\fR\&\&.
+.RE

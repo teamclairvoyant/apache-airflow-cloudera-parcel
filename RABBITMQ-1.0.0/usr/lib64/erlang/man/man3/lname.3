@@ -1,0 +1,184 @@
+.TH lname 3 "orber 3.6.22" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+lname \- Interface that supports the name pseudo-objects.
+.SH DESCRIPTION
+.LP
+This interface is a part of the names library which is used to hide the representation of names\&. In Orbers Erlang mapping the pseudo-object names and the real IDL names have the same representation but it is desirable that the clients uses the names library so they will not be dependent of the representation\&. The lname interface supports handling of names e\&.g\&. adding and removing name components\&.
+.LP
+Note that the lname interface in orber does not contain a destroy function because the Names are represented as standard Erlang lists and therefor will be removed by the garbage collector when not in use\&.
+.LP
+The type \fINameComponent\fR\& used below is defined as:
+.LP
+.nf
+
+      -record('CosNaming_NameComponent', {id, kind=""}).
+    
+.fi
+.LP
+\fIid\fR\& and \fIkind\fR\& are strings\&.
+.LP
+The record is defined in the file \fICosNaming\&.hrl\fR\& and it is included with:
+.LP
+.nf
+
+      -include_lib("orber/COSS/CosNaming/CosNaming.hrl").
+    
+.fi
+.SH EXPORTS
+.LP
+.B
+create() -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = [NameComponent]
+.br
+.RE
+.RS
+.LP
+This function returns a new name\&.
+.RE
+.LP
+.B
+insert_component(Name, N, NameComponent) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Name = [NameComponent]
+.br
+N = int()
+.br
+Return = Name
+.br
+.RE
+.RS
+.LP
+This function returns a name where the new name component has been inserted as component \fIN\fR\& in Name\&.
+.RE
+.LP
+.B
+get_component(Name, N) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Name = [NameComponent]
+.br
+N = int()
+.br
+Return = NameComponent
+.br
+.RE
+.RS
+.LP
+This function returns the \fIN:th\fR\& name component in Name\&.
+.RE
+.LP
+.B
+delete_component(Name, N) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Name = [NameComponent]
+.br
+N = int()
+.br
+Return = Name
+.br
+.RE
+.RS
+.LP
+This function deletes the \fIN:th\fR\& name component from Name and returns the new name\&.
+.RE
+.LP
+.B
+num_component(Name) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Name = [NameComponent]
+.br
+Return = int()
+.br
+.RE
+.RS
+.LP
+This function returns a the number of name components in Name\&.
+.RE
+.LP
+.B
+equal(Name1, Name2) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Name1 = Name2 = [NameComponent]
+.br
+Return = bool()
+.br
+.RE
+.RS
+.LP
+This function returns true if the two names are equal and false otherwise\&.
+.RE
+.LP
+.B
+less_than(Name1, Name2) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Name1 = Name2 = [NameComponent]
+.br
+Return = bool()
+.br
+.RE
+.RS
+.LP
+This function returns true if Name1 are lesser than Name2 and false otherwise\&.
+.RE
+.LP
+.B
+to_idl_form(Name) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Name = [NameComponent]
+.br
+Return = Name
+.br
+.RE
+.RS
+.LP
+This function just checks if Name is a correct IDL name before returning it because the name representation is the same for pseudo and IDL names in orber\&.
+.RE
+.LP
+.B
+from_idl_form(Name) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Name = [NameComponent]
+.br
+Return = Name
+.br
+.RE
+.RS
+.LP
+This function just returns the Name because the name representation is the same for pseudo and IDL names in orber\&.
+.RE

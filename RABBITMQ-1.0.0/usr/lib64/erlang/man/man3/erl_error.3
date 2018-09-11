@@ -1,0 +1,92 @@
+.TH erl_error 3 "erl_interface 3.7.5" "Ericsson AB" "C Library Functions"
+.SH NAME
+erl_error \- Error Print Routines
+.SH DESCRIPTION
+.LP
+This module contains some error printing routines taken from \fIAdvanced Programming in the UNIX Environment\fR\& by W\&. Richard Stevens\&.
+.LP
+These functions are all called in the same manner as \fIprintf()\fR\&, i\&.e\&. with a string containing format specifiers followed by a list of corresponding arguments\&. All output from these functions is to \fIstderr\fR\&\&.
+.SH EXPORTS
+.LP
+.B
+voiderl_err_msg(FormatStr, \&.\&.\&. )
+.br
+.RS
+.TP 3
+Types:
+
+const char *FormatStr;
+.br
+.RE
+.RS
+.LP
+The message provided by the caller is printed\&. This function is simply a wrapper for \fIfprintf()\fR\&\&.
+.RE
+.LP
+.B
+voiderl_err_quit(FormatStr, \&.\&.\&. )
+.br
+.RS
+.TP 3
+Types:
+
+const char *FormatStr;
+.br
+.RE
+.RS
+.LP
+Use this function when a fatal error has occurred that is not due to a system call\&. The message provided by the caller is printed and the process terminates with an exit value of 1\&. The function does not return\&.
+.RE
+.LP
+.B
+voiderl_err_ret(FormatStr, \&.\&.\&. )
+.br
+.RS
+.TP 3
+Types:
+
+const char *FormatStr;
+.br
+.RE
+.RS
+.LP
+Use this function after a failed system call\&. The message provided by the caller is printed followed by a string describing the reason for failure\&.
+.RE
+.LP
+.B
+voiderl_err_sys(FormatStr, \&.\&.\&. )
+.br
+.RS
+.TP 3
+Types:
+
+const char *FormatStr;
+.br
+.RE
+.RS
+.LP
+Use this function after a failed system call\&. The message provided by the caller is printed followed by a string describing the reason for failure, and the process terminates with an exit value of 1\&. The function does not return\&.
+.RE
+.SH "ERROR REPORTING"
+
+.LP
+Most functions in erl_interface report failures to the caller by returning some otherwise meaningless value (typically \fINULL\fR\& or a negative number)\&. As this only tells you that things did not go well, you will have to examine the error code in \fIerl_errno\fR\& if you want to find out more about the failure\&.
+.SH EXPORTS
+.LP
+.B
+volatile interl_errno
+.br
+.RS
+.LP
+\fIerl_errno\fR\& is initially (at program startup) zero and is then set by many erl_interface functions on failure to a non-zero error code to indicate what kind of error it encountered\&. A successful function call might change \fIerl_errno\fR\& (by calling some other function that fails), but no function will ever set it to zero\&. This means that you cannot use \fIerl_errno\fR\& to see \fIif\fR\& a function call failed\&. Instead, each function reports failure in its own way (usually by returning a negative number or \fINULL\fR\&), in which case you can examine \fIerl_errno\fR\& for details\&.
+.LP
+\fIerl_errno\fR\& uses the error codes defined in your system\&'s \fI<errno\&.h>\fR\&\&.
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+Actually, \fIerl_errno\fR\& is a "modifiable lvalue" (just like ISO C defines \fIerrno\fR\& to be) rather than a variable\&. This means it might be implemented as a macro (expanding to, e\&.g\&., \fI*_erl_errno()\fR\&)\&. For reasons of thread- (or task-)safety, this is exactly what we do on most platforms\&.
+
+.RE

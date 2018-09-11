@@ -1,0 +1,123 @@
+.TH xmerl_xs 3 "xmerl 1.2.10" "" "Erlang Module Definition"
+.SH NAME
+xmerl_xs \- 
+       Erlang has similarities to XSLT since both languages
+ 	have a functional programming approach.
+.SH DESCRIPTION
+.LP
+Erlang has similarities to XSLT since both languages have a functional programming approach\&. Using \fIxmerl_xpath\fR\& it is possible to write XSLT like transforms in Erlang\&.
+.LP
+XSLT stylesheets are often used when transforming XML documents, to other XML documents or (X)HTML for presentation\&. XSLT contains quite many functions and learning them all may take some effort\&. This document assumes a basic level of understanding of XSLT\&.
+.LP
+Since XSLT is based on a functional programming approach with pattern matching and recursion it is possible to write similar style sheets in Erlang\&. At least for basic transforms\&. This document describes how to use the XPath implementation together with Erlangs pattern matching and a couple of functions to write XSLT like transforms\&.
+.LP
+This approach is probably easier for an Erlanger but if you need to use real XSLT stylesheets in order to "comply to the standard" there is an adapter available to the Sablotron XSLT package which is written i C++\&. See also the Tutorial\&.
+.SH EXPORTS
+.LP
+.B
+built_in_rules(Fun, E) -> List
+.br
+.RS
+.LP
+The default fallback behaviour\&. Template funs should end with: 
+.br
+\fItemplate(E) -> built_in_rules(fun template/1, E)\fR\&\&.
+.RE
+.LP
+.B
+select(String::string(), E) -> E
+.br
+.RS
+.LP
+Extracts the nodes from the xml tree according to XPath\&.
+.LP
+\fISee also:\fR\& \fBvalue_of/1\fR\&\&.
+.RE
+.LP
+.B
+value_of(E) -> List
+.br
+.RS
+.TP 3
+Types:
+
+E = unknown()
+.br
+.RE
+.RS
+.LP
+Concatenates all text nodes within the tree\&.
+.LP
+Example:
+.br
+
+.LP
+.nf
+
+  <xsl:template match="title">
+    <div align="center">
+      <h1><xsl:value-of select="." /></h1>
+    </div>
+  </xsl:template>
+  
+.fi
+.LP
+becomes:
+.br
+
+.LP
+.nf
+
+   template(E = #xmlElement{name='title'}) ->
+     ["<div align="center"><h1>",
+       value_of(select(".", E)), "</h1></div>"]
+  
+.fi
+.RE
+.LP
+.B
+xslapply(Fun::Function, EList::list()) -> List
+.br
+.RS
+.TP 3
+Types:
+
+Function = () -> list()
+.br
+.RE
+.RS
+.LP
+xslapply is a wrapper to make things look similar to xsl:apply-templates\&.
+.LP
+Example, original XSLT:
+.br
+
+.LP
+.nf
+
+  <xsl:template match="doc/title">
+    <h1>
+      <xsl:apply-templates/>
+    </h1>
+  </xsl:template>
+  
+.fi
+.LP
+becomes in Erlang:
+.br
+
+.LP
+.nf
+
+  template(E = #xmlElement{ parents=[{'doc',_}|_], name='title'}) ->
+    ["<h1>",
+     xslapply(fun template/1, E),
+     "</h1>"];
+  
+.fi
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

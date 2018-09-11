@@ -1,0 +1,751 @@
+.TH orber 3 "orber 3.6.22" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+orber \- The main module of the Orber application
+.SH DESCRIPTION
+.LP
+This module contains the functions for starting and stopping the application\&. It also has some utility functions to get some of the configuration information from running application\&.
+.SH EXPORTS
+.LP
+.B
+start() -> ok
+.br
+.B
+start(Type) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Type = temporary | permanent
+.br
+.RE
+.RS
+.LP
+Starts the Orber application (it also starts mnesia if it is not running)\&. Which \fIType\fR\& parameter is supplied determines the behavior\&. If not supplied Orber is started as \fItemporary\fR\&\&. See the Reference Manual \fIapplication(3)\fR\& for further information\&.
+.RE
+.LP
+.B
+jump_start(Attributes) -> ok | {\&'EXIT\&', Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Attributes = Port | Options
+.br
+Port = integer()
+.br
+Options = [{Key, Value}]
+.br
+Key = any key listed in the configuration chapter
+.br
+Value = allowed value associated with the given key
+.br
+.RE
+.RS
+.LP
+Installs and starts the Orber and the Mnesia applications with the configuration parameters \fIdomain\fR\& and \fIiiop_port\fR\& set to \fI"IP-number:Port"\fR\& and the supplied Port respectively\&. Theses settings are in most cases sufficient to ensure that no clash with any other Orber instance occur\&. If this operation fails, check if the listen port (iiop_port) is already in use\&. This function \fIMAY ONLY\fR\& be used during development and tests; how Orber is configured when using this operation may change at any time without warning\&.
+.RE
+.LP
+.B
+stop() -> ok
+.br
+.RS
+.LP
+Stops the Orber application\&.
+.RE
+.LP
+.B
+info() -> ok
+.br
+.B
+info(IoType) -> ok | {\&'EXIT\&', Reason} | string()
+.br
+.RS
+.TP 3
+Types:
+
+IoType = info_msg | string | io | {io, IoDevice}
+.br
+.RE
+.RS
+.LP
+Generates an Info Report, which contain Orber\&'s configuration settings\&. If no \fIIoType\fR\& is supplied, \fIinfo_msg\fR\& is used (see the error_logger documentation)\&. When the atom string is supplied this function will return a flat list\&. For \fIio\fR\& and \fI{io, IoDevice}\fR\&, \fIio:format/1\fR\& and \fIio:format/3\fR\& is used respectively\&.
+.RE
+.LP
+.B
+exception_info(Exception) -> {ok, string()} | {error, Reason}
+.br
+.RS
+.LP
+Returns a printable string, which describes the supplied exception in greater detail\&. Note, this function is mainly intended for system exceptions\&.
+.RE
+.LP
+.B
+is_system_exception(Exception) -> true | false
+.br
+.RS
+.LP
+Returns true if the supplied exception is a system defined exception, otherwise false\&.
+.RE
+.LP
+.B
+get_tables() -> [Tables]
+.br
+.RS
+.LP
+Returns a list of the Orber specific Mnesia tables\&. This list is required to restore Mnesia if it has been partitioned\&.
+.RE
+.LP
+.B
+get_ORBInitRef() -> string() | undefined
+.br
+.RS
+.LP
+This function returns undefined if we will resolve references locally, otherwise a string describing which host we will contact if the Key given to \fIcorba:resolve_initial_references/1\fR\& matches the Key set in this configuration variable\&. For more information see the user\&'s guide\&.
+.RE
+.LP
+.B
+get_ORBDefaultInitRef() -> string() | undefined
+.br
+.RS
+.LP
+This function returns undefined if we will resolve references locally, otherwise a string describing which host, or hosts, from which we will try to resolve the Key given to \fIcorba:resolve_initial_references/1\fR\&\&. For more information see the user\&'s guide\&.
+.RE
+.LP
+.B
+domain() -> string()
+.br
+.RS
+.LP
+This function returns the domain name of the current Orber domain as a string\&.
+.RE
+.LP
+.B
+iiop_port() -> int()
+.br
+.RS
+.LP
+This function returns the port-number, which is used by the IIOP protocol\&. It can be configured by setting the application variable \fIiiop_port\fR\&, if it is not set it will have the default number 4001\&.
+.RE
+.LP
+.B
+iiop_out_ports() -> 0 | {Min, Max}
+.br
+.RS
+.LP
+The return value of this operation is what the configuration parameter \fBiiop_out_ports\fR\& has been set to\&.
+.RE
+.LP
+.B
+iiop_out_ports_random() -> true | false
+.br
+.RS
+.LP
+Return the value of the configuration parameter \fBiiop_out_ports_random\fR\&\&.
+.RE
+.LP
+.B
+iiop_out_ports_attempts() -> int()
+.br
+.RS
+.LP
+Return the value of the configuration parameter \fBiiop_out_ports_attempts\fR\&\&.
+.RE
+.LP
+.B
+iiop_ssl_port() -> int()
+.br
+.RS
+.LP
+This function returns the port-number, which is used by the secure IIOP protocol\&. It can be configured by setting the application variable \fIiiop_ssl_port\fR\&, if it is not set it will have the default number 4002 if Orber is to configured to run in secure mode\&. Otherwise it returns -1\&.
+.RE
+.LP
+.B
+iiop_timeout() -> int() (milliseconds)
+.br
+.RS
+.LP
+This function returns the timeout value after which outgoing IIOP requests terminate\&. It can be configured by setting the application variable \fIiiop_timeout TimeVal (seconds)\fR\&, if it is not set it will have the default value \fIinfinity\fR\&\&. If a request times out a system exception, e\&.g\&. \fITIMEOUT\fR\&, is raised\&.
+.LP
+Note: the iiop_timeout configuration parameter (TimeVal) may only range between 0 and 1000000 seconds\&. Otherwise, the default value is used\&.
+.LP
+Note: Earlier IC versions required that the compile option \fI{timeout,"module::interface"}\fR\&, was used, which allow the user to add an extra timeout parameter, e\&.g\&., \fImodule_interface:function(ObjRef, Timeout, \&.\&.\&. Arguments \&.\&.\&.)\fR\& or \fImodule_interface:function(ObjRef, [{timeout, Timeout}], \&.\&.\&. Arguments \&.\&.\&.)\fR\&, instead of \fImodule_interface:function(ObjRef, \&.\&.\&. Arguments \&.\&.\&.)\fR\&\&. This is no longer the case and if the extra Timeout is used, argument will override the configuration parameter \fIiiop_timeout\fR\&\&. It is, however, not possible to use \fIinfinity\fR\& to override the Timeout parameter\&. The Timeout option is also valid for objects which resides within the same Orber domain\&.
+.RE
+.LP
+.B
+iiop_connection_timeout() -> int() (milliseconds)
+.br
+.RS
+.LP
+This function returns the timeout value after which outgoing IIOP connections terminate\&. It can be configured by setting the application variable \fIiiop_connection_timeout TimeVal (seconds)\fR\&, if it is not set it will have the default value \fIinfinity\fR\&\&. The connection will not be terminated if there are pending requests\&.
+.LP
+Note: the iiop_connection_timeout configuration parameter (TimeVal) may only range between 0 and 1000000 seconds\&. Otherwise, the default value is used\&.
+.RE
+.LP
+.B
+iiop_connections() -> Result
+.br
+.B
+iiop_connections(Direction) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Direction = in | out | inout
+.br
+Result = [{Host, Port}] | [{Host, Port, Interface}] | {'EXIT',Reason}
+.br
+Host = string()
+.br
+Port = integer()
+.br
+Interface = string()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+The list returned by this operation contain tuples of remote hosts/ports Orber is currently connected to\&. If no Direction is not supplied, both incoming and outgoing connections are included\&.
+.LP
+If a specific local interface has been defined for the connection, this will be added to the returned tuple\&.
+.RE
+.LP
+.B
+iiop_connections_pending() -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Result = [{Host, Port}] | [{Host, Port, Interface}] | {'EXIT',Reason}
+.br
+Host = string()
+.br
+Port = integer()
+.br
+Interface = string()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+In some cases a connection attempt (i\&.e\&. trying to communicate with another ORB) may block due to a number of reasons\&. This operation allows the user to check if this is the case\&. The returned list contain tuples of remote hosts/ports\&. Normally, the list is empty\&.
+.LP
+If a specific local interface has been defined for the connection, this will be added to the returned tuple\&.
+.RE
+.LP
+.B
+iiop_in_connection_timeout() -> int() (milliseconds)
+.br
+.RS
+.LP
+This function returns the timeout value after which incoming IIOP connections terminate\&. It can be configured by setting the application variable \fIiiop_in_connection_timeout TimeVal (seconds)\fR\&, if it is not set it will have the default value \fIinfinity\fR\&\&. The connection will not be terminated if there are pending requests\&.
+.LP
+Note: the iiop_in_connection_timeout configuration parameter (TimeVal) may only range between 0 and 1000000 seconds\&. Otherwise, the default value is used\&.
+.RE
+.LP
+.B
+iiop_acl() -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Result = [{Direction, Filter}] | [{Direction, Filter, [Interface]}]
+.br
+Direction = tcp_in | ssl_in | tcp_out | ssl_out
+.br
+Filter = string()
+.br
+Interface = string()
+.br
+.RE
+.RS
+.LP
+Returns the ACL configuration\&. The \fIFilter\fR\& uses a extended format of Classless Inter Domain Routing (CIDR)\&. For example, \fI"123\&.123\&.123\&.10"\fR\& limits the connection to that particular host, while \fI"123\&.123\&.123\&.10/17"\fR\& allows connections to or from any host equal to the 17 most significant bits\&. Orber also allow the user to specify a certain port or port range, for example, \fI"123\&.123\&.123\&.10/17#4001"\fR\& and \fI"123\&.123\&.123\&.10/17#4001/5001"\fR\& respectively\&. IPv4 or none compressed IPv6 strings are accepted\&. 
+.br
+The list of \fIInterfaces\fR\&, IPv4 or IPv6 strings, are currently only used for outgoing connections and may only contain \fIone\fR\& address\&. If set and access is granted, Orber will use that local interface when connecting to the other ORB\&. The module \fBorber_acl\fR\& provides operations for evaluating the access control for filters and addresses\&.
+.RE
+.LP
+.B
+activate_audit_trail() -> Result
+.br
+.B
+activate_audit_trail(Verbosity) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Verbosity = stealth | normal | verbose
+.br
+Result = ok | {error, Reason}
+.br
+Reason = string()
+.br
+.RE
+.RS
+.LP
+Activates audit/trail for all existing incoming and outgoing IIOP connections\&. The \fIVerbosity\fR\& parameter, \fIstealth\fR\&, \fInormal\fR\& or \fIverbose\fR\&, determines which of the built in interceptors is used (\fIorber_iiop_tracer_stealth\fR\&, \fIorber_iiop_tracer_silent\fR\& or \fIorber_iiop_tracer\fR\& respectively)\&. If no verbosity level is supplied, then the \fInormal\fR\& will be used\&.
+.LP
+In case Orber is configured to use other interceptors, the audit/trail interceptors will simply be added to that list\&.
+.RE
+.LP
+.B
+deactivate_audit_trail() -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Result = ok | {error, Reason}
+.br
+Reason = string()
+.br
+.RE
+.RS
+.LP
+Deactivates audit/trail for all existing incoming and outgoing IIOP connections\&. In case Orber is configured to use other interceptors, those will still be used\&.
+.RE
+.LP
+.B
+add_listen_interface(IP, Type) -> Result
+.br
+.B
+add_listen_interface(IP, Type, Port) -> Result
+.br
+.B
+add_listen_interface(IP, Type, ConfigurationParameters) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+IP = string
+.br
+Type = normal | ssl
+.br
+Port = integer() > 0
+.br
+ConfigurationParameters = [{Key, Value}]
+.br
+Key = flags | iiop_in_connection_timeout | iiop_max_fragments | iiop_max_in_requests | interceptors | iiop_port | iiop_ssl_port
+.br
+Value = as described in the User's Guide
+.br
+Result = {ok, Ref} | {error, Reason} | {'EXCEPTION', #'BAD_PARAM'{}}
+.br
+Ref = #Ref
+.br
+Reason = string()
+.br
+.RE
+.RS
+.LP
+Create a new process that handle requests for creating a new incoming IIOP connection via the given interface and port\&. If the latter is excluded, Orber will use the value of the \fIiiop_port\fR\& or \fIiiop_ssl_port\fR\& configuration parameters\&. The \fIType\fR\& parameter determines if it is supposed to be IIOP or IIOP via SSL\&. If successful, the returned \fI#Ref\fR\& shall be passed to \fIorber:remove_listen_interface/1\fR\& when the connection shall be terminated\&.
+.LP
+It is also possible to supply configuration parameters that override the global configuration\&. The \fIiiop_in_connection_timeout\fR\&, \fIiiop_max_fragments\fR\&, \fIiiop_max_in_requests\fR\& and \fIinterceptors\fR\& parameters simply overrides the global counterparts (See the \fBConfiguration\fR\& chapter in the User\&'s Guide)\&. But the following parameters there are a few restrictions:
+.RS 2
+.TP 2
+*
+\fIflags\fR\& - currently it is only possible to override the global setting for the \fIUse Current Interface in IOR\fR\& and \fIExclude CodeSet Component\fR\& flags\&.
+.LP
+.TP 2
+*
+\fIiiop_port\fR\& - requires that \fIUse Current Interface in IOR\fR\& is activated and the supplied \fIType\fR\& is \fInormal\fR\&\&. If so, exported IOR:s will contain the IIOP port defined by this configuration parameter\&. Otherwise, the global setting will be used\&.
+.LP
+.TP 2
+*
+\fIiiop_ssl_port\fR\& - almost equivalent to \fIiiop_port\fR\&\&. The difference is that \fIType\fR\& shall be \fIssl\fR\& and that exported IOR:s will contain the IIOP via SSL port defined by this configuration parameter\&.
+.LP
+.RE
+
+.LP
+If it is not possible to add a listener based on the supplied interface and port, the error message is one of the ones described in \fIinet\fR\& and/or \fIssl\fR\& documentation\&.
+.RE
+.LP
+.B
+remove_listen_interface(Ref) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Ref = #Ref
+.br
+.RE
+.RS
+.LP
+Terminates the listen process, associated with the supplied \fI#Ref\fR\&, for incoming a connection\&. The Ref parameter is the return value from the \fIorber:add_listen_interface/2/3\fR\& operation\&. When terminating the connection, all associated requests will not deliver a reply to the clients\&.
+.RE
+.LP
+.B
+close_connection(Connection) -> Result
+.br
+.B
+close_connection(Connection, Interface) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Connection = Object | [{Host, Port}]
+.br
+Object = #objref (external)
+.br
+Host = string()
+.br
+Port = string()
+.br
+Interface = string()
+.br
+Result = ok | {'EXCEPTION', #'BAD_PARAM'{}}
+.br
+.RE
+.RS
+.LP
+Will try to close all outgoing connections to the host/port combinations found in the supplied object reference or the given list of hosts/ports\&. If a \fI#\&'IOP_ServiceContext\&'{}\fR\& containing a local interface has been used when communicating with the remote object (see also \fBModule_Interface\fR\&), that interface shall be passed as the second argument\&. Otherwise, connections via the default local interface, will be terminated\&.
+.LP
+
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+Since several clients maybe communicates via the same connection, they will be affected when invoking this operation\&. Other clients may re-create the connection by invoking an operation on the target object\&.
+
+.RE
+.LP
+.B
+secure() -> no | ssl
+.br
+.RS
+.LP
+This function returns the security mode Orber is running in, which is either no if it is an insecure domain or the type of security mechanism used\&. For the moment the only security mechanism is ssl\&. This is configured by setting the application variable \fIsecure\fR\&\&.
+.RE
+.LP
+.B
+ssl_server_certfile() -> string()
+.br
+.RS
+.LP
+This function returns a path to a file containing a chain of PEM encoded certificates for the Orber domain as server\&. This is configured by setting the application variable \fIssl_server_certfile\fR\&\&.
+.RE
+.LP
+.B
+ssl_client_certfile() -> string()
+.br
+.RS
+.LP
+This function returns a path to a file containing a chain of PEM encoded certificates used in outgoing calls in the current process\&. The default value is configured by setting the application variable \fIssl_client_certfile\fR\&\&.
+.RE
+.LP
+.B
+set_ssl_client_certfile(Path) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Path = string()
+.br
+.RE
+.RS
+.LP
+This function takes a path to a file containing a chain of PEM encoded certificates as parameter and sets it for the current process\&.
+.RE
+.LP
+.B
+ssl_server_verify() -> 0 | 1 | 2
+.br
+.RS
+.LP
+This function returns the type of verification used by SSL during authentication of the other peer for incoming calls\&. It is configured by setting the application variable \fIssl_server_verify\fR\&\&.
+.RE
+.LP
+.B
+ssl_client_verify() -> 0 | 1 | 2
+.br
+.RS
+.LP
+This function returns the type of verification used by SSL during authentication of the other peer for outgoing calls\&. The default value is configured by setting the application variable \fIssl_client_verify\fR\&\&.
+.RE
+.LP
+.B
+set_ssl_client_verify(Value) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Value = 0 | 1 | 2
+.br
+.RE
+.RS
+.LP
+This function sets the SSL verification type for the other peer of outgoing calls\&.
+.RE
+.LP
+.B
+ssl_server_depth() -> int()
+.br
+.RS
+.LP
+This function returns the SSL verification depth for incoming calls\&. It is configured by setting the application variable \fIssl_server_depth\fR\&\&.
+.RE
+.LP
+.B
+ssl_client_depth() -> int()
+.br
+.RS
+.LP
+This function returns the SSL verification depth for outgoing calls\&. The default value is configured by setting the application variable \fIssl_client_depth\fR\&\&.
+.RE
+.LP
+.B
+set_ssl_client_depth(Depth) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Depth = int()
+.br
+.RE
+.RS
+.LP
+This function sets the SSL verification depth for the other peer of outgoing calls\&.
+.RE
+.LP
+.B
+objectkeys_gc_time() -> int() (seconds)
+.br
+.RS
+.LP
+This function returns the timeout value after which after which terminated object keys, related to servers started with the configuration parameter \fI{persistent, true}\fR\&, will be removed\&. It can be configured by setting the application variable \fIobjectkeys_gc_time TimeVal (seconds)\fR\&, if it is not set it will have the default value \fIinfinity\fR\&\&.
+.LP
+Objects terminating with reason \fInormal\fR\& or \fIshutdown\fR\& are removed automatically\&.
+.LP
+Note: the objectkeys_gc_time configuration parameter (TimeVal) may only range between 0 and 1000000 seconds\&. Otherwise, the default value is used\&.
+.RE
+.LP
+.B
+orber_nodes() -> RetVal
+.br
+.RS
+.TP 3
+Types:
+
+RetVal = [node()]
+.br
+.RE
+.RS
+.LP
+This function returns the list of node names that this orber domain consists of\&.
+.RE
+.LP
+.B
+install(NodeList) -> ok
+.br
+.B
+install(NodeList, Options) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+NodeList = [node()]
+.br
+Options = [Option]
+.br
+Option = {install_timeout, Timeout} | {ifr_storage_type, TableType} | {nameservice_storage_type, TableType} | {initialreferences_storage_type, TableType} | {load_order, Priority}
+.br
+Timeout = infinity | integer()
+.br
+TableType = disc_copies | ram_copies
+.br
+Priority = integer()
+.br
+.RE
+.RS
+.LP
+This function installs all the necessary mnesia tables and load default data in some of them\&. If one or more Orber tables already exists the installation fails\&. The function \fIuninstall\fR\& may be used, if it is safe, i\&.e\&., no other application is running Orber\&.
+.LP
+Preconditions:
+.RS 2
+.TP 2
+*
+a mnesia schema must exist before the installation
+.LP
+.TP 2
+*
+mnesia is running on the other nodes if the new installation shall be a multi node domain
+.LP
+.RE
+
+.LP
+Mnesia will be started by the function if it is not already running on the installation node and if it was started it will be stopped afterwards\&.
+.LP
+The options that can be sent to the installation program is:
+.RS 2
+.TP 2
+*
+\fI{install_timeout, Timeout}\fR\& - this timeout is how long we will wait for the tables to be created\&. The Timeout value can be \fIinfinity\fR\& or an integer number in milliseconds\&. Default is infinity\&.
+.LP
+.TP 2
+*
+\fI{ifr_storage_type, TableType}\fR\& - this option sets the type of tables used for the interface repository\&. The TableType can be disc_copies or ram_copies\&. Default is disc_copies\&.
+.LP
+.TP 2
+*
+\fI{initialreferences_storage_type, TableType}\fR\& - this option sets the type of table used for storing initial references\&. The TableType can be disc_copies or ram_copies\&. Default is ram_copies\&.
+.LP
+.TP 2
+*
+\fI{nameservice_storage_type, TableType}\fR\& - the default behavior of Orber is to install the NameService as ram_copies\&. This option makes it possible to change this to disc_copies\&. But the user should be aware of that if a node is restarted, all local object references stored in the NameService is not valid\&. Hence, you cannot switch to disc_copies and expect exactly the same behavior as before\&.
+.LP
+.TP 2
+*
+\fI{load_order, Priority}\fR\& - per default the priority is set to 0\&. Using this option it will change the priority of in which order Mnesia will load Orber internal tables\&. For more information, consult the Mnesia documentation\&.
+.LP
+.RE
+
+.RE
+.LP
+.B
+uninstall() -> ok
+.br
+.RS
+.LP
+This function stops the Orber application, terminates all server objects and removes all Orber related mnesia tables\&.
+.LP
+Note: Since other applications may be running on the same node using mnesia \fIuninstall\fR\& will not stop the mnesia application\&.
+.RE
+.LP
+.B
+add_node(Node, Options) -> RetVal
+.br
+.RS
+.TP 3
+Types:
+
+Node = node()
+.br
+Options = IFRStorageType | [KeyValue]
+.br
+IFRStorageType = StorageType
+.br
+StorageType = disc_copies | ram_copies
+.br
+KeyValue = {ifr_storage_type, StorageType} | {initialreferences_storage_type, StorageType} | {nameservice_storage_type, StorageType} | {type, Type}
+.br
+Type = temporary | permanent
+.br
+RetVal = ok | exit()
+.br
+.RE
+.RS
+.LP
+This function add given node to a existing Orber node group and starts Orber on the new node\&. \fIorber:add_node\fR\& is called from a member in the Orber node group\&.
+.LP
+Preconditions for new node:
+.RS 2
+.TP 2
+*
+Erlang started on the new node using the option \fI-mnesia extra_db_nodes\fR\&, e\&.g\&., \fIerl -sname new_node_name -mnesia extra_db_nodes ConnectToNodes_List\fR\&
+.LP
+.TP 2
+*
+The new node\&'s \fIdomain\fR\& name is the same for the nodes we want to connect to\&.
+.LP
+.TP 2
+*
+Mnesia is running on the new node (no new schema created)\&.
+.LP
+.TP 2
+*
+If the new node will use \fIdisc_copies\fR\& the schema type must be changed using: \fImnesia:change_table_copy_type(schema, node(), disc_copies)\&.\fR\&
+.LP
+.RE
+
+.LP
+Orber will be started by the function on the new node\&.
+.LP
+Fails if:
+.RS 2
+.TP 2
+*
+Orber already installed on given node\&.
+.LP
+.TP 2
+*
+Mnesia not started as described above on the new node\&.
+.LP
+.TP 2
+*
+Impossible to copy data in Mnesia tables to the new node\&.
+.LP
+.TP 2
+*
+Not able to start Orber on the new node, due to, for example, the \fIiiop_port\fR\& is already in use\&.
+.LP
+.RE
+
+.LP
+The function do not remove already copied tables after a failure\&. Use \fIorber:remove_node\fR\& to remove these tables\&.
+.RE
+.LP
+.B
+remove_node(Node) -> RetVal
+.br
+.RS
+.TP 3
+Types:
+
+Node = node()
+.br
+RetVal = ok | exit()
+.br
+.RE
+.RS
+.LP
+This function removes given node from a Orber node group\&. The Mnesia application is not stopped\&.
+.RE
+.LP
+.B
+configure(Key, Value) -> ok | {\&'EXIT\&', Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Key = orbDefaultInitRef | orbInitRef | giop_version | iiop_timeout | iiop_connection_timeout | iiop_setup_connection_timeout | iiop_in_connection_timeout | objectkeys_gc_time | orber_debug_level
+.br
+Value = allowed value associated with the given key
+.br
+.RE
+.RS
+.LP
+This function allows the user to configure Orber in, for example, an Erlang shell\&. It is possible to invoke \fIconfigure\fR\& at any time the keys specified above\&.
+.LP
+Any other key must be set before installing and starting Orber\&.
+.LP
+Trying to change the configuration in any other way is \fINOT\fR\& allowed since it may affect the behavior of Orber\&.
+.LP
+For more information regarding allowed values, see \fBconfiguration settings\fR\& in the User\&'s Guide\&.
+.LP
+
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+Configuring the IIOP timeout values will not affect already existing connections\&. If you want a guaranteed uniform behavior, you must set these parameters from the start\&.
+
+.RE

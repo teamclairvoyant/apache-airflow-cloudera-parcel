@@ -1,0 +1,98 @@
+.TH CosNotifyChannelAdmin_StructuredProxyPullConsumer 3 "cosNotification 1.1.17" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+CosNotifyChannelAdmin_StructuredProxyPullConsumer \- This module implements the OMG  CosNotifyChannelAdmin::StructuredProxyPullConsumer interface.
+.SH DESCRIPTION
+.LP
+To get access to the record definitions for the structures use: 
+.br
+\fI-include_lib("cosNotification/include/*\&.hrl")\&.\fR\&
+.LP
+This module also exports the functions described in:
+.RS 2
+.TP 2
+*
+\fBCosNotifyComm_NotifyPublish\fR\&
+.LP
+.TP 2
+*
+\fBCosNotification_QoSAdmin\fR\&
+.LP
+.TP 2
+*
+\fBCosNotifyFilter_FilterAdmin\fR\&
+.LP
+.TP 2
+*
+\fBCosNotifyChannelAdmin_ProxyConsumer\fR\&
+.LP
+.RE
+
+.SH EXPORTS
+.LP
+.B
+connect_structured_pull_supplier(StructuredProxyPullConsumer, PullSupplier) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+StructuredProxyPullConsumer = #objref
+.br
+PullSupplier = #objref
+.br
+Reply = ok | {'EXCEPTION', #'CosEventChannelAdmin_AlreadyConnected'{}} | {'EXCEPTION', #'CosEventChannelAdmin_TypeError'{}}
+.br
+.RE
+.RS
+.LP
+This operation connects a \fIPullSupplier\fR\& to the target object\&. If a connection already exists or the given client object does not support the functions \fIpull_structured_event\fR\& and \fItry_pull_structured_event\fR\& an exception is raised\&.
+.RE
+.LP
+.B
+suspend_connection(StructuredProxyPullConsumer) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+StructuredProxyPullConsumer = #objref
+.br
+Reply = ok | {'EXCEPTION', #'CosNotifyChannelAdmin_ConnectionAlreadyInactive'{}} | {'EXCEPTION', #'CosNotifyChannelAdmin_NotConnected'{}}
+.br
+.RE
+.RS
+.LP
+This operation suspends the connection between the target object and its client\&. If no connection exists or already suspended an exception is raised\&.
+.RE
+.LP
+.B
+resume_connection(StructuredProxyPullConsumer) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+StructuredProxyPullConsumer = #objref
+.br
+Reply = ok | {'EXCEPTION', #'CosNotifyChannelAdmin_ConnectionAlreadyInactive'{}} | {'EXCEPTION', #'CosNotifyChannelAdmin_NotConnected'{}}
+.br
+.RE
+.RS
+.LP
+If the connection have been suspended this operation must be used if we want to resume the connection\&. If the connection already are active or no connection have been created an exception is raised\&.
+.RE
+.LP
+.B
+disconnect_structured_pull_consumer(StructuredProxyPullConsumer) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+StructuredProxyPullConsumer = #objref
+.br
+.RE
+.RS
+.LP
+This operation cause the target object to close the connection and terminate\&.
+.RE

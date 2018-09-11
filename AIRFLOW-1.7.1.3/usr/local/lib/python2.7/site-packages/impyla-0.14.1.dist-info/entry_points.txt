@@ -1,0 +1,3 @@
+[sqlalchemy.dialects]
+impala = impala.sqlalchemy:ImpalaDialect
+

@@ -1,0 +1,649 @@
+.TH ei_connect 3 "erl_interface 3.7.5" "Ericsson AB" "C Library Functions"
+.SH NAME
+ei_connect \- Communicate with distributed erlang
+.SH DESCRIPTION
+.LP
+This module enables C programs to communicate with erlang nodes, using the erlang distribution over TCP/IP\&.
+.LP
+A C node appears to Erlang as a \fIhidden node\fR\&\&. That is, Erlang processes that know the name of the C node are able to communicate with it in a normal manner, but the node name will not appear in the listing provided by the Erlang function \fInodes/0\fR\&\&.
+.LP
+The environment variable \fIERL_EPMD_PORT\fR\& can be used to indicate which logical cluster a C node belongs to\&.
+.SH "TIMEOUT FUNCTIONS"
+
+.LP
+Most functions appear in a version with the suffix \fI_tmo\fR\& appended to the function name\&. Those function take an additional argument, a timeout in \fImilliseconds\fR\&\&. The semantics is this; for each communication primitive involved in the operation, if the primitive does not complete within the time specified, the function will return an error and \fIerl_errno\fR\& will be set to \fIETIMEDOUT\fR\&\&. With communication primitive is meant an operation on the socket, like \fIconnect\fR\&, \fIaccept\fR\&, \fIrecv\fR\& or \fIsend\fR\&\&.
+.LP
+Obviously the timeouts are for implementing fault tolerance, not to keep hard realtime promises\&. The \fI_tmo\fR\& functions are for detecting non-responsive peers and to avoid blocking on socket operations\&.
+.LP
+A timeout value of \fI0\fR\& (zero), means that timeouts are disabled\&. Calling a \fI_tmo\fR\&-function with the last argument as \fI0\fR\& is therefore exactly the same thing as calling the function without the \fI_tmo\fR\& suffix\&.
+.LP
+As with all other ei functions, you are \fInot\fR\& expected to put the socket in non blocking mode yourself in the program\&. Every use of non blocking mode is embedded inside the timeout functions\&. The socket will always be back in blocking mode after the operations are completed (regardless of the result)\&. To avoid problems, leave the socket options alone\&. Ei will handle any socket options that need modification\&.
+.LP
+In all other senses, the \fI_tmo\fR\& functions inherit all the return values and the semantics from the functions without the \fI_tmo\fR\& suffix\&.
+.SH EXPORTS
+.LP
+.B
+intei_connect_init(ei_cnode* ec, const char* this_node_name, const char *cookie, short creation)
+.br
+.B
+intei_connect_xinit(ei_cnode* ec, const char *thishostname, const char *thisalivename, const char *thisnodename, Erl_IpAddr thisipaddr, const char *cookie, short creation)
+.br
+.RS
+.LP
+These function initializes the \fIec\fR\& structure, to identify the node name and cookie of the server\&. One of them has to be called before other functions that works on the type \fIei_cnode\fR\& or a file descriptor associated with a connection to another node are used\&.
+.LP
+\fIec\fR\& is a structure containing information about the C-node\&. It is used in other \fIei\fR\& functions for connecting and receiving data\&.
+.LP
+\fIthis_node_name\fR\& is the registered name of the process (the name before \&'@\&')\&.
+.LP
+\fIcookie\fR\& is the cookie for the node\&.
+.LP
+\fIcreation\fR\& identifies a specific instance of a C node\&. It can help prevent the node from receiving messages sent to an earlier process with the same registered name\&.
+.LP
+\fIthishostname\fR\& is the name of the machine we\&'re running on\&. If long names are to be used, it should be fully qualified (i\&.e\&. \fIdurin\&.erix\&.ericsson\&.se\fR\& instead of \fIdurin\fR\&)\&.
+.LP
+\fIthisalivename\fR\& is the registered name of the process\&.
+.LP
+\fIthisnodename\fR\& is the full name of the node, i\&.e\&. \fIeinode@durin\fR\&\&.
+.LP
+\fIthispaddr\fR\& if the IP address of the host\&.
+.LP
+A C node acting as a server will be assigned a creation number when it calls \fIei_publish()\fR\&\&.
+.LP
+A connection is closed by simply closing the socket\&. Refer to system documentation to close the socket gracefully (when there are outgoing packets before close)\&.
+.LP
+This function return a negative value indicating that an error occurred\&.
+.LP
+Example 1:
+.LP
+.nf
+
+int n = 0;
+struct in_addr addr;
+ei_cnode ec;
+addr.s_addr = inet_addr("150.236.14.75");
+if (ei_connect_xinit(&ec,
+                     "chivas",
+                     "madonna",
+                     "madonna@chivas.du.etx.ericsson.se",
+                     &addr;
+                     "cookie...",
+                     n++) < 0) {
+    fprintf(stderr,"ERROR when initializing: %d",erl_errno);
+    exit(-1);
+}
+        
+.fi
+.LP
+Example 2:
+.LP
+.nf
+
+if (ei_connect_init(&ec, "madonna", "cookie...", n++) < 0) {
+    fprintf(stderr,"ERROR when initializing: %d",erl_errno);
+    exit(-1);
+}
+        
+.fi
+.RE
+.LP
+.B
+intei_connect(ei_cnode* ec, char *nodename)
+.br
+.B
+intei_xconnect(ei_cnode* ec, Erl_IpAddr adr, char *alivename)
+.br
+.RS
+.LP
+These functions set up a connection to an Erlang node\&.
+.LP
+\fIei_xconnect()\fR\& requires the IP address of the remote host and the alive name of the remote node to be specified\&. \fIei_connect()\fR\& provides an alternative interface, and determines the information from the node name provided\&.
+.LP
+\fIaddr\fR\& is the 32-bit IP address of the remote host\&.
+.LP
+\fIalive\fR\& is the alivename of the remote node\&.
+.LP
+\fInode\fR\& is the name of the remote node\&.
+.LP
+These functions return an open file descriptor on success, or a negative value indicating that an error occurred --- in which case they will set \fIerl_errno\fR\& to one of:
+.RS 2
+.TP 2
+.B
+\fIEHOSTUNREACH\fR\&:
+The remote host \fInode\fR\& is unreachable
+.TP 2
+.B
+\fIENOMEM\fR\&:
+No more memory available\&.
+.TP 2
+.B
+\fIEIO\fR\&:
+I/O error\&.
+.RE
+.LP
+Additionally, \fIerrno\fR\& values from \fIsocket\fR\&\fI(2)\fR\& and \fIconnect\fR\&\fI(2)\fR\& system calls may be propagated into \fIerl_errno\fR\&\&.
+.LP
+Example:
+.LP
+.nf
+
+#define NODE   "madonna@chivas.du.etx.ericsson.se"
+#define ALIVE  "madonna"
+#define IP_ADDR "150.236.14.75"
+
+/*** Variant 1 ***/
+int fd = ei_connect(&ec, NODE);
+
+/*** Variant 2 ***/
+struct in_addr addr;
+addr.s_addr = inet_addr(IP_ADDR);
+fd = ei_xconnect(&ec, &addr, ALIVE);
+        
+.fi
+.RE
+.LP
+.B
+intei_connect_tmo(ei_cnode* ec, char *nodename, unsigned timeout_ms)
+.br
+.B
+intei_xconnect_tmo(ei_cnode* ec, Erl_IpAddr adr, char *alivename, unsigned timeout_ms)
+.br
+.RS
+.LP
+ei_connect and ei_xconnect with an optional timeout argument, see the description at the beginning of this document\&.
+.RE
+.LP
+.B
+intei_receive(int fd, unsigned char* bufp, int bufsize)
+.br
+.RS
+.LP
+This function receives a message consisting of a sequence of bytes in the Erlang external format\&.
+.LP
+\fIfd\fR\& is an open descriptor to an Erlang connection\&. It is obtained from a previous \fIei_connect\fR\& or \fIei_accept\fR\&\&.
+.LP
+\fIbufp\fR\& is a buffer large enough to hold the expected message\&.
+.LP
+\fIbufsize\fR\& indicates the size of \fIbufp\fR\&\&.
+.LP
+If a \fItick\fR\& occurs, i\&.e\&., the Erlang node on the other end of the connection has polled this node to see if it is still alive, the function will return \fIERL_TICK\fR\& and no message will be placed in the buffer\&. Also, \fIerl_errno\fR\& will be set to \fIEAGAIN\fR\&\&.
+.LP
+On success, the message is placed in the specified buffer and the function returns the number of bytes actually read\&. On failure, the function returns \fIERL_ERROR\fR\& and will set \fIerl_errno\fR\& to one of:
+.RS 2
+.TP 2
+.B
+\fIEAGAIN\fR\&:
+Temporary error: Try again\&.
+.TP 2
+.B
+\fIEMSGSIZE\fR\&:
+Buffer too small\&.
+.TP 2
+.B
+\fIEIO\fR\&:
+I/O error\&.
+.RE
+.RE
+.LP
+.B
+intei_receive_tmo(int fd, unsigned char* bufp, int bufsize, unsigned timeout_ms)
+.br
+.RS
+.LP
+ei_receive with an optional timeout argument, see the description at the beginning of this document\&.
+.RE
+.LP
+.B
+intei_receive_msg(int fd, erlang_msg* msg, ei_x_buff* x)
+.br
+.B
+intei_xreceive_msg(int fd, erlang_msg* msg, ei_x_buff* x)
+.br
+.RS
+.LP
+These functions receives a message to the buffer in \fIx\fR\&\&. \fIei_xreceive_msg\fR\& allows the buffer in \fIx\fR\& to grow, but \fIei_receive_msg\fR\& fails if the message is bigger than the preallocated buffer in \fIx\fR\&\&.
+.LP
+\fIfd\fR\& is an open descriptor to an Erlang connection\&.
+.LP
+\fImsg\fR\& is a pointer to an \fIerlang_msg\fR\& structure and contains information on the message received\&.
+.LP
+\fIx\fR\& is buffer obtained from \fIei_x_new\fR\&\&.
+.LP
+On success, the function returns \fIERL_MSG\fR\& and the \fImsg\fR\& struct will be initialized\&. \fIerlang_msg\fR\& is defined as follows:
+.LP
+.nf
+
+typedef struct {
+    long msgtype;
+    erlang_pid from;
+    erlang_pid to;
+    char toname[MAXATOMLEN+1];
+    char cookie[MAXATOMLEN+1];
+    erlang_trace token;
+} erlang_msg;
+        
+.fi
+.LP
+\fImsgtype\fR\& identifies the type of message, and is one of \fIERL_SEND\fR\&, \fIERL_REG_SEND\fR\&, \fIERL_LINK\fR\&, \fIERL_UNLINK\fR\& and \fIERL_EXIT\fR\&\&.
+.LP
+If \fImsgtype\fR\& is \fIERL_SEND\fR\& this indicates that an ordinary send operation has taken place, and \fImsg->to\fR\& contains the Pid of the recipient (the C-node)\&. If \fItype\fR\& is \fIERL_REG_SEND\fR\& then a registered send operation took place, and \fImsg->from\fR\& contains the Pid of the sender\&.
+.LP
+If \fImsgtype\fR\& is \fIERL_LINK\fR\& or \fIERL_UNLINK\fR\&, then \fImsg->to\fR\& and \fImsg->from\fR\& contain the pids of the sender and recipient of the link or unlink\&.
+.LP
+If \fImsgtype\fR\& is \fIERL_EXIT\fR\&, then this indicates that a link has been broken\&. In this case, \fImsg->to\fR\& and \fImsg->from\fR\& contain the pids of the linked processes\&.
+.LP
+The return value is the same as for \fIei_receive\fR\&, see above\&.
+.RE
+.LP
+.B
+intei_receive_msg_tmo(int fd, erlang_msg* msg, ei_x_buff* x, unsigned imeout_ms)
+.br
+.B
+intei_xreceive_msg_tmo(int fd, erlang_msg* msg, ei_x_buff* x, unsigned timeout_ms)
+.br
+.RS
+.LP
+ei_receive_msg and ei_xreceive_msg with an optional timeout argument, see the description at the beginning of this document\&.
+.RE
+.LP
+.B
+intei_receive_encoded(int fd, char **mbufp, int *bufsz, erlang_msg *msg, int *msglen)
+.br
+.RS
+.LP
+This function is retained for compatibility with code generated by the interface compiler and with code following examples in the same application\&.
+.LP
+In essence the function performs the same operation as \fIei_xreceive_msg\fR\&, but instead of using an ei_x_buff, the function expects a pointer to a character pointer (\fImbufp\fR\&), where the character pointer should point to a memory area allocated by \fImalloc\fR\&\&. The argument \fIbufsz\fR\& should be a pointer to an integer containing the exact size (in bytes) of the memory area\&. The function may reallocate the memory area and will in such cases put the new size in \fI*bufsz\fR\& and update \fI*mbufp\fR\&\&.
+.LP
+Furthermore the function returns either ERL_TICK or the \fImsgtype\fR\& field of the \fIerlang_msg *msg\fR\&\&. The actual length of the message is put in \fI*msglen\fR\&\&. On error it will return a value \fI< 0\fR\&\&.
+.LP
+It is recommended to use ei_xreceive_msg instead when possible, for the sake of readability\&. The function will however be retained in the interface for compatibility and will \fInot\fR\& be removed not be removed in future releases without notice\&.
+.RE
+.LP
+.B
+intei_receive_encoded_tmo(int fd, char **mbufp, int *bufsz, erlang_msg *msg, int *msglen, unsigned timeout_ms)
+.br
+.RS
+.LP
+ei_receive_encoded with an optional timeout argument, see the description at the beginning of this document\&.
+.RE
+.LP
+.B
+intei_send(int fd, erlang_pid* to, char* buf, int len)
+.br
+.RS
+.LP
+This function sends an Erlang term to a process\&.
+.LP
+\fIfd\fR\& is an open descriptor to an Erlang connection\&.
+.LP
+\fIto\fR\& is the Pid of the intended recipient of the message\&.
+.LP
+\fIbuf\fR\& is the buffer containing the term in binary format\&.
+.LP
+\fIlen\fR\& is the length of the message in bytes\&.
+.LP
+The function returns 0 if successful, otherwise -1, in the latter case it will set \fIerl_errno\fR\& to \fIEIO\fR\&\&.
+.RE
+.LP
+.B
+intei_send_tmo(int fd, erlang_pid* to, char* buf, int len, unsigned timeout_ms)
+.br
+.RS
+.LP
+ei_send with an optional timeout argument, see the description at the beginning of this document\&.
+.RE
+.LP
+.B
+intei_send_encoded(int fd, erlang_pid* to, char* buf, int len)
+.br
+.RS
+.LP
+Works exactly as ei_send, the alternative name retained for backward compatibility\&. The function will \fInot\fR\& be removed without notice\&.
+.RE
+.LP
+.B
+intei_send_encoded_tmo(int fd, erlang_pid* to, char* buf, int len, unsigned timeout_ms)
+.br
+.RS
+.LP
+ei_send_encoded with an optional timeout argument, see the description at the beginning of this document\&.
+.RE
+.LP
+.B
+intei_reg_send(ei_cnode* ec, int fd, char* server_name, char* buf, int len)
+.br
+.RS
+.LP
+This function sends an Erlang term to a registered process\&.
+.LP
+This function sends an Erlang term to a process\&.
+.LP
+\fIfd\fR\& is an open descriptor to an Erlang connection\&.
+.LP
+\fIserver_name\fR\& is the registered name of the intended recipient\&.
+.LP
+\fIbuf\fR\& is the buffer containing the term in binary format\&.
+.LP
+\fIlen\fR\& is the length of the message in bytes\&.
+.LP
+The function returns 0 if successful, otherwise -1, in the latter case it will set \fIerl_errno\fR\& to \fIEIO\fR\&\&.
+.LP
+Example, send the atom "ok" to the process "worker":
+.LP
+.nf
+
+ei_x_buff x;
+ei_x_new_with_version(&x);
+ei_x_encode_atom(&x, "ok");
+if (ei_reg_send(&ec, fd, x.buff, x.index) < 0)
+    handle_error();
+        
+.fi
+.RE
+.LP
+.B
+intei_reg_send_tmo(ei_cnode* ec, int fd, char* server_name, char* buf, int len, unsigned timeout_ms)
+.br
+.RS
+.LP
+ei_reg_send with an optional timeout argument, see the description at the beginning of this document\&.
+.RE
+.LP
+.B
+intei_send_reg_encoded(int fd, const erlang_pid *from, const char *to, const char *buf, int len)
+.br
+.RS
+.LP
+This function is retained for compatibility with code generated by the interface compiler and with code following examples in the same application\&.
+.LP
+The function works as \fIei_reg_send\fR\& with one exception\&. Instead of taking the \fIei_cnode\fR\& as a first argument, it takes a second argument, an \fIerlang_pid\fR\& which should be the process identifier of the sending process (in the erlang distribution protocol)\&.
+.LP
+A suitable \fIerlang_pid\fR\& can be constructed from the \fIei_cnode\fR\& structure by the following example code:
+.LP
+.nf
+
+          ei_cnode ec;
+          erlang_pid *self;
+          int fd; /* the connection fd */
+          ...
+          self = ei_self(&ec);
+          self->num = fd;
+        
+.fi
+.RE
+.LP
+.B
+intei_send_reg_encoded_tmo(int fd, const erlang_pid *from, const char *to, const char *buf, int len)
+.br
+.RS
+.LP
+ei_send_reg_encoded with an optional timeout argument, see the description at the beginning of this document\&.
+.RE
+.LP
+.B
+intei_rpc(ei_cnode *ec, int fd, char *mod, char *fun, const char *argbuf, int argbuflen, ei_x_buff *x)
+.br
+.B
+intei_rpc_to(ei_cnode *ec, int fd, char *mod, char *fun, const char *argbuf, int argbuflen)
+.br
+.B
+intei_rpc_from(ei_cnode *ec, int fd, int timeout, erlang_msg *msg, ei_x_buff *x)
+.br
+.RS
+.LP
+These functions support calling Erlang functions on remote nodes\&. \fIei_rpc_to()\fR\& sends an rpc request to a remote node and \fIei_rpc_from()\fR\& receives the results of such a call\&. \fIei_rpc()\fR\& combines the functionality of these two functions by sending an rpc request and waiting for the results\&. See also \fIrpc:call/4\fR\&\&.
+.LP
+\fIec\fR\& is the C-node structure previously initiated by a call to \fIei_connect_init()\fR\& or \fIei_connect_xinit()\fR\&
+.LP
+\fIfd\fR\& is an open descriptor to an Erlang connection\&.
+.LP
+\fItimeout\fR\& is the maximum time (in ms) to wait for results\&. Specify \fIERL_NO_TIMEOUT\fR\& to wait forever\&. \fIei_rpc()\fR\& will wait infinitely for the answer, i\&.e\&. the call will never time out\&.
+.LP
+\fImod\fR\& is the name of the module containing the function to be run on the remote node\&.
+.LP
+\fIfun\fR\& is the name of the function to run\&.
+.LP
+\fIargbuf\fR\& is a pointer to a buffer with an encoded Erlang list, without a version magic number, containing the arguments to be passed to the function\&.
+.LP
+\fIargbuflen\fR\& is the length of the buffer containing the encoded Erlang list\&.
+.LP
+\fImsg\fR\& structure of type \fIerlang_msg\fR\& and contains information on the message received\&. See \fIei_receive_msg()\fR\& for a description of the \fIerlang_msg\fR\& format\&.
+.LP
+\fIx\fR\& points to the dynamic buffer that receives the result\&. For for \fIei_rpc()\fR\& this will be the result without the version magic number\&. For \fIei_rpc_from()\fR\& the result will return a version magic number and a 2-tuple \fI{rex,Reply}\fR\&\&.
+.LP
+\fIei_rpc()\fR\& returns the number of bytes in the result on success and -1 on failure\&. \fIei_rpc_from()\fR\& returns number of bytes or one of \fIERL_TICK\fR\&, \fIERL_TIMEOUT\fR\& and \fIERL_ERROR\fR\& otherwise\&. When failing, all three functions set \fIerl_errno\fR\& to one of:
+.RS 2
+.TP 2
+.B
+\fIEIO\fR\&:
+I/O error\&.
+.TP 2
+.B
+\fIETIMEDOUT\fR\&:
+Timeout expired\&.
+.TP 2
+.B
+\fIEAGAIN\fR\&:
+Temporary error: Try again\&.
+.RE
+.LP
+Example, check to see if an erlang process is alive:
+.LP
+.nf
+
+int index = 0, is_alive;
+ei_x_buff args, result;
+
+ei_x_new(&result);
+ei_x_new(&args);
+ei_x_encode_list_header(&args, 1);
+ei_x_encode_pid(&args, &check_pid);
+ei_x_encode_empty_list(&args);
+
+if (ei_rpc(&ec, fd, "erlang", "is_process_alive",
+           args.buff, args.index, &result) < 0)
+    handle_error();
+
+if (ei_decode_version(result.buff, &index) < 0
+    || ei_decode_bool(result.buff, &index, &is_alive) < 0)
+    handle_error();
+        
+.fi
+.RE
+.LP
+.B
+intei_publish(ei_cnode *ec, int port)
+.br
+.RS
+.LP
+These functions are used by a server process to register with the local name server \fIepmd\fR\&, thereby allowing other processes to send messages by using the registered name\&. Before calling either of these functions, the process should have called \fIbind()\fR\& and \fIlisten()\fR\& on an open socket\&.
+.LP
+\fIec\fR\& is the C-node structure\&.
+.LP
+\fIport\fR\& is the local name to register, and should be the same as the port number that was previously bound to the socket\&.
+.LP
+\fIaddr\fR\& is the 32-bit IP address of the local host\&.
+.LP
+To unregister with epmd, simply close the returned descriptor\&. Do not use \fIei_unpublish()\fR\&, which is deprecated anyway\&.
+.LP
+On success, the functions return a descriptor connecting the calling process to epmd\&. On failure, they return -1 and set \fIerl_errno\fR\& to \fIEIO\fR\&\&.
+.LP
+Additionally, \fIerrno\fR\& values from \fIsocket\fR\&\fI(2)\fR\& and \fIconnect\fR\&\fI(2)\fR\& system calls may be propagated into \fIerl_errno\fR\&\&.
+.RE
+.LP
+.B
+intei_publish_tmo(ei_cnode *ec, int port, unsigned timeout_ms)
+.br
+.RS
+.LP
+ei_publish with an optional timeout argument, see the description at the beginning of this document\&.
+.RE
+.LP
+.B
+intei_accept(ei_cnode *ec, int listensock, ErlConnect *conp)
+.br
+.RS
+.LP
+This function is used by a server process to accept a connection from a client process\&.
+.LP
+\fIec\fR\& is the C-node structure\&.
+.LP
+\fIlistensock\fR\& is an open socket descriptor on which \fIlisten()\fR\& has previously been called\&.
+.LP
+\fIconp\fR\& is a pointer to an \fIErlConnect\fR\& struct, described as follows:
+.LP
+.nf
+
+typedef struct {
+  char ipadr[4];             
+  char nodename[MAXNODELEN];
+} ErlConnect;
+        
+.fi
+.LP
+On success, \fIconp\fR\& is filled in with the address and node name of the connecting client and a file descriptor is returned\&. On failure, \fIERL_ERROR\fR\& is returned and \fIerl_errno\fR\& is set to \fIEIO\fR\&\&.
+.RE
+.LP
+.B
+intei_accept_tmo(ei_cnode *ec, int listensock, ErlConnect *conp, unsigned timeout_ms)
+.br
+.RS
+.LP
+ei_accept with an optional timeout argument, see the description at the beginning of this document\&.
+.RE
+.LP
+.B
+intei_unpublish(ei_cnode *ec)
+.br
+.RS
+.LP
+This function can be called by a process to unregister a specified node from epmd on the localhost\&. This is however usually not allowed, unless epmd was started with the -relaxed_command_check flag, which it normally isn\&'t\&.
+.LP
+To unregister a node you have published, you should close the descriptor that was returned by \fIei_publish()\fR\&\&.
+.LP
+
+.RS -4
+.B
+Warning:
+.RE
+This function is deprecated and will be removed in a future release\&.
+
+.LP
+\fIec\fR\& is the node structure of the node to unregister\&.
+.LP
+If the node was successfully unregistered from epmd, the function returns 0\&. Otherwise, it returns -1 and sets \fIerl_errno\fR\& is to \fIEIO\fR\&\&.
+.RE
+.LP
+.B
+intei_unpublish_tmo(ei_cnode *ec, unsigned timeout_ms)
+.br
+.RS
+.LP
+ei_unpublish with an optional timeout argument, see the description at the beginning of this document\&.
+.RE
+.LP
+.B
+const char *ei_thisnodename(ei_cnode *ec)
+.br
+.B
+const char *ei_thishostname(ei_cnode *ec)
+.br
+.B
+const char *ei_thisalivename(ei_cnode *ec)
+.br
+.RS
+.LP
+These functions can be used to retrieve information about the C Node\&. These values are initially set with \fIei_connect_init()\fR\& or \fIei_connect_xinit()\fR\&\&.
+.LP
+They simply fetches the appropriate field from the \fIec\fR\& structure\&. Read the field directly will probably be safe for a long time, so these functions are not really needed\&.
+.RE
+.LP
+.B
+erlang_pid *ei_self(ei_cnode *ec)
+.br
+.RS
+.LP
+This function retrieves the Pid of the C-node\&. Every C-node has a (pseudo) pid used in \fIei_send_reg\fR\&, \fIei_rpc\fR\& and others\&. This is contained in a field in the \fIec\fR\& structure\&. It will be safe for a long time to fetch this field directly from the \fIei_cnode\fR\& structure\&.
+.RE
+.LP
+.B
+struct hostent*ei_gethostbyname(const char *name)
+.br
+.B
+struct hostent*ei_gethostbyaddr(const char *addr, int len, int type)
+.br
+.B
+struct hostent*ei_gethostbyname_r(const char *name, struct hostent *hostp, char *buffer, int buflen, int *h_errnop)
+.br
+.B
+struct hostent*ei_gethostbyaddr_r(const char *addr, int length, int type, struct hostent *hostp, char *buffer, int buflen, int *h_errnop)
+.br
+.RS
+.LP
+These are convenience functions for some common name lookup functions\&.
+.RE
+.LP
+.B
+intei_get_tracelevel(void)
+.br
+.B
+voidei_set_tracelevel(int level)
+.br
+.RS
+.LP
+These functions are used to set tracing on the distribution\&. The levels are different verbosity levels\&. A higher level means more information\&. See also Debug Information and \fIEI_TRACELEVEL\fR\& below\&.
+.LP
+\fIei_set_tracelevel\fR\& and \fIei_get_tracelevel\fR\& are not thread safe\&.
+.RE
+.SH "DEBUG INFORMATION"
+
+.LP
+If a connection attempt fails, the following can be checked:
+.RS 2
+.TP 2
+*
+\fIerl_errno\fR\&
+.LP
+.TP 2
+*
+that the right cookie was used
+.LP
+.TP 2
+*
+that \fIepmd\fR\& is running
+.LP
+.TP 2
+*
+the remote Erlang node on the other side is running the same version of Erlang as the \fIei\fR\& library\&.
+.LP
+.TP 2
+*
+the environment variable \fIERL_EPMD_PORT\fR\& is set correctly\&.
+.LP
+.RE
+
+.LP
+The connection attempt can be traced by setting a tracelevel by either using \fIei_set_tracelevel\fR\& or by setting the environment variable \fIEI_TRACELEVEL\fR\&\&. The different tracelevels has the following messages:
+.RS 2
+.TP 2
+*
+1: Verbose error messages
+.LP
+.TP 2
+*
+2: Above messages and verbose warning messages 
+.LP
+.TP 2
+*
+3: Above messages and progress reports for connection handling
+.LP
+.TP 2
+*
+4: Above messages and progress reports for communication
+.LP
+.TP 2
+*
+5: Above messages and progress reports for data conversion
+.LP
+.RE

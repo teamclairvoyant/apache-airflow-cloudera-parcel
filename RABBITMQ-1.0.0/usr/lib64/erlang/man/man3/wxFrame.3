@@ -1,0 +1,259 @@
+.TH wxFrame 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxFrame \- See external documentation: wxFrame.
+.SH DESCRIPTION
+.LP
+See external documentation: wxFrame\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxTopLevelWindow\fR\& 
+.br
+\fBwxWindow\fR\& 
+.br
+\fBwxEvtHandler\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxFrame()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+new() -> wxFrame()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+new(Parent::wxWindow() (see module wxWindow), Id::integer(), Title::string()) -> wxFrame()
+.br
+.RS
+.LP
+Equivalent to \fBnew(Parent, Id, Title, [])\fR\&\&.
+.RE
+.LP
+.B
+new(Parent::wxWindow() (see module wxWindow), Id::integer(), Title::string(), Options::[Option]) -> wxFrame()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {pos, {X::integer(), Y::integer()}} | {size, {W::integer(), H::integer()}} | {style, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+create(This::wxFrame(), Parent::wxWindow() (see module wxWindow), Id::integer(), Title::string()) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBcreate(This, Parent, Id, Title, [])\fR\&\&.
+.RE
+.LP
+.B
+create(This::wxFrame(), Parent::wxWindow() (see module wxWindow), Id::integer(), Title::string(), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {pos, {X::integer(), Y::integer()}} | {size, {W::integer(), H::integer()}} | {style, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+createStatusBar(This::wxFrame()) -> wxStatusBar() (see module wxStatusBar)
+.br
+.RS
+.LP
+Equivalent to \fBcreateStatusBar(This, [])\fR\&\&.
+.RE
+.LP
+.B
+createStatusBar(This::wxFrame(), Options::[Option]) -> wxStatusBar() (see module wxStatusBar)
+.br
+.RS
+.TP 3
+Types:
+
+Option = {number, integer()} | {style, integer()} | {id, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+createToolBar(This::wxFrame()) -> wxToolBar() (see module wxToolBar)
+.br
+.RS
+.LP
+Equivalent to \fBcreateToolBar(This, [])\fR\&\&.
+.RE
+.LP
+.B
+createToolBar(This::wxFrame(), Options::[Option]) -> wxToolBar() (see module wxToolBar)
+.br
+.RS
+.TP 3
+Types:
+
+Option = {style, integer()} | {id, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getClientAreaOrigin(This::wxFrame()) -> {X::integer(), Y::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getMenuBar(This::wxFrame()) -> wxMenuBar() (see module wxMenuBar)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getStatusBar(This::wxFrame()) -> wxStatusBar() (see module wxStatusBar)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getStatusBarPane(This::wxFrame()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getToolBar(This::wxFrame()) -> wxToolBar() (see module wxToolBar)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+processCommand(This::wxFrame(), Winid::integer()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+sendSizeEvent(This::wxFrame()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setMenuBar(This::wxFrame(), Menubar::wxMenuBar() (see module wxMenuBar)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setStatusBar(This::wxFrame(), Statbar::wxStatusBar() (see module wxStatusBar)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setStatusBarPane(This::wxFrame(), N::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setStatusText(This::wxFrame(), Text::string()) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBsetStatusText(This, Text, [])\fR\&\&.
+.RE
+.LP
+.B
+setStatusText(This::wxFrame(), Text::string(), Options::[Option]) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Option = {number, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setStatusWidths(This::wxFrame(), Widths_field::[integer()]) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setToolBar(This::wxFrame(), Toolbar::wxToolBar() (see module wxToolBar)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+destroy(This::wxFrame()) -> ok
+.br
+.RS
+.LP
+Destroys this object, do not use object again
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

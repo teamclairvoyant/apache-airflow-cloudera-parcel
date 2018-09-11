@@ -1,0 +1,161 @@
+.TH inets 3 "inets 5.7.1" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+inets \- The inets services API
+.SH DESCRIPTION
+.LP
+This module provides the most basic API to the clients and servers, that are part of the Inets application, such as start and stop\&.
+.SH "COMMON DATA TYPES "
+
+.LP
+Type definitions that are used more than once in this module:
+.LP
+\fI service() = ftpc | tftp | httpc | httpd\fR\&
+.LP
+\fI property() = atom() \fR\&
+.SH EXPORTS
+.LP
+.B
+services() -> [{Service, Pid}]
+.br
+.RS
+.TP 3
+Types:
+
+Service = service()
+.br
+Pid = pid()
+.br
+.RE
+.RS
+.LP
+Returns a list of currently running services\&.
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+Services started as \fIstand_alone\fR\& will not be listed\&.
+
+.RE
+.LP
+.B
+services_info() -> [{Service, Pid, Info}]
+.br
+.RS
+.TP 3
+Types:
+
+Service = service()
+.br
+Pid = pid()
+.br
+Info = [{Option, Value}]
+.br
+Option = property()
+.br
+Value = term()
+.br
+.RE
+.RS
+.LP
+Returns a list of currently running services where each service is described by a [{Option, Value}] list\&. The information given in the list is specific for each service and it is probable that each service will have its own info function that gives you even more details about the service\&.
+.RE
+.LP
+.B
+service_names() -> [Service] 
+.br
+.RS
+.TP 3
+Types:
+
+Service = service()
+.br
+.RE
+.RS
+.LP
+Returns a list of available service names\&.
+.RE
+.LP
+.B
+start() -> 
+.br
+.B
+start(Type) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Type = permanent | transient | temporary
+.br
+.RE
+.RS
+.LP
+Starts the Inets application\&. Default type is temporary\&. See also \fBapplication(3)\fR\&\&.
+.RE
+.LP
+.B
+stop() -> ok 
+.br
+.RS
+.LP
+Stops the inets application\&. See also \fBapplication(3)\fR\&\&.
+.RE
+.LP
+.B
+start(Service, ServiceConfig) -> {ok, Pid} | {error, Reason}
+.br
+.B
+start(Service, ServiceConfig, How) -> {ok, Pid} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Service = service()
+.br
+ServiceConfig = [{Option, Value}]
+.br
+Option = property()
+.br
+Value = term()
+.br
+How = inets | stand_alone - default is inets
+.br
+.RE
+.RS
+.LP
+Dynamically starts an inets service after the inets application has been started\&.
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+Dynamically started services will not be handled by application takeover and failover behavior when inets is run as a distributed application\&. Nor will they be automatically restarted when the inets application is restarted, but as long as the inets application is up and running they will be supervised and may be soft code upgraded\&. Services started as \fIstand_alone\fR\&, e\&.i\&. the service is not started as part of the inets application, will lose all OTP application benefits such as soft upgrade\&. The "stand_alone-service" will be linked to the process that started it\&. In most cases some of the supervision functionality will still be in place and in some sense the calling process has now become the top supervisor\&.
+
+.RE
+.LP
+.B
+stop(Service, Reference) -> ok | {error, Reason} 
+.br
+.RS
+.TP 3
+Types:
+
+Service = service() | stand_alone
+.br
+Reference = pid() | term() - service specified reference
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Stops a started service of the inets application or takes down a "stand_alone-service" gracefully\&. When the \fIstand_alone\fR\& option is used in start, only the pid is a valid argument to stop\&.
+.RE
+.SH "SEE ALSO"
+
+.LP
+\fBftp(3)\fR\&, \fBhttpc(3)\fR\&, \fBhttpd(3)\fR\&, \fBtftp(3)\fR\&

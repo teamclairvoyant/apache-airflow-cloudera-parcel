@@ -1,0 +1,41 @@
+.TH snmpa_notification_filter 3 "snmp 4.21.1" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+snmpa_notification_filter \- Behaviour module for the SNMP agent notification filters.
+.SH DESCRIPTION
+.LP
+This module defines the behaviour of the agent notification filters\&. A \fIsnmpa_notification_filter\fR\& compliant module must export the following functions:
+.RS 2
+.TP 2
+*
+handle_notification/2
+.LP
+.RE
+
+.LP
+The semantics of them and their exact signatures are explained below\&.
+.LP
+The purpose of notification filters is to allow for modification and/or suppression of a notification\&.
+.LP
+A misbehaving filter will be removed\&.
+.SH EXPORTS
+.LP
+.B
+handle_notification(Notif, Data) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+Reply = send | {send, NewNotif} | dont_send
+.br
+Notif = NewNotif = notification() | trap()
+.br
+Data = term()
+.br
+.RE
+.RS
+.LP
+Handle a notification to be sent\&. The filter can either accept the notification as is, return \fIsend\fR\&, modify the notification, return \fI{send, NewNotif}\fR\& or suppress the notification, return \fIdont_send\fR\&\&.
+.LP
+\fIData\fR\& is supplied at filter registration time, see \fBregister_notification_filter\fR\&\&.
+.RE

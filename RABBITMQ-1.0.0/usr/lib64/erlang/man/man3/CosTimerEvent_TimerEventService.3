@@ -1,0 +1,64 @@
+.TH CosTimerEvent_TimerEventService 3 "cosTime 1.1.11" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+CosTimerEvent_TimerEventService \- This module implements the OMG CosTimerEvent::TimerEventService interface.
+.SH DESCRIPTION
+.LP
+To get access to the record definitions for the structures use: 
+.br
+\fI-include_lib("cosTime/include/*\&.hrl")\&.\fR\&
+.SH EXPORTS
+.LP
+.B
+register(TimerEventService, CosEventCommPushConsumer, Data) -> TimerEventHandler
+.br
+.RS
+.TP 3
+Types:
+
+TimerEventService = CosEventCommPushConsumer = TimerEventHandler = #objref
+.br
+Data = #any
+.br
+.RE
+.RS
+.LP
+This operation will create a new \fITimerEventHandler\fR\& object which will push given \fIData\fR\& to given \fICosEventCommPushConsumer\fR\& after the timer have been set\&.
+.RE
+.LP
+.B
+unregister(TimerEventService, TimerEventHandler) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+TimerEventService = TimerEventHandler = #objref
+.br
+.RE
+.RS
+.LP
+This operation will terminate the given TimerEventHandler\&.
+.RE
+.LP
+.B
+event_time(TimerEventService, TimerEvent) -> UTO
+.br
+.RS
+.TP 3
+Types:
+
+TimerEventService = #objref
+.br
+TimerEvent = #'CosTimerEvent_TimerEvent'{utc, event_data}
+.br
+utc =
+.br
+event_data = #any}
+.br
+UTO = #objref
+.br
+.RE
+.RS
+.LP
+This operation returns a UTO containing the time at which the associated event was triggered\&.
+.RE

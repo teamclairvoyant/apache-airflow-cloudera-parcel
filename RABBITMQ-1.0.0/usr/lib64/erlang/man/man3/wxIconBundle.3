@@ -1,0 +1,96 @@
+.TH wxIconBundle 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxIconBundle \- See external documentation: wxIconBundle.
+.SH DESCRIPTION
+.LP
+See external documentation: wxIconBundle\&.
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxIconBundle()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+new() -> wxIconBundle()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+new(Ic::wxIconBundle() | wxIcon() (see module wxIcon)) -> wxIconBundle()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+new(File::string(), Type::integer()) -> wxIconBundle()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+addIcon(This::wxIconBundle(), Icon::wxIcon() (see module wxIcon)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+addIcon(This::wxIconBundle(), File::string(), Type::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getIcon(This::wxIconBundle()) -> wxIcon() (see module wxIcon)
+.br
+.RS
+.LP
+Equivalent to \fBgetIcon(This, [])\fR\&\&.
+.RE
+.LP
+.B
+getIcon(This::wxIconBundle(), X::term()) -> wxIcon() (see module wxIcon)
+.br
+.RS
+.LP
+See external documentation\&. 
+.br
+Alternatives:
+.LP
+\fI getIcon(This::wxIconBundle(), [Option]) -> wxIcon:wxIcon() \fR\& 
+.br
+Option = {size, integer()}
+.LP
+\fI getIcon(This::wxIconBundle(), Size::{W::integer(),H::integer()}) -> wxIcon:wxIcon() \fR\& 
+.RE
+.LP
+.B
+destroy(This::wxIconBundle()) -> ok
+.br
+.RS
+.LP
+Destroys this object, do not use object again
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

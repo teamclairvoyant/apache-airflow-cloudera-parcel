@@ -1,0 +1,80 @@
+.TH wxSashEvent 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxSashEvent \- See external documentation: wxSashEvent.
+.SH DESCRIPTION
+.LP
+See external documentation: wxSashEvent\&.
+.RS 2
+.TP 2
+.B
+Use \fBwxEvtHandler:connect/3\fR\& with EventType::
+\fIsash_dragged\fR\&
+.RE
+.LP
+See also the message variant \fB#wxSash{\fR\&} event record type\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxCommandEvent\fR\& 
+.br
+\fBwxEvent\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxSashEvent()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+getEdge(This::wxSashEvent()) -> WxSashEdgePosition
+.br
+.RS
+.TP 3
+Types:
+
+WxSashEdgePosition = integer()
+.br
+.RE
+.RS
+.LP
+See external documentation\&. 
+.br
+WxSashEdgePosition is one of ?wxSASH_TOP | ?wxSASH_RIGHT | ?wxSASH_BOTTOM | ?wxSASH_LEFT | ?wxSASH_NONE
+.RE
+.LP
+.B
+getDragRect(This::wxSashEvent()) -> {X::integer(), Y::integer(), W::integer(), H::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getDragStatus(This::wxSashEvent()) -> WxSashDragStatus
+.br
+.RS
+.TP 3
+Types:
+
+WxSashDragStatus = integer()
+.br
+.RE
+.RS
+.LP
+See external documentation\&. 
+.br
+WxSashDragStatus is one of ?wxSASH_STATUS_OK | ?wxSASH_STATUS_OUT_OF_RANGE
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

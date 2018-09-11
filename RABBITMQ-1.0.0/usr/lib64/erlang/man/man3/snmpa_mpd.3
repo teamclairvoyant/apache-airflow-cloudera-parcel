@@ -1,0 +1,181 @@
+.TH snmpa_mpd 3 "snmp 4.21.1" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+snmpa_mpd \- Message Processing and Dispatch module for the SNMP agent
+.SH DESCRIPTION
+.LP
+The module \fIsnmpa_mpd\fR\& implements the version independent Message Processing and Dispatch functionality in SNMP for the agent\&. It is supposed to be used from a Network Interface process (\fBDefinition of Agent Net if\fR\&)\&.
+.SH EXPORTS
+.LP
+.B
+init(Vsns) -> mpd_state()
+.br
+.RS
+.TP 3
+Types:
+
+Vsns = [Vsn]
+.br
+Vsn = v1 | v2 | v3
+.br
+.RE
+.RS
+.LP
+This function can be called from the net_if process at start-up\&. The options list defines which versions to use\&.
+.LP
+It also initializes some SNMP counters\&.
+.RE
+.LP
+.B
+process_packet(Packet, TDomain, TAddress, State, NoteStore, Log) -> {ok, Vsn, Pdu, PduMS, ACMData} | {discarded, Reason} | {discovery, DiscoPacket}
+.br
+.B
+process_packet(Packet, TDomain, TAddress, LocalEngineID, State, NoteStore, Log) -> {ok, Vsn, Pdu, PduMS, ACMData} | {discarded, Reason} | {discovery, DiscoPacket}
+.br
+.RS
+.TP 3
+Types:
+
+Packet = binary()
+.br
+TDomain = snmpUDPDomain
+.br
+TAddress = {Ip, Udp}
+.br
+LocalEngineID = string()
+.br
+Ip = {integer(), integer(), integer(), integer()}
+.br
+Udp = integer()
+.br
+State = mpd_state()
+.br
+NoteStore = pid()
+.br
+Log = snmp_log()
+.br
+Vsn = 'version-1' | 'version-2' | 'version-3'
+.br
+Pdu = #pdu
+.br
+PduMs = integer()
+.br
+ACMData = acm_data()
+.br
+Reason = term()
+.br
+DiscoPacket = binary()
+.br
+.RE
+.RS
+.LP
+Processes an incoming packet\&. Performs authentication and decryption as necessary\&. The return values should be passed the agent\&.
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+Note that the use of the LocalEngineID argument is only intended for special cases, if the agent is to "emulate" multiple EngineIDs! By default, the agent uses the value of \fISnmpEngineID\fR\& (see SNMP-FRAMEWORK-MIB)\&.
+
+.RE
+.LP
+.B
+generate_response_msg(Vsn, RePdu, Type, ACMData, Log) -> {ok, Packet} | {discarded, Reason}
+.br
+.B
+generate_response_msg(Vsn, RePdu, Type, ACMData, LocalEngineID, Log) -> {ok, Packet} | {discarded, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Vsn = 'version-1' | 'version-2' | 'version-3'
+.br
+RePdu = #pdu
+.br
+Type = atom()
+.br
+ACMData = acm_data()
+.br
+LocalEngineID = string()
+.br
+Packet = binary()
+.br
+.RE
+.RS
+.LP
+Generates a possibly encrypted response packet to be sent to the network\&. \fIType\fR\& is the \fI#pdu\&.type\fR\& of the original request\&.
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+Note that the use of the LocalEngineID argument is only intended for special cases, if the agent is to "emulate" multiple EngineIDs! By default, the agent uses the value of \fISnmpEngineID\fR\& (see SNMP-FRAMEWORK-MIB)\&.
+
+.RE
+.LP
+.B
+generate_msg(Vsn, NoteStore, Pdu, MsgData, To) -> {ok, PacketsAndAddresses} | {discarded, Reason}
+.br
+.B
+generate_msg(Vsn, NoteStore, Pdu, MsgData, LocalEngineID, To) -> {ok, PacketsAndAddresses} | {discarded, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Vsn = 'version-1' | 'version-2' | 'version-3'
+.br
+NoteStore = pid()
+.br
+Pdu = #pdu
+.br
+MsgData = msg_data()
+.br
+LocalEngineID = string()
+.br
+To = [dest_addrs()]
+.br
+PacketsAndAddresses = [{TDomain, TAddress, Packet}]
+.br
+TDomain = snmpUDPDomain
+.br
+TAddress = {Ip, Udp}
+.br
+Ip = {integer(), integer(), integer(), integer()}
+.br
+Udp = integer()
+.br
+Packet = binary()
+.br
+.RE
+.RS
+.LP
+Generates a possibly encrypted request packet to be sent to the network\&.
+.LP
+\fIMsgData\fR\& is the message specific data used in the SNMP message\&. This value is received in a \fIsend_pdu\fR\& or \fIsend_pdu_req\fR\& message from the agent\&. In SNMPv1 and SNMPv2c, this message data is the community string\&. In SNMPv3, it is the context information\&. \fITo\fR\& is a list of the destination addresses and their corresponding security parameters\&. This value is also received from the requests mentioned above\&.
+.LP
+
+.RS -4
+.B
+Note:
+.RE
+Note that the use of the LocalEngineID argument is only intended for special cases, if the agent is to "emulate" multiple EngineIDs! By default, the agent uses the value of \fISnmpEngineID\fR\& (see SNMP-FRAMEWORK-MIB)\&.
+
+.RE
+.LP
+.B
+discarded_pdu(Variable) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+Variable = atom()
+.br
+.RE
+.RS
+.LP
+Increments the variable associated with a discarded pdu\&. This function can be used when the net_if process receives a \fIdiscarded_pdu\fR\& message from the agent\&.
+.RE

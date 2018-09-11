@@ -1,0 +1,624 @@
+.TH calendar 3 "stdlib 1.17.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+calendar \- Local and universal time, day-of-the-week, date and time conversions
+.SH DESCRIPTION
+.LP
+This module provides computation of local and universal time, day-of-the-week, and several time conversion functions\&.
+.LP
+Time is local when it is adjusted in accordance with the current time zone and daylight saving\&. Time is universal when it reflects the time at longitude zero, without any adjustment for daylight saving\&. Universal Coordinated Time (UTC) time is also called Greenwich Mean Time (GMT)\&.
+.LP
+The time functions \fIlocal_time/0\fR\& and \fIuniversal_time/0\fR\& provided in this module both return date and time\&. The reason for this is that separate functions for date and time may result in a date/time combination which is displaced by 24 hours\&. This happens if one of the functions is called before midnight, and the other after midnight\&. This problem also applies to the Erlang BIFs \fIdate/0\fR\& and \fItime/0\fR\&, and their use is strongly discouraged if a reliable date/time stamp is required\&.
+.LP
+All dates conform to the Gregorian calendar\&. This calendar was introduced by Pope Gregory XIII in 1582 and was used in all Catholic countries from this year\&. Protestant parts of Germany and the Netherlands adopted it in 1698, England followed in 1752, and Russia in 1918 (the October revolution of 1917 took place in November according to the Gregorian calendar)\&.
+.LP
+The Gregorian calendar in this module is extended back to year 0\&. For a given date, the \fIgregorian days\fR\& is the number of days up to and including the date specified\&. Similarly, the \fIgregorian seconds\fR\& for a given date and time, is the the number of seconds up to and including the specified date and time\&.
+.LP
+For computing differences between epochs in time, use the functions counting gregorian days or seconds\&. If epochs are given as local time, they must be converted to universal time, in order to get the correct value of the elapsed time between epochs\&. Use of the function \fItime_difference/2\fR\& is discouraged\&.
+.LP
+There exists different definitions for the week of the year\&. The calendar module contains a week of the year implementation which conforms to the ISO 8601 standard\&. Since the week number for a given date can fall on the previous, the current or on the next year it is important to provide the information which year is it together with the week number\&. The function \fIiso_week_number/0\fR\& and \fIiso_week_number/1\fR\& returns a tuple of the year and the week number\&.
+.SH DATA TYPES
+.nf
+
+\fBdatetime()\fR\& = {\fBdate()\fR\&, \fBtime()\fR\&}
+.br
+.fi
+.nf
+
+\fBdatetime1970()\fR\& = {{\fByear1970()\fR\&, \fBmonth()\fR\&, \fBday()\fR\&}, \fBtime()\fR\&}
+.br
+.fi
+.nf
+
+\fBdate()\fR\& = {\fByear()\fR\&, \fBmonth()\fR\&, \fBday()\fR\&}
+.br
+.fi
+.nf
+
+\fByear()\fR\& = integer() >= 0
+.br
+.fi
+.RS
+.LP
+Year cannot be abbreviated\&. Example: 93 denotes year 93, not 1993\&. Valid range depends on the underlying OS\&. The date tuple must denote a valid date\&.
+.RE
+.nf
+
+\fByear1970()\fR\& = 1970\&.\&.10000
+.br
+.fi
+.nf
+
+\fBmonth()\fR\& = 1\&.\&.12
+.br
+.fi
+.nf
+
+\fBday()\fR\& = 1\&.\&.31
+.br
+.fi
+.nf
+
+\fBtime()\fR\& = {\fBhour()\fR\&, \fBminute()\fR\&, \fBsecond()\fR\&}
+.br
+.fi
+.nf
+
+\fBhour()\fR\& = 0\&.\&.23
+.br
+.fi
+.nf
+
+\fBminute()\fR\& = 0\&.\&.59
+.br
+.fi
+.nf
+
+\fBsecond()\fR\& = 0\&.\&.59
+.br
+.fi
+.nf
+
+\fBdaynum()\fR\& = 1\&.\&.7
+.br
+.fi
+.nf
+
+\fBldom()\fR\& = 28 | 29 | 30 | 31
+.br
+.fi
+.nf
+
+\fByearweeknum()\fR\& = {\fByear()\fR\&, \fBweeknum()\fR\&}
+.br
+.fi
+.nf
+
+\fBweeknum()\fR\& = 1\&.\&.53
+.br
+.fi
+.SH EXPORTS
+.LP
+.nf
+
+.B
+date_to_gregorian_days(Date) -> Days
+.br
+.fi
+.br
+.nf
+
+.B
+date_to_gregorian_days(Year, Month, Day) -> Days
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Date = \fBdate()\fR\&
+.br
+Year = \fByear()\fR\&
+.br
+Month = \fBmonth()\fR\&
+.br
+Day = \fBday()\fR\&
+.br
+.RE
+.RS
+.LP
+This function computes the number of gregorian days starting with year 0 and ending at the given date\&.
+.RE
+.LP
+.nf
+
+.B
+datetime_to_gregorian_seconds(DateTime) -> Seconds
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+DateTime = \fBdatetime()\fR\&
+.br
+Seconds = integer() >= 0
+.br
+.RE
+.RS
+.LP
+This function computes the number of gregorian seconds starting with year 0 and ending at the given date and time\&.
+.RE
+.LP
+.nf
+
+.B
+day_of_the_week(Date) -> \fBdaynum()\fR\&
+.br
+.fi
+.br
+.nf
+
+.B
+day_of_the_week(Year, Month, Day) -> \fBdaynum()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Date = \fBdate()\fR\&
+.br
+Year = \fByear()\fR\&
+.br
+Month = \fBmonth()\fR\&
+.br
+Day = \fBday()\fR\&
+.br
+.RE
+.RS
+.LP
+This function computes the day of the week given \fIYear\fR\&, \fIMonth\fR\& and \fIDay\fR\&\&. The return value denotes the day of the week as \fI1\fR\&: Monday, \fI2\fR\&: Tuesday, and so on\&.
+.RE
+.LP
+.nf
+
+.B
+gregorian_days_to_date(Days) -> \fBdate()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Days = integer() >= 0
+.br
+.RE
+.RS
+.LP
+This function computes the date given the number of gregorian days\&.
+.RE
+.LP
+.nf
+
+.B
+gregorian_seconds_to_datetime(Seconds) -> \fBdatetime()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Seconds = integer() >= 0
+.br
+.RE
+.RS
+.LP
+This function computes the date and time from the given number of gregorian seconds\&.
+.RE
+.LP
+.nf
+
+.B
+is_leap_year(Year) -> boolean()
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Year = \fByear()\fR\&
+.br
+.RE
+.RS
+.LP
+This function checks if a year is a leap year\&.
+.RE
+.LP
+.nf
+
+.B
+iso_week_number() -> \fByearweeknum()\fR\&
+.br
+.fi
+.br
+.RS
+.LP
+This function returns the tuple {Year, WeekNum} representing the iso week number for the actual date\&. For determining the actual date, the function \fIlocal_time/0\fR\& is used\&.
+.RE
+.LP
+.nf
+
+.B
+iso_week_number(Date) -> \fByearweeknum()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Date = \fBdate()\fR\&
+.br
+.RE
+.RS
+.LP
+This function returns the tuple {Year, WeekNum} representing the iso week number for the given date\&.
+.RE
+.LP
+.nf
+
+.B
+last_day_of_the_month(Year, Month) -> LastDay
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Year = \fByear()\fR\&
+.br
+Month = \fBmonth()\fR\&
+.br
+LastDay = \fBldom()\fR\&
+.br
+.RE
+.RS
+.LP
+This function computes the number of days in a month\&.
+.RE
+.LP
+.nf
+
+.B
+local_time() -> \fBdatetime()\fR\&
+.br
+.fi
+.br
+.RS
+.LP
+This function returns the local time reported by the underlying operating system\&.
+.RE
+.LP
+.nf
+
+.B
+local_time_to_universal_time(DateTime1) -> DateTime2
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+DateTime1 = DateTime2 = \fBdatetime1970()\fR\&
+.br
+.RE
+.RS
+.LP
+This function converts from local time to Universal Coordinated Time (UTC)\&. \fIDateTime1\fR\& must refer to a local date after Jan 1, 1970\&.
+.LP
+
+.RS -4
+.B
+Warning:
+.RE
+This function is deprecated\&. Use \fIlocal_time_to_universal_time_dst/1\fR\& instead, as it gives a more correct and complete result\&. Especially for the period that does not exist since it gets skipped during the switch \fIto\fR\& daylight saving time, this function still returns a result\&.
+
+.RE
+.LP
+.nf
+
+.B
+local_time_to_universal_time_dst(DateTime1) -> [DateTime]
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+DateTime1 = DateTime = \fBdatetime1970()\fR\&
+.br
+.RE
+.RS
+.LP
+This function converts from local time to Universal Coordinated Time (UTC)\&. \fIDateTime1\fR\& must refer to a local date after Jan 1, 1970\&.
+.LP
+The return value is a list of 0, 1 or 2 possible UTC times:
+.RS 2
+.TP 2
+.B
+\fI[]\fR\&:
+For a local \fI{Date1, Time1}\fR\& during the period that is skipped when switching \fIto\fR\& daylight saving time, there is no corresponding UTC since the local time is illegal - it has never happened\&.
+.TP 2
+.B
+\fI[DstDateTimeUTC, DateTimeUTC]\fR\&:
+For a local \fI{Date1, Time1}\fR\& during the period that is repeated when switching \fIfrom\fR\& daylight saving time, there are two corresponding UTCs\&. One for the first instance of the period when daylight saving time is still active, and one for the second instance\&.
+.TP 2
+.B
+\fI[DateTimeUTC]\fR\&:
+For all other local times there is only one corresponding UTC\&.
+.RE
+.RE
+.LP
+.nf
+
+.B
+now_to_local_time(Now) -> \fBdatetime1970()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Now = \fBerlang:timestamp()\fR\&
+.br
+.RE
+.RS
+.LP
+This function returns local date and time converted from the return value from \fIerlang:now()\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+now_to_universal_time(Now) -> \fBdatetime1970()\fR\&
+.br
+.fi
+.br
+.nf
+
+.B
+now_to_datetime(Now) -> \fBdatetime1970()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Now = \fBerlang:timestamp()\fR\&
+.br
+.RE
+.RS
+.LP
+This function returns Universal Coordinated Time (UTC) converted from the return value from \fIerlang:now()\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+seconds_to_daystime(Seconds) -> {Days, Time}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Seconds = Days = integer()
+.br
+Time = \fBtime()\fR\&
+.br
+.RE
+.RS
+.LP
+This function transforms a given number of seconds into days, hours, minutes, and seconds\&. The \fITime\fR\& part is always non-negative, but \fIDays\fR\& is negative if the argument \fISeconds\fR\& is\&.
+.RE
+.LP
+.nf
+
+.B
+seconds_to_time(Seconds) -> \fBtime()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Seconds = \fBsecs_per_day()\fR\&
+.br
+.nf
+\fBsecs_per_day()\fR\& = 0\&.\&.86400
+.fi
+.br
+.RE
+.RS
+.LP
+This function computes the time from the given number of seconds\&. \fISeconds\fR\& must be less than the number of seconds per day (86400)\&.
+.RE
+.LP
+.nf
+
+.B
+time_difference(T1, T2) -> {Days, Time}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+T1 = T2 = \fBdatetime()\fR\&
+.br
+Days = integer()
+.br
+Time = \fBtime()\fR\&
+.br
+.RE
+.RS
+.LP
+This function returns the difference between two \fI{Date, Time}\fR\& tuples\&. \fIT2\fR\& should refer to an epoch later than \fIT1\fR\&\&.
+.LP
+
+.RS -4
+.B
+Warning:
+.RE
+This function is obsolete\&. Use the conversion functions for gregorian days and seconds instead\&.
+
+.RE
+.LP
+.nf
+
+.B
+time_to_seconds(Time) -> \fBsecs_per_day()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Time = \fBtime()\fR\&
+.br
+.nf
+\fBsecs_per_day()\fR\& = 0\&.\&.86400
+.fi
+.br
+.RE
+.RS
+.LP
+This function computes the number of seconds since midnight up to the specified time\&.
+.RE
+.LP
+.nf
+
+.B
+universal_time() -> \fBdatetime()\fR\&
+.br
+.fi
+.br
+.RS
+.LP
+This function returns the Universal Coordinated Time (UTC) reported by the underlying operating system\&. Local time is returned if universal time is not available\&.
+.RE
+.LP
+.nf
+
+.B
+universal_time_to_local_time(DateTime) -> \fBdatetime()\fR\&
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+DateTime = \fBdatetime1970()\fR\&
+.br
+.RE
+.RS
+.LP
+This function converts from Universal Coordinated Time (UTC) to local time\&. \fIDateTime\fR\& must refer to a date after Jan 1, 1970\&.
+.RE
+.LP
+.nf
+
+.B
+valid_date(Date) -> boolean()
+.br
+.fi
+.br
+.nf
+
+.B
+valid_date(Year, Month, Day) -> boolean()
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Date = \fBdate()\fR\&
+.br
+Year = Month = Day = integer()
+.br
+.RE
+.RS
+.LP
+This function checks if a date is a valid\&.
+.RE
+.SH "LEAP YEARS"
+
+.LP
+The notion that every fourth year is a leap year is not completely true\&. By the Gregorian rule, a year Y is a leap year if either of the following rules is valid:
+.RS 2
+.TP 2
+*
+Y is divisible by 4, but not by 100; or
+.LP
+.TP 2
+*
+Y is divisible by 400\&.
+.LP
+.RE
+
+.LP
+Accordingly, 1996 is a leap year, 1900 is not, but 2000 is\&.
+.SH "DATE AND TIME SOURCE"
+
+.LP
+Local time is obtained from the Erlang BIF \fIlocaltime/0\fR\&\&. Universal time is computed from the BIF \fIuniversaltime/0\fR\&\&.
+.LP
+The following facts apply:
+.RS 2
+.TP 2
+*
+there are 86400 seconds in a day
+.LP
+.TP 2
+*
+there are 365 days in an ordinary year
+.LP
+.TP 2
+*
+there are 366 days in a leap year
+.LP
+.TP 2
+*
+there are 1461 days in a 4 year period
+.LP
+.TP 2
+*
+there are 36524 days in a 100 year period
+.LP
+.TP 2
+*
+there are 146097 days in a 400 year period
+.LP
+.TP 2
+*
+there are 719528 days between Jan 1, 0 and Jan 1, 1970\&.
+.LP
+.RE

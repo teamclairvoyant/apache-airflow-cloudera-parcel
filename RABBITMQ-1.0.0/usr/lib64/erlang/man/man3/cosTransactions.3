@@ -1,0 +1,136 @@
+.TH cosTransactions 3 "cosTransactions 1.2.11" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+cosTransactions \- The main module of the cosTransactions application.
+.SH DESCRIPTION
+.LP
+To get access to the record definitions for the structures use: 
+.br
+\fI-include_lib("cosTransactions/include/CosTransactions\&.hrl")\&.\fR\&
+.LP
+This module contains the functions for starting and stopping the application\&. If the application is started using \fIapplication:start(cosTransactions)\fR\& the default configuration is used (see listing below)\&. The Factory reference is stored using the CosNaming Service under the id \fI"oe_cosTransactionsFac_IPNo"\fR\&\&.
+.LP
+The following application configuration parameters exist:
+.RS 2
+.TP 2
+*
+\fImaxRetries\fR\& - default is 40 times, i\&.e\&., if a transaction participant is unreachable the application will retry to contact it \fIN\fR\& times\&. Reaching the maximum is considered to be a disaster\&.
+.LP
+.TP 2
+*
+\fIcomFailWait\fR\& - default is 5000 milliseconds, i\&.e\&., before the application retries to contact unreachable transaction participants the application wait \fITime\fR\& milliseconds\&.
+.LP
+.RE
+
+.SH EXPORTS
+.LP
+.B
+start() -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {error, Reason}
+.br
+.RE
+.RS
+.LP
+This operation starts the cosTransactions application\&.
+.RE
+.LP
+.B
+stop() -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Return = ok | {error, Reason}
+.br
+.RE
+.RS
+.LP
+This operation stops the cosTransactions application\&.
+.RE
+.LP
+.B
+start_factory() -> TransactionFactory
+.br
+.RS
+.TP 3
+Types:
+
+TransactionFactory = #objref
+.br
+.RE
+.RS
+.LP
+This operation creates a \fBTransaction Factory\fR\&\&. The Factory is used to create a new top-level \fBtransaction\fR\& using default options (see listing below)\&.
+.RE
+.LP
+.B
+start_factory(FacDef) -> TransactionFactory
+.br
+.RS
+.TP 3
+Types:
+
+FacDef = [Options], see Option listing below.
+.br
+TransactionFactory = #objref
+.br
+.RE
+.RS
+.LP
+This operation creates a \fBTransaction Factory\fR\&\&. The Factory is used to create a new top-level transaction\&.
+.LP
+The FacDef list must be a list of {Item, Value} tuples, where the following values are allowed:
+.RS 2
+.TP 2
+*
+{hash_max, HashValue} - This value denotes the upper bound of the hash value the \fBCoordinator\fR\& uses\&. Default is \fI1013\fR\&\&. HashValue must be an integer\&.
+.LP
+.TP 2
+*
+{allow_subtr, Boolean} - If set to true it is possible to create \fBsubtransactions\fR\&\&. Default is \fItrue\fR\&\&.
+.LP
+.TP 2
+*
+{typecheck, Boolean} - If set to to true all transaction operation\&'s arguments will be type-checked\&. Default is \fItrue\fR\&\&.
+.LP
+.TP 2
+*
+{tty, Boolean} - Enables or disables error printouts to the tty\&. If Flag is false, all text that the error logger would have sent to the terminal is discarded\&. If Flag is true, error messages are sent to the terminal screen\&. 
+.LP
+.TP 2
+*
+{logfile, FileName} - This function makes it possible to store all system information in \fIFileName\fR\& (string())\&. It can be used in combination with the tty(false) item in to have a silent system, where all system information are logged to a file\&. As default no logfile is used\&.
+.LP
+.TP 2
+*
+\fI{maxRetries, Integer}\fR\& - default is 40 times, i\&.e\&., if a transaction participant is unreachable the application will retry to contact it \fIN\fR\& times\&. Reaching the maximum is considered to be a disaster\&. This option overrides the application configuration parameter\&.
+.LP
+.TP 2
+*
+\fI{comFailWait, Integer}\fR\& - default is 5000 milliseconds, i\&.e\&., before the application retries to contact unreachable transaction participants the application wait \fITime\fR\& milliseconds\&. This option overrides the application configuration parameter\&.
+.LP
+.RE
+
+.RE
+.LP
+.B
+stop_factory(TransactionFactory) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+TransactionFactory = #objref
+.br
+Reply = ok | {'EXCEPTION', E}
+.br
+.RE
+.RS
+.LP
+This operation stop the target transaction factory\&.
+.RE

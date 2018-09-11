@@ -1,0 +1,1028 @@
+.TH ct 3 "common_test 1.5.5" "" "Erlang Module Definition"
+.SH NAME
+ct \- Main user interface for the Common Test framework.
+.SH DESCRIPTION
+.LP
+Main user interface for the Common Test framework\&.
+.LP
+This module implements the command line interface for running tests and some basic functions for common test case issues such as configuration and logging\&.
+.LP
+\fITest Suite Support Macros\fR\&
+.LP
+The \fIconfig\fR\& macro is defined in \fIct\&.hrl\fR\&\&. This macro should be used to retrieve information from the \fIConfig\fR\& variable sent to all test cases\&. It is used with two arguments, where the first is the name of the configuration variable you wish to retrieve, and the second is the \fIConfig\fR\& variable supplied to the test case\&.
+.LP
+Possible configuration variables include:
+.RS 2
+.TP 2
+*
+\fIdata_dir\fR\& - Data file directory\&.
+.LP
+.TP 2
+*
+\fIpriv_dir\fR\& - Scratch file directory\&.
+.LP
+.TP 2
+*
+Whatever added by \fIinit_per_suite/1\fR\& or \fIinit_per_testcase/2\fR\& in the test suite\&.
+.LP
+.RE
+
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIhandle() = handle() (see module ct_gen_conn) | term()\fR\&:
+
+.RS 2
+.LP
+The identity of a specific connection\&.
+.RE
+.TP 2
+.B
+\fItarget_name() = var_name()\fR\&:
+
+.RS 2
+.LP
+The name of a target\&.
+.RE
+.TP 2
+.B
+\fIvar_name() = atom()\fR\&:
+
+.RS 2
+.LP
+A variable name which is specified when \fIct:require/2\fR\& is called, e\&.g\&. \fIct:require(mynodename,{node,[telnet]})\fR\& 
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+abort_current_testcase(Reason) -> ok | {error, no_testcase_running}
+.br
+.RS
+.TP 3
+Types:
+
+Reason = term()
+.br
+.RE
+.RS
+.LP
+When calling this function, the currently executing test case will be aborted\&. It is the user\&'s responsibility to know for sure which test case is currently executing\&. The function is therefore only safe to call from a function which has been called (or synchronously invoked) by the test case\&.
+.LP
+\fIReason\fR\&, the reason for aborting the test case, is printed in the test case log\&.
+.RE
+.LP
+.B
+add_config(Callback, Config) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Callback = atom()
+.br
+Config = string()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+This function loads configuration variables using the given callback module and configuration string\&. Callback module should be either loaded or present in the code part\&. Loaded configuration variables can later be removed using \fIremove_config/2\fR\& function\&.
+.RE
+.LP
+.B
+comment(Comment) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+Comment = term()
+.br
+.RE
+.RS
+.LP
+Print the given \fIComment\fR\& in the comment field of the table on the test suite result page\&.
+.LP
+If called several times, only the last comment is printed\&. \fIcomment/1\fR\& is also overwritten by the return value \fI{comment,Comment}\fR\& or by the function \fIfail/1\fR\& (which prints \fIReason\fR\& as a comment)\&.
+.RE
+.LP
+.B
+decrypt_config_file(EncryptFileName, TargetFileName) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+EncryptFileName = string()
+.br
+TargetFileName = string()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+This function decrypts \fIEncryptFileName\fR\&, previously generated with \fIencrypt_config_file/2/3\fR\&\&. The original file contents is saved in the target file\&. The encryption key, a string, must be available in a text file named \fI\&.ct_config\&.crypt\fR\& in the current directory, or the home directory of the user (it is searched for in that order)\&.
+.RE
+.LP
+.B
+decrypt_config_file(EncryptFileName, TargetFileName, KeyOrFile) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+EncryptFileName = string()
+.br
+TargetFileName = string()
+.br
+KeyOrFile = {key, string()} | {file, string()}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+This function decrypts \fIEncryptFileName\fR\&, previously generated with \fIencrypt_config_file/2/3\fR\&\&. The original file contents is saved in the target file\&. The key must have the the same value as that used for encryption\&.
+.RE
+.LP
+.B
+encrypt_config_file(SrcFileName, EncryptFileName) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+SrcFileName = string()
+.br
+EncryptFileName = string()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+This function encrypts the source config file with DES3 and saves the result in file \fIEncryptFileName\fR\&\&. The key, a string, must be available in a text file named \fI\&.ct_config\&.crypt\fR\& in the current directory, or the home directory of the user (it is searched for in that order)\&.
+.LP
+See the Common Test User\&'s Guide for information about using encrypted config files when running tests\&.
+.LP
+See the \fIcrypto\fR\& application for details on DES3 encryption/decryption\&.
+.RE
+.LP
+.B
+encrypt_config_file(SrcFileName, EncryptFileName, KeyOrFile) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+SrcFileName = string()
+.br
+EncryptFileName = string()
+.br
+KeyOrFile = {key, string()} | {file, string()}
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+This function encrypts the source config file with DES3 and saves the result in the target file \fIEncryptFileName\fR\&\&. The encryption key to use is either the value in \fI{key,Key}\fR\& or the value stored in the file specified by \fI{file,File}\fR\&\&.
+.LP
+See the Common Test User\&'s Guide for information about using encrypted config files when running tests\&.
+.LP
+See the \fIcrypto\fR\& application for details on DES3 encryption/decryption\&.
+.RE
+.LP
+.B
+fail(Reason) -> void()
+.br
+.RS
+.TP 3
+Types:
+
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Terminate a test case with the given error \fIReason\fR\&\&.
+.RE
+.LP
+.B
+get_config(Required) -> Value
+.br
+.RS
+.LP
+Equivalent to \fBget_config(Required, undefined, [])\fR\&\&.
+.RE
+.LP
+.B
+get_config(Required, Default) -> Value
+.br
+.RS
+.LP
+Equivalent to \fBget_config(Required, Default, [])\fR\&\&.
+.RE
+.LP
+.B
+get_config(Required, Default, Opts) -> ValueOrElement
+.br
+.RS
+.TP 3
+Types:
+
+Required = KeyOrName | {KeyOrName, SubKey}
+.br
+KeyOrName = atom()
+.br
+SubKey = atom()
+.br
+Default = term()
+.br
+Opts = [Opt] | []
+.br
+Opt = element | all
+.br
+ValueOrElement = term() | Default
+.br
+.RE
+.RS
+.LP
+Read config data values\&.
+.LP
+This function returns the matching value(s) or config element(s), given a config variable key or its associated name (if one has been specified with \fIrequire/2\fR\& or a require statement)\&.
+.LP
+Example, given the following config file:
+.LP
+.nf
+
+   {unix,[{telnet,IpAddr},
+          {username,Username},
+          {password,Password}]}.
+.fi
+.LP
+\fIget_config(unix,Default) -> [{telnet,IpAddr}, {username,Username}, {password,Password}]\fR\&
+.br
+\fIget_config({unix,telnet},Default) -> IpAddr\fR\&
+.br
+\fIget_config({unix,ftp},Default) -> Default\fR\&
+.br
+\fIget_config(unknownkey,Default) -> Default\fR\&
+.LP
+If a config variable key has been associated with a name (by means of \fIrequire/2\fR\& or a require statement), the name may be used instead of the key to read the value:
+.LP
+\fIrequire(myhost,unix) -> ok\fR\&
+.br
+\fIget_config(myhost,Default) -> [{telnet,IpAddr}, {username,Username}, {password,Password}]\fR\&
+.LP
+If a config variable is defined in multiple files and you want to access all possible values, use the \fIall\fR\& option\&. The values will be returned in a list and the order of the elements corresponds to the order that the config files were specified at startup\&.
+.LP
+If you want config elements (key-value tuples) returned as result instead of values, use the \fIelement\fR\& option\&. The returned elements will then be on the form \fI{KeyOrName,Value}\fR\&, or (in case a subkey has been specified) \fI{{KeyOrName,SubKey},Value}\fR\&
+.LP
+\fISee also:\fR\& \fBget_config/1\fR\&, \fBget_config/2\fR\&, \fBrequire/1\fR\&, \fBrequire/2\fR\&\&.
+.RE
+.LP
+.B
+get_status() -> TestStatus | {error, Reason} | no_tests_running
+.br
+.RS
+.TP 3
+Types:
+
+TestStatus = [StatusElem]
+.br
+StatusElem = {current, {Suite, TestCase}} | {successful, Successful} | {failed, Failed} | {skipped, Skipped} | {total, Total}
+.br
+Suite = atom()
+.br
+TestCase = atom()
+.br
+Successful = integer()
+.br
+Failed = integer()
+.br
+Skipped = {UserSkipped, AutoSkipped}
+.br
+UserSkipped = integer()
+.br
+AutoSkipped = integer()
+.br
+Total = integer()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Returns status of ongoing test\&. The returned list contains info about which test case is currently executing, as well as counters for successful, failed, skipped, and total test cases so far\&.
+.RE
+.LP
+.B
+get_target_name(Handle) -> {ok, TargetName} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Handle = handle()
+.br
+TargetName = target_name()
+.br
+.RE
+.RS
+.LP
+Return the name of the target that the given connection belongs to\&.
+.RE
+.LP
+.B
+install(Opts) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Opts = [Opt]
+.br
+Opt = {config, ConfigFiles} | {event_handler, Modules} | {decrypt, KeyOrFile}
+.br
+ConfigFiles = [ConfigFile]
+.br
+ConfigFile = string()
+.br
+Modules = [atom()]
+.br
+KeyOrFile = {key, Key} | {file, KeyFile}
+.br
+Key = string()
+.br
+KeyFile = string()
+.br
+.RE
+.RS
+.LP
+Install config files and event handlers\&.
+.LP
+Run this function once before first test\&.
+.LP
+Example:
+.br
+\fIinstall([{config,["config_node\&.ctc","config_user\&.ctc"]}])\fR\&\&.
+.LP
+Note that this function is automatically run by the \fIct_run\fR\& program\&.
+.RE
+.LP
+.B
+listenv(Telnet) -> [Env]
+.br
+.RS
+.TP 3
+Types:
+
+Telnet = term()
+.br
+Env = {Key, Value}
+.br
+Key = string()
+.br
+Value = string()
+.br
+.RE
+.RS
+.LP
+Performs the listenv command on the given telnet connection and returns the result as a list of Key-Value pairs\&.
+.RE
+.LP
+.B
+log(Format) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBlog(default, Format, [])\fR\&\&.
+.RE
+.LP
+.B
+log(X1, X2) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+X1 = Category | Format
+.br
+X2 = Format | Args
+.br
+.RE
+.RS
+.LP
+Equivalent to \fBlog(Category, Format, Args)\fR\&\&.
+.RE
+.LP
+.B
+log(Category, Format, Args) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Category = atom()
+.br
+Format = string()
+.br
+Args = list()
+.br
+.RE
+.RS
+.LP
+Printout from a testcase to the log\&.
+.LP
+This function is meant for printing stuff directly from a testcase (i\&.e\&. not from within the CT framework) in the test log\&.
+.LP
+Default \fICategory\fR\& is \fIdefault\fR\& and default \fIArgs\fR\& is \fI[]\fR\&\&.
+.RE
+.LP
+.B
+pal(Format) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBpal(default, Format, [])\fR\&\&.
+.RE
+.LP
+.B
+pal(X1, X2) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+X1 = Category | Format
+.br
+X2 = Format | Args
+.br
+.RE
+.RS
+.LP
+Equivalent to \fBpal(Category, Format, Args)\fR\&\&.
+.RE
+.LP
+.B
+pal(Category, Format, Args) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Category = atom()
+.br
+Format = string()
+.br
+Args = list()
+.br
+.RE
+.RS
+.LP
+Print and log from a testcase\&.
+.LP
+This function is meant for printing stuff from a testcase both in the log and on the console\&.
+.LP
+Default \fICategory\fR\& is \fIdefault\fR\& and default \fIArgs\fR\& is \fI[]\fR\&\&.
+.RE
+.LP
+.B
+parse_table(Data) -> {Heading, Table}
+.br
+.RS
+.TP 3
+Types:
+
+Data = [string()]
+.br
+Heading = tuple()
+.br
+Table = [tuple()]
+.br
+.RE
+.RS
+.LP
+Parse the printout from an SQL table and return a list of tuples\&.
+.LP
+The printout to parse would typically be the result of a \fIselect\fR\& command in SQL\&. The returned \fITable\fR\& is a list of tuples, where each tuple is a row in the table\&.
+.LP
+\fIHeading\fR\& is a tuple of strings representing the headings of each column in the table\&.
+.RE
+.LP
+.B
+print(Format) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBprint(default, Format, [])\fR\&\&.
+.RE
+.LP
+.B
+print(X1, X2) -> term() 
+.br
+.RS
+.LP
+Equivalent to \fBprint(Category, Format, Args)\fR\&\&.
+.RE
+.LP
+.B
+print(Category, Format, Args) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Category = atom()
+.br
+Format = string()
+.br
+Args = list()
+.br
+.RE
+.RS
+.LP
+Printout from a testcase to the console\&.
+.LP
+This function is meant for printing stuff from a testcase on the console\&.
+.LP
+Default \fICategory\fR\& is \fIdefault\fR\& and default \fIArgs\fR\& is \fI[]\fR\&\&.
+.RE
+.LP
+.B
+reload_config(Required) -> ValueOrElement
+.br
+.RS
+.TP 3
+Types:
+
+Required = KeyOrName | {KeyOrName, SubKey}
+.br
+KeyOrName = atom()
+.br
+SubKey = atom()
+.br
+ValueOrElement = term()
+.br
+.RE
+.RS
+.LP
+Reload config file which contains specified configuration key\&.
+.LP
+This function performs updating of the configuration data from which the given configuration variable was read, and returns the (possibly) new value of this variable\&.
+.LP
+Note that if some variables were present in the configuration but are not loaded using this function, they will be removed from the configuration table together with their aliases\&.
+.RE
+.LP
+.B
+remove_config(Callback, Config) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Callback = atom()
+.br
+Config = string()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+This function removes configuration variables (together with their aliases) which were loaded with specified callback module and configuration string\&.
+.RE
+.LP
+.B
+require(Required) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Required = Key | {Key, SubKeys}
+.br
+Key = atom()
+.br
+SubKeys = SubKey | [SubKey]
+.br
+SubKey = atom()
+.br
+.RE
+.RS
+.LP
+Check if the required configuration is available\&.
+.LP
+Example: require the variable \fImyvar\fR\&:
+.br
+\fIok = ct:require(myvar)\fR\&
+.LP
+In this case the config file must at least contain:
+.LP
+.nf
+
+   {myvar,Value}.
+.fi
+.LP
+Example: require the variable \fImyvar\fR\& with subvariable \fIsub1\fR\&:
+.br
+\fIok = ct:require({myvar,sub1})\fR\&
+.LP
+In this case the config file must at least contain:
+.LP
+.nf
+
+   {myvar,[{sub1,Value}]}.
+.fi
+.LP
+\fISee also:\fR\& \fBget_config/1\fR\&, \fBget_config/2\fR\&, \fBget_config/3\fR\&, \fBrequire/2\fR\&\&.
+.RE
+.LP
+.B
+require(Name, Required) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Name = atom()
+.br
+Required = Key | {Key, SubKeys}
+.br
+Key = atom()
+.br
+SubKeys = SubKey | [SubKey]
+.br
+SubKey = atom()
+.br
+.RE
+.RS
+.LP
+Check if the required configuration is available, and give it a name\&.
+.LP
+If the requested data is available, the main entry will be associated with \fIName\fR\& so that the value of the element can be read with \fIget_config/1,2\fR\& provided \fIName\fR\& instead of the \fIKey\fR\&\&.
+.LP
+Example: Require one node with a telnet connection and an ftp connection\&. Name the node \fIa\fR\&:
+.br
+\fIok = ct:require(a,{node,[telnet,ftp]})\&.\fR\&
+.br
+All references to this node may then use the node name\&. E\&.g\&. you can fetch a file over ftp like this:
+.br
+\fIok = ct:ftp_get(a,RemoteFile,LocalFile)\&.\fR\&
+.LP
+For this to work, the config file must at least contain:
+.LP
+.nf
+
+   {node,[{telnet,IpAddr},
+          {ftp,IpAddr}]}.
+.fi
+.LP
+\fISee also:\fR\& \fBget_config/1\fR\&, \fBget_config/2\fR\&, \fBget_config/3\fR\&, \fBrequire/1\fR\&\&.
+.RE
+.LP
+.B
+run(TestDirs) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+TestDirs = TestDir | [TestDir]
+.br
+.RE
+.RS
+.LP
+Run all testcases in all suites in the given directories\&.
+.LP
+\fISee also:\fR\& \fBrun/3\fR\&\&.
+.RE
+.LP
+.B
+run(TestDir, Suite) -> Result
+.br
+.RS
+.LP
+Run all testcases in the given suite\&.
+.LP
+\fISee also:\fR\& \fBrun/3\fR\&\&.
+.RE
+.LP
+.B
+run(TestDir, Suite, Cases) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+TestDir = string()
+.br
+Suite = atom()
+.br
+Cases = atom() | [atom()]
+.br
+Result = [TestResult] | {error, Reason}
+.br
+.RE
+.RS
+.LP
+Run the given testcase(s)\&.
+.LP
+Requires that \fIct:install/1\fR\& has been run first\&.
+.LP
+Suites (*_SUITE\&.erl) files must be stored in \fITestDir\fR\& or \fITestDir/test\fR\&\&. All suites will be compiled when test is run\&.
+.RE
+.LP
+.B
+run_test(Opts) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Opts = [OptTuples]
+.br
+OptTuples = {dir, TestDirs} | {suite, Suites} | {group, Groups} | {testcase, Cases} | {spec, TestSpecs} | {label, Label} | {config, CfgFiles} | {userconfig, UserConfig} | {allow_user_terms, Bool} | {logdir, LogDir} | {silent_connections, Conns} | {stylesheet, CSSFile} | {cover, CoverSpecFile} | {step, StepOpts} | {event_handler, EventHandlers} | {include, InclDirs} | {auto_compile, Bool} | {multiply_timetraps, M} | {scale_timetraps, Bool} | {repeat, N} | {duration, DurTime} | {until, StopTime} | {force_stop, Bool} | {decrypt, DecryptKeyOrFile} | {refresh_logs, LogDir} | {logopts, LogOpts} | {basic_html, Bool} | {ct_hooks, CTHs}
+.br
+TestDirs = [string()] | string()
+.br
+Suites = [string()] | [atom()] | string() | atom()
+.br
+Cases = [atom()] | atom()
+.br
+Groups = [atom()] | atom()
+.br
+TestSpecs = [string()] | string()
+.br
+Label = string() | atom()
+.br
+CfgFiles = [string()] | string()
+.br
+UserConfig = [{CallbackMod, CfgStrings}] | {CallbackMod, CfgStrings}
+.br
+CallbackMod = atom()
+.br
+CfgStrings = [string()] | string()
+.br
+LogDir = string()
+.br
+Conns = all | [atom()]
+.br
+CSSFile = string()
+.br
+CoverSpecFile = string()
+.br
+StepOpts = [StepOpt] | []
+.br
+StepOpt = config | keep_inactive
+.br
+EventHandlers = EH | [EH]
+.br
+EH = atom() | {atom(), InitArgs} | {[atom()], InitArgs}
+.br
+InitArgs = [term()]
+.br
+InclDirs = [string()] | string()
+.br
+M = integer()
+.br
+N = integer()
+.br
+DurTime = string(HHMMSS)
+.br
+StopTime = string(YYMoMoDDHHMMSS) | string(HHMMSS)
+.br
+DecryptKeyOrFile = {key, DecryptKey} | {file, DecryptFile}
+.br
+DecryptKey = string()
+.br
+DecryptFile = string()
+.br
+LogOpts = [LogOpt]
+.br
+LogOpt = no_nl | no_src
+.br
+CTHs = [CTHModule | {CTHModule, CTHInitArgs}]
+.br
+CTHModule = atom()
+.br
+CTHInitArgs = term()
+.br
+Result = [TestResult] | {error, Reason}
+.br
+.RE
+.RS
+.LP
+Run tests as specified by the combination of options in \fIOpts\fR\&\&. The options are the same as those used with the \fB\fIct_run\fR\&\fR\& program\&. Note that here a \fITestDir\fR\& can be used to point out the path to a \fISuite\fR\&\&. Note also that the option \fItestcase\fR\& corresponds to the \fI-case\fR\& option in the \fIct_run\fR\& program\&. Configuration files specified in \fIOpts\fR\& will be installed automatically at startup\&.
+.RE
+.LP
+.B
+run_testspec(TestSpec) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+TestSpec = [term()]
+.br
+.RE
+.RS
+.LP
+Run test specified by \fITestSpec\fR\&\&. The terms are the same as those used in test specification files\&.
+.RE
+.LP
+.B
+sleep(Time) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Time = {hours, Hours} | {minutes, Mins} | {seconds, Secs} | Millisecs | infinity
+.br
+Hours = integer()
+.br
+Mins = integer()
+.br
+Secs = integer()
+.br
+Millisecs = integer() | float()
+.br
+.RE
+.RS
+.LP
+This function, similar to \fItimer:sleep/1\fR\&, suspends the test case for specified time\&. However, this function also multiplies \fITime\fR\& with the \&'multiply_timetraps\&' value (if set) and under certain circumstances also scales up the time automatically if \&'scale_timetraps\&' is set to true (default is false)\&.
+.RE
+.LP
+.B
+start_interactive() -> ok
+.br
+.RS
+.LP
+Start CT in interactive mode\&.
+.LP
+From this mode all test case support functions can be executed directly from the erlang shell\&. The interactive mode can also be started from the OS command line with \fIct_run -shell [-config File\&.\&.\&.]\fR\&\&.
+.LP
+If any functions using "required config data" (e\&.g\&. telnet or ftp functions) are to be called from the erlang shell, config data must first be required with \fIct:require/2\fR\&\&.
+.LP
+Example:
+.br
+\fI> ct:require(unix_telnet, unix)\&.\fR\&
+.br
+\fIok\fR\&
+.br
+\fI> ct_telnet:open(unix_telnet)\&.\fR\&
+.br
+\fI{ok,<0\&.105\&.0>}\fR\&
+.br
+\fI> ct_telnet:cmd(unix_telnet, "ls \&.")\&.\fR\&
+.br
+\fI{ok,["ls","file1 \&.\&.\&.",\&.\&.\&.]}\fR\&
+.RE
+.LP
+.B
+step(TestDir, Suite, Case) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Case = atom()
+.br
+.RE
+.RS
+.LP
+Step through a test case with the debugger\&.
+.LP
+\fISee also:\fR\& \fBrun/3\fR\&\&.
+.RE
+.LP
+.B
+step(TestDir, Suite, Case, Opts) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Case = atom()
+.br
+Opts = [Opt] | []
+.br
+Opt = config | keep_inactive
+.br
+.RE
+.RS
+.LP
+Step through a test case with the debugger\&. If the \fIconfig\fR\& option has been given, breakpoints will be set also on the configuration functions in \fISuite\fR\&\&.
+.LP
+\fISee also:\fR\& \fBrun/3\fR\&\&.
+.RE
+.LP
+.B
+stop_interactive() -> ok
+.br
+.RS
+.LP
+Exit the interactive mode\&.
+.LP
+\fISee also:\fR\& \fBstart_interactive/0\fR\&\&.
+.RE
+.LP
+.B
+testcases(TestDir, Suite) -> Testcases | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+TestDir = string()
+.br
+Suite = atom()
+.br
+Testcases = list()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Returns all testcases in the specified suite\&.
+.RE
+.LP
+.B
+timetrap(Time) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Time = {hours, Hours} | {minutes, Mins} | {seconds, Secs} | Millisecs | infinity
+.br
+Hours = integer()
+.br
+Mins = integer()
+.br
+Secs = integer()
+.br
+Millisecs = integer() | float()
+.br
+.RE
+.RS
+.LP
+Use this function to set a new timetrap for the running test case\&.
+.RE
+.LP
+.B
+userdata(TestDir, Suite) -> SuiteUserData | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+TestDir = string()
+.br
+Suite = atom()
+.br
+SuiteUserData = [term()]
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Returns any data specified with the tag \fIuserdata\fR\& in the list of tuples returned from \fISuite:suite/0\fR\&\&.
+.RE
+.LP
+.B
+userdata(TestDir, Suite, Case) -> TCUserData | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+TestDir = string()
+.br
+Suite = atom()
+.br
+Case = atom()
+.br
+TCUserData = [term()]
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Returns any data specified with the tag \fIuserdata\fR\& in the list of tuples returned from \fISuite:Case/0\fR\&\&.
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

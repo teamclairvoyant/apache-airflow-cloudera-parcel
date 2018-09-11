@@ -1,0 +1,326 @@
+.TH epp_dodger 3 "syntax_tools 1.6.7.1" "" "Erlang Module Definition"
+.SH NAME
+epp_dodger \- epp_dodger - bypasses the Erlang preprocessor.
+.SH DESCRIPTION
+.LP
+\fIepp_dodger\fR\& - bypasses the Erlang preprocessor\&.
+.LP
+This module tokenises and parses most Erlang source code without expanding preprocessor directives and macro applications, as long as these are syntactically "well-behaved"\&. Because the normal parse trees of the \fIerl_parse\fR\& module cannot represent these things (normally, they are expanded by the Erlang preprocessor \fBepp(3)\fR\& before the parser sees them), an extended syntax tree is created, using the \fBerl_syntax\fR\& module\&.
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIerrorinfo() = {ErrorLine::integer(), Module::atom(), Descriptor::term()}\fR\&:
+
+.RS 2
+.LP
+This is a so-called Erlang I/O ErrorInfo structure; see the \fBio(3)\fR\& module for details\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+parse(Dev::IODevice) -> {ok, Forms} | {error, errorinfo()}
+.br
+.RS
+.LP
+Equivalent to \fBparse(IODevice, 1)\fR\&\&.
+.RE
+.LP
+.B
+parse(Dev::IODevice, L::StartLine) -> {ok, Forms} | {error, errorinfo()}
+.br
+.RS
+.TP 3
+Types:
+
+IODevice = pid()
+.br
+StartLine = integer()
+.br
+Forms = [syntaxTree() (see module erl_syntax)]
+.br
+.RE
+.RS
+.LP
+Equivalent to \fBparse(IODevice, StartLine, [])\fR\&\&.
+.LP
+\fISee also:\fR\& \fBparse/1\fR\&\&.
+.RE
+.LP
+.B
+parse(Dev::IODevice, L0::StartLine, Options) -> {ok, Forms} | {error, errorinfo()}
+.br
+.RS
+.TP 3
+Types:
+
+IODevice = pid()
+.br
+StartLine = integer()
+.br
+Options = [term()]
+.br
+Forms = [syntaxTree() (see module erl_syntax)]
+.br
+.RE
+.RS
+.LP
+Reads and parses program text from an I/O stream\&. Characters are read from \fIIODevice\fR\& until end-of-file; apart from this, the behaviour is the same as for \fBparse_file/2\fR\&\&. \fIStartLine\fR\& is the initial line number, which should be a positive integer\&.
+.LP
+\fISee also:\fR\& \fBparse/2\fR\&, \fBparse_file/2\fR\&, \fBparse_form/2\fR\&, \fBquick_parse/3\fR\&\&.
+.RE
+.LP
+.B
+parse_file(File) -> {ok, Forms} | {error, errorinfo()}
+.br
+.RS
+.TP 3
+Types:
+
+File = filename() (see module file)
+.br
+Forms = [syntaxTree() (see module erl_syntax)]
+.br
+.RE
+.RS
+.LP
+Equivalent to \fBparse_file(File, [])\fR\&\&.
+.RE
+.LP
+.B
+parse_file(File, Options) -> {ok, Forms} | {error, errorinfo()}
+.br
+.RS
+.TP 3
+Types:
+
+File = filename() (see module file)
+.br
+Options = [term()]
+.br
+Forms = [syntaxTree() (see module erl_syntax)]
+.br
+.RE
+.RS
+.LP
+Reads and parses a file\&. If successful, \fI{ok, Forms}\fR\& is returned, where \fIForms\fR\& is a list of abstract syntax trees representing the "program forms" of the file (cf\&. \fIerl_syntax:is_form/1\fR\&)\&. Otherwise, \fI{error, errorinfo()}\fR\& is returned, typically if the file could not be opened\&. Note that parse errors show up as error markers in the returned list of forms; they do not cause this function to fail or return \fI{error, errorinfo()}\fR\&\&.
+.LP
+Options:
+.RS 2
+.TP 2
+.B
+\fI{no_fail, boolean()}\fR\&:
+If \fItrue\fR\&, this makes \fIepp_dodger\fR\& replace any program forms that could not be parsed with nodes of type \fItext\fR\& (see \fBerl_syntax:text/1\fR\&), representing the raw token sequence of the form, instead of reporting a parse error\&. The default value is \fIfalse\fR\&\&.
+.TP 2
+.B
+\fI{clever, boolean()}\fR\&:
+If set to \fItrue\fR\&, this makes \fIepp_dodger\fR\& try to repair the source code as it seems fit, in certain cases where parsing would otherwise fail\&. Currently, it inserts \fI++\fR\&-operators between string literals and macros where it looks like concatenation was intended\&. The default value is \fIfalse\fR\&\&.
+.RE
+.LP
+
+.LP
+\fISee also:\fR\& \fBparse/2\fR\&, \fBquick_parse_file/1\fR\&, \fBerl_syntax:is_form/1\fR\&\&.
+.RE
+.LP
+.B
+parse_form(Dev::IODevice, L0::StartLine) -> {ok, Form, LineNo} | {eof, LineNo} | {error, errorinfo(), LineNo}
+.br
+.RS
+.TP 3
+Types:
+
+IODevice = pid()
+.br
+StartLine = integer()
+.br
+Form = syntaxTree() (see module erl_syntax)
+.br
+LineNo = integer()
+.br
+.RE
+.RS
+.LP
+Equivalent to \fBparse_form(IODevice, StartLine, [])\fR\&\&.
+.LP
+\fISee also:\fR\& \fBquick_parse_form/2\fR\&\&.
+.RE
+.LP
+.B
+parse_form(Dev::IODevice, L0::StartLine, Options) -> {ok, Form, LineNo} | {eof, LineNo} | {error, errorinfo(), LineNo}
+.br
+.RS
+.TP 3
+Types:
+
+IODevice = pid()
+.br
+StartLine = integer()
+.br
+Options = [term()]
+.br
+Form = syntaxTree() (see module erl_syntax)
+.br
+LineNo = integer()
+.br
+.RE
+.RS
+.LP
+Reads and parses a single program form from an I/O stream\&. Characters are read from \fIIODevice\fR\& until an end-of-form marker is found (a period character followed by whitespace), or until end-of-file; apart from this, the behaviour is similar to that of \fIparse/3\fR\&, except that the return values also contain the final line number given that \fIStartLine\fR\& is the initial line number, and that \fI{eof, LineNo}\fR\& may be returned\&.
+.LP
+\fISee also:\fR\& \fBparse/3\fR\&, \fBparse_form/2\fR\&, \fBquick_parse_form/3\fR\&\&.
+.RE
+.LP
+.B
+quick_parse(Dev::IODevice) -> {ok, Forms} | {error, errorinfo()}
+.br
+.RS
+.LP
+Equivalent to \fBquick_parse(IODevice, 1)\fR\&\&.
+.RE
+.LP
+.B
+quick_parse(Dev::IODevice, L::StartLine) -> {ok, Forms} | {error, errorinfo()}
+.br
+.RS
+.TP 3
+Types:
+
+IODevice = pid()
+.br
+StartLine = integer()
+.br
+Forms = [syntaxTree() (see module erl_syntax)]
+.br
+.RE
+.RS
+.LP
+Equivalent to \fBquick_parse(IODevice, StartLine, [])\fR\&\&.
+.LP
+\fISee also:\fR\& \fBquick_parse/1\fR\&\&.
+.RE
+.LP
+.B
+quick_parse(Dev::IODevice, L0::StartLine, Options) -> {ok, Forms} | {error, errorinfo()}
+.br
+.RS
+.TP 3
+Types:
+
+IODevice = pid()
+.br
+StartLine = integer()
+.br
+Options = [term()]
+.br
+Forms = [syntaxTree() (see module erl_syntax)]
+.br
+.RE
+.RS
+.LP
+Similar to \fBparse/3\fR\&, but does a more quick-and-dirty processing of the code\&. See \fBquick_parse_file/2\fR\& for details\&.
+.LP
+\fISee also:\fR\& \fBparse/3\fR\&, \fBquick_parse/2\fR\&, \fBquick_parse_file/2\fR\&, \fBquick_parse_form/2\fR\&\&.
+.RE
+.LP
+.B
+quick_parse_file(File) -> {ok, Forms} | {error, errorinfo()}
+.br
+.RS
+.TP 3
+Types:
+
+File = filename() (see module file)
+.br
+Forms = [syntaxTree() (see module erl_syntax)]
+.br
+.RE
+.RS
+.LP
+Equivalent to \fBquick_parse_file(File, [])\fR\&\&.
+.RE
+.LP
+.B
+quick_parse_file(File, Options) -> {ok, Forms} | {error, errorinfo()}
+.br
+.RS
+.TP 3
+Types:
+
+File = filename() (see module file)
+.br
+Options = [term()]
+.br
+Forms = [syntaxTree() (see module erl_syntax)]
+.br
+.RE
+.RS
+.LP
+Similar to \fBparse_file/2\fR\&, but does a more quick-and-dirty processing of the code\&. Macro definitions and other preprocessor directives are discarded, and all macro calls are replaced with atoms\&. This is useful when only the main structure of the code is of interest, and not the details\&. Furthermore, the quick-parse method can usually handle more strange cases than the normal, more exact parsing\&.
+.LP
+Options: see \fBparse_file/2\fR\&\&. Note however that for \fIquick_parse_file/2\fR\&, the option \fIno_fail\fR\& is \fItrue\fR\& by default\&.
+.LP
+\fISee also:\fR\& \fBparse_file/2\fR\&, \fBquick_parse/2\fR\&\&.
+.RE
+.LP
+.B
+quick_parse_form(Dev::IODevice, L0::StartLine) -> {ok, Form, LineNo} | {eof, LineNo} | {error, errorinfo(), LineNo}
+.br
+.RS
+.TP 3
+Types:
+
+IODevice = pid()
+.br
+StartLine = integer()
+.br
+Form = syntaxTree() (see module erl_syntax) | none
+.br
+LineNo = integer()
+.br
+.RE
+.RS
+.LP
+Equivalent to \fBquick_parse_form(IODevice, StartLine, [])\fR\&\&.
+.LP
+\fISee also:\fR\& \fBparse_form/2\fR\&\&.
+.RE
+.LP
+.B
+quick_parse_form(Dev::IODevice, L0::StartLine, Options) -> {ok, Form, LineNo} | {eof, LineNo} | {error, errorinfo(), LineNo}
+.br
+.RS
+.TP 3
+Types:
+
+IODevice = pid()
+.br
+StartLine = integer()
+.br
+Options = [term()]
+.br
+Form = syntaxTree() (see module erl_syntax)
+.br
+LineNo = integer()
+.br
+.RE
+.RS
+.LP
+Similar to \fBparse_form/3\fR\&, but does a more quick-and-dirty processing of the code\&. See \fBquick_parse_file/2\fR\& for details\&.
+.LP
+\fISee also:\fR\& \fBparse/3\fR\&, \fBparse_form/3\fR\&, \fBquick_parse_form/2\fR\&\&.
+.RE
+.LP
+.B
+tokens_to_string(Tokens::[term()]) -> string()
+.br
+.RS
+.LP
+Generates a string corresponding to the given token sequence\&. The string can be re-tokenized to yield the same token list again\&.
+.RE
+.SH AUTHORS
+.LP
+Richard Carlsson
+.I
+<richardc@it\&.uu\&.se>

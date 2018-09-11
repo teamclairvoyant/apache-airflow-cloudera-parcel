@@ -1,0 +1,45 @@
+.TH otp_mib 3 "otp_mibs 1.0.6" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+otp_mib \- Handles the OTP-MIB
+.SH DESCRIPTION
+.LP
+The SNMP application should be used to start an SNMP agent\&. Then the API functions below can be used to load/unload the OTP-MIB into/from the agent\&. The instrumentation of the OTP-MIB uses Mnesia, hence Mnesia must be started prior to loading the OTP-MIB\&.
+.SH EXPORTS
+.LP
+.B
+load(Agent) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Loads the OTP-MIB\&.
+.RE
+.LP
+.B
+unload(Agent) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Agent = pid() | atom()
+.br
+Reason = term()
+.br
+.RE
+.RS
+.LP
+Unloads the OTP-MIB\&.
+.RE
+.SH "SEE ALSO"
+
+.LP
+snmp(3)

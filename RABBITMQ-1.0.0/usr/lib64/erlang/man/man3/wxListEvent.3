@@ -1,0 +1,144 @@
+.TH wxListEvent 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxListEvent \- See external documentation: wxListEvent.
+.SH DESCRIPTION
+.LP
+See external documentation: wxListEvent\&.
+.RS 2
+.TP 2
+.B
+Use \fBwxEvtHandler:connect/3\fR\& with EventType::
+\fIcommand_list_begin_drag\fR\&, \fIcommand_list_begin_rdrag\fR\&, \fIcommand_list_begin_label_edit\fR\&, \fIcommand_list_end_label_edit\fR\&, \fIcommand_list_delete_item\fR\&, \fIcommand_list_delete_all_items\fR\&, \fIcommand_list_key_down\fR\&, \fIcommand_list_insert_item\fR\&, \fIcommand_list_col_click\fR\&, \fIcommand_list_col_right_click\fR\&, \fIcommand_list_col_begin_drag\fR\&, \fIcommand_list_col_dragging\fR\&, \fIcommand_list_col_end_drag\fR\&, \fIcommand_list_item_selected\fR\&, \fIcommand_list_item_deselected\fR\&, \fIcommand_list_item_right_click\fR\&, \fIcommand_list_item_middle_click\fR\&, \fIcommand_list_item_activated\fR\&, \fIcommand_list_item_focused\fR\&, \fIcommand_list_cache_hint\fR\&
+.RE
+.LP
+See also the message variant \fB#wxList{\fR\&} event record type\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxNotifyEvent\fR\& 
+.br
+\fBwxCommandEvent\fR\& 
+.br
+\fBwxEvent\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxListEvent()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+getCacheFrom(This::wxListEvent()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getCacheTo(This::wxListEvent()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getKeyCode(This::wxListEvent()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getIndex(This::wxListEvent()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getColumn(This::wxListEvent()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getPoint(This::wxListEvent()) -> {X::integer(), Y::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getLabel(This::wxListEvent()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getText(This::wxListEvent()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getImage(This::wxListEvent()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getData(This::wxListEvent()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getMask(This::wxListEvent()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getItem(This::wxListEvent()) -> wxListItem() (see module wxListItem)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isEditCancelled(This::wxListEvent()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

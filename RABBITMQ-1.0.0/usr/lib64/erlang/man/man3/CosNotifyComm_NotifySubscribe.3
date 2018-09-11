@@ -1,0 +1,36 @@
+.TH CosNotifyComm_NotifySubscribe 3 "cosNotification 1.1.17" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+CosNotifyComm_NotifySubscribe \- This module implements the OMG CosNotifyComm::NotifySubscribe interface.
+.SH DESCRIPTION
+.LP
+To get access to the record definitions for the structures use: 
+.br
+\fI-include_lib("cosNotification/include/*\&.hrl")\&.\fR\&
+.LP
+All objects, which inherit this interface, export functions described in this module\&.
+.SH EXPORTS
+.LP
+.B
+subscription_change(Object, Added, Removed) -> Reply
+.br
+.RS
+.TP 3
+Types:
+
+Object = #objref
+.br
+Added = Removed = EventTypeSeq
+.br
+EventTypeSeq = [type]
+.br
+Reply = ok | {'EXCEPTION', CosNotifyComm_InvalidEventType{type}}
+.br
+type = #'CosNotification_EventType'{domain_name, type_name}
+.br
+domain_name = type_name = string()
+.br
+.RE
+.RS
+.LP
+This operation takes as input two sequences of event type names specifying events the client will and will not accept in the future respectively\&.
+.RE

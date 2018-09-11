@@ -1,0 +1,569 @@
+.TH reltool 3 "reltool 0.5.7" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+reltool \- Main API of the Reltool application
+.SH DESCRIPTION
+.LP
+This is an interface module for the Reltool application\&.
+.LP
+\fIReltool\fR\& is a release management tool\&. It analyses a given Erlang/OTP installation and determines various dependencies between applications\&. The \fIgraphical\fR\& frontend depicts the dependencies and enables interactive customization of a target system\&. The backend provides a \fIbatch\fR\& interface for generation of customized target systems\&.
+.LP
+The tool uses an installed Erlang/OTP system as input\&. \fIroot_dir\fR\& is the root directory of the analysed system and it defaults to the system executing \fIreltool\fR\&\&. Applications may also be located outside \fIroot_dir\fR\&\&. \fIlib_dirs\fR\& defines library directories where additional applications may reside and it defaults to the directories listed by the operating system environment variable \fIERL_LIBS\fR\&\&. See the module \fIcode\fR\& for more info\&. Finally single modules and entire applications may be read from Escripts\&.
+.LP
+Some configuration parameters control the behavior of Reltool on system (\fIsys\fR\&) level\&. Others provide control on application (\fIapp\fR\&) level and yet others are on module (\fImod\fR\&) level\&. Module level parameters override application level parameters and application level parameters override system level parameters\&. Escript \fIescript\fR\& level parameters override system level parameters\&.
+.LP
+The following top level \fIoptions\fR\& are supported:
+.RS 2
+.TP 2
+.B
+\fIconfig\fR\&:
+This is the main option and it controls the configuration of \fIreltool\fR\&\&. It can either be a \fIsys\fR\& tuple or a name of a \fIfile\fR\& containing a sys tuple\&.
+.TP 2
+.B
+\fItrap_exit\fR\&:
+This option controls the error handling behavior of \fIreltool\fR\&\&. By default the window processes traps exit, but this behavior can altered by setting \fItrap_exit\fR\& to \fIfalse\fR\&\&.
+.TP 2
+.B
+\fIwx_debug\fR\&:
+This option controls the debug level of \fIwx\fR\&\&. As its name indicates it is only useful for debugging\&. See \fIwx:debug/1\fR\& for more info\&.
+.RE
+.LP
+Besides the already mentioned source parameters \fIroot_dir\fR\& and \fIlib_dirs\fR\&, the following system (\fIsys\fR\&) level options are supported:
+.RS 2
+.TP 2
+.B
+\fIerts\fR\&:
+Erts specific configuration\&. See application level options below\&.
+.TP 2
+.B
+\fIescript\fR\&:
+Escript specific configuration\&. An escript has a mandatory file name and escript level options that are described below\&.
+.TP 2
+.B
+\fIapp\fR\&:
+Application specific configuration\&. An application has a mandatory name and application level options that are described below\&.
+.TP 2
+.B
+\fImod_cond\fR\&:
+This parameter controls the module inclusion policy\&. It defaults to \fIall\fR\& which means that if an application is included (either explicitly or implicitly) all modules in that application will be included\&. This implies that both modules that exist in the \fIebin\fR\& directory of the application, as well as modules that are named in the \fIapp\fR\& file will be included\&. If the parameter is set to \fIebin\fR\&, both modules in the \fIebin\fR\& directory and derived modules are included\&. If the parameter is set to \fIapp\fR\&, both modules in the \fIapp\fR\& file and derived modules are included\&. \fIderived\fR\& means that only modules that are used by other included modules are included\&. The \fImod_cond\fR\& setting on system level is used as default for all applications\&.
+.TP 2
+.B
+\fIincl_cond\fR\&:
+This parameter controls the application and escript inclusion policy\&. It defaults to \fIderived\fR\& which means that the applications that do not have any explicit \fIincl_cond\fR\& setting, will only be included if any other (explicitly or implicitly included) application uses it\&. The value \fIinclude\fR\& implies that all applications and escripts that do not have any explicit \fIincl_cond\fR\& setting will be included\&. \fIexclude\fR\& implies that all applications and escripts) that do not have any explicit \fIincl_cond\fR\& setting will be excluded\&.
+.TP 2
+.B
+\fIboot_rel\fR\&:
+A target system may have several releases but the one given as \fIboot_rel\fR\& will be used as default when the system is booting up\&.
+.TP 2
+.B
+\fIrel\fR\&:
+Release specific configuration\&. Each release maps to a \fIrel\fR\&, \fIscript\fR\& and \fIboot\fR\& file\&. See the module \fIsystools\fR\& for more info about the details\&. Each release has a name, a version and a set of applications with a few release specific parameters such as type and included applications\&.
+.TP 2
+.B
+\fIrelocatable\fR\&:
+This parameter controls whether the \fIerl\fR\& executable in the target system should automatically determine where it is installed or if it should use a hardcoded path to the installation\&. In the latter case the target system must be installed with \fIreltool:install/2\fR\& before it can be used\&. If the system is relocatable, the file tree containing the target system can be moved to another location without re-installation\&. The default is \fItrue\fR\&\&.
+.TP 2
+.B
+\fIprofile\fR\&:
+The creation of the specification for a target system is performed in two steps\&. In the first step a complete specification is generated\&. It will likely contain much more files than you are interested in in your customized target system\&. In the second step the specification will be filtered according to your filters\&. There you have the ability to specify filters per application as well as system wide filters\&. You can also select a \fIprofile\fR\& for your system\&. Depending on the \fIprofile\fR\&, different default filters will be used\&. There are three different profiles to choose from: \fIdevelopment\fR\&, \fIembedded\fR\& and \fIstandalone\fR\&\&. \fIdevelopment\fR\& is default\&. The parameters that are affected by the \fIprofile\fR\& are: \fIincl_sys_filters\fR\&, \fIexcl_sys_filters\fR\&, \fIincl_app_filters\fR\& and \fIexcl_app_filters\fR\&\&.
+.TP 2
+.B
+\fIapp_file\fR\&:
+This parameter controls the default handling of the \fIapp\fR\& files when a target system is generated\&. It defaults to \fIkeep\fR\& which means that \fIapp\fR\& files are copied to the target system and their contents are kept as they are\&. \fIstrip\fR\& means that a new \fIapp\fR\& file is generated from the contents of the original \fIapp\fR\& file where the non included modules are removed from the file\&. \fIall\fR\& does also imply that a new \fIapp\fR\& file is generated from the contents of the original \fIapp\fR\& file, with the difference that all included modules are added to the file\&. If the application does not have any \fIapp\fR\& file a file will be created for \fIall\fR\& but not for \fIkeep\fR\& and \fIstrip\fR\&\&.
+.TP 2
+.B
+\fIdebug_info\fR\&:
+The \fIdebug_info\fR\& parameter controls whether the debug information in the beam file should be kept (\fIkeep\fR\&) or stripped \fIstrip\fR\& when the file is copied to the target system\&.
+.TP 2
+.B
+\fIincl_sys_filters\fR\&:
+This parameter normally contains a list of regular expressions that controls which files in the system should be included\&. Each file in the target system must match at least one of the listed regular expressions in order to be included\&. Further the files may not match any filter in \fIexcl_sys_filters\fR\& in order to be included\&. Which application files should be included is controlled with the parameters \fIincl_app_filters\fR\& and \fIexcl_app_filters\fR\&\&. This parameter defaults to \fI["\&.*"]\fR\&\&.
+.TP 2
+.B
+\fIexcl_sys_filters\fR\&:
+This parameter normally contains a list of regular expressions that controls which files in the system should not be included in the target system\&. In order to be included, a file must match some filter in \fIincl_sys_filters\fR\& but not any filter in \fIexcl_sys_filters\fR\&\&. This parameter defaults to \fI[]\fR\&\&.
+.TP 2
+.B
+\fIincl_app_filters\fR\&:
+This parameter normally contains a list of regular expressions that controls which application specific files that should be included\&. Each file in the application must match at least one of the listed regular expressions in order to be included\&. Further the files may not match any filter in \fIexcl_app_filters\fR\& in order to be included\&. This parameter defaults to \fI["\&.*"]\fR\&\&.
+.TP 2
+.B
+\fIexcl_app_filters\fR\&:
+This parameter normally contains a list of regular expressions that controls which application specific files should not be included in the target system\&. In order to be included, a file must match some filter in \fIincl_app_filters\fR\& but not any filter in \fIexcl_app_filters\fR\&\&. This parameter defaults to \fI[]\fR\&\&.
+.TP 2
+.B
+\fIincl_archive_filters\fR\&:
+This parameter normally contains a list of regular expressions that controls which top level directories in an application should be included in an archive file (as opposed to being included as a regular directory outside the archive)\&. Each top directory in the application must match at least one of the listed regular expressions in order to be included\&. Further the files may not match any filter in \fIexcl_app_filters\fR\& in order to be included\&. This parameter defaults to \fI["\&.*"]\fR\&\&.
+.TP 2
+.B
+\fIexcl_archive_filters\fR\&:
+This parameter normally contains a list of regular expressions that controls which top level directories in an application should not be included in an archive file\&. In order to be included in the application archive, a top directory must match some filter in \fIincl_archive_filters\fR\& but not any filter in \fIexcl_archive_filters\fR\&\&. This parameter defaults to \fI["^include$","^priv$"]\fR\&\&.
+.TP 2
+.B
+\fIarchive_opts\fR\&:
+This parameter contains a list of options that are given to \fIzip:create/3\fR\& when application specific files are packaged into an archive\&. Only a subset of the options are supported\&. The most useful options in this context are the ones that control which types of files should be compressed\&. This parameter defaults to \fI[]\fR\&\&.
+.RE
+.LP
+On application (\fIescript\fR\&) level, the following options are supported:
+.RS 2
+.TP 2
+.B
+\fIincl_cond\fR\&:
+The value of this parameter overrides the parameter with the same name on system level\&.
+.RE
+.LP
+On application (\fIapp\fR\&) level, the following options are supported:
+.RS 2
+.TP 2
+.B
+\fIvsn\fR\&:
+The version of the application\&. In an installed system there may exist several versions of an application\&. The \fIvsn\fR\& parameter controls which version of the application will be chosen\&. If it is omitted, the latest version will be chosen\&.
+.TP 2
+.B
+\fImod\fR\&:
+Module specific configuration\&. A module has a mandatory name and module level options that are described below\&.
+.TP 2
+.B
+\fImod_cond\fR\&:
+The value of this parameter overrides the parameter with the same name on system level\&.
+.TP 2
+.B
+\fIincl_cond\fR\&:
+The value of this parameter overrides the parameter with the same name on system level\&.
+.TP 2
+.B
+\fIapp_file\fR\&:
+The value of this parameter overrides the parameter with the same name on system level\&.
+.TP 2
+.B
+\fIdebug_info\fR\&:
+The value of this parameter overrides the parameter with the same name on system level\&.
+.TP 2
+.B
+\fIincl_app_filters\fR\&:
+The value of this parameter overrides the parameter with the same name on system level\&.
+.TP 2
+.B
+\fIexcl_app_filters\fR\&:
+The value of this parameter overrides the parameter with the same name on system level\&.
+.TP 2
+.B
+\fIincl_archive_filters\fR\&:
+The value of this parameter overrides the parameter with the same name on system level\&.
+.TP 2
+.B
+\fIexcl_archive_filters\fR\&:
+The value of this parameter overrides the parameter with the same name on system level\&.
+.TP 2
+.B
+\fIarchive_opts\fR\&:
+The value of this parameter overrides the parameter with the same name on system level\&.
+.RE
+.LP
+On module (\fImod\fR\&) level, the following options are supported:
+.RS 2
+.TP 2
+.B
+\fIincl_cond\fR\&:
+This parameter controls whether the module is included or not\&. By default the \fImod_incl\fR\& parameter on application and system level will be used to control whether the module is included or not\&. The value of \fIincl_cond\fR\& overrides the module inclusion policy\&. \fIinclude\fR\& implies that the module is included, while \fIexclude\fR\& implies that the module is not included\&. \fIderived\fR\& implies that the module is included if it is used by any other included module\&.
+.TP 2
+.B
+\fIdebug_info\fR\&:
+The value of this parameter overrides the parameter with the same name on application level\&.
+.RE
+.SH "DATA TYPES"
+
+.LP
+.nf
+
+options()           = [option()]
+option()            = {config, config() | file()}
+                    | {trap_exit, bool()}
+                    | {wx_debug, term()} 
+config()            = {sys, [sys()]}
+sys()               = {root_dir, root_dir()}
+                    | {lib_dirs, [lib_dir()]}
+                    | {profile, profile()}
+                    | {erts, app()}
+                    | {escript, escript_file(), [escript()]}
+                    | {app, app_name(), [app()]}
+                    | {mod_cond, mod_cond()} 
+                    | {incl_cond, incl_cond()}
+                    | {boot_rel, boot_rel()}
+                    | {rel, rel_name(), rel_vsn(), [rel_app()]}
+                    | {relocatable, relocatable()}
+                    | {app_file, app_file()}
+                    | {debug_info, debug_info()}
+                    | {incl_sys_filters, incl_sys_filters()}
+                    | {excl_sys_filters, excl_sys_filters()}
+                    | {incl_app_filters, incl_app_filters()}
+                    | {excl_app_filters, excl_app_filters()}
+                    | {incl_archive_filters, incl_archive_filters()}
+                    | {excl_archive_filters, excl_archive_filters()}
+                    | {archive_opts, [archive_opt()]}
+app()               = {vsn, app_vsn()}
+                    | {mod, mod_name(), mod()}
+                    | {mod_cond, mod_cond()}
+                    | {incl_cond, incl_cond()}
+                    | {debug_info, debug_info()}
+                    | {app_file, app_file()}
+                    | {incl_sys_filters, incl_sys_filters()}
+                    | {excl_sys_filters, excl_sys_filters()}
+                    | {incl_app_filters, incl_app_filters()}
+                    | {excl_app_filters, excl_app_filters()}
+                    | {incl_archive_filters, incl_archive_filters()}
+                    | {excl_archive_filters, excl_archive_filters()}
+                    | {archive_opts, [archive_opt()]}
+mod()               = {vsn, app_vsn()}
+                    | {incl_cond, incl_cond()}
+                    | {debug_info, debug_info()}
+rel_app()           = app_name()
+                    | {app_name(), app_type()} 
+                    | {app_name(), [incl_app()]}
+                    | {app_name(), app_type(), [incl_app()]}
+app_name()          = atom()
+app_type()          = permanent | transient | temporary | load | none
+app_vsn()           = string()
+archive_opt         = zip_create_opt()
+boot_rel()          = rel_name()
+app_file()          = keep | strip | all
+debug_info()        = keep | strip
+dir()               = string()
+escript()           = {incl_cond, incl_cond()}
+escript_file()      = file()
+excl_app_filters()  = regexps()
+excl_archive_filters() = regexps()
+excl_sys_filters()  = regexps()
+file()              = string()
+incl_app()          = app_name()
+incl_app_filters()  = regexps()
+incl_archive_filters() = regexps()
+incl_cond()         = include | exclude | derived
+incl_sys_filters()  = regexps()
+lib_dir()           = dir()
+mod_cond()          = all | app | ebin | derived | none
+mod_name()          = atom()
+profile()           = development | embedded | standalone
+re_regexp()         = string()
+reason()            = string()
+regexps()           = [re_regexp()]
+                    | {add, [re_regexp()]}
+                    | {del, [re_regexp()]}
+rel_file()          = term()
+rel_name()          = string()
+rel_vsn()           = string()
+relocatable         = boolean()
+root_dir()          = dir()
+script_file()       = term()
+server()            = server_pid() | options()
+server_pid()        = pid()
+target_dir()        = file()
+window_pid()        = pid()
+base_dir()          = dir()
+base_file()         = file()
+top_dir()           = file()
+top_file()          = file()
+target_spec()       = [target_spec()]
+                    | {create_dir, base_dir(), [target_spec()]}
+                    | {create_dir, base_dir(), top_dir(), [target_spec()]}
+                    | {archive, base_file(), [archive_opt()], [target_spec()]}
+                    | {copy_file, base_file()}
+                    | {copy_file, base_file(), top_file()}
+                    | {write_file, base_file(), iolist()}
+                    | {strip_beam_file, base_file()}
+.fi
+.SH EXPORTS
+.LP
+.B
+create_target(Server, TargetDir) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Server = server()
+.br
+TargetDir = target_dir()
+.br
+Reason = reason()
+.br
+.RE
+.RS
+.LP
+Create a target system\&. Gives the same result as \fI{ok,TargetSpec}=reltool:get_target_spec(Server)\fR\& and \fIreltool:eval_target_spec(TargetSpec,RootDir,TargetDir)\fR\&\&.
+.RE
+.LP
+.B
+eval_target_spec(TargetSpec, RootDir, TargetDir) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+TargetSpec = target_spec()
+.br
+RootDir = root_dir()
+.br
+TargetDir = target_dir()
+.br
+Reason = reason()
+.br
+.RE
+.RS
+.LP
+Create the actual target system from a specification generated by \fIreltool:get_target_spec/1\fR\&\&. The creation of the specification for a target system is performed in two steps\&. In the first step a complete specification will be generated\&. It will likely contain much more files than you are interested in in your target system\&. In the second step the specification will be filtered according to your filters\&. There you have the ability to specify filters per application as well as system wide filters\&. You can also select a \fIprofile\fR\& for your system\&. Depending on the \fIprofile\fR\&, different default filters will be used\&.
+.LP
+The top directories \fIbin\fR\&, \fIreleases\fR\& and \fIlib\fR\& are treated differently from other files\&. All other files are by default copied to the target system\&. The \fIreleases\fR\& directory contains generated \fIrel\fR\&, \fIscript\fR\&, and \fIboot\fR\& files\&. The \fIlib\fR\& directory contains the applications\&. Which applications are included and if they should be customized (archived, stripped from debug info etc\&.) is specified with various configuration parameters\&. The files in the \fIbin\fR\& directory are copied from the \fIerts-vsn/bin\fR\& directory, but only those files that were originally included in the \fIbin\fR\& directory of the source system\&.
+.LP
+If the configuration parameter \fIrelocatable\fR\& was set to \fItrue\fR\& there is no need to install the target system with \fIreltool:install/2\fR\& before it can be started\&. In that case the file tree containing the target system can be moved without re-installation\&.
+.RE
+.LP
+.B
+get_config(Server) -> {ok, Config} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Server = server()
+.br
+Config = config()
+.br
+Reason = reason()
+.br
+.RE
+.RS
+.LP
+Get reltool configuration\&. Shorthand for \fIreltool:get_config(Server,false,false)\fR\&\&.
+.RE
+.LP
+.B
+get_config(Server, InclDefaults, InclDerived) -> {ok, Config} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Server = server()
+.br
+InclDefaults = incl_defaults()
+.br
+InclDerived = incl_derived()
+.br
+Config = config()
+.br
+Reason = reason()
+.br
+.RE
+.RS
+.LP
+Get reltool configuration\&. Normally, only the explicit configuration parameters with values that differ from their defaults are interesting\&. But the builtin default values can be returned by setting \fIInclDefaults\fR\& to \fItrue\fR\&\&. The derived configuration can be returned by setting \fIInclDerived\fR\& to \fItrue\fR\&\&.
+.RE
+.LP
+.B
+get_rel(Server, Relname) -> {ok, RelFile} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Server = server()
+.br
+RelName = rel_name()
+.br
+RelFile = rel_file()
+.br
+Reason = reason()
+.br
+.RE
+.RS
+.LP
+Get contents of a release file\&. See \fIrel(4)\fR\& for more details\&.
+.RE
+.LP
+.B
+get_script(Server, Relname) -> {ok, ScriptFile | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Server = server()
+.br
+RelName = rel_name()
+.br
+ScriptFile = script_file()
+.br
+Reason = reason()
+.br
+.RE
+.RS
+.LP
+Get contents of a boot script file\&. See \fIscript(4)\fR\& for more details\&.
+.RE
+.LP
+.B
+get_status(Server) -> {ok, [Warning]} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Server = server()
+.br
+Warning = string()
+.br
+Reason = reason()
+.br
+.RE
+.RS
+.LP
+Get status about the configuration
+.RE
+.LP
+.B
+get_server(WindowPid) -> {ok, ServerPid} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+WindowPid = window_pid()
+.br
+ServerPid = server_pid()
+.br
+Reason = reason()
+.br
+.RE
+.RS
+.LP
+Return the process identifier of the server process\&.
+.RE
+.LP
+.B
+get_target_spec(Server) -> {ok, targetSpec} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Server = server()
+.br
+TargetSpec = target_spec()
+.br
+Reason = reason()
+.br
+.RE
+.RS
+.LP
+Return a specification of the target system\&. The actual target system can be created with \fIreltool:eval_target_spec/3\fR\&\&.
+.RE
+.LP
+.B
+install(Server, TargetDir) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Server = server()
+.br
+TargetDir = target_dir()
+.br
+Reason = reason()
+.br
+.RE
+.RS
+.LP
+Install a created target system
+.RE
+.LP
+.B
+start() -> {ok, WindowPid} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+WindowPid = window_pid()
+.br
+Reason = reason()
+.br
+.RE
+.RS
+.LP
+Start a main window process with default options
+.RE
+.LP
+.B
+start(Options) -> {ok, WindowPid} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Options = options()
+.br
+WindowPid = window_pid()
+.br
+Reason = reason()
+.br
+.RE
+.RS
+.LP
+Start a main window process with options
+.RE
+.LP
+.B
+start_link(Options) -> {ok, WindowPid} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Options = options()
+.br
+WindowPid = window_pid()
+.br
+Reason = reason()
+.br
+.RE
+.RS
+.LP
+Start a main window process with options\&. The process is linked\&.
+.RE
+.LP
+.B
+start_server(Options) -> {ok, ServerPid} | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Options = options()
+.br
+ServerPid = server_pid()
+.br
+Reason = reason()
+.br
+.RE
+.RS
+.LP
+Start a server process with options\&. The server process identity can be given as an argument to several other functions in the API\&.
+.RE
+.LP
+.B
+stop(Pid) -> ok | {error, Reason}
+.br
+.RS
+.TP 3
+Types:
+
+Pid = server_pid() | window_pid()()
+.br
+Reason = reason()
+.br
+.RE
+.RS
+.LP
+Stop a server or window process
+.RE

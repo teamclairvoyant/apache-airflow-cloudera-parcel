@@ -1,0 +1,307 @@
+.TH wxChoicebook 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxChoicebook \- See external documentation: wxChoicebook.
+.SH DESCRIPTION
+.LP
+See external documentation: wxChoicebook\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxControl\fR\& 
+.br
+\fBwxWindow\fR\& 
+.br
+\fBwxEvtHandler\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxChoicebook()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+new() -> wxChoicebook()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+new(Parent::wxWindow() (see module wxWindow), Id::integer()) -> wxChoicebook()
+.br
+.RS
+.LP
+Equivalent to \fBnew(Parent, Id, [])\fR\&\&.
+.RE
+.LP
+.B
+new(Parent::wxWindow() (see module wxWindow), Id::integer(), Options::[Option]) -> wxChoicebook()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {pos, {X::integer(), Y::integer()}} | {size, {W::integer(), H::integer()}} | {style, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+addPage(This::wxChoicebook(), Page::wxWindow() (see module wxWindow), Text::string()) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBaddPage(This, Page, Text, [])\fR\&\&.
+.RE
+.LP
+.B
+addPage(This::wxChoicebook(), Page::wxWindow() (see module wxWindow), Text::string(), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {bSelect, bool()} | {imageId, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+advanceSelection(This::wxChoicebook()) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBadvanceSelection(This, [])\fR\&\&.
+.RE
+.LP
+.B
+advanceSelection(This::wxChoicebook(), Options::[Option]) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Option = {forward, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+assignImageList(This::wxChoicebook(), ImageList::wxImageList() (see module wxImageList)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+create(This::wxChoicebook(), Parent::wxWindow() (see module wxWindow), Id::integer()) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBcreate(This, Parent, Id, [])\fR\&\&.
+.RE
+.LP
+.B
+create(This::wxChoicebook(), Parent::wxWindow() (see module wxWindow), Id::integer(), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {pos, {X::integer(), Y::integer()}} | {size, {W::integer(), H::integer()}} | {style, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+deleteAllPages(This::wxChoicebook()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+deletePage(This::wxChoicebook(), N::integer()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+removePage(This::wxChoicebook(), N::integer()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getCurrentPage(This::wxChoicebook()) -> wxWindow() (see module wxWindow)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getImageList(This::wxChoicebook()) -> wxImageList() (see module wxImageList)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getPage(This::wxChoicebook(), N::integer()) -> wxWindow() (see module wxWindow)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getPageCount(This::wxChoicebook()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getPageImage(This::wxChoicebook(), N::integer()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getPageText(This::wxChoicebook(), N::integer()) -> string()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getSelection(This::wxChoicebook()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+hitTest(This::wxChoicebook(), Pt::{X::integer(), Y::integer()}) -> {integer(), Flags::integer()}
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+insertPage(This::wxChoicebook(), N::integer(), Page::wxWindow() (see module wxWindow), Text::string()) -> bool()
+.br
+.RS
+.LP
+Equivalent to \fBinsertPage(This, N, Page, Text, [])\fR\&\&.
+.RE
+.LP
+.B
+insertPage(This::wxChoicebook(), N::integer(), Page::wxWindow() (see module wxWindow), Text::string(), Options::[Option]) -> bool()
+.br
+.RS
+.TP 3
+Types:
+
+Option = {bSelect, bool()} | {imageId, integer()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setImageList(This::wxChoicebook(), ImageList::wxImageList() (see module wxImageList)) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setPageSize(This::wxChoicebook(), Size::{W::integer(), H::integer()}) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setPageImage(This::wxChoicebook(), N::integer(), ImageId::integer()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setPageText(This::wxChoicebook(), N::integer(), StrText::string()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setSelection(This::wxChoicebook(), N::integer()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+changeSelection(This::wxChoicebook(), N::integer()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+destroy(This::wxChoicebook()) -> ok
+.br
+.RS
+.LP
+Destroys this object, do not use object again
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

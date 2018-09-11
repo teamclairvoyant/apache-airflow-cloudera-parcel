@@ -1,0 +1,43 @@
+.TH CosFileTransfer_Directory 3 "cosFileTransfer 1.1.12" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+CosFileTransfer_Directory \- This module implements the OMG CosFileTransfer::Directory interface.
+.SH DESCRIPTION
+.LP
+To get access to the record definitions for the structures use: 
+.br
+\fI-include_lib("cosFileTransfer/include/*\&.hrl")\&.\fR\&
+.LP
+This module also exports the functions described in:
+.RS 2
+.TP 2
+*
+\fBCosFileTransfer_File\fR\&
+.LP
+.TP 2
+*
+CosPropertyService_PropertySetDef in the cosProperty application\&.
+.LP
+.RE
+
+.SH EXPORTS
+.LP
+.B
+list(Directory, Max) -> Return
+.br
+.RS
+.TP 3
+Types:
+
+Directory = #objref
+.br
+Return = {ok, FileList, FileIterator}
+.br
+FileList = [File]
+.br
+File = FileIterator = #objref
+.br
+.RE
+.RS
+.LP
+This operation returns a list, of length \fIMax\fR\& or less, containing Object References representing files or directories contained within the target Directory\&. If the amount of objects found is less than \fIMax\fR\& the returned Iterator will be a \fINIL\fR\& object\&.
+.RE

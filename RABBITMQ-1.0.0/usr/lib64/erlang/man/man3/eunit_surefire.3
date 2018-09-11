@@ -1,0 +1,66 @@
+.TH eunit_surefire 3 "eunit 2.2.1" "" "Erlang Module Definition"
+.SH NAME
+eunit_surefire \- Surefire reports for EUnit (Format used by Maven and Atlassian  
+Bamboo for example to integrate test results).
+.SH DESCRIPTION
+.LP
+Surefire reports for EUnit (Format used by Maven and Atlassian Bamboo for example to integrate test results)\&. Based on initial code from Paul Guyot\&.
+.LP
+Example: Generate XML result file in the current directory:
+.LP
+.nf
+     eunit:test([fib, eunit_examples],
+                [{report,{eunit_surefire,[{dir,"."}]}}]).
+.fi
+.SH EXPORTS
+.LP
+.B
+handle_begin(Kind, Data, St) -> term() 
+.br
+.RS
+.RE
+.LP
+.B
+handle_cancel(X1, Data, St) -> term() 
+.br
+.RS
+.RE
+.LP
+.B
+handle_end(X1, Data, St) -> term() 
+.br
+.RS
+.RE
+.LP
+.B
+init(Options) -> term() 
+.br
+.RS
+.RE
+.LP
+.B
+start() -> term() 
+.br
+.RS
+.RE
+.LP
+.B
+start(Options) -> term() 
+.br
+.RS
+.RE
+.LP
+.B
+terminate(X1, St) -> term() 
+.br
+.RS
+.RE
+.SH "SEE ALSO"
+
+.LP
+\fBeunit\fR\&
+.SH AUTHORS
+.LP
+Mickaël Rémond
+.I
+<mickael\&.remond@process-one\&.net>

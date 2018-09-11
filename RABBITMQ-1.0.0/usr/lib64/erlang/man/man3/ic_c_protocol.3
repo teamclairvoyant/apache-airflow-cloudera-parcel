@@ -1,0 +1,100 @@
+.TH ic_c_protocol 3 "ic 4.2.27" "Ericsson AB" "C Library Functions"
+.SH NAME
+ic_c_protocol \- IC C Protocol Functions
+.SH DESCRIPTION
+.LP
+This manual page lists some of the functions of the IC C runtime library that are used internally for the IC protocol\&.
+.LP
+The listed functions are used internally by generated C client and server code\&. They are documented here for \fIthe advanced user\fR\& that want to replace the default protocol (Erlang distribution + gen_server) by his own protocol, For each set of client or sever functions below with prefix \fIoe\fR\&, the user has to implement his own set of functions, the names of which are obtained by replacing the \fIoe\fR\& prefix by \fIPrefix\fR\&\&. The \fIPrefix\fR\& has to be set with the option \fI{user_protocol, Prefix}\fR\& at compile time\&.
+.LP
+The following terminology is used (reflected in names of functions): a \fInotification\fR\& is a message send from client to server, without any reply back (i\&.e\&. a \fIoneway\fR\& operation); a \fIrequest\fR\& is a message sent from client to server, and where a \fIreply\fR\& message is sent back from the server to the client\&.
+.LP
+In order to understand how the functions work and what they do the user \fImust\fR\& study their implementation in the IC C library (source file is \fIic\&.c\fR\&), and also consider how they are used in the C code of ordinary generated client stubs or server skeletons\&.
+.LP
+
+.SH "CLIENT PROTOCOL FUNCTIONS"
+
+.LP
+The following functions are used internally by generated C client code\&.
+.SH EXPORTS
+.LP
+.B
+intoe_prepare_notification_encoding(CORBA_Environment *env)
+.br
+.RS
+.LP
+The result of this function is the beginning of a binary of in external format of the tuple \fI{\&'$gen_cast\&', X}\fR\& where \fIX\fR\& is not yet filled in\&.
+.LP
+In generated client code this function is the first to be called in the encoding function for each oneway operation\&.
+.RE
+.LP
+.B
+intoe_send_notification(CORBA_Environment *env)
+.br
+.B
+intoe_send_notification_tmo(CORBA_Environment *env, unsigned int send_ms)
+.br
+.RS
+.LP
+Sends a client notification to a server according to the Erlang distribution + gen_server protocol\&.
+.LP
+The \fIsend_ms\fR\& parameter specified a timeout in milliseconds\&.
+.RE
+.LP
+.B
+intoe_prepare_request_encoding(CORBA_Environment *env)
+.br
+.RS
+.LP
+The result of this function is the beginning of a binary in the external format of the tuple \fI{\&'$gen_call\&', {Pid, Ref}, X}\fR\& where \fIX\fR\& is not yet filled in\&.
+.LP
+In generated client code this function is the first to be called in the encoding function for each twoway operation\&.
+.RE
+.LP
+.B
+intoe_send_request_and_receive_reply(CORBA_Environment *env)
+.br
+.B
+intoe_send_request_and_receive_reply_tmo(CORBA_Environment *env, unsigned int send_ms, unsigned int recv_ms)
+.br
+.RS
+.LP
+Sends a client request and receives the reply according to the Erlang distribution + gen_server protocol\&. This function calls the \fIoe_prepare_reply_decoding\fR\& function in order to obtain the gen_server reply\&.
+.LP
+\fIsend_ms\fR\& and \fIrecv_ms\fR\& specify timeouts for send and receive, respectively, in milliseconds\&.
+.RE
+.LP
+.B
+intoe_prepare_reply_decoding(CORBA_Environment *env)
+.br
+.RS
+.LP
+Decodes the binary version of the tuple \fI{Ref, X}\fR\&, where \fIX\fR\& is to be decoded later by the specific client decoding function\&.
+.RE
+.SH "SERVER PROTOCOL FUNCTIONS"
+
+.LP
+The following functions are used internally by generated C server code\&.
+.SH EXPORTS
+.LP
+.B
+intoe_prepare_request_decoding(CORBA_Environment *env)
+.br
+.RS
+.LP
+Decodes the binary version of the tuple \fI{\&'$gen_cast\&', Op}\fR\& (\fIOp\fR\& an atom), or the tuple \fI{\&'$gen_cast\&', {Op, X}}\fR\&, where \fIOp\fR\& is the operation name, and where \fIX\fR\& is to be decoded later by the specific operation decoding function; or
+.LP
+decodes the binary version of the tuple \fI{\&'$gen_call\&', {Pid, Ref}, Op}\fR\& (\fIOp\fR\& an atom), or the tuple \fI{\&'$gen_call\&', {Pid, Ref}, {Op, X}}\fR\&, where \fIOp>\fR\& is the operation name, and \fIX\fR\& is to be decode later by the specific operation decoding function\&.
+.RE
+.LP
+.B
+intoe_prepare_reply_encoding(CORBA_Environment *env)
+.br
+.RS
+.LP
+Encodes the beginning of the binary version of the tuple \fI{{Ref,X}\fR\&, where \fIX\fR\& is to be filled in by the specific server encoding function\&.
+.RE
+.SH "SEE ALSO"
+
+.LP
+ic(3), ic_clib(3), \fBIC Protocol\fR\&

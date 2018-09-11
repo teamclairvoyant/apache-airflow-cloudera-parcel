@@ -1,0 +1,416 @@
+.TH snmpm_conf 3 "snmp 4.21.1" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+snmpm_conf \- Utility functions for handling the manager config files.
+.SH DESCRIPTION
+.LP
+The module \fIsnmpm_conf\fR\& contains various utility functions to used for manipulating (write/append/read) the config files of the SNMP manager\&.
+.SH EXPORTS
+.LP
+.B
+manager_entry(Tag, Val) -> manager_entry()
+.br
+.RS
+.TP 3
+Types:
+
+Tag = address | port | engine_id | max_message_size
+.br
+Val = term()
+.br
+manager_entry() = term()
+.br
+.RE
+.RS
+.LP
+Create an entry for the manager config file, \fImanager\&.conf\fR\&\&.
+.LP
+The type of \fIVal\fR\& depends on the value of \fITag\fR\&, see \fBManager Information\fR\& for more info\&.
+.RE
+.LP
+.B
+write_manager_config(Dir, Conf) -> ok
+.br
+.B
+write_manager_config(Dir, Hdr, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Hdr = string()
+.br
+Conf = [manager_entry()]
+.br
+.RE
+.RS
+.LP
+Write the manager config to the manager config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+\fIHdr\fR\& is an optional file header (note that this text is written to the file as is)\&.
+.LP
+See \fBManager Information\fR\& for more info\&.
+.RE
+.LP
+.B
+append_manager_config(Dir, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [manager_entry()]
+.br
+.RE
+.RS
+.LP
+Append the config to the current manager config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBManager Information\fR\& for more info\&.
+.RE
+.LP
+.B
+read_manager_config(Dir) -> Conf
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [manager_entry()]
+.br
+.RE
+.RS
+.LP
+Read the current manager config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBManager Information\fR\& for more info\&.
+.RE
+.LP
+.B
+users_entry(UserId) -> users_entry()
+.br
+.B
+users_entry(UserId, UserMod) -> users_entry()
+.br
+.B
+users_entry(UserId, UserMod, UserData) -> users_entry()
+.br
+.RS
+.TP 3
+Types:
+
+UserId = term()
+.br
+UserMod = atom()
+.br
+UserData = term()
+.br
+standard_entry() = term()
+.br
+.RE
+.RS
+.LP
+Create an entry for the manager users config file, \fIusers\&.conf\fR\&\&.
+.LP
+\fIusers_entry(UserId)\fR\& translates to the following call: \fIusers_entry(UserId, snmpm_user_default)\fR\&\&.
+.LP
+\fIusers_entry(UserId, UserMod)\fR\& translates to the following call: \fIusers_entry(UserId, UserMod, undefined)\fR\&\&.
+.LP
+See \fBUsers\fR\& for more info\&.
+.RE
+.LP
+.B
+write_users_config(Dir, Conf) -> ok
+.br
+.B
+write_users_config(Dir, Hdr, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Hdr = string()
+.br
+Conf = [users_entry()]
+.br
+.RE
+.RS
+.LP
+Write the manager users config to the manager users config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+\fIHdr\fR\& is an optional file header (note that this text is written to the file as is)\&.
+.LP
+See \fBUsers\fR\& for more info\&.
+.RE
+.LP
+.B
+append_users_config(Dir, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [users_entry()]
+.br
+.RE
+.RS
+.LP
+Append the users config to the current manager users config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBUsers\fR\& for more info\&.
+.RE
+.LP
+.B
+read_users_config(Dir) -> Conf
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [users_entry()]
+.br
+.RE
+.RS
+.LP
+Read the current manager users config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBUsers\fR\& for more info\&.
+.RE
+.LP
+.B
+agents_entry(UserId, TargetName, Comm, Ip, Port, EngineID, Timeout, MaxMessageSize, Version, SecModel, SecName, SecLevel) -> agents_entry()
+.br
+.RS
+.TP 3
+Types:
+
+UserId = term()
+.br
+TargetName = string()
+.br
+Comm = string()
+.br
+Ip = string()
+.br
+Port = integer()
+.br
+EngineID = string()
+.br
+Timeout = integer()
+.br
+MaxMessageSize = integer()
+.br
+Version = v1 | v2 | v3
+.br
+SecModel = v1 | v2c | usm
+.br
+SecName = string()
+.br
+SecLevel = noAuthNoPriv | authNoPriv | authPriv
+.br
+agents_entry() = term()
+.br
+.RE
+.RS
+.LP
+Create an entry for the manager agents config file, \fIagents\&.conf\fR\&\&.
+.LP
+See \fBAgents\fR\& for more info\&.
+.RE
+.LP
+.B
+write_agents_config(Dir, Conf) -> ok
+.br
+.B
+write_agents_config(Dir, Hdr, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Hdr = string()
+.br
+Conf = [_entry()]
+.br
+.RE
+.RS
+.LP
+Write the manager agents config to the manager agents config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+\fIHdr\fR\& is an optional file header (note that this text is written to the file as is)\&.
+.LP
+See \fBAgents\fR\& for more info\&.
+.RE
+.LP
+.B
+append_agents_config(Dir, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [agents_entry()]
+.br
+.RE
+.RS
+.LP
+Append the agents config to the current manager agents config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBAgents\fR\& for more info\&.
+.RE
+.LP
+.B
+read_agents_config(Dir) -> Conf
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [agents_entry()]
+.br
+.RE
+.RS
+.LP
+Read the current manager agents config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBAgents\fR\& for more info\&.
+.RE
+.LP
+.B
+usm_entry(EngineID, UserName, AuthP, AuthKey, PrivP, PrivKey) -> usm_entry()
+.br
+.B
+usm_entry(EngineID, UserName, SecName, AuthP, AuthKey, PrivP, PrivKey) -> usm_entry()
+.br
+.RS
+.TP 3
+Types:
+
+EngineID = string()
+.br
+UserName = string()
+.br
+SecName = string()
+.br
+AuthP = usmNoAuthProtocol | usmHMACMD5AuthProtocol | usmHMACSHAAuthProtocol
+.br
+AuthKey = [integer()]
+.br
+PrivP = usmNoPrivProtocol | usmDESPrivProtocol | usmAesCfb128Protocol
+.br
+PrivKey = [integer()]
+.br
+usm_entry() = term()
+.br
+.RE
+.RS
+.LP
+Create an entry for the agent community config file, \fIcommunity\&.conf\fR\&\&.
+.LP
+See \fBSecurity data for USM\fR\& for more info\&.
+.RE
+.LP
+.B
+write_usm_config(Dir, Conf) -> ok
+.br
+.B
+write_usm_config(Dir, Hdr, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Hdr = string()
+.br
+Conf = [usm_entry()]
+.br
+.RE
+.RS
+.LP
+Write the manager usm config to the manager usm config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+\fIHdr\fR\& is an optional file header (note that this text is written to the file as is)\&.
+.LP
+See \fBSecurity data for USM\fR\& for more info\&.
+.RE
+.LP
+.B
+append_usm_config(Dir, Conf) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [usm_entry()]
+.br
+.RE
+.RS
+.LP
+Append the usm config to the current manager usm config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBSecurity data for USM\fR\& for more info\&.
+.RE
+.LP
+.B
+read_usm_config(Dir) -> Conf
+.br
+.RS
+.TP 3
+Types:
+
+Dir = string()
+.br
+Conf = [usm_entry()]
+.br
+.RE
+.RS
+.LP
+Read the current manager usm config file\&.
+.LP
+\fIDir\fR\& is the path to the directory where to store the config file\&.
+.LP
+See \fBSecurity data for USM\fR\& for more info\&.
+.RE

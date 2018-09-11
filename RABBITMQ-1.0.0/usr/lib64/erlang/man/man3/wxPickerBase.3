@@ -1,0 +1,158 @@
+.TH wxPickerBase 3 "wxErlang 0.99" "" "Erlang Module Definition"
+.SH NAME
+wxPickerBase \- See external documentation: wxPickerBase.
+.SH DESCRIPTION
+.LP
+See external documentation: wxPickerBase\&.
+.LP
+This class is derived (and can use functions) from: 
+.br
+\fBwxControl\fR\& 
+.br
+\fBwxWindow\fR\& 
+.br
+\fBwxEvtHandler\fR\& 
+.SH "DATA TYPES"
+
+.RS 2
+.TP 2
+.B
+\fIwxPickerBase()\fR\&:
+
+.RS 2
+.LP
+An object reference, The representation is internal and can be changed without notice\&. It can\&'t be used for comparsion stored on disc or distributed for use on other nodes\&.
+.RE
+.RE
+.SH EXPORTS
+.LP
+.B
+setInternalMargin(This::wxPickerBase(), Newmargin::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getInternalMargin(This::wxPickerBase()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setTextCtrlProportion(This::wxPickerBase(), Prop::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setPickerCtrlProportion(This::wxPickerBase(), Prop::integer()) -> ok
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getTextCtrlProportion(This::wxPickerBase()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getPickerCtrlProportion(This::wxPickerBase()) -> integer()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+hasTextCtrl(This::wxPickerBase()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+getTextCtrl(This::wxPickerBase()) -> wxTextCtrl() (see module wxTextCtrl)
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isTextCtrlGrowable(This::wxPickerBase()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setPickerCtrlGrowable(This::wxPickerBase()) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBsetPickerCtrlGrowable(This, [])\fR\&\&.
+.RE
+.LP
+.B
+setPickerCtrlGrowable(This::wxPickerBase(), Options::[Option]) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Option = {grow, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+setTextCtrlGrowable(This::wxPickerBase()) -> ok
+.br
+.RS
+.LP
+Equivalent to \fBsetTextCtrlGrowable(This, [])\fR\&\&.
+.RE
+.LP
+.B
+setTextCtrlGrowable(This::wxPickerBase(), Options::[Option]) -> ok
+.br
+.RS
+.TP 3
+Types:
+
+Option = {grow, bool()}
+.br
+.RE
+.RS
+.LP
+See external documentation\&.
+.RE
+.LP
+.B
+isPickerCtrlGrowable(This::wxPickerBase()) -> bool()
+.br
+.RS
+.LP
+See external documentation\&.
+.RE
+.SH AUTHORS
+.LP
+
+.I
+<>

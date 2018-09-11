@@ -1,0 +1,387 @@
+.TH unicode 3 "stdlib 1.17.5" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+unicode \- Functions for converting Unicode characters
+.SH DESCRIPTION
+.LP
+This module contains functions for converting between different character representations\&. Basically it converts between iso-latin-1 characters and Unicode ditto, but it can also convert between different Unicode encodings (like UTF-8, UTF-16 and UTF-32)\&.
+.LP
+The default Unicode encoding in Erlang is in binaries UTF-8, which is also the format in which built in functions and libraries in OTP expect to find binary Unicode data\&. In lists, Unicode data is encoded as integers, each integer representing one character and encoded simply as the Unicode codepoint for the character\&.
+.LP
+Other Unicode encodings than integers representing codepoints or UTF-8 in binaries are referred to as "external encodings"\&. The iso-latin-1 encoding is in binaries and lists referred to as latin1-encoding\&.
+.LP
+It is recommended to only use external encodings for communication with external entities where this is required\&. When working inside the Erlang/OTP environment, it is recommended to keep binaries in UTF-8 when representing Unicode characters\&. Latin1 encoding is supported both for backward compatibility and for communication with external entities not supporting Unicode character sets\&.
+.SH DATA TYPES
+.nf
+
+\fBencoding()\fR\& = latin1
+.br
+           | unicode
+.br
+           | utf8
+.br
+           | utf16
+.br
+           | {utf16, \fBendian()\fR\&}
+.br
+           | utf32
+.br
+           | {utf32, \fBendian()\fR\&}
+.br
+.fi
+.nf
+
+\fBendian()\fR\& = big | little
+.br
+.fi
+.nf
+
+\fBunicode_binary()\fR\& = binary()
+.br
+.fi
+.RS
+.LP
+A binary() with characters encoded in the UTF-8 coding standard\&.
+.RE
+.nf
+
+\fBunicode_char()\fR\& = integer() >= 0
+.br
+.fi
+.RS
+.LP
+An integer() representing a valid unicode codepoint\&.
+.RE
+.nf
+
+\fBchardata()\fR\& = \fBcharlist()\fR\& | \fBunicode_binary()\fR\&
+.br
+.fi
+.nf
+
+\fBcharlist()\fR\& = [\fBunicode_char()\fR\& | \fBunicode_binary()\fR\& | \fBcharlist()\fR\&]
+.br
+.fi
+.RS
+.LP
+A unicode_binary is allowed as the tail of the list\&.
+.RE
+.nf
+
+\fBexternal_unicode_binary()\fR\& = binary()
+.br
+.fi
+.RS
+.LP
+A \fIbinary()\fR\& with characters coded in a user specified Unicode encoding other than UTF-8 (UTF-16 or UTF-32)\&.
+.RE
+.nf
+
+\fBexternal_chardata()\fR\& = \fBexternal_charlist()\fR\&
+.br
+                    | \fBexternal_unicode_binary()\fR\&
+.br
+.fi
+.nf
+
+\fBexternal_charlist()\fR\& = 
+.br
+    [\fBunicode_char()\fR\& |
+.br
+     \fBexternal_unicode_binary()\fR\& |
+.br
+     \fBexternal_charlist()\fR\&]
+.br
+.fi
+.RS
+.LP
+An \fIexternal_unicode_binary()\fR\& is allowed as the tail of the list\&.
+.RE
+.nf
+
+\fBlatin1_binary()\fR\& = binary()
+.br
+.fi
+.RS
+.LP
+A \fIbinary()\fR\& with characters coded in iso-latin-1\&.
+.RE
+.nf
+
+\fBlatin1_char()\fR\& = byte()
+.br
+.fi
+.RS
+.LP
+An \fIinteger()\fR\& representing valid latin1 character (0-255)\&.
+.RE
+.nf
+
+\fBlatin1_chardata()\fR\& = \fBlatin1_charlist()\fR\& | \fBlatin1_binary()\fR\&
+.br
+.fi
+.nf
+
+\fBlatin1_charlist()\fR\& = 
+.br
+    [\fBlatin1_char()\fR\& | \fBlatin1_binary()\fR\& | \fBlatin1_charlist()\fR\&]
+.br
+.fi
+.RS
+.LP
+A \fIlatin1_binary()\fR\& is allowed as the tail of the list\&.
+.RE
+.SH EXPORTS
+.LP
+.nf
+
+.B
+bom_to_encoding(Bin) -> {Encoding, Length}
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Bin = binary()
+.br
+A binary() of byte_size 4 or more\&.
+.br
+Encoding = latin1
+.br
+         | utf8
+.br
+         | {utf16, \fBendian()\fR\&}
+.br
+         | {utf32, \fBendian()\fR\&}
+.br
+Length = integer() >= 0
+.br
+.nf
+\fBendian()\fR\& = big | little
+.fi
+.br
+.RE
+.RS
+.LP
+Check for a UTF byte order mark (BOM) in the beginning of a binary\&. If the supplied binary \fIBin\fR\& begins with a valid byte order mark for either UTF-8, UTF-16 or UTF-32, the function returns the encoding identified along with the length of the BOM in bytes\&.
+.LP
+If no BOM is found, the function returns \fI{latin1,0}\fR\&
+.RE
+.LP
+.nf
+
+.B
+characters_to_list(Data) -> Result
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Data = \fBlatin1_chardata()\fR\& | \fBchardata()\fR\& | \fBexternal_chardata()\fR\&
+.br
+Result = list()
+.br
+       | {error, list(), RestData}
+.br
+       | {incomplete, list(), binary()}
+.br
+RestData = \fBlatin1_chardata()\fR\& | \fBchardata()\fR\& | \fBexternal_chardata()\fR\&
+.br
+.RE
+.RS
+.LP
+Same as characters_to_list(Data,unicode)\&.
+.RE
+.LP
+.B
+characters_to_list(Data, InEncoding) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Data =
+.br
+Result = list() | {error, list(), RestData} | {incomplete, list(), binary()}
+.br
+RestData =
+.br
+InEncoding =
+.br
+.RE
+.RS
+.LP
+This function converts a possibly deep list of integers and binaries into a list of integers representing unicode characters\&. The binaries in the input may have characters encoded as latin1 (0 - 255, one character per byte), in which case the \fIInEncoding\fR\& parameter should be given as \fIlatin1\fR\&, or have characters encoded as one of the UTF-encodings, which is given as the \fIInEncoding\fR\& parameter\&. Only when the \fIInEncoding\fR\& is one of the UTF encodings, integers in the list are allowed to be grater than 255\&.
+.LP
+If \fIInEncoding\fR\& is \fIlatin1\fR\&, the \fIData\fR\& parameter corresponds to the \fIiodata()\fR\& type, but for \fIunicode\fR\&, the \fIData\fR\& parameter can contain integers greater than 255 (unicode characters beyond the iso-latin-1 range), which would make it invalid as \fIiodata()\fR\&\&.
+.LP
+The purpose of the function is mainly to be able to convert combinations of unicode characters into a pure unicode string in list representation for further processing\&. For writing the data to an external entity, the reverse function \fBcharacters_to_binary/3\fR\& comes in handy\&.
+.LP
+The option \fIunicode\fR\& is an alias for \fIutf8\fR\&, as this is the preferred encoding for Unicode characters in binaries\&. \fIutf16\fR\& is an alias for \fI{utf16,big}\fR\& and \fIutf32\fR\& is an alias for \fI{utf32,big}\fR\&\&. The \fIbig\fR\& and \fIlittle\fR\& atoms denote big or little endian encoding\&.
+.LP
+If for some reason, the data cannot be converted, either because of illegal unicode/latin1 characters in the list, or because of invalid UTF encoding in any binaries, an error tuple is returned\&. The error tuple contains the tag \fIerror\fR\&, a list representing the characters that could be converted before the error occurred and a representation of the characters including and after the offending integer/bytes\&. The last part is mostly for debugging as it still constitutes a possibly deep and/or mixed list, not necessarily of the same depth as the original data\&. The error occurs when traversing the list and whatever\&'s left to decode is simply returned as is\&.
+.LP
+However, if the input \fIData\fR\& is a pure binary, the third part of the error tuple is guaranteed to be a binary as well\&.
+.LP
+Errors occur for the following reasons:
+.RS 2
+.TP 2
+*
+Integers out of range - If \fIInEncoding\fR\& is \fIlatin1\fR\&, an error occurs whenever an integer greater than 255 is found in the lists\&. If \fIInEncoding\fR\& is of a Unicode type, an error occurs whenever an integer 
+.RS 2
+.TP 2
+*
+greater than \fI16#10FFFF\fR\& (the maximum unicode character),
+.LP
+.TP 2
+*
+in the range \fI16#D800\fR\& to \fI16#DFFF\fR\& (invalid unicode range)
+.LP
+.TP 2
+*
+or equal to 16#FFFE or 16#FFFF (non characters)
+.LP
+.RE
+ is found\&. 
+.LP
+.TP 2
+*
+UTF encoding incorrect - If \fIInEncoding\fR\& is one of the UTF types, the bytes in any binaries have to be valid in that encoding\&. Errors can occur for various reasons, including "pure" decoding errors (like the upper bits of the bytes being wrong), the bytes are decoded to a too large number, the bytes are decoded to a code-point in the invalid unicode range or encoding is "overlong", meaning that a number should have been encoded in fewer bytes\&. The case of a truncated UTF is handled specially, see the paragraph about incomplete binaries below\&. If \fIInEncoding\fR\& is \fIlatin1\fR\&, binaries are always valid as long as they contain whole bytes, as each byte falls into the valid iso-latin-1 range\&.
+.LP
+.RE
+
+.LP
+A special type of error is when no actual invalid integers or bytes are found, but a trailing \fIbinary()\fR\& consists of too few bytes to decode the last character\&. This error might occur if bytes are read from a file in chunks or binaries in other ways are split on non UTF character boundaries\&. In this case an \fIincomplete\fR\& tuple is returned instead of the \fIerror\fR\& tuple\&. It consists of the same parts as the \fIerror\fR\& tuple, but the tag is \fIincomplete\fR\& instead of \fIerror\fR\& and the last element is always guaranteed to be a binary consisting of the first part of a (so far) valid UTF character\&.
+.LP
+If one UTF characters is split over two consecutive binaries in the \fIData\fR\&, the conversion succeeds\&. This means that a character can be decoded from a range of binaries as long as the whole range is given as input without errors occurring\&. Example:
+.LP
+.nf
+
+     decode_data(Data) ->
+         case unicode:characters_to_list(Data,unicode) of
+             {incomplete,Encoded, Rest} ->
+	           More = get_some_more_data(),
+		   Encoded ++ decode_data([Rest, More]);
+	     {error,Encoded,Rest} ->
+	           handle_error(Encoded,Rest);
+             List ->
+	           List
+         end.
+
+.fi
+.LP
+Bit-strings that are not whole bytes are however not allowed, so a UTF character has to be split along 8-bit boundaries to ever be decoded\&.
+.LP
+If any parameters are of the wrong type, the list structure is invalid (a number as tail) or the binaries does not contain whole bytes (bit-strings), a \fIbadarg\fR\& exception is thrown\&.
+.RE
+.LP
+.nf
+
+.B
+characters_to_binary(Data) -> Result
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Data = \fBlatin1_chardata()\fR\& | \fBchardata()\fR\& | \fBexternal_chardata()\fR\&
+.br
+Result = binary()
+.br
+       | {error, binary(), RestData}
+.br
+       | {incomplete, binary(), binary()}
+.br
+RestData = \fBlatin1_chardata()\fR\& | \fBchardata()\fR\& | \fBexternal_chardata()\fR\&
+.br
+.RE
+.RS
+.LP
+Same as characters_to_binary(Data, unicode, unicode)\&.
+.RE
+.LP
+.B
+characters_to_binary(Data,InEncoding) -> Result
+.br
+.RS
+.TP 3
+Types:
+
+Data =
+.br
+Result = binary() | {error, binary(), RestData} | {incomplete, binary(), binary()}
+.br
+RestData =
+.br
+InEncoding =
+.br
+.RE
+.RS
+.LP
+Same as characters_to_binary(Data, InEncoding, unicode)\&.
+.RE
+.LP
+.nf
+
+.B
+characters_to_binary(Data, InEncoding, OutEncoding) -> Result
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Data = \fBlatin1_chardata()\fR\& | \fBchardata()\fR\& | \fBexternal_chardata()\fR\&
+.br
+InEncoding = OutEncoding = \fBencoding()\fR\&
+.br
+Result = binary()
+.br
+       | {error, binary(), RestData}
+.br
+       | {incomplete, binary(), binary()}
+.br
+RestData = \fBlatin1_chardata()\fR\& | \fBchardata()\fR\& | \fBexternal_chardata()\fR\&
+.br
+.RE
+.RS
+.LP
+This function behaves as \fB characters_to_list/2\fR\&, but produces an binary instead of a unicode list\&. The \fIInEncoding\fR\& defines how input is to be interpreted if binaries are present in the \fIData\fR\&, while \fIOutEncoding\fR\& defines in what format output is to be generated\&.
+.LP
+The option \fIunicode\fR\& is an alias for \fIutf8\fR\&, as this is the preferred encoding for Unicode characters in binaries\&. \fIutf16\fR\& is an alias for \fI{utf16,big}\fR\& and \fIutf32\fR\& is an alias for \fI{utf32,big}\fR\&\&. The \fIbig\fR\& and \fIlittle\fR\& atoms denote big or little endian encoding\&.
+.LP
+Errors and exceptions occur as in \fB characters_to_list/2\fR\&, but the second element in the \fIerror\fR\& or \fIincomplete\fR\& tuple will be a \fIbinary()\fR\& and not a \fIlist()\fR\&\&.
+.RE
+.LP
+.nf
+
+.B
+encoding_to_bom(InEncoding) -> Bin
+.br
+.fi
+.br
+.RS
+.TP 3
+Types:
+
+Bin = binary()
+.br
+A binary() of byte_size 4 or more\&.
+.br
+InEncoding = \fBencoding()\fR\&
+.br
+.RE
+.RS
+.LP
+Create an UTF byte order mark (BOM) as a binary from the supplied \fIInEncoding\fR\&\&. The BOM is, if supported at all, expected to be placed first in UTF encoded files or messages\&.
+.LP
+The function returns \fI<<>>\fR\& for the \fIlatin1\fR\& encoding, there is no BOM for ISO-latin-1\&.
+.LP
+It can be noted that the BOM for UTF-8 is seldom used, and it is really not a \fIbyte order\fR\& mark\&. There are obviously no byte order issues with UTF-8, so the BOM is only there to differentiate UTF-8 encoding from other UTF formats\&.
+.RE

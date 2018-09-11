@@ -1,0 +1,89 @@
+.TH mod_alias 3 "inets 5.7.1" "Ericsson AB" "Erlang Module Definition"
+.SH NAME
+mod_alias \- URL aliasing.
+.SH DESCRIPTION
+.LP
+Erlang Webserver Server internal API for handling of things such as interaction data exported by the mod_alias module\&.
+.SH EXPORTS
+.LP
+.B
+default_index(ConfigDB, Path) -> NewPath
+.br
+.RS
+.TP 3
+Types:
+
+ConfigDB = config_db()
+.br
+Path = NewPath = string()
+.br
+.RE
+.RS
+.LP
+If \fIPath\fR\& is a directory, \fIdefault_index/2\fR\&, it starts searching for resources or files that are specified in the config directive DirectoryIndex\&. If an appropriate resource or file is found, it is appended to the end of \fIPath\fR\& and then returned\&. \fIPath\fR\& is returned unaltered, if no appropriate file is found, or if \fIPath\fR\& is not a directory\&. \fIconfig_db()\fR\& is the server config file in ETS table format as described in \fBInets Users Guide\&.\fR\&\&.
+.RE
+.LP
+.B
+path(PathData, ConfigDB, RequestURI) -> Path
+.br
+.RS
+.TP 3
+Types:
+
+PathData = interaction_data()
+.br
+ConfigDB = config_db()
+.br
+RequestURI = Path = string()
+.br
+.RE
+.RS
+.LP
+\fIpath/3\fR\& returns the actual file \fIPath\fR\& in the \fIRequestURI\fR\& (See RFC 1945)\&. If the interaction data \fI{real_name,{Path,AfterPath}}\fR\& has been exported by mod_alias; \fIPath\fR\& is returned\&. If no interaction data has been exported, ServerRoot is used to generate a file \fIPath\fR\&\&. \fIconfig_db()\fR\& and \fIinteraction_data()\fR\& are as defined in \fBInets Users Guide\fR\&\&.
+.RE
+.LP
+.B
+real_name(ConfigDB, RequestURI, Aliases) -> Ret
+.br
+.RS
+.TP 3
+Types:
+
+ConfigDB = config_db()
+.br
+RequestURI = string()
+.br
+Aliases = [{FakeName,RealName}]
+.br
+Ret = {ShortPath,Path,AfterPath}
+.br
+ShortPath = Path = AfterPath = string()
+.br
+.RE
+.RS
+.LP
+\fIreal_name/3\fR\& traverses \fIAliases\fR\&, typically extracted from \fIConfigDB\fR\&, and matches each \fIFakeName\fR\& with \fIRequestURI\fR\&\&. If a match is found \fIFakeName\fR\& is replaced with \fIRealName\fR\& in the match\&. The resulting path is split into two parts, that is \fIShortPath\fR\& and \fIAfterPath\fR\& as defined in \fBhttpd_util:split_path/1\fR\&\&. \fIPath\fR\& is generated from \fIShortPath\fR\&, that is the result from \fBdefault_index/2\fR\& with \fIShortPath\fR\& as an argument\&. \fIconfig_db()\fR\& is the server config file in ETS table format as described in \fBInets User Guide\&.\fR\&\&.
+.RE
+.LP
+.B
+real_script_name(ConfigDB,RequestURI,ScriptAliases) -> Ret
+.br
+.RS
+.TP 3
+Types:
+
+ConfigDB = config_db()
+.br
+RequestURI = string()
+.br
+ScriptAliases = [{FakeName,RealName}]
+.br
+Ret = {ShortPath,AfterPath} | not_a_script
+.br
+ShortPath = AfterPath = string()
+.br
+.RE
+.RS
+.LP
+\fIreal_name/3\fR\& traverses \fIScriptAliases\fR\&, typically extracted from \fIConfigDB\fR\&, and matches each \fIFakeName\fR\& with \fIRequestURI\fR\&\&. If a match is found \fIFakeName\fR\& is replaced with \fIRealName\fR\& in the match\&. If the resulting match is not an executable script \fInot_a_script\fR\& is returned\&. If it is a script the resulting script path is in two parts, that is \fIShortPath\fR\& and \fIAfterPath\fR\& as defined in \fBhttpd_util:split_script_path/1\fR\&\&. \fIconfig_db()\fR\& is the server config file in ETS table format as described in \fBInets Users Guide\&.\fR\&\&.
+.RE
