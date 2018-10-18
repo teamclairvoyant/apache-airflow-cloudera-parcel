@@ -1,0 +1,17 @@
+# vile:makemode
+
+prefix=/usr
+exec_prefix=/usr
+libdir=/usr/lib64
+includedir=/usr/include
+major_version=5
+version=5.9.20130511
+
+Name: tinfo
+Description: ncurses 5.9 terminal interface library
+Version: ${version}
+URL: http://invisible-island.net/ncurses
+Requires.private: 
+Libs: -L${libdir} -ltinfo
+Libs.private:  
+Cflags: 

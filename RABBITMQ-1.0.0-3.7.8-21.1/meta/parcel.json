@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "name": "RABBITMQ",
+  "version": "1.0.0-3.7.8-21.1",
+  "setActiveSymlink": true,
+
+  "depends": "",
+  "replaces": "",
+  "conflicts": "",
+
+  "provides": [
+    "rabbitmq"
+  ],
+
+  "scripts": {
+    "defines": "cdh_env.sh"
+  },
+
+  "packages": [
+  ],
+
+  "components": [
+  ],
+
+  "users": {
+    "rabbitmq" : {
+      "longname" : "rabbitmq",
+      "shell" : "/bin/bash",
+      "home" : "/home/rabbitmq",
+      "extra_groups" : [ "rabbitmq" ]
+    }
+  },
+
+  "groups": []
+}

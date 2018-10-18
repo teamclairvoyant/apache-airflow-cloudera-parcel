@@ -1,1 +1,0 @@
-exec ${PARCELS_ROOT}/${PARCEL_DIRNAME}/usr/local/bin/python2.7 airflow

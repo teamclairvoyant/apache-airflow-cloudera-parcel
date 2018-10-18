@@ -1,0 +1,11 @@
+prefix=/usr
+libdir=/usr/lib64
+includedir=/usr/include
+exec_prefix=/usr
+ 
+Name: libverto
+Description: Event loop abstraction interface
+Version: 0.2.5
+Libs: -L${libdir} -lverto
+Cflags: -I${includedir}
+Libs.private: -ldl 

@@ -1,0 +1,77 @@
+{
+	"usr/lib/rabbitmq/bin/rabbitmqctl" : {
+		"user" : "root",
+		"group" : "root",
+		"permissions" : "777"
+	},
+	"usr/lib/rabbitmq/bin/rabbitmq-defaults" : {
+		"user" : "root",
+		"group" : "root",
+		"permissions" : "777"
+	},
+	"usr/lib/rabbitmq/bin/rabbitmq-env" : {
+		"user" : "root",
+		"group" : "root",
+		"permissions" : "777"
+	},
+	"usr/lib/rabbitmq/bin/rabbitmq-plugins" : {
+		"user" : "root",
+		"group" : "root",
+		"permissions" : "777"
+	},
+	"usr/lib/rabbitmq/bin/rabbitmq-server" : {
+		"user" : "root",
+		"group" : "root",
+		"permissions" : "777"
+	},
+	"usr/lib64/erlang/erts-10.1/bin/erl" : {
+		"user" : "root",
+		"group" : "root",
+		"permissions" : "777"
+	},
+	"usr/lib64/erlang/erts-10.1/bin/start_erl.src" : {
+		"user" : "root",
+		"group" : "root",
+		"permissions" : "777"
+	},
+	"usr/lib64/erlang/erts-10.1/bin/beam.swp" : {
+		"user" : "root",
+		"group" : "root",
+		"permissions" : "777"
+	},
+	"usr/lib64/erlang/erts-10.1/bin/dyn_erl" : {
+		"user" : "root",
+		"group" : "root",
+		"permissions" : "777"
+	},
+	"usr/lib64/erlang/erts-10.1/bin/epmd" : {
+		"user" : "root",
+		"group" : "root",
+		"permissions" : "777"
+	},
+	"usr/lib64/erlang/erts-10.1/bin/erl_child_setup" : {
+		"user" : "root",
+		"group" : "root",
+		"permissions" : "777"
+	},
+	"usr/lib64/erlang/erts-10.1/bin/heart" : {
+		"user" : "root",
+		"group" : "root",
+		"permissions" : "777"
+	},
+	"usr/lib64/erlang/erts-10.1/bin/inet_gethost" : {
+		"user" : "root",
+		"group" : "root",
+		"permissions" : "777"
+	},
+	"usr/lib64/erlang/erts-10.1/bin/run_erl" : {
+		"user" : "root",
+		"group" : "root",
+		"permissions" : "777"
+	},
+	"usr/lib64/erlang/erts-10.1/bin/start" : {
+		"user" : "root",
+		"group" : "root",
+		"permissions" : "777"
+	}
+}

@@ -1,2 +1,0 @@
-{exclusive_decode,{'OTP-PUB-KEY',
-        [{decode_TBSCert_exclusive,['Certificate',[{tbsCertificate,undecoded}]]}]}}.

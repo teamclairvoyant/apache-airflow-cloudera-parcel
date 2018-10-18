@@ -1,0 +1,11 @@
+Metadata-Version: 1.0
+Name: python-linux-procfs
+Version: 0.4.9
+Summary: Linux /proc abstraction classes
+Home-page: http://userweb.kernel.org/python-linux-procfs
+Author: Arnaldo Carvalho de Melo
+Author-email: acme@redhat.com
+License: GPLv2
+Description: Abstractions to extract information from the Linux kernel /proc files.
+        
+Platform: UNKNOWN
