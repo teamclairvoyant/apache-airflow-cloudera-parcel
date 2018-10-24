@@ -52,26 +52,13 @@ class Node(object):
     def __repr__(self):
         return "<{0}({1!r})>".format(self.__class__.__name__, str(self))
 
-    def serialize(self):
-        raise NotImplementedError
-
 
 class Variable(Node):
-
-    def serialize(self):
-        return str(self)
+    pass
 
 
 class Value(Node):
-
-    def serialize(self):
-        return '"{0}"'.format(self)
-
-
-class Op(Node):
-
-    def serialize(self):
-        return str(self)
+    pass
 
 
 VARIABLE = (
@@ -116,7 +103,6 @@ VERSION_CMP = (
 )
 
 MARKER_OP = VERSION_CMP | L("not in") | L("in")
-MARKER_OP.setParseAction(lambda s, l, t: Op(t[0]))
 
 MARKER_VALUE = QuotedString("'") | QuotedString('"')
 MARKER_VALUE.setParseAction(lambda s, l, t: Value(t[0]))
@@ -163,7 +149,7 @@ def _format_marker(marker, first=True):
         else:
             return "(" + " ".join(inner) + ")"
     elif isinstance(marker, tuple):
-        return " ".join([m.serialize() for m in marker])
+        return '{0} {1} "{2}"'.format(*marker)
     else:
         return marker
 
@@ -182,13 +168,13 @@ _operators = {
 
 def _eval_op(lhs, op, rhs):
     try:
-        spec = Specifier("".join([op.serialize(), rhs]))
+        spec = Specifier("".join([op, rhs]))
     except InvalidSpecifier:
         pass
     else:
         return spec.contains(lhs)
 
-    oper = _operators.get(op.serialize())
+    oper = _operators.get(op)
     if oper is None:
         raise UndefinedComparison(
             "Undefined {0!r} on {1!r} and {2!r}.".format(op, lhs, rhs)
