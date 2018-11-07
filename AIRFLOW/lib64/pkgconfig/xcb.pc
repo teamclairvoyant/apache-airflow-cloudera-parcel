@@ -1,0 +1,13 @@
+prefix=/usr
+exec_prefix=/usr
+libdir=/usr/lib64
+includedir=/usr/include
+xcbproto_version=1.12
+
+Name: XCB
+Description: X-protocol C Binding
+Version: 1.12
+Requires.private: xau >= 0.99.2
+Libs: -L${libdir} -lxcb
+Libs.private: 
+Cflags: -I${includedir}

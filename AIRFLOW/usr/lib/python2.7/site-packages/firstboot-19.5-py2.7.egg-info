@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: firstboot
+Version: 19.5
+Summary: Post-installation configuration utility
+Home-page: http://fedoraproject.org/wiki/FirstBoot
+Author: Martin Gracik
+Author-email: mgracik@redhat.com
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN

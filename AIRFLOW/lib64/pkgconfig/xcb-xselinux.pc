@@ -1,0 +1,11 @@
+prefix=/usr
+exec_prefix=/usr
+libdir=/usr/lib64
+includedir=/usr/include
+
+Name: XCB SELinux
+Description: XCB SELinux Extension
+Version: 1.12
+Requires.private: xcb
+Libs: -L${libdir} -lxcb-xselinux
+Cflags: -I${includedir}

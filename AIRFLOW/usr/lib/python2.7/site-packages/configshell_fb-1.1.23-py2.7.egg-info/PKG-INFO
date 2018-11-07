@@ -1,0 +1,13 @@
+Metadata-Version: 1.1
+Name: configshell-fb
+Version: 1.1.23
+Summary: A framework to implement simple but nice CLIs.
+Home-page: http://github.com/open-iscsi/configshell-fb
+Author: Andy Grover
+Author-email: agrover@redhat.com
+License: Apache 2.0
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: Apache Software License
