@@ -1,0 +1,20 @@
+{
+    "avro-tools": {
+      "destination": "/usr/bin/airflow",
+      "source": "bin/avro-tools",
+      "priority": 10,
+      "isDirectory": false
+    },
+    "beeline": {
+      "destination": "/usr/bin/beeline",
+      "source": "bin/beeline",
+      "priority": 10,
+      "isDirectory": false
+    },
+    "hadoop": {
+      "destination": "/usr/bin/hadoop",
+      "source": "bin/hadoop",
+      "priority": 10,
+      "isDirectory": false
+    }
+}
