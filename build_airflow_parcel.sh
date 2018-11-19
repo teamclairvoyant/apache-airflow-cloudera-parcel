@@ -47,7 +47,7 @@ ${full_path}/bin/pip $PIPOPTS install airflow[rabbitmq]
 
 cp -rf meta ${airflow_parcel_name}/
 
-sed -i "4s/.*/  \"version\": \"${PARCEL_NAME}\",/" ${parcel_version}-${airflow_version}-${python_version}/meta/parcel.json
+sed -i "4s/.*/  \"version\": \"${parcel_version}-${airflow_version}-${python_version}\",/" ${airflow_parcel_name}/meta/parcel.json
 
 tar zcvf ${airflow_parcel_name}-${dist_suffix}.parcel ${airflow_parcel_name}
 
