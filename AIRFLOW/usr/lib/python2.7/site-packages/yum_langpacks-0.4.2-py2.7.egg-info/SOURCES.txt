@@ -1,6 +1,0 @@
-README
-setup.py
-yum_langpacks.egg-info/PKG-INFO
-yum_langpacks.egg-info/SOURCES.txt
-yum_langpacks.egg-info/dependency_links.txt
-yum_langpacks.egg-info/top_level.txt
