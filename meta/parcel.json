@@ -1,35 +1,33 @@
 {
   "schema_version": 1,
   "name": "AIRFLOW",
-  "version": "1.0.0-1.7.1.3-python2.7",
+  "version": "VERSION",
   "setActiveSymlink": true,
 
   "depends": "",
   "replaces": "",
   "conflicts": "",
 
-  "scripts": {
-    "defines": "cdh_env.sh"
-  },
-
   "provides": [
     "airflow"
   ],
 
-  "packages": [
-  ],
+  "scripts": {
+    "defines": "cdh_env.sh"
+  },
 
-  "components": [
-  ],
+  "packages": [],
+
+  "components": [],
 
   "users": {
     "airflow" : {
-      "longname" : "airflow",
+      "longname" : "Airflow",
       "shell" : "/bin/bash",
-      "home" : "/home/airflow",
+      "home" : "/var/lib/airflow",
       "extra_groups" : [ "airflow" ]
     }
   },
 
-  "groups": [ "airflow" ]
+  "groups": []
 }

@@ -1,3 +1,4 @@
+#!/bin/bash
 export AIRFLOW_DIR="$PARCELS_ROOT/$PARCEL_DIRNAME"
 export PYTHONPATH=${AIRFLOW_DIR}/lib/python2.7/site-packages:$PATH
 

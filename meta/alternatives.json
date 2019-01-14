@@ -1,0 +1,8 @@
+{
+  "airflow": {
+    "destination": "/usr/bin/airflow",
+    "source": "bin/airflow",
+    "priority": 10,
+    "isDirectory": false
+  }
+}
