@@ -13,7 +13,8 @@ This repository allows you to install [Apache Airflow](https://airflow.apache.or
 1. Install [Docker](https://www.docker.com/) and [Python](https://www.python.org/).
 2. Run the script `build_airflow_parcel.sh` by executing:
 ```bash
-./build_airflow_parcel.sh <parcel_version> <airflow_version> <python_version>
+./build_airflow_parcel.sh --airflow <airflow_version> --python <python_version> --parcel <parcel_version>
 ```
 3. Output will be placed in the target/ directory.
-4. Use `serve_parcel.sh` to serve this directory via HTTP, or move the entire directory contents to your own webserver.
+4. Use `./serve_parcel.sh` to serve this directory via HTTP, or move the entire directory contents to your own webserver.
+

@@ -1,31 +1,35 @@
 #!/bin/bash
 set -euo pipefail
 
-airflow_parcel_name=AIRFLOW-${PARCEL_VERSION}_${AIRFLOW_VERSION}_${PYTHON_VERSION}
-full_path=/BUILD/${airflow_parcel_name}
+# These are picked up from the Docker ENV.
+AIRFLOW_DIR=${INSTALL_DIR}/${PARCEL_NAME}
+PATH="${AIRFLOW_DIR}/bin:${PATH}"
 PIPOPTS=""
 #export SLUGIFY_USES_TEXT_UNIDECODE=no
 export AIRFLOW_GPL_UNIDECODE=yes
 
+PYVER=$(echo $PYTHON_VERSION | awk -F. '{print $1"."$2}')
+PYMAJVER=$(echo $PYTHON_VERSION | awk -F. '{print $1}')
+
 echo "*** Installing Airflow..."
-${full_path}/bin/pip $PIPOPTS install apache-airflow==${AIRFLOW_VERSION}
+${AIRFLOW_DIR}/bin/pip $PIPOPTS install apache-airflow==${AIRFLOW_VERSION}
 
 echo "*** Installing Airflow plugins..."
 echo "** Installing Airflow[celery]."
-#${full_path}/bin/pip $PIPOPTS install 'celery<4'
-${full_path}/bin/pip $PIPOPTS install apache-airflow[celery]
+#${AIRFLOW_DIR}/bin/pip $PIPOPTS install 'celery<4'
+${AIRFLOW_DIR}/bin/pip $PIPOPTS install apache-airflow[celery]
 echo "** Installing Airflow[mysql]."
-${full_path}/bin/pip $PIPOPTS install apache-airflow[mysql]
+${AIRFLOW_DIR}/bin/pip $PIPOPTS install apache-airflow[mysql]
 echo "** Installing Airflow[postgres]."
-${full_path}/bin/pip $PIPOPTS install apache-airflow[postgres]
+${AIRFLOW_DIR}/bin/pip $PIPOPTS install apache-airflow[postgres]
 echo "** Installing Airflow[kerberos]."
-${full_path}/bin/pip $PIPOPTS install apache-airflow[kerberos]
+${AIRFLOW_DIR}/bin/pip $PIPOPTS install apache-airflow[kerberos]
 echo "** Installing Airflow[crypto]."
-${full_path}/bin/pip $PIPOPTS install apache-airflow[crypto]
+${AIRFLOW_DIR}/bin/pip $PIPOPTS install apache-airflow[crypto]
 echo "** Installing Airflow[hive]."
-${full_path}/bin/pip $PIPOPTS install apache-airflow[hive]
+${AIRFLOW_DIR}/bin/pip $PIPOPTS install apache-airflow[hive]
 echo "** Installing Airflow[password]."
-${full_path}/bin/pip $PIPOPTS install apache-airflow[password]
+${AIRFLOW_DIR}/bin/pip $PIPOPTS install apache-airflow[password]
 echo "** Installing Airflow[rabbitmq]."
-${full_path}/bin/pip $PIPOPTS install apache-airflow[rabbitmq]
+${AIRFLOW_DIR}/bin/pip $PIPOPTS install apache-airflow[rabbitmq]
 

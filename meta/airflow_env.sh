@@ -1,13 +1,13 @@
 #!/bin/bash
-export AIRFLOW_DIR="$PARCELS_ROOT/$PARCEL_DIRNAME"
-export PYTHONPATH=${AIRFLOW_DIR}/lib/python2.7/site-packages:$PATH
+AIRFLOW_DIRNAME=${PARCEL_DIRNAME:-"AIRFLOW-VERSION"}
+export AIRFLOW_HOME=/var/lib/airflow
 
-echo "Updating the shebang..."
-sed -i '1s+.*+#!'"${AIRFLOW_DIR}"'/bin/python2.7+' ${AIRFLOW_DIR}/bin/airflow
-echo "Exit code for airflow shebang updation is $?"
-sed -i '1s+.*+#!'"${AIRFLOW_DIR}"'/bin/python2.7+' ${AIRFLOW_DIR}/bin/gunicorn
-echo "Exit code for gunicorn shebang updation is $?"
+export AIRFLOW_DIR="${PARCELS_ROOT}/${PARCEL_DIRNAME}"
+export PATH="${AIRFLOW_DIR}/bin:${PATH}"
+export PYTHONHOME="${AIRFLOW_DIR}"
+export PYTHONPATH="${AIRFLOW_DIR}/lib/pythonPYVER"
 
-echo "export PYTHONPATH=${PYTHONPATH}" >> ${AIRFLOW_DIR}/bin/airflow.sh
-echo "export PATH=${AIRFLOW_DIR}/bin:\$PATH" >> ${AIRFLOW_DIR}/bin/airflow.sh
-echo "${AIRFLOW_DIR}/bin/airflow \$@" >> ${AIRFLOW_DIR}/bin/airflow.sh
+if [ -z "${AIRFLOW_PYTHON}" ]; then
+  export AIRFLOW_PYTHON="${AIRFLOW_DIR}/bin/pythonPYVER"
+fi
+
