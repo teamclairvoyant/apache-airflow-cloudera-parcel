@@ -3,12 +3,8 @@ LABEL maintainer="michael.arnold@clairvoyantsoft.com"
 
 ENV DIST ubuntu1404
 ENV PARCEL_DIST trusty
-ENV PARCEL_VERSION 0.0.0
-ENV AIRFLOW_VERSION 1.10.1
-ENV PYTHON_VERSION 2.7.15
-ENV PARCEL_PATCH_VERSION p0
-ENV PARCEL_NAME AIRFLOW-${PARCEL_VERSION}_${AIRFLOW_VERSION}_${PYTHON_VERSION}
 ENV DEBIAN_FRONTEND noninteractive
+ENV INSTALL_DIR /opt/cloudera/parcels
 
 WORKDIR /BUILD
 
@@ -33,29 +29,47 @@ RUN apt-get update && apt-get install -y libreadline-dev \
                            curl \
                            file
 
+ARG AIRFLOW_VERSION
+ENV AIRFLOW_VERSION ${AIRFLOW_VERSION:-1.10.0}
+ARG PYTHON_VERSION
+ENV PYTHON_VERSION ${PYTHON_VERSION:-2.7.15}
+ARG PARCEL_VERSION
+ENV PARCEL_VERSION ${PARCEL_VERSION:-b0}
+ENV PARCEL_NAME AIRFLOW-${AIRFLOW_VERSION}-python${PYTHON_VERSION}_${PARCEL_VERSION}
+
 COPY Python-${PYTHON_VERSION}.tar.xz /BUILD/
 RUN tar xJf /BUILD/Python-${PYTHON_VERSION}.tar.xz -C /BUILD
-#RUN curl -L -o /BUILD/Python-${PYTHON_VERSION}.tar.xz https://python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz && \
-#    tar xJf /BUILD/Python-${PYTHON_VERSION}.tar.xz -C /BUILD && \
-#    rm -f /BUILD/Python-${PYTHON_VERSION}.tar.xz
 
-COPY README.md /BUILD/${PARCEL_NAME}/
+COPY README.md ${INSTALL_DIR}/${PARCEL_NAME}/
 COPY docker/${DIST}/compile_python.sh /BUILD
-#RUN cd /BUILD/Python-${PYTHON_VERSION} && . /BUILD/compile_python.sh && ./configure --prefix=/opt/cloudera/parcels/${PARCEL_NAME} && make && DESTDIR=/BUILD/${PARCEL_NAME} make altinstall
-RUN cd /BUILD/Python-${PYTHON_VERSION} && . /BUILD/compile_python.sh && ./configure --prefix=/BUILD/${PARCEL_NAME} && make && make altinstall
+RUN cd /BUILD/Python-${PYTHON_VERSION} && \
+    . /BUILD/compile_python.sh && \
+    ./configure --prefix=${INSTALL_DIR}/${PARCEL_NAME} && \
+    make && \
+    make install
+#    DESTDIR=/BUILD/${PARCEL_NAME} make install
 
-ADD https://bootstrap.pypa.io/get-pip.py /BUILD/get-pip.py
-RUN /BUILD/${PARCEL_NAME}/bin/python2.7 /BUILD/get-pip.py
+COPY get-pip.py /BUILD/get-pip.py
+RUN PYVER=$(echo $PYTHON_VERSION | awk -F. '{print $1"."$2}') && \
+    ${INSTALL_DIR}/${PARCEL_NAME}/bin/python${PYVER} /BUILD/get-pip.py
 
-COPY docker/${DIST}/install_airflow.sh /BUILD
+COPY docker/install_airflow.sh /BUILD
 RUN bash -x /BUILD/install_airflow.sh
 
-COPY meta/ /BUILD/${PARCEL_NAME}/meta/
-#RUN sed -e "/\"version\":/s|VERSION|${PARCEL_VERSION}-airflow${AIRFLOW_VERSION}-python${PYTHON_VERSION}|" \
-RUN sed -e "/\"version\":/s|VERSION|${PARCEL_VERSION}_${AIRFLOW_VERSION}_${PYTHON_VERSION}|" \
-        -i /BUILD/${PARCEL_NAME}/meta/parcel.json
+COPY meta/ ${INSTALL_DIR}/${PARCEL_NAME}/meta/
+RUN PYVER=$(echo $PYTHON_VERSION | awk -F. '{print $1"."$2}') && \
+    sed -e "/\"version\":/s|VERSION|${AIRFLOW_VERSION}-python${PYTHON_VERSION}_${PARCEL_VERSION}|" \
+        -i ${INSTALL_DIR}/${PARCEL_NAME}/meta/parcel.json && \
+    sed -e "/AIRFLOW_DIRNAME/s|VERSION|${AIRFLOW_VERSION}-python${PYTHON_VERSION}_${PARCEL_VERSION}|" \
+        -e "s|PYVER|${PYVER}|" \
+        -i ${INSTALL_DIR}/${PARCEL_NAME}/meta/airflow_env.sh
 
-RUN tar zcf ${PARCEL_NAME}-${PARCEL_DIST}.parcel ${PARCEL_NAME} && sha1sum ${PARCEL_NAME}-${PARCEL_DIST}.parcel | awk '{print $1}' >${PARCEL_NAME}-${PARCEL_DIST}.parcel.sha
+COPY docker/modify_buildroot.sh /BUILD
+RUN bash -x /BUILD/modify_buildroot.sh
+
+RUN cd ${INSTALL_DIR} && \
+    tar zcf /BUILD/${PARCEL_NAME}-${PARCEL_DIST}.parcel ${PARCEL_NAME} && \
+    sha1sum /BUILD/${PARCEL_NAME}-${PARCEL_DIST}.parcel | awk '{print $1}' >/BUILD/${PARCEL_NAME}-${PARCEL_DIST}.parcel.sha
 
 CMD /bin/bash
 

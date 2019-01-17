@@ -1,15 +1,133 @@
 #!/bin/bash
-./get_python.sh
-docker build -f docker/centos6/Dockerfile -t airflow/centos6 .
-docker/centos6/get_parcel.sh
-docker build -f docker/centos7/Dockerfile -t airflow/centos7 .
-docker/centos7/get_parcel.sh
-docker build -f docker/debian7/Dockerfile -t airflow/debian7 .
-docker/debian7/get_parcel.sh
-docker build -f docker/debian8/Dockerfile -t airflow/debian8 .
-docker/debian8/get_parcel.sh
-docker build -f docker/ubuntu1404/Dockerfile -t airflow/ubuntu1404 .
-docker/ubuntu1404/get_parcel.sh
-docker build -f docker/ubuntu1604/Dockerfile -t airflow/ubuntu1604 .
-docker/ubuntu1604/get_parcel.sh
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Copyright Clairvoyant 2019
+#
+if [ -n "$DEBUG" ]; then set -x; fi
+#
+##### START CONFIG ###################################################
+
+##### STOP CONFIG ####################################################
+PATH=/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/bin
+
+# Function to print the help screen.
+print_help() {
+  echo "Usage:  $1 --airflow <version> --python <version> --parcel <version>"
+  echo "        $1 [-h|--help]"
+  echo "        $1 [-v|--version]"
+  echo ""
+  echo "   ex.  $1 --airflow 1.10.1 --python 3.5.6 --parcel b0"
+  exit 1
+}
+
+# Function to check for root priviledges.
+check_root() {
+  if [[ $(/usr/bin/id | awk -F= '{print $2}' | awk -F"(" '{print $1}' 2>/dev/null) -ne 0 ]]; then
+    echo "You must have root priviledges to run this program."
+    exit 2
+  fi
+}
+
+## If the variable DEBUG is set, then turn on tracing.
+## http://www.research.att.com/lists/ast-users/2003/05/msg00009.html
+#if [ $DEBUG ]; then
+#  # This will turn on the ksh xtrace option for mainline code
+#  set -x
+#
+#  # This will turn on the ksh xtrace option for all functions
+#  typeset +f |
+#  while read F junk
+#  do
+#    typeset -ft $F
+#  done
+#  unset F junk
+#fi
+
+# Process arguments.
+while [[ $1 = -* ]]; do
+  case $1 in
+    -a|--airflow)
+      shift
+      AIRFLOW_VERSION=$1
+      ;;
+    -p|--python)
+      shift
+      PYTHON_VERSION=$1
+      ;;
+    -P|--parcel)
+      shift
+      PARCEL_VERSION=$1
+      ;;
+    -h|--help)
+      print_help "$(basename "$0")"
+      ;;
+    -v|--version)
+      echo "Builds a parcel of Airflow for Cloudera Manager."
+      exit 0
+      ;;
+    *)
+      print_help "$(basename "$0")"
+      ;;
+  esac
+  shift
+done
+
+# Check to see if we have the required parameters.
+if [ -z "$AIRFLOW_VERSION" ] || [ -z "$PYTHON_VERSION" ] || [ -z "$PARCEL_VERSION" ]; then print_help "$(basename "$0")"; fi
+
+# Lets not bother continuing unless we have the privs to do something.
+#check_root
+
+# main
+set -euo pipefail
+echo "*** Downloading Python ${PYTHON_VERSION} sourcecode ..."
+if command -v wget; then
+  wget -c "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz"
+  wget -c https://bootstrap.pypa.io/get-pip.py
+elif command -v curl; then
+  curl -LOR "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz"
+  curl -LOR https://bootstrap.pypa.io/get-pip.py
+else
+  echo "ERROR: Missing wget or curl."
+  exit 10
+fi
+if [ ! -d target ]; then mkdir target; fi
+
+for DIST in centos6 centos7 debian7 debian8 ubuntu1404 ubuntu1604; do
+  case $DIST in
+    centos6)    PARCEL_DIST=el6    ;;
+    centos7)    PARCEL_DIST=el7    ;;
+    debian7)    PARCEL_DIST=wheezy ;;
+    debian8)    PARCEL_DIST=jessie ;;
+    ubuntu1404) PARCEL_DIST=trusty ;;
+    ubuntu1604) PARCEL_DIST=xenial ;;
+  esac
+  PARCEL_NAME=AIRFLOW-${AIRFLOW_VERSION}-python${PYTHON_VERSION}_${PARCEL_VERSION}
+
+  echo "*** Building Airflow ${AIRFLOW_VERSION} parcel for ${DIST} ..."
+  docker build -f docker/${DIST}/Dockerfile -t "airflow/${DIST}:${AIRFLOW_VERSION}-python${PYTHON_VERSION}_${PARCEL_VERSION}" \
+    --build-arg AIRFLOW_VERSION="$AIRFLOW_VERSION" \
+    --build-arg PYTHON_VERSION="$PYTHON_VERSION" \
+    --build-arg PARCEL_VERSION="$PARCEL_VERSION" .
+
+  echo "*** Extracting Airflow parcel ${PARCEL_VERSION} for ${DIST} ..."
+  docker run -d --name airflow-${DIST} "airflow/${DIST}:${AIRFLOW_VERSION}-python${PYTHON_VERSION}_${PARCEL_VERSION}"
+  docker cp "airflow-${DIST}:/BUILD/${PARCEL_NAME}-${PARCEL_DIST}.parcel" target/
+  docker cp "airflow-${DIST}:/BUILD/${PARCEL_NAME}-${PARCEL_DIST}.parcel.sha" target/
+  docker rm airflow-${DIST}
+done
+
+echo "*** Creating manifest.json in target/ directory ..."
 ./make_manifest.py target/
+
