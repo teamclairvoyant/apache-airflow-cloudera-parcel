@@ -19,3 +19,5 @@ export AIRFLOW_HOME=/var/lib/airflow
 exec ${AIRFLOW_DIR}/bin/airflow \$@
 EOF
 
+rm -f "${AIRFLOW_DIR}/LICENSE"
+

@@ -40,9 +40,9 @@ ENV PARCEL_NAME AIRFLOW-${AIRFLOW_VERSION}-python${PYTHON_VERSION}_${PARCEL_VERS
 COPY Python-${PYTHON_VERSION}.tar.xz /BUILD/
 RUN tar xJf /BUILD/Python-${PYTHON_VERSION}.tar.xz -C /BUILD
 
-COPY README.md ${INSTALL_DIR}/${PARCEL_NAME}/
 COPY docker/${DIST}/compile_python.sh /BUILD
-RUN cd /BUILD/Python-${PYTHON_VERSION} && \
+RUN mkdir -p ${INSTALL_DIR}/${PARCEL_NAME} && \
+    cd /BUILD/Python-${PYTHON_VERSION} && \
     . /BUILD/compile_python.sh && \
     ./configure --prefix=${INSTALL_DIR}/${PARCEL_NAME} && \
     make && \
