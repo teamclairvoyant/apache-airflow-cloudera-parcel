@@ -1,5 +1,5 @@
 #!/bin/bash
 
-cd target
-echo Parcel repo available at `hostname`:8000
+cd target || exit 1
+echo "Parcel repo available at $(hostname):8000"
 python -m SimpleHTTPServer 8000
