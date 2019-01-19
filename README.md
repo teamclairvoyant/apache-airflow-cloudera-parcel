@@ -5,7 +5,7 @@ This repository allows you to install [Apache Airflow](https://airflow.apache.or
 ## Installing the Parcel
 0. First, install the [Airflow CSD](https://github.com/teamclairvoyant/apache-airflow-cloudera-csd).  Then you can skip steps #1 and #2.
 1. In Cloudera Manager, go to `Hosts -> Parcels -> Configuration`.
-2. Add `http://teamclairvoyant.s3-website-us-west-2.amazonaws.com/apache-airflow/cloudera/parcels/` to the Remote Parcel Repository URLs if it does not yet exist.
+2. Add `https://teamclairvoyant.s3.amazonaws.com/apache-airflow/cloudera/parcels/` to the Remote Parcel Repository URLs if it does not yet exist.
 3. In Cloudera Manager, go to `Hosts -> Parcels`.  Airflow parcels and their respective verisons will be availble within the Parcels page.
 4. Download, Distribute, Activate the required parcels to use them.
 
