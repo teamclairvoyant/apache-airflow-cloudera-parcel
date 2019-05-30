@@ -112,6 +112,7 @@ for DIST in centos6 centos7 debian7 debian8 ubuntu1404 ubuntu1604; do
     debian8)    PARCEL_DIST=jessie ;;
     ubuntu1404) PARCEL_DIST=trusty ;;
     ubuntu1604) PARCEL_DIST=xenial ;;
+    ubuntu1804) PARCEL_DIST=bionic ;;
   esac
   PARCEL_NAME=AIRFLOW-${AIRFLOW_VERSION}-python${PYTHON_VERSION}_${PARCEL_VERSION}
 
