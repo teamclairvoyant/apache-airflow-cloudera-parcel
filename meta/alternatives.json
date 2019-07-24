@@ -4,5 +4,11 @@
     "source": "bin/airflow.sh",
     "priority": 10,
     "isDirectory": false
+  },
+  "airflow-mkuser": {
+    "destination": "/usr/bin/airflow-mkuser",
+    "source": "bin/airflow-mkuser.sh",
+    "priority": 10,
+    "isDirectory": false
   }
 }

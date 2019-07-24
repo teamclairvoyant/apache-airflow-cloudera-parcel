@@ -26,5 +26,22 @@ fi
 exec ${AIRFLOW_DIR}/bin/airflow \$@
 EOF
 
+install -m 0755 -o root -g root /dev/null "${AIRFLOW_DIR}/bin/airflow-mkuser.sh"
+cat <<EOF >"${AIRFLOW_DIR}/bin/airflow-mkuser.sh"
+#!/bin/bash
+export PATH=${AIRFLOW_DIR}/bin:\$PATH
+export PYTHONHOME=${AIRFLOW_DIR}
+export PYTHONPATH=${AIRFLOW_DIR}/lib/python${PYVER}
+
+# AIRFLOW_HOME
+if [ -f /etc/airflow/conf/airflow-env.sh ]; then
+  . /etc/airflow/conf/airflow-env.sh
+else
+  export AIRFLOW_HOME=/var/lib/airflow
+fi
+
+exec ${AIRFLOW_DIR}/bin/mkuser.py \$@
+EOF
+
 rm -f "${AIRFLOW_DIR}/LICENSE"
 
