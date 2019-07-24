@@ -8,8 +8,9 @@ ENV INSTALL_DIR /opt/cloudera/parcels
 
 WORKDIR /BUILD
 
-RUN apt-get update && apt-get install -y build-essential
-RUN apt-get update && apt-get install -y libreadline-dev \
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \
+                           libreadline-dev \
                            tk-dev \
                            libgdbm-dev \
                            libdb-dev \
@@ -27,7 +28,8 @@ RUN apt-get update && apt-get install -y libreadline-dev \
                            libpq-dev \
                            libkrb5-dev \
                            curl \
-                           file
+                           file \
+    && rm -rf /var/lib/apt/lists/*
 
 ARG AIRFLOW_VERSION
 ENV AIRFLOW_VERSION ${AIRFLOW_VERSION:-1.10.0}
@@ -47,7 +49,6 @@ RUN mkdir -p ${INSTALL_DIR}/${PARCEL_NAME} && \
     ./configure --prefix=${INSTALL_DIR}/${PARCEL_NAME} && \
     make && \
     make install
-#    DESTDIR=/BUILD/${PARCEL_NAME} make install
 
 COPY get-pip.py /BUILD/get-pip.py
 RUN PYVER=$(echo $PYTHON_VERSION | awk -F. '{print $1"."$2}') && \

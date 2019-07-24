@@ -8,7 +8,7 @@ ENV INSTALL_DIR /opt/cloudera/parcels
 WORKDIR /BUILD
 
 #RUN yum -y -e1 -d1 update
-RUN yum -y -e1 -d1 groupinstall "development tools"
+RUN yum -y -e1 -d1 groupinstall "development tools" && yum clean all
 RUN yum -y -e1 -d1 install readline-devel \
                            tk-devel \
                            gdbm-devel \
@@ -24,7 +24,8 @@ RUN yum -y -e1 -d1 install readline-devel \
                            sqlite-devel \
                            cyrus-sasl-devel.x86_64 \
                            mysql-devel \
-                           postgresql-devel
+                           postgresql-devel \
+    && yum clean all
 
 ARG AIRFLOW_VERSION
 ENV AIRFLOW_VERSION ${AIRFLOW_VERSION:-1.10.0}
@@ -44,7 +45,6 @@ RUN mkdir -p ${INSTALL_DIR}/${PARCEL_NAME} && \
     ./configure --prefix=${INSTALL_DIR}/${PARCEL_NAME} && \
     make && \
     make install
-#    DESTDIR=/BUILD/${PARCEL_NAME} make install
 
 COPY get-pip.py /BUILD/get-pip.py
 RUN PYVER=$(echo $PYTHON_VERSION | awk -F. '{print $1"."$2}') && \
