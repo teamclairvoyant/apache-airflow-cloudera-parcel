@@ -13,7 +13,7 @@
   ],
 
   "scripts": {
-    "defines": "cdh_env.sh"
+    "defines": "airflow_env.sh"
   },
 
   "packages": [],
