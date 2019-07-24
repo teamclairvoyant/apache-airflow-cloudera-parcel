@@ -95,9 +95,11 @@ echo "*** Downloading Python ${PYTHON_VERSION} sourcecode ..."
 if command -v wget; then
   wget -c "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz"
   wget -c https://bootstrap.pypa.io/get-pip.py
+  wget -c https://raw.githubusercontent.com/pixelb/crudini/master/crudini
 elif command -v curl; then
   curl -LOR "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz"
   curl -LOR https://bootstrap.pypa.io/get-pip.py
+  curl -LOR https://raw.githubusercontent.com/pixelb/crudini/master/crudini
 else
   echo "ERROR: Missing wget or curl."
   exit 10

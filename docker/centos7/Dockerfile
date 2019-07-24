@@ -53,6 +53,9 @@ RUN PYVER=$(echo $PYTHON_VERSION | awk -F. '{print $1"."$2}') && \
 COPY docker/install_airflow.sh /BUILD
 RUN bash -x /BUILD/install_airflow.sh
 
+COPY crudini docker/install_crudini.sh /BUILD
+RUN bash -x /BUILD/install_crudini.sh
+
 COPY meta/ ${INSTALL_DIR}/${PARCEL_NAME}/meta/
 RUN PYVER=$(echo $PYTHON_VERSION | awk -F. '{print $1"."$2}') && \
     sed -e "/\"version\":/s|VERSION|${AIRFLOW_VERSION}-python${PYTHON_VERSION}_${PARCEL_VERSION}|" \
