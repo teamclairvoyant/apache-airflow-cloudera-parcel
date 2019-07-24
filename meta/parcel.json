@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "AIRFLOW",
-  "version": "VERSION",
+  "version": "__PARCEL_VERSION__",
   "setActiveSymlink": true,
 
   "depends": "",
@@ -13,7 +13,7 @@
   ],
 
   "scripts": {
-    "defines": "cdh_env.sh"
+    "defines": "airflow_env.sh"
   },
 
   "packages": [],

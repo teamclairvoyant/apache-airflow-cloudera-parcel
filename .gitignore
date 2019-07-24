@@ -1,4 +1,2 @@
-*.swp
 target/
-Python-*.tar.xz
-get-pip.py
+tmp/
