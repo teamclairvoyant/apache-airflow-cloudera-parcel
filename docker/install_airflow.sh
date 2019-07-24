@@ -4,7 +4,7 @@ set -euo pipefail
 # These are picked up from the Docker ENV.
 AIRFLOW_DIR=${INSTALL_DIR}/${PARCEL_NAME}
 #PYVER=$(echo "$PYTHON_VERSION" | awk -F. '{print $1"."$2}')
-#PYMAJVER=$(echo "$PYTHON_VERSION" | awk -F. '{print $1}')
+PYMAJVER=$(echo "$PYTHON_VERSION" | awk -F. '{print $1}')
 
 PATH="${AIRFLOW_DIR}/bin:${PATH}"
 PIPOPTS=""
@@ -12,6 +12,9 @@ PIPOPTS=""
 export AIRFLOW_GPL_UNIDECODE=yes
 
 echo "*** Installing Airflow..."
+if [ "$PYMAJVER" -lt 3 ]; then
+  pip $PIPOPTS install pandas=="0.22.0"
+fi
 pip $PIPOPTS install apache-airflow=="${AIRFLOW_VERSION}"
 
 echo "*** Installing Airflow plugins..."
