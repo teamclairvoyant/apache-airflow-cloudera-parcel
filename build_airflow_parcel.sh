@@ -106,7 +106,7 @@ else
 fi
 if [ ! -d target ]; then mkdir target; fi
 
-for DIST in centos6 centos7 debian7 debian8 ubuntu1404 ubuntu1604 ubuntu1804; do
+for DIST in centos6 centos7 debian8 ubuntu1404 ubuntu1604 ubuntu1804; do
   case $DIST in
     centos6)    PARCEL_DIST=el6    ;;
     centos7)    PARCEL_DIST=el7    ;;
