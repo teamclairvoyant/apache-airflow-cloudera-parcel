@@ -38,7 +38,7 @@ ENV PARCEL_NAME AIRFLOW-${AIRFLOW_VERSION}-python${PYTHON_VERSION}_${PARCEL_VERS
 COPY Python-${PYTHON_VERSION}.tar.xz /BUILD/
 RUN tar xJf /BUILD/Python-${PYTHON_VERSION}.tar.xz -C /BUILD
 
-COPY docker/${DIST}/compile_python.sh /BUILD
+COPY docker/${DIST}/compile_python.sh /BUILD/
 RUN mkdir -p ${INSTALL_DIR}/${PARCEL_NAME} && \
     cd /BUILD/Python-${PYTHON_VERSION} && \
     . /BUILD/compile_python.sh && \
@@ -50,10 +50,10 @@ COPY get-pip.py /BUILD/get-pip.py
 RUN PYVER=$(echo $PYTHON_VERSION | awk -F. '{print $1"."$2}') && \
     ${INSTALL_DIR}/${PARCEL_NAME}/bin/python${PYVER} /BUILD/get-pip.py
 
-COPY docker/install_airflow.sh /BUILD
+COPY docker/install_airflow.sh /BUILD/
 RUN bash -x /BUILD/install_airflow.sh
 
-COPY crudini docker/install_crudini.sh /BUILD
+COPY crudini docker/install_crudini.sh /BUILD/
 RUN bash -x /BUILD/install_crudini.sh
 
 COPY meta/ ${INSTALL_DIR}/${PARCEL_NAME}/meta/
@@ -64,7 +64,7 @@ RUN PYVER=$(echo $PYTHON_VERSION | awk -F. '{print $1"."$2}') && \
         -e "s|PYVER|${PYVER}|" \
         -i ${INSTALL_DIR}/${PARCEL_NAME}/meta/airflow_env.sh
 
-COPY docker/modify_buildroot.sh /BUILD
+COPY docker/modify_buildroot.sh /BUILD/
 RUN bash -x /BUILD/modify_buildroot.sh
 
 RUN cd ${INSTALL_DIR} && \
