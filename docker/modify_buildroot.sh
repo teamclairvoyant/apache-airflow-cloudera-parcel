@@ -15,7 +15,14 @@ cat <<EOF >"${AIRFLOW_DIR}/bin/airflow.sh"
 export PATH=${AIRFLOW_DIR}/bin:\$PATH
 export PYTHONHOME=${AIRFLOW_DIR}
 export PYTHONPATH=${AIRFLOW_DIR}/lib/python${PYVER}
-export AIRFLOW_HOME=/var/lib/airflow
+
+# AIRFLOW_HOME
+if [ -f /etc/airflow/conf/airflow-env.sh ]; then
+  . /etc/airflow/conf/airflow-env.sh
+else
+  export AIRFLOW_HOME=/var/lib/airflow
+fi
+
 exec ${AIRFLOW_DIR}/bin/airflow \$@
 EOF
 
