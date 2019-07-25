@@ -1,12 +1,12 @@
 {
   "/var/lib/airflow" : {
     "user" : "airflow",
-    "group" : "airflow"
+    "group" : "airflow",
     "permissions" : "0755"
   },
   "/var/log/airflow" : {
     "user" : "airflow",
-    "group" : "airflow"
+    "group" : "airflow",
     "permissions" : "0755"
   }
 }

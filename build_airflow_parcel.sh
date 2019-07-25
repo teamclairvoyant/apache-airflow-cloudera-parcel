@@ -91,6 +91,12 @@ if [ -z "$AIRFLOW_VERSION" ] || [ -z "$PYTHON_VERSION" ] || [ -z "$PARCEL_VERSIO
 
 # main
 set -euo pipefail
+echo "*** Linting JSON files ..."
+for FILE in meta/*json; do
+  echo "** $FILE"
+  jsonlint -q "$FILE"
+done
+
 echo "*** Downloading Python ${PYTHON_VERSION} sourcecode ..."
 if command -v wget; then
   wget -c "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz"
