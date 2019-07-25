@@ -1,7 +1,7 @@
 {
   "airflow": {
     "destination": "/usr/bin/airflow",
-    "source": "bin/airflow.sh",
+    "source": "bin/airflow",
     "priority": 10,
     "isDirectory": false
   }
