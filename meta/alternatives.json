@@ -1,20 +1,20 @@
 {
-  "airflow": {
-    "destination": "/usr/bin/airflow",
-    "source": "bin/airflow.sh",
-    "priority": 10,
-    "isDirectory": false
-  },
-  "airflow-mkuser": {
-    "destination": "/usr/bin/airflow-mkuser",
-    "source": "bin/airflow-mkuser.sh",
-    "priority": 10,
-    "isDirectory": false
-  },
-  "airflow-conf": {
-    "destination": "/etc/airflow/conf",
-    "source": "etc/airflow/conf.dist",
-    "priority": 10,
-    "isDirectory": true
-  }
+   "airflow" : {
+      "destination" : "/usr/bin/airflow",
+      "source" : "bin/airflow.sh",
+      "priority" : 10,
+      "isDirectory" : false
+   },
+   "airflow-mkuser" : {
+      "destination" : "/usr/bin/airflow-mkuser",
+      "source" : "bin/airflow-mkuser.sh",
+      "priority" : 10,
+      "isDirectory" : false
+   },
+   "airflow-conf" : {
+      "destination" : "/etc/airflow/conf",
+      "source" : "etc/airflow/conf.dist",
+      "priority" : 10,
+      "isDirectory" : true
+   }
 }
