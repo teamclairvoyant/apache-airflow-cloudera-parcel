@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # These are picked up from the Docker ENV.
 AIRFLOW_DIR=${INSTALL_DIR}/${PARCEL_NAME}
 
@@ -65,9 +66,10 @@ EOF
 echo "Creating ${AIRFLOW_DIR}/etc/airflow/conf.dist/airflow.cfg ..."
 export AIRFLOW_HOME=/var/lib/airflow
 install -m 0755 -o root -g root -d "${AIRFLOW_HOME}"
-"${AIRFLOW_DIR}/bin/airflow.sh" initdb
+install -m 0755 -o root -g root -d /etc/airflow/conf/
+"${AIRFLOW_DIR}/bin/airflow" initdb
 install -m 0755 -o root -g root -d "${AIRFLOW_DIR}/etc/airflow/conf.dist/"
-install -m 0644 -o root -g root "${AIRFLOW_HOME}/airflow.cfg" "${AIRFLOW_DIR}/etc/airflow/conf.dist/"
+install -m 0644 -o root -g root "/etc/airflow/conf/airflow.cfg" "${AIRFLOW_DIR}/etc/airflow/conf.dist/"
 
 rm -f "${AIRFLOW_DIR}/LICENSE"
 
