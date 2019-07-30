@@ -62,9 +62,9 @@ RUN bash -x /BUILD/install_crudini.sh
 
 COPY meta/ ${INSTALL_DIR}/${PARCEL_NAME}/meta/
 RUN PYVER=$(echo $PYTHON_VERSION | awk -F. '{print $1"."$2}') && \
-    sed -e "/\"version\":/s|VERSION|${AIRFLOW_VERSION}-python${PYTHON_VERSION}_${PARCEL_VERSION}|" \
+    sed -e "/\"version\" :/s|{{ version }}|${AIRFLOW_VERSION}-python${PYTHON_VERSION}_${PARCEL_VERSION}|" \
         -i ${INSTALL_DIR}/${PARCEL_NAME}/meta/parcel.json && \
-    sed -e "/AIRFLOW_DIRNAME/s|VERSION|${AIRFLOW_VERSION}-python${PYTHON_VERSION}_${PARCEL_VERSION}|" \
+    sed -e "/AIRFLOW_DIRNAME/s|{{ version }}|${AIRFLOW_VERSION}-python${PYTHON_VERSION}_${PARCEL_VERSION}|" \
         -e "s|PYVER|${PYVER}|" \
         -i ${INSTALL_DIR}/${PARCEL_NAME}/meta/airflow_env.sh
 

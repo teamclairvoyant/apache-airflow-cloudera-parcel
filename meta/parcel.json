@@ -1,7 +1,7 @@
 {
    "schema_version" : 1,
    "name" : "AIRFLOW",
-   "version" : "VERSION",
+   "version" : "{{ version }}",
    "setActiveSymlink" : true,
 
    "depends" : "",
