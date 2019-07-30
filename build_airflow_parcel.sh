@@ -97,18 +97,30 @@ for FILE in meta/*json; do
   jsonlint -q "$FILE"
 done
 
-echo "*** Downloading Python ${PYTHON_VERSION} sourcecode ..."
+echo "*** Validating parcel files ..."
+java -jar ../../cloudera/cm_ext/validator/target/validator.jar -a meta/alternatives.json
+java -jar ../../cloudera/cm_ext/validator/target/validator.jar -p meta/parcel.json
+java -jar ../../cloudera/cm_ext/validator/target/validator.jar -r meta/permissions.json
+
 if command -v wget; then
-  wget -c "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz"
-  wget -c https://bootstrap.pypa.io/get-pip.py
-  wget -c https://raw.githubusercontent.com/pixelb/crudini/master/crudini
+  GET="wget -c"
 elif command -v curl; then
-  curl -LOR "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz"
-  curl -LOR https://bootstrap.pypa.io/get-pip.py
-  curl -LOR https://raw.githubusercontent.com/pixelb/crudini/master/crudini
+  GET="curl -LOR"
 else
   echo "ERROR: Missing wget or curl."
   exit 10
+fi
+if [ ! -f "Python-${PYTHON_VERSION}.tar.xz" ]; then
+  echo "*** Downloading Python ${PYTHON_VERSION} sourcecode ..."
+  ${GET} "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz"
+fi
+if [ ! -f get-pip.py ]; then
+  echo "*** Downloading get-pip.py ..."
+  ${GET} https://bootstrap.pypa.io/get-pip.py
+fi
+if [ ! -f crudini ]; then
+  echo "*** Downloading crudini ..."
+  ${GET} https://raw.githubusercontent.com/pixelb/crudini/master/crudini
 fi
 if [ ! -d target ]; then mkdir target; fi
 
