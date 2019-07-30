@@ -1,13 +1,6 @@
 #!/bin/bash
 AIRFLOW_DIRNAME=${PARCEL_DIRNAME:-"AIRFLOW-VERSION"}
 
-# AIRFLOW_HOME
-if [ -f /etc/airflow/conf/airflow-env.sh ]; then
-  . /etc/airflow/conf/airflow-env.sh
-else
-  export AIRFLOW_HOME=/var/lib/airflow
-fi
-
 export AIRFLOW_DIR="${PARCELS_ROOT}/${PARCEL_DIRNAME}"
 export PATH="${AIRFLOW_DIR}/bin:${PATH}"
 export PYTHONHOME="${AIRFLOW_DIR}"

@@ -2,6 +2,18 @@
 
 This repository allows you to install [Apache Airflow](https://airflow.apache.org/) as a parcel deployable by [Cloudera Manager](https://www.cloudera.com/products/product-components/cloudera-manager.html).
 
+## Requirements
+- A supported operating system.
+- MySQL or PostgreSQL database in which to store Airflow metadata.
+
+### Currently Supported Versions of Airflow
+- Airflow 1.10
+
+### Currently Supported Operating Systems
+- CentOS/RHEL 6 & 7
+- Debian 8
+- Ubuntu 14.04, 16.04, & 18.04
+
 ## Installing the Parcel
 0. First, install the [Airflow CSD](https://github.com/teamclairvoyant/apache-airflow-cloudera-csd).  Then you can skip steps #1 and #2.
 1. In Cloudera Manager, go to `Hosts -> Parcels -> Configuration`.
@@ -17,4 +29,7 @@ This repository allows you to install [Apache Airflow](https://airflow.apache.or
 ```
 3. Output will be placed in the target/ directory.
 4. Use `./serve_parcel.sh` to serve this directory via HTTP, or move the entire directory contents to your own webserver.
+
+## Resources:
+1. https://github.com/teamclairvoyant/apache-airflow-csd
 

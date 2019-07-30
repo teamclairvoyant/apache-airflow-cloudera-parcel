@@ -10,5 +10,11 @@
     "source": "bin/airflow-mkuser.sh",
     "priority": 10,
     "isDirectory": false
+  },
+  "airflow-conf": {
+    "destination": "/etc/airflow/conf",
+    "source": "etc/airflow/conf.dist",
+    "priority": 10,
+    "isDirectory": true
   }
 }

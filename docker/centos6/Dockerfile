@@ -63,7 +63,7 @@ RUN PYVER=$(echo $PYTHON_VERSION | awk -F. '{print $1"."$2}') && \
         -e "s|PYVER|${PYVER}|" \
         -i ${INSTALL_DIR}/${PARCEL_NAME}/meta/airflow_env.sh
 
-COPY docker/modify_buildroot.sh /BUILD/
+COPY docker/modify_buildroot.sh docker/mkuser.py /BUILD/
 RUN bash -x /BUILD/modify_buildroot.sh
 
 RUN cd ${INSTALL_DIR} && \
