@@ -60,7 +60,7 @@ echo "* AIRFLOW_HOME: \$AIRFLOW_HOME"
 echo "* AIRFLOW_CONFIG: \$AIRFLOW_CONFIG"
 echo "* CONF_DIR: \$CONF_DIR"
 
-exec ${AIRFLOW_DIR}/bin/airflow \$@
+exec ${AIRFLOW_DIR}/bin/.airflow \$@
 EOF
 
 echo "Creating ${AIRFLOW_DIR}/etc/airflow/conf.dist/airflow.cfg ..."
