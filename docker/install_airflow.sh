@@ -11,6 +11,13 @@ PIPOPTS=""
 #export SLUGIFY_USES_TEXT_UNIDECODE=no
 export AIRFLOW_GPL_UNIDECODE=yes
 
+echo "** Installing numpy."
+pip $PIPOPTS install numpy
+echo "** Installing setuptools."
+pip $PIPOPTS install -U setuptools
+echo "** Installing psycopg2-binary"
+pip $PIPOPTS install psycopg2-binary
+
 echo "*** Installing Airflow..."
 pip $PIPOPTS install apache-airflow=="${AIRFLOW_VERSION}"
 

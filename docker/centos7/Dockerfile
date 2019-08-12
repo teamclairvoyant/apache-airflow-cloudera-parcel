@@ -24,7 +24,8 @@ RUN yum -y -e1 -d1 install readline-devel \
                            sqlite-devel \
                            cyrus-sasl-devel.x86_64 \
                            mysql-devel \
-                           postgresql-devel
+                           postgresql-devel \
+                           libpqxx-devel
 
 ARG AIRFLOW_VERSION
 ENV AIRFLOW_VERSION ${AIRFLOW_VERSION:-1.10.0}
