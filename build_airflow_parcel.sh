@@ -91,20 +91,40 @@ if [ -z "$AIRFLOW_VERSION" ] || [ -z "$PYTHON_VERSION" ] || [ -z "$PARCEL_VERSIO
 
 # main
 set -euo pipefail
-echo "*** Downloading Python ${PYTHON_VERSION} sourcecode ..."
+echo "*** Linting JSON files ..."
+for FILE in meta/*json; do
+  echo "** $FILE"
+  jsonlint -q "$FILE"
+done
+
+echo "*** Validating parcel files ..."
+java -jar ../../cloudera/cm_ext/validator/target/validator.jar -a meta/alternatives.json
+java -jar ../../cloudera/cm_ext/validator/target/validator.jar -p meta/parcel.json
+java -jar ../../cloudera/cm_ext/validator/target/validator.jar -r meta/permissions.json
+
 if command -v wget; then
-  wget -c "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz"
-  wget -c https://bootstrap.pypa.io/get-pip.py
+  GET="wget -c"
 elif command -v curl; then
-  curl -LOR "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz"
-  curl -LOR https://bootstrap.pypa.io/get-pip.py
+  GET="curl -LOR"
 else
   echo "ERROR: Missing wget or curl."
   exit 10
 fi
+if [ ! -f "Python-${PYTHON_VERSION}.tar.xz" ]; then
+  echo "*** Downloading Python ${PYTHON_VERSION} sourcecode ..."
+  ${GET} "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz"
+fi
+if [ ! -f get-pip.py ]; then
+  echo "*** Downloading get-pip.py ..."
+  ${GET} https://bootstrap.pypa.io/get-pip.py
+fi
+if [ ! -f crudini ]; then
+  echo "*** Downloading crudini ..."
+  ${GET} https://raw.githubusercontent.com/pixelb/crudini/master/crudini
+fi
 if [ ! -d target ]; then mkdir target; fi
 
-for DIST in centos6 centos7 debian7 debian8 ubuntu1404 ubuntu1604 ubuntu1804; do
+for DIST in centos6 centos7 debian8 ubuntu1404 ubuntu1604 ubuntu1804; do
   case $DIST in
     centos6)    PARCEL_DIST=el6    ;;
     centos7)    PARCEL_DIST=el7    ;;
