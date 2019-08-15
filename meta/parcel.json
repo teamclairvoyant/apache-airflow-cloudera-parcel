@@ -1,33 +1,33 @@
 {
-  "schema_version": 1,
-  "name": "AIRFLOW",
-  "version": "VERSION",
-  "setActiveSymlink": true,
+   "schema_version" : 1,
+   "name" : "AIRFLOW",
+   "version" : "{{ version }}",
+   "setActiveSymlink" : true,
 
-  "depends": "",
-  "replaces": "",
-  "conflicts": "",
+   "depends" : "",
+   "replaces" : "",
+   "conflicts" : "",
 
-  "provides": [
-    "airflow"
-  ],
+   "provides" : [
+      "airflow"
+   ],
 
-  "scripts": {
-    "defines": "cdh_env.sh"
-  },
+   "scripts" : {
+      "defines" : "airflow_env.sh"
+   },
 
-  "packages": [],
+   "packages" : [],
 
-  "components": [],
+   "components" : [],
 
-  "users": {
-    "airflow" : {
-      "longname" : "Airflow",
-      "shell" : "/bin/bash",
-      "home" : "/var/lib/airflow",
-      "extra_groups" : [ "airflow" ]
-    }
-  },
+   "users" : {
+      "airflow" : {
+         "longname" : "Airflow",
+         "shell" : "/bin/bash",
+         "home" : "/var/lib/airflow",
+         "extra_groups" : [ "airflow" ]
+      }
+   },
 
-  "groups": []
+   "groups" : []
 }
