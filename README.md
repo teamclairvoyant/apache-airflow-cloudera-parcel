@@ -7,7 +7,8 @@ This repository allows you to install [Apache Airflow](https://airflow.apache.or
 - MySQL or PostgreSQL database in which to store Airflow metadata.
 
 ### Currently Supported Versions of Airflow
-- Airflow 1.10
+- Airflow 1.9.0
+- Airflow 1.10.3
 
 ### Currently Supported Operating Systems
 - CentOS/RHEL 6 & 7
@@ -18,7 +19,7 @@ This repository allows you to install [Apache Airflow](https://airflow.apache.or
 0. First, install the [Airflow CSD](https://github.com/teamclairvoyant/apache-airflow-cloudera-csd).  Then you can skip steps #1 and #2.
 1. In Cloudera Manager, go to `Hosts -> Parcels -> Configuration`.
 2. Add `http://archive.clairvoyantsoft.com/airflow/parcels/latest/` to the Remote Parcel Repository URLs if it does not yet exist.
-3. In Cloudera Manager, go to `Hosts -> Parcels`.  Airflow parcels and their respective verisons will be availble within the Parcels page.
+3. In Cloudera Manager, go to `Hosts -> Parcels`.  Airflow parcels and their respective versions will be available within the Parcels page.
 4. Download, Distribute, Activate the required parcels to use them.
 
 ## Building the Parcel

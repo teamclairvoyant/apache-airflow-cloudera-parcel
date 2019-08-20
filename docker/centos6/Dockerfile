@@ -7,6 +7,8 @@ ENV INSTALL_DIR /opt/cloudera/parcels
 
 WORKDIR /BUILD
 
+RUN yum -y -e1 -d1 install https://download.postgresql.org/pub/repos/yum/reporpms/EL-6-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+
 RUN yum -y -e1 -d1 groupinstall "development tools" && yum clean all
 RUN yum -y -e1 -d1 install readline-devel \
                            tk-devel \
@@ -23,8 +25,13 @@ RUN yum -y -e1 -d1 install readline-devel \
                            sqlite-devel \
                            cyrus-sasl-devel.x86_64 \
                            mysql-devel \
-                           postgresql-devel \
+                           libpqxx-devel \
+                           gcc \
+                           postgresql94 \
+                           postgresql-devel 
     && yum clean all
+
+ENV PATH=$PATH:/usr/pgsql-9.4/bin
 
 ARG AIRFLOW_VERSION
 ENV AIRFLOW_VERSION ${AIRFLOW_VERSION:-1.10.0}

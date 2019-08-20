@@ -25,6 +25,7 @@ RUN yum -y -e1 -d1 install readline-devel \
                            cyrus-sasl-devel.x86_64 \
                            mysql-devel \
                            postgresql-devel \
+                           libpqxx-devel
     && yum clean all
 
 ARG AIRFLOW_VERSION
