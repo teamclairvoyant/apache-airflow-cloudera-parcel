@@ -32,5 +32,5 @@ This repository allows you to install [Apache Airflow](https://airflow.apache.or
 4. Use `./serve_parcel.sh` to serve this directory via HTTP, or move the entire directory contents to your own webserver.
 
 ## Resources:
-1. https://github.com/teamclairvoyant/apache-airflow-csd
+1. https://github.com/teamclairvoyant/apache-airflow-cloudera-csd
 
